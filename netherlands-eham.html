@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EHAM - ATC Charts</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+    <style>
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-hover: #1c2128;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-dim: #7d8590;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.15);
+            --warning: #d29922;
+        }
+        
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb-separator { opacity: 0.5; }
+        
+        header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.02em;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+        
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        .search-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-wrapper { position: relative; margin-bottom: 0.5rem; }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+        }
+        
+        .search-help {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+        
+        .search-help code {
+            background: var(--bg);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            color: var(--accent);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-dim);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-dim);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        
+        .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+        .filter-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    
+        
+        .file-count {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+        
+        .file-list {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.15s;
+        }
+        
+        .file-item:last-child { border-bottom: none; }
+        
+        .file-item:hover {
+            background: var(--surface-hover);
+            padding-left: 1.5rem;
+        }
+        
+        .file-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        
+        .file-type {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            background: var(--bg);
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+    
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="netherlands.html">Netherlands</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>EHAM</span>
+        </div>
+        
+        <header>
+            <h1>EHAM</h1>
+            <div class="subtitle">Charts and procedures</div>
+        </header>
+        
+        <div class="search-section">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" 
+                       placeholder="Search charts..." autocomplete="off">
+            </div>
+            <div class="search-help">
+                <strong>Examples:</strong> <code>star</code> • <code>RWY 04</code> • <code>ILS</code>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pdf">PDF</button>
+            <button class="filter-btn" data-filter="image">Images</button>
+        </div>
+        
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+        
+        <div class="file-count" id="fileCount">Showing 65 files</div>
+        <div class="file-list" id="fileList"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
+            <p>No files found.</p>
+        </div>
+    </div>
+    
+    <script>
+        const files = [
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_09.pdf",
+                "url": "https://drive.google.com/file/d/1zXGofESZqhwdh6m19N2DtP3RCeLqG05J/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_06_(SUPPLEMENTARY).pdf",
+                "url": "https://drive.google.com/file/d/1OnZpLOxpOeZlLFp2GBUGDZNG89nbV_k3/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_06.pdf",
+                "url": "https://drive.google.com/file/d/1wVl3WJ-0gFFQ0ktoCND6a9smKwIBbxas/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_04.pdf",
+                "url": "https://drive.google.com/file/d/18_7tscA1-DeZWaeYYycBMBrnnmeZwFTy/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36L_(SUPPLEMENTARY).pdf",
+                "url": "https://drive.google.com/file/d/1FLbtsZo_ouXRCtfgre7DxL3szq3SXKMO/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36L.pdf",
+                "url": "https://drive.google.com/file/d/1t9fCPx9CEjV2Qik7AgnNJ40yXeoWKBtM/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36C.pdf",
+                "url": "https://drive.google.com/file/d/1AHNbpSbeWzXuaN0iJM9_ofFBRFhQf18c/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_27.pdf",
+                "url": "https://drive.google.com/file/d/1CzZRfWnGgiva2gYfIQKcO5jKO_nd8DQL/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_24_WEST.pdf",
+                "url": "https://drive.google.com/file/d/1cbgIPR6mf55TcoPO1zXQfZE0nXsceA4N/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART_-_INSTRUMENT.pdf",
+                "url": "https://drive.google.com/file/d/1SU03axYMK0z_PQoS4iU7B09GeXXFjQR2/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_24_EAST.pdf",
+                "url": "https://drive.google.com/file/d/1VbFEYEbHRZnVX6qkbRSa-X7pjn7lTvjT/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_22.pdf",
+                "url": "https://drive.google.com/file/d/1btWo5ovHXLKfMiKdgg-rtgwYb5hz0Eb9/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18L_WEST.pdf",
+                "url": "https://drive.google.com/file/d/17pDgwPUVxlvNxW8F-B5TvbbVPE5aWgD8/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18L_EAST.pdf",
+                "url": "https://drive.google.com/file/d/1rkIsPTumTyhp4h0zMd6cvIYzHP_wmB_O/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18C.pdf",
+                "url": "https://drive.google.com/file/d/1sIKFGkAokO2NRxdaLhcY_6q6k9idu9-q/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_36C.pdf",
+                "url": "https://drive.google.com/file/d/1xhJccx11sSi5tPgy06t5qpDGFCUJ0iLw/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_27.pdf",
+                "url": "https://drive.google.com/file/d/1XF9LYtpJcp1sgB2DCKDt416uSMZNt4ST/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_18R.pdf",
+                "url": "https://drive.google.com/file/d/1fCOzHzTL2XsLBuhZyzEaSQRZoYEU67w5/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_18C.pdf",
+                "url": "https://drive.google.com/file/d/1gtdUNNNaNV_4S_G3cp4My0DjrcOgZpyt/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_06.pdf",
+                "url": "https://drive.google.com/file/d/1N9ZPJDYAHBR7vMugjVPCwKs2y0941Ktc/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_36R.pdf",
+                "url": "https://drive.google.com/file/d/1CaxubaT0BZY8WDQ-1ZTWdYpd-1aiz8BX/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_18L.pdf",
+                "url": "https://drive.google.com/file/d/1t8Lcphs3GCnrocV-VgW-FI_sKIK0R7Th/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_18C-36C.pdf",
+                "url": "https://drive.google.com/file/d/1zPYdQ42qC_vCYSFDZQew6ta0ql7HPxsD/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_09-27.pdf",
+                "url": "https://drive.google.com/file/d/11RUYDY_CkQiGE-cVspW266aSw9ieCqcH/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_06-24.pdf",
+                "url": "https://drive.google.com/file/d/1iJKohFOyzQ_4foyRqUs8zFYT7GPaChA0/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_04-22.pdf",
+                "url": "https://drive.google.com/file/d/16VFszhbUihPC8_5QoNRPrk4r-LWQM8o7/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_36L.pdf",
+                "url": "https://drive.google.com/file/d/1ZwmL_t0aJO2mOQy5lCsN1KCxGmV28d9u/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_B747-8_RESTRICTIONS.pdf",
+                "url": "https://drive.google.com/file/d/19ubYw0dxT7rqLPLw7Kr1hMWcDfVQ9PmY/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_AN124_RESTRICTIONS.pdf",
+                "url": "https://drive.google.com/file/d/1XCYWSLrsoKhIN7czXobCjIsomXFoikLh/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_A380_RESTRICTIONS.pdf",
+                "url": "https://drive.google.com/file/d/1_XvGF2stK1-gRdWEnN057P-3G_3pAzC1/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AERODROME_GROUND_MOVEMENT_CHART.pdf",
+                "url": "https://drive.google.com/file/d/1Gqj-K4UIhVi97eAnU06MMwSeFMW1lKwr/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_CENTRE_U-APRON.pdf",
+                "url": "https://drive.google.com/file/d/1reI8LjqqhtgtqkXvDZESCc42mgGK-EKt/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_EAST_M-APRON.pdf",
+                "url": "https://drive.google.com/file/d/1KCLr0fvTgSD04d3s_DtJZjDJ9YUhlvQV/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_EAST_K-APRON.pdf",
+                "url": "https://drive.google.com/file/d/1itaty85cqs5HC9a1E_XpDvwHQCYAjBwt/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_CENTRE.pdf",
+                "url": "https://drive.google.com/file/d/10iKR7XvZm451QmQCGwGIpgNW-7y7AAqy/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "AERODROME_CHART.pdf",
+                "url": "https://drive.google.com/file/d/12uevTy5tg42-LOZ4C7q2Qkb-d8PHAVvc/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "VFR_TRAFFIC_CIRCUITS.pdf",
+                "url": "https://drive.google.com/file/d/1Y55jkAagfDoHr6wCOc4C65lSkexOONbU/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES.pdf",
+                "url": "https://drive.google.com/file/d/1E-bOBkiRidtns82WW6F35euPjLDwepY8/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_18C.pdf",
+                "url": "https://drive.google.com/file/d/1jgYas9bCSUB5s02_Hon_8tBmbeuSneU9/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_RWY_09.pdf",
+                "url": "https://drive.google.com/file/d/1fCWgDyglLBMLmN_im_nMNorr419mwzCL/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_06.pdf",
+                "url": "https://drive.google.com/file/d/1hZJNIIcE7gXMQxmEv04JWbM6TKUoKm0-/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_06.pdf",
+                "url": "https://drive.google.com/file/d/1oX9NT06PxFzZhsdaXZ_PvgNAZ4pI94GA/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_36R.pdf",
+                "url": "https://drive.google.com/file/d/1DnwJAuHnJUWJIpXel9X-GOAQ7zAfqexO/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_36R.pdf",
+                "url": "https://drive.google.com/file/d/1whdQ17JtDbsSRuQu075KGb_baMqCaP3t/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_36C.pdf",
+                "url": "https://drive.google.com/file/d/1vf4pmb0C1cqexgy5iNzu6DcWgRLrdocw/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_27.pdf",
+                "url": "https://drive.google.com/file/d/1XIL45uwSre5QOEkofJSjafMysw7RWv2B/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_36C.pdf",
+                "url": "https://drive.google.com/file/d/1JjV1yWtPt2cLsPZ_sPY6X_4BAofj_VXu/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_27.pdf",
+                "url": "https://drive.google.com/file/d/1lqi1DDY3oq2QEowrw_1RCnlNKI8A5HPs/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_22.pdf",
+                "url": "https://drive.google.com/file/d/1QIFN8ylXZiJhoMaeoE0aMK9aoEc0vtVP/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_24.pdf",
+                "url": "https://drive.google.com/file/d/1N7PRHNv1iMLsUH8itaRvMv4rb5XHW8dq/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_04.pdf",
+                "url": "https://drive.google.com/file/d/1DA9RBerUvD1dl-5huTQ4k5gA9HdKfq92/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_18R.pdf",
+                "url": "https://drive.google.com/file/d/1x8poiL2R4GvFA7vWVAx72q9Mk4du1GqA/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_CAT_H_ILS_OR_LOC_RWY_22.pdf",
+                "url": "https://drive.google.com/file/d/1lN76EjDILr8ov1_SH4fupjAxF1_IGDbM/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_ILS_OR_LOC_RWY_22.pdf",
+                "url": "https://drive.google.com/file/d/11QA1URA8nKfef8HnYuhkoOfNBPrhIYbE/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_18C.pdf",
+                "url": "https://drive.google.com/file/d/12RWWWH0uWsm1wN4W2zRfnSIom-umbcUU/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART.pdf",
+                "url": "https://drive.google.com/file/d/1KC8Fkb6uKNoQERBhWvQfHHg9Aw0axsXR/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_18R.pdf",
+                "url": "https://drive.google.com/file/d/1uWnDABzJ54ZfpsWSv8BilHu80SdiLBV1/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "NIGHT_TRANSITION_ILS_RWY_18C.pdf",
+                "url": "https://drive.google.com/file/d/1P1DVl-GKRDkblFa-8D5BsTStp6-dCTsD/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "NIGHT_TRANSITION_RNP_RWY_06.pdf",
+                "url": "https://drive.google.com/file/d/1j0_VFHuzINlpdlwIvY5cjYKeCF5zKBFH/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "NIGHT_TRANSITION_RNP_RWY_18C.pdf",
+                "url": "https://drive.google.com/file/d/1vmWp4DB4lllzEX5_sFpMaoDaDEKl1_q4/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "STANDARD_ARRIVAL_CHART-INSTRUMENT.pdf",
+                "url": "https://drive.google.com/file/d/1qFvsrbt54fl-YdzgjyVJGaKcQjKZkmXz/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "NIGHT_TRANSITION_ILS_RWY_06.pdf",
+                "url": "https://drive.google.com/file/d/16dtV4-m4kYRAUvTMX9zb8t0Wf0lP4kAx/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "RNAV_TRANSITION_CHART_VIA_AM669_TO_RWY_36R.pdf",
+                "url": "https://drive.google.com/file/d/1oU_KQIL229hvzSz7FPLBzz3RayRoxGyk/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "NIGHT_TRANSITION_RNP_RWY_18R.pdf",
+                "url": "https://drive.google.com/file/d/1yRXQLC4vmBIXlgY_3JBWnAdtoQhW3lyH/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "NIGHT_TRANSITION_ILS_RWY_18R.pdf",
+                "url": "https://drive.google.com/file/d/1eYWMk6rYO9zSpgBkOaWw5Y7RU-70_s7M/view?usp=drivesdk",
+                "type": "pdf"
+        }
+];
+        const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
+        let currentFilter = 'all';
+        
+        const fuse = new Fuse(files, {
+            keys: ['name'],
+            threshold: 0.4,
+            includeMatches: true
+        });
+        
+        function renderFiles(results = null) {
+            const listEl = document.getElementById('fileList');
+            const emptyState = document.getElementById('emptyState');
+            const fileCount = document.getElementById('fileCount');
+            
+            listEl.innerHTML = '';
+            
+            let filesToShow = results ? results.map(r => ({...r.item, matches: r.matches})) : files;
+            
+            if (currentFilter !== 'all') {
+                filesToShow = filesToShow.filter(f => f.type === currentFilter);
+            }
+            
+            if (filesToShow.length === 0) {
+                listEl.style.display = 'none';
+                emptyState.style.display = 'block';
+                fileCount.textContent = 'No files found';
+                return;
+            }
+            
+            listEl.style.display = 'block';
+            emptyState.style.display = 'none';
+            fileCount.textContent = `Showing ${filesToShow.length} of ${files.length} files`;
+            
+            filesToShow.forEach(file => {
+                const item = document.createElement('a');
+                item.className = 'file-item';
+                item.href = file.url;
+                item.target = '_blank';
+                item.innerHTML = `
+                    <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-type">${file.type}</span>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            renderFiles(query ? fuse.search(query) : null);
+        });
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                
+                const query = document.getElementById('searchInput').value.trim();
+                renderFiles(query ? fuse.search(query) : null);
+            });
+        });
+        
+        renderFiles();
+    </script>
+</body>
+</html>
