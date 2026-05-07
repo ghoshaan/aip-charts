@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYLW Kelowna - ATC Charts</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+    <style>
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-hover: #1c2128;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-dim: #7d8590;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.15);
+            --warning: #d29922;
+        }
+        
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb-separator { opacity: 0.5; }
+        
+        header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.02em;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+        
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        .search-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-wrapper { position: relative; margin-bottom: 0.5rem; }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+        }
+        
+        .search-help {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+        
+        .search-help code {
+            background: var(--bg);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            color: var(--accent);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-dim);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-dim);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        
+        .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+        .filter-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    
+        
+        .file-count {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+        
+        .file-list {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.15s;
+        }
+        
+        .file-item:last-child { border-bottom: none; }
+        
+        .file-item:hover {
+            background: var(--surface-hover);
+            padding-left: 1.5rem;
+        }
+        
+        .file-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        
+        .file-type {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            background: var(--bg);
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+    
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="canada.html">CANADA</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>CYLW Kelowna</span>
+        </div>
+        
+        <header>
+            <h1>CYLW Kelowna</h1>
+            <div class="subtitle">Charts and procedures</div>
+        </header>
+        
+        <div class="search-section">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" 
+                       placeholder="Search charts..." autocomplete="off">
+            </div>
+            <div class="search-help">
+                <strong>Examples:</strong> <code>star</code> • <code>RWY 04</code> • <code>ILS</code>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pdf">PDF</button>
+            <button class="filter-btn" data-filter="image">Images</button>
+        </div>
+        
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+        
+        <div class="file-count" id="fileCount">Showing 41 files</div>
+        <div class="file-list" id="fileList"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
+            <p>No files found.</p>
+        </div>
+    </div>
+    
+    <script>
+        const files = [
+        {
+                "name": ".DS_Store",
+                "url": "https://drive.google.com/file/d/1426memmlrOH9hUZkKni_SHd08-ZfW3Y6/view?usp=drivesdk",
+                "type": "doc"
+        },
+        {
+                "name": "CYLW_RNAV_RNP_Y_RWY_34.pdf",
+                "url": "https://drive.google.com/file/d/1Up1SHCkPA9vTENGQhSagdP7UXn8cqql4/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_ENDBY_3_DEP_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1Zt3Icja5GrDKJMPSfvo-yjeSV1npi030/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_RNAV_RNP_Z_RWY_34.pdf",
+                "url": "https://drive.google.com/file/d/1hcURQKAv5-nelDvAnPiXRMpwJbHjWAZ8/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_NADEV_3_DEP_RNAV_RNP.pdf",
+                "url": "https://drive.google.com/file/d/1_87Cc1ozEAY_6OuikzpWfiIY0V-QmCwn/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_MERYT_6_DEP_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1k_vfednmEt4wsYrKeSHiYD0ZeznIuBna/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_PRINCETON_6_DEP_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1qBViSyoGPOEWAS7ZqO1X2I8DtdWeirXD/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_KATOL_3_DEP_RNAV_RNP_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1e4pxcYHXiBnGQjcXHa48Bz69T-uCyTmx/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_KELOWNA_1_DEP_VECTOR_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1lVF50uipzV-ZanQiqQGwGR3CDk7_etf8/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_MERYT_6_DEP_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/14TXdeqw3NCQDdXP3PTB-5kfaYtrdAmu6/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_KATOL_3_DEP_RNAV_RNP.pdf",
+                "url": "https://drive.google.com/file/d/1iJ33EbkE05Ehk7B91gOR64qUzpuNwKZ2/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_PRINCETON_6_DEP_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1KIIYrWPWzuAcUy9ykokQWnualzSkRBXN/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_KELOWNA_1_DEP_VECTOR.pdf",
+                "url": "https://drive.google.com/file/d/15o7iZ9bJIfsF0URN2713YHESy83ixdcq/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_16_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1rkgSd2aabV9kRsadsVfdJ9iY4DpbvJo5/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_TAKEOFF_MINIMUMS.pdf",
+                "url": "https://drive.google.com/file/d/1OcnseTqy1nkM8Ix2HZ2ktcZy9wKPCWG6/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_ENDBY_3_DEP_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1jJWdgotocuWKycTH9-X6OHu1eeUxVQVn/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_PARKING_AREAS_APRON_I.pdf",
+                "url": "https://drive.google.com/file/d/1wbMN3R13USn4i8YKnc0N5uofilhkzD3w/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_PARKING_AREAS_APRON_III.pdf",
+                "url": "https://drive.google.com/file/d/1k6qGFTSJvWxo735rSiR9qe8haMm1Aqoy/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_AERODROME_CHART.pdf",
+                "url": "https://drive.google.com/file/d/135YJG1Z4qFsj5SFtZmBqXf4UrlmHFjIR/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_NIGHT_CIRCUIT_PROCEDURES.pdf",
+                "url": "https://drive.google.com/file/d/1yjv46TfSgteAwLIb636uw8UHhq2n70zh/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RNAV_GNSS_Z_RWY_16.pdf",
+                "url": "https://drive.google.com/file/d/1LuIIjhaongUKlY14s33_49NLh4y_kn1B/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RNAV_GNSS_Y_RWY_16.pdf",
+                "url": "https://drive.google.com/file/d/15jzOBY-WmZBvXEc_9tpS9v4Y6iRMwIJN/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_RNAV_GNSS_V_RWY_16_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1oAFS9r7uBOflRtWbjOssWrFOt8NYdbp7/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_RNAV_RNP_Z_RWY_34_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1hGl2o9687LcshkY4kOpNUi1kwIKEq1Qw/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RNAV_GNSS_A.pdf",
+                "url": "https://drive.google.com/file/d/1btVgimkKyk1Abx5wnlMplq3Ph9XvIZhN/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_NDB_B.pdf",
+                "url": "https://drive.google.com/file/d/10hsKmO_E73ofVsMimwQ3LMByGyJV7LAJ/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_RNAV_RNP_W_RWY_34.pdf",
+                "url": "https://drive.google.com/file/d/1T_r_bqRnM2VN5usFU7Q-ngYUmh3HuySN/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_16.pdf",
+                "url": "https://drive.google.com/file/d/1Vfoc1zNLfY92pW53kF_-ZNOGGDijjuwd/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_34.pdf",
+                "url": "https://drive.google.com/file/d/1Xd0_ffyIDqgl9JjgMfdcO5M2VjdP6rpW/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_RNAV_RNP_W_RWY_16.pdf",
+                "url": "https://drive.google.com/file/d/17jim79UxKzNVVjlzbfmfUd5taSJUOQmx/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_RNAV_GNSS_V_RWY_16.pdf",
+                "url": "https://drive.google.com/file/d/1tRt_fkqjhJIzqhD0MfIEddpTMdXJWIon/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_ILS_Z_RWY_16_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1lUN7T-60h2Stc88qu5v1LjBnanRiwwlw/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_ILS_Z_RWY_16.pdf",
+                "url": "https://drive.google.com/file/d/1CQdvLV9ePPz9yPaQ1z_DBs3fqr4SJieC/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_LOC_Z_RWY_16.pdf",
+                "url": "https://drive.google.com/file/d/1hxiP6A-VW1Gf7-6dDkFL06S_PfgMWZP4/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_LOC_Y_RWY_16.pdf",
+                "url": "https://drive.google.com/file/d/11MHTObkIq6lRcmkFFksF9MZT2O6vKvMN/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_ILS_Y_RWY_16.pdf",
+                "url": "https://drive.google.com/file/d/1xcHZnLYdP7R-lza4iukZAL9j_MonzpAF/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_SEKAB_5_ARR_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1JRw0WFdTeWIgVNeYkMzEbF8jhkxj60U4/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_RESTRICTED_ILS_Y_RWY_16_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1mzimL35TUsZo48jb-qHYAAlnwbqV74cQ/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_NORIP_5_ARR_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/14X1zV5woZBX8YoCXgLcySBgk9H-jy5Dl/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_PIGLU_5_ARR_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1SCal94MSJrwBAt4B6LNiDOajkaCxGaey/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYLW_NORIP_5_ARR_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1FEOE9_s9lL37zzmqLmYRz9f_G7zDAC3i/view?usp=drivesdk",
+                "type": "pdf"
+        }
+];
+        const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
+        let currentFilter = 'all';
+        
+        const fuse = new Fuse(files, {
+            keys: ['name'],
+            threshold: 0.4,
+            includeMatches: true
+        });
+        
+        function renderFiles(results = null) {
+            const listEl = document.getElementById('fileList');
+            const emptyState = document.getElementById('emptyState');
+            const fileCount = document.getElementById('fileCount');
+            
+            listEl.innerHTML = '';
+            
+            let filesToShow = results ? results.map(r => ({...r.item, matches: r.matches})) : files;
+            
+            if (currentFilter !== 'all') {
+                filesToShow = filesToShow.filter(f => f.type === currentFilter);
+            }
+            
+            if (filesToShow.length === 0) {
+                listEl.style.display = 'none';
+                emptyState.style.display = 'block';
+                fileCount.textContent = 'No files found';
+                return;
+            }
+            
+            listEl.style.display = 'block';
+            emptyState.style.display = 'none';
+            fileCount.textContent = `Showing ${filesToShow.length} of ${files.length} files`;
+            
+            filesToShow.forEach(file => {
+                const item = document.createElement('a');
+                item.className = 'file-item';
+                item.href = file.url;
+                item.target = '_blank';
+                item.innerHTML = `
+                    <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-type">${file.type}</span>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            renderFiles(query ? fuse.search(query) : null);
+        });
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                
+                const query = document.getElementById('searchInput').value.trim();
+                renderFiles(query ? fuse.search(query) : null);
+            });
+        });
+        
+        renderFiles();
+    </script>
+</body>
+</html>

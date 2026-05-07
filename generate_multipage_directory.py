@@ -30,7 +30,7 @@ from googleapiclient.errors import HttpError
 # ============================================================================
 
 CHARTS_FOLDER_ID = '1DjkbZ9YMC5fS-zZvIpDiP9dCkUL120nK'  # UPDATE THIS!
-OUTPUT_DIR = 'atc_directory_site'
+OUTPUT_DIR = 'docs'
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 
 # Region icons (add more as needed)

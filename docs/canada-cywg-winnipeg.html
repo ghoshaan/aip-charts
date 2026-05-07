@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYWG Winnipeg - ATC Charts</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+    <style>
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-hover: #1c2128;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-dim: #7d8590;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.15);
+            --warning: #d29922;
+        }
+        
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb-separator { opacity: 0.5; }
+        
+        header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.02em;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+        
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        .search-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-wrapper { position: relative; margin-bottom: 0.5rem; }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+        }
+        
+        .search-help {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+        
+        .search-help code {
+            background: var(--bg);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            color: var(--accent);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-dim);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-dim);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        
+        .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+        .filter-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    
+        
+        .file-count {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+        
+        .file-list {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.15s;
+        }
+        
+        .file-item:last-child { border-bottom: none; }
+        
+        .file-item:hover {
+            background: var(--surface-hover);
+            padding-left: 1.5rem;
+        }
+        
+        .file-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        
+        .file-type {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            background: var(--bg);
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+    
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="canada.html">CANADA</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>CYWG Winnipeg</span>
+        </div>
+        
+        <header>
+            <h1>CYWG Winnipeg</h1>
+            <div class="subtitle">Charts and procedures</div>
+        </header>
+        
+        <div class="search-section">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" 
+                       placeholder="Search charts..." autocomplete="off">
+            </div>
+            <div class="search-help">
+                <strong>Examples:</strong> <code>star</code> • <code>RWY 04</code> • <code>ILS</code>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pdf">PDF</button>
+            <button class="filter-btn" data-filter="image">Images</button>
+        </div>
+        
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+        
+        <div class="file-count" id="fileCount">Showing 49 files</div>
+        <div class="file-list" id="fileList"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
+            <p>No files found.</p>
+        </div>
+    </div>
+    
+    <script>
+        const files = [
+        {
+                "name": ".DS_Store",
+                "url": "https://drive.google.com/file/d/1n6Im8XTpQnL_7RpdLArn2iXT_IVBAM-L/view?usp=drivesdk",
+                "type": "doc"
+        },
+        {
+                "name": "CYWG_STONY_4_DEP_VECTOR_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1L_j2JXqFodFCR5shXLN1VGUUn4pN7GAJ/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_WALLEYE_3_DEP_VECTOR.pdf",
+                "url": "https://drive.google.com/file/d/1YJ1cefUOX5XKd3U_8DvNGu2ZhJCeAaHB/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_MUSIB_1_DEP_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/13qfnX99Ihoi1O0db6IlmdOA8taOxFEVc/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_WINNIPEG_3_DEP_VECTOR.pdf",
+                "url": "https://drive.google.com/file/d/1-k_9E217eusD7bkWgt9YUQZ2esrLQsCK/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_VOGIG_2_DEP_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1VVwkikkqV0AVS6gxqxbCuHMeFksNk_FY/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_MUSIB_1_DEP_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1HvtDRQFHOjt7TGAzOHZsoyeTlzkbAJFU/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_WALLEYE_3_DEP_VECTOR_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/11yblE5qadxsmdPe0i1vEIyA0wK_EmhUU/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_VOGIG_2_DEP_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1jryGgFkuvHvNISYBxvprdEifbayqj2If/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_WINNIPEG_3_DEP_VECTOR_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1ELky5U8-EmqF2UTxKF0Vczyyde3R0wSL/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_STONY_4_DEP_VECTOR.pdf",
+                "url": "https://drive.google.com/file/d/1RQuCSQIFP8p8UGEiYZc6OGWqAnSMJcCP/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_GRIZZLY_5_DEP_VECTOR_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1MYOadwL6Ok30Iw59mLeei3uIlGl8JzYE/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_DUXUS_1_DEP_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/13sgTy-Kkui5P-i-q8q5Hd2tD6MpTyMpU/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_KARIS_3_DEP_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1YHkXP3z4YanZbFWq5C0OncbAiE0xZi_7/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_KARIS_3_DEP_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1uds0e-Kj22etusHYrojQBeYQvNrX7mEY/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_PARKING_AREAS_APRON_I.pdf",
+                "url": "https://drive.google.com/file/d/13qgVPcj8UQRiuK4Qg1MMqf1Magc13ZV2/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_AERODROME_CHART.pdf",
+                "url": "https://drive.google.com/file/d/1Lmhp_inDMjIPAJIZi1c2JMxXzVbxk-wI/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_CENTRAL_DE-ICING_FACILITY.pdf",
+                "url": "https://drive.google.com/file/d/1C_wl-XuIR5scyDaRakf_War0ofxbzFCz/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_PARKING_AREAS_DND.pdf",
+                "url": "https://drive.google.com/file/d/1Nz1VZX6gvYK0fwf9yN8gOnlDrlPNkCYM/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_PARKING_AREAS_APRON_V.pdf",
+                "url": "https://drive.google.com/file/d/1r20pr6pY7kCG3KNL5AQO-0nJruqDPNMf/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_RNAV_RNP_Y_RWY_31.pdf",
+                "url": "https://drive.google.com/file/d/1iq_zTkwLXBw7Xg_xDBBZaW9maz3H2XQj/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_NOISE_ABATEMENT_PROCEDURES.pdf",
+                "url": "https://drive.google.com/file/d/1y2B5OkiJETKqVux0nS04uBqP4nX4o46S/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_LOW_VISIBILITY_PROCEDURES.pdf",
+                "url": "https://drive.google.com/file/d/1EASeS7CN77aORRlqu7OFzPOmgu7jXBrN/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_GRIZZLY_5_DEP_VECTOR.pdf",
+                "url": "https://drive.google.com/file/d/10qPKKmI1_YUyd-4y5Q8hN5AoN6R_sh5m/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_PARKING_AREAS.pdf",
+                "url": "https://drive.google.com/file/d/1D0TV0Bpf0fd_EPDqz--SRpGSArb_qpJQ/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1AVRad8c_-H1ZR8K9VxskxqXqMnGnKdqI/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_RNAV_RNP_Y_RWY_36.pdf",
+                "url": "https://drive.google.com/file/d/1HMdVgN_clzKjAM0NqbGSsmtF871nHeRB/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_PARKING_AREAS_APRON_VII.pdf",
+                "url": "https://drive.google.com/file/d/14dBglw6xVsb__RVmzcVI-HnrYtoQDD6T/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_DUXUS_1_DEP_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1olv2QTIjrN5yS9JdGsv2U1ILCbd5_tGR/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_KELTO_5_ARR_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1ZFWJrB4fb3sIloTdadEVr2liVfnTYJpe/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_ILS_RWY_36.pdf",
+                "url": "https://drive.google.com/file/d/10Wqpv203BrF_yJWJbdtvgSPx8wC_0rrP/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_RNAV_GNSS_Z_RWY_18.pdf",
+                "url": "https://drive.google.com/file/d/1RFhaAmcgD-OpHAe1j_iAjyehGD2Vpvdw/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_PEPNO_5_ARR_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1XQ9cC6v6BYzo4Xg9wpA434FM1aFF5xfC/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_RNAV_GNSS_Z_RWY_36.pdf",
+                "url": "https://drive.google.com/file/d/1lDRIIda-33Zi-WK5wtKk-BFsiaDssOrH/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_ILS_CAT_II_RWY_36.pdf",
+                "url": "https://drive.google.com/file/d/1SaeaENtRvQptq6K-2KzvdI3mIMjAoBYa/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_RNAV_GNSS_Z_RWY_31.pdf",
+                "url": "https://drive.google.com/file/d/1iAEwjYxuKD7EbHdQt8v7beKkLgzZ_QRp/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_PEPNO_5_ARR_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/18Q-OoWIKWixOYTIKr-E9ZUyQBOsgDkhp/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_NORAK_6_ARR_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1uj7n4PcgiXjpd4v1IdVVx5Ti4M6qzd2X/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_ILS_RWY_31.pdf",
+                "url": "https://drive.google.com/file/d/1jHMtff7JRqO7jJcT2RMFhMALTDxsq1HI/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_RNAV_RNP_Y_RWY_13.pdf",
+                "url": "https://drive.google.com/file/d/1SfXvrL5oxa9haVa28DvtIJfdbFwyLTfb/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_RNAV_RNP_Y_RWY_18.pdf",
+                "url": "https://drive.google.com/file/d/1pZCIwB-zhOMiMhDRZ3Jk_9WHub0hy_Tt/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_NORAK_6_ARR_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/17DAPKgs9bexPVCyK2xPfHpKvBfxwSxKe/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_ILS_RWY_13.pdf",
+                "url": "https://drive.google.com/file/d/1IynhbxMZ7zY5SChoBsGWO_lPEjy8OZb3/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_RNAV_GNSS_Z_RWY_13.pdf",
+                "url": "https://drive.google.com/file/d/1BMzULf3dW12uPJOec-KDZ3rW6S6lZclP/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_AMBIL_5_ARR_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1yU_ghKl4s6ny0I0qQWeVxbWB8o5zPYjb/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_BEFAN_5_ARR_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1iXcFUGIx290s1UvrjmtivI8OZIk_XJ96/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_BEFAN_5_ARR_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1L9p_B9pX-aXSrzSy4uiOb0VtXdEMEFP_/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_AMBIL_5_ARR_RNAV_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/18BPPMHXz9uc9mF2qfS7kcdGDvjG328zN/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYWG_KELTO_5_ARR_RNAV.pdf",
+                "url": "https://drive.google.com/file/d/1OkS72MPMcR4neaHmUVNcfDOnWV2qbiqM/view?usp=drivesdk",
+                "type": "pdf"
+        }
+];
+        const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
+        let currentFilter = 'all';
+        
+        const fuse = new Fuse(files, {
+            keys: ['name'],
+            threshold: 0.4,
+            includeMatches: true
+        });
+        
+        function renderFiles(results = null) {
+            const listEl = document.getElementById('fileList');
+            const emptyState = document.getElementById('emptyState');
+            const fileCount = document.getElementById('fileCount');
+            
+            listEl.innerHTML = '';
+            
+            let filesToShow = results ? results.map(r => ({...r.item, matches: r.matches})) : files;
+            
+            if (currentFilter !== 'all') {
+                filesToShow = filesToShow.filter(f => f.type === currentFilter);
+            }
+            
+            if (filesToShow.length === 0) {
+                listEl.style.display = 'none';
+                emptyState.style.display = 'block';
+                fileCount.textContent = 'No files found';
+                return;
+            }
+            
+            listEl.style.display = 'block';
+            emptyState.style.display = 'none';
+            fileCount.textContent = `Showing ${filesToShow.length} of ${files.length} files`;
+            
+            filesToShow.forEach(file => {
+                const item = document.createElement('a');
+                item.className = 'file-item';
+                item.href = file.url;
+                item.target = '_blank';
+                item.innerHTML = `
+                    <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-type">${file.type}</span>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            renderFiles(query ? fuse.search(query) : null);
+        });
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                
+                const query = document.getElementById('searchInput').value.trim();
+                renderFiles(query ? fuse.search(query) : null);
+            });
+        });
+        
+        renderFiles();
+    </script>
+</body>
+</html>
