@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATC Charts Directory</title>
+    <title>CYFD Brantford - ATC Charts</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
     <style>
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -191,129 +192,181 @@
         .filter-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
     
         
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
+        .file-count {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
         }
         
-        .region-card {
+        .file-list {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 2rem;
+            overflow: hidden;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
             text-decoration: none;
             color: var(--text);
-            transition: all 0.2s;
-            position: relative;
+            transition: all 0.15s;
         }
         
-        .region-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--accent);
-            transform: scaleY(0);
-            transition: transform 0.2s;
+        .file-item:last-child { border-bottom: none; }
+        
+        .file-item:hover {
+            background: var(--surface-hover);
+            padding-left: 1.5rem;
         }
         
-        .region-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.15);
-        }
+        .file-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
         
-        .region-card:hover::before {
-            transform: scaleY(1);
-        }
-        
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-        
-        .card-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .card-count {
-            font-size: 0.875rem;
+        .file-type {
+            font-size: 0.65rem;
             color: var(--text-dim);
+            background: var(--bg);
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
         }
-        
-        .card-count strong {
-            color: var(--accent);
-        }
+    
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="canada.html">CANADA</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>CYFD Brantford</span>
+        </div>
+        
         <header>
-            <h1>ATC Charts Directory</h1>
-            <div class="subtitle">Select a region to browse charts</div>
+            <h1>CYFD Brantford</h1>
+            <div class="subtitle">Charts and procedures</div>
         </header>
         
-        <div class="stats">
-            <div class="stat">
-                <span class="stat-value">4</span>
-                <span class="stat-label">Regions</span>
+        <div class="search-section">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" 
+                       placeholder="Search charts..." autocomplete="off">
             </div>
-            <div class="stat">
-                <span class="stat-value">92</span>
-                <span class="stat-label">Airports</span>
-            </div>
-            <div class="stat">
-                <span class="stat-value">1700</span>
-                <span class="stat-label">Total Files</span>
+            <div class="search-help">
+                <strong>Examples:</strong> <code>star</code> • <code>RWY 04</code> • <code>ILS</code>
             </div>
         </div>
         
-        <div class="card-grid">
-            
-            <a href="canada.html" class="region-card">
-                <span class="card-icon">🇨🇦</span>
-                <div class="card-title">CANADA</div>
-                <div class="card-count">
-                    <strong>45</strong> airports • 
-                    <strong>1152</strong> files
-                </div>
-            </a>
-            
-            <a href="ireland.html" class="region-card">
-                <span class="card-icon">🇮🇪</span>
-                <div class="card-title">Ireland</div>
-                <div class="card-count">
-                    <strong>10</strong> airports • 
-                    <strong>144</strong> files
-                </div>
-            </a>
-            
-            <a href="netherlands.html" class="region-card">
-                <span class="card-icon">🇳🇱</span>
-                <div class="card-title">Netherlands</div>
-                <div class="card-count">
-                    <strong>25</strong> airports • 
-                    <strong>221</strong> files
-                </div>
-            </a>
-            
-            <a href="switzerland.html" class="region-card">
-                <span class="card-icon">🇨🇭</span>
-                <div class="card-title">Switzerland</div>
-                <div class="card-count">
-                    <strong>12</strong> airports • 
-                    <strong>183</strong> files
-                </div>
-            </a>
-            
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pdf">PDF</button>
+            <button class="filter-btn" data-filter="image">Images</button>
+        </div>
+        
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+        
+        <div class="file-count" id="fileCount">Showing 4 files</div>
+        <div class="file-list" id="fileList"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
+            <p>No files found.</p>
         </div>
     </div>
+    
+    <script>
+        const files = [
+        {
+                "name": "CYFD_TAKEOFF_MINIMUMS.pdf",
+                "url": "https://drive.google.com/file/d/1-RnX60iormuX5D-h__Vop1O5ztoOpEFE/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYFD_AERODROME_CHART.pdf",
+                "url": "https://drive.google.com/file/d/17s8sksMMzpQR6s71Y6MjlXfmfkQ9L0y5/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYFD_RNAV_GNSS_RWY_23.pdf",
+                "url": "https://drive.google.com/file/d/1eliY2XyUEYPruZdM4gLITf_kfuu6W7NL/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYFD_RNAV_GNSS_RWY_05.pdf",
+                "url": "https://drive.google.com/file/d/11Oc5zorBulmmoiXKpk4gMK-12GQduV15/view?usp=drivesdk",
+                "type": "pdf"
+        }
+];
+        const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
+        let currentFilter = 'all';
+        
+        const fuse = new Fuse(files, {
+            keys: ['name'],
+            threshold: 0.4,
+            includeMatches: true
+        });
+        
+        function renderFiles(results = null) {
+            const listEl = document.getElementById('fileList');
+            const emptyState = document.getElementById('emptyState');
+            const fileCount = document.getElementById('fileCount');
+            
+            listEl.innerHTML = '';
+            
+            let filesToShow = results ? results.map(r => ({...r.item, matches: r.matches})) : files;
+            
+            if (currentFilter !== 'all') {
+                filesToShow = filesToShow.filter(f => f.type === currentFilter);
+            }
+            
+            if (filesToShow.length === 0) {
+                listEl.style.display = 'none';
+                emptyState.style.display = 'block';
+                fileCount.textContent = 'No files found';
+                return;
+            }
+            
+            listEl.style.display = 'block';
+            emptyState.style.display = 'none';
+            fileCount.textContent = `Showing ${filesToShow.length} of ${files.length} files`;
+            
+            filesToShow.forEach(file => {
+                const item = document.createElement('a');
+                item.className = 'file-item';
+                item.href = file.url;
+                item.target = '_blank';
+                item.innerHTML = `
+                    <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-type">${file.type}</span>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            renderFiles(query ? fuse.search(query) : null);
+        });
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                
+                const query = document.getElementById('searchInput').value.trim();
+                renderFiles(query ? fuse.search(query) : null);
+            });
+        });
+        
+        renderFiles();
+    </script>
 </body>
 </html>
