@@ -204,6 +204,8 @@
             border-radius: 8px;
             transition: all 0.2s;
             position: relative;
+            display: flex;
+            align-items: flex-start;
         }
         
         .airport-card::before {
@@ -232,21 +234,21 @@
             padding: 1.5rem;
             text-decoration: none;
             color: var(--text);
+            flex: 1;
+            min-width: 0;
         }
         
         .airport-card .pin-btn {
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
             background: none;
             border: none;
             cursor: pointer;
             font-size: 0.9rem;
             opacity: 0.25;
             transition: opacity 0.2s;
-            padding: 0.25rem;
+            padding: 0.75rem 0.75rem 0 0;
             line-height: 1;
-            z-index: 1;
+            flex-shrink: 0;
+            align-self: flex-start;
         }
         .airport-card .pin-btn:hover { opacity: 0.8; }
         .airport-card .pin-btn.pinned { opacity: 1; }
