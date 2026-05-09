@@ -202,9 +202,6 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 1.5rem;
-            text-decoration: none;
-            color: var(--text);
             transition: all 0.2s;
             position: relative;
         }
@@ -219,6 +216,7 @@
             background: var(--accent);
             transform: scaleY(0);
             transition: transform 0.2s;
+            border-radius: 8px 0 0 8px;
         }
         
         .airport-card:hover {
@@ -228,6 +226,30 @@
         }
         
         .airport-card:hover::before { transform: scaleY(1); }
+        
+        .airport-link {
+            display: block;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--text);
+        }
+        
+        .airport-card .pin-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            opacity: 0.25;
+            transition: opacity 0.2s;
+            padding: 0.25rem;
+            line-height: 1;
+            z-index: 1;
+        }
+        .airport-card .pin-btn:hover { opacity: 0.8; }
+        .airport-card .pin-btn.pinned { opacity: 1; }
         
         .airport-code {
             font-family: 'Rajdhani', sans-serif;
@@ -247,7 +269,7 @@
             color: var(--text-dim);
         }
         
-        .airport-stats strong { color: var(--accent); }
+        .airport-stats strong { color: var(--accent); }}
     
     </style>
 </head>
@@ -280,6 +302,39 @@
     </div>
     
     <script>
+        const PINS_KEY = 'atc_pins';
+        function getPins() {
+            try { return JSON.parse(localStorage.getItem(PINS_KEY)) || {airports: [], charts: []}; }
+            catch(e) { return {airports: [], charts: []}; }
+        }
+        function savePins(p) { localStorage.setItem(PINS_KEY, JSON.stringify(p)); }
+        function isAirportPinned(slug) { return getPins().airports.some(function(a) { return a.slug === slug; }); }
+        function isChartPinned(url) { return getPins().charts.some(function(c) { return c.url === url; }); }
+        function toggleAirportPin(airport) {
+            var pins = getPins();
+            var idx = pins.airports.findIndex(function(a) { return a.slug === airport.slug; });
+            if (idx >= 0) pins.airports.splice(idx, 1);
+            else pins.airports.push(Object.assign({}, airport, {pinnedAt: Date.now()}));
+            savePins(pins);
+        }
+        function toggleChartPin(chart) {
+            var pins = getPins();
+            var idx = pins.charts.findIndex(function(c) { return c.url === chart.url; });
+            if (idx >= 0) pins.charts.splice(idx, 1);
+            else pins.charts.push(Object.assign({}, chart, {pinnedAt: Date.now()}));
+            savePins(pins);
+        }
+        function getPageContext() {
+            var slug = window.location.pathname.split('/').pop().replace('.html', '');
+            var regionSlug = slug.split('-')[0];
+            var links = document.querySelectorAll('.breadcrumb a');
+            var spans = document.querySelectorAll('.breadcrumb span:not(.breadcrumb-separator)');
+            if (links.length >= 2) {
+                return {type: 'airport', slug: slug, name: spans[0] ? spans[0].textContent : slug, region: links[1].textContent, regionSlug: regionSlug};
+            }
+            return {type: 'region', slug: slug, name: spans[0] ? spans[0].textContent : slug};
+        }
+
         const airports = [
         {
                 "icao": "CEN4 High River Regional",
@@ -573,17 +628,36 @@
             document.getElementById('emptyState').style.display = 'none';
             
             airportsToShow.forEach(airport => {
-                const card = document.createElement('a');
-                card.className = 'airport-card';
-                card.href = airport.slug + '.html';
-                card.innerHTML = `
+                const wrapper = document.createElement('div');
+                wrapper.className = 'airport-card';
+
+                const link = document.createElement('a');
+                link.className = 'airport-link';
+                link.href = airport.slug + '.html';
+                link.innerHTML = `
                     <div class="airport-code">${airport.icao}</div>
                     <div class="airport-name">${airport.name}</div>
                     <div class="airport-stats">
                         <span>📄 <strong>${airport.fileCount}</strong> files</span>
                     </div>
                 `;
-                grid.appendChild(card);
+
+                const pinned = isAirportPinned(airport.slug);
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'pin-btn' + (pinned ? ' pinned' : '');
+                pinBtn.title = pinned ? 'Unpin from homepage' : 'Pin to homepage';
+                pinBtn.textContent = '📌';
+                pinBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    const ctx = getPageContext();
+                    toggleAirportPin({icao: airport.icao, name: airport.name, slug: airport.slug, region: ctx.name, regionSlug: ctx.slug, fileCount: airport.fileCount});
+                    pinBtn.classList.toggle('pinned');
+                    pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
+                };
+
+                wrapper.appendChild(link);
+                wrapper.appendChild(pinBtn);
+                grid.appendChild(wrapper);
             });
         }
         

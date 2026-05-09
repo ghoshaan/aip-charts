@@ -208,20 +208,26 @@
         .file-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
             border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
+            transition: background 0.15s;
         }
         
         .file-item:last-child { border-bottom: none; }
         
-        .file-item:hover {
-            background: var(--surface-hover);
-            padding-left: 1.5rem;
+        .file-item:hover { background: var(--surface-hover); }
+        
+        .file-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            text-decoration: none;
+            color: var(--text);
+            flex: 1;
+            transition: padding-left 0.15s;
         }
+        
+        .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
         .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
@@ -235,6 +241,20 @@
             text-transform: uppercase;
             font-weight: 600;
         }
+        
+        .pin-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            opacity: 0.25;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .pin-btn:hover { opacity: 0.8; }
+        .pin-btn.pinned { opacity: 1; }
     
     </style>
 </head>
@@ -281,6 +301,39 @@
     </div>
     
     <script>
+        const PINS_KEY = 'atc_pins';
+        function getPins() {
+            try { return JSON.parse(localStorage.getItem(PINS_KEY)) || {airports: [], charts: []}; }
+            catch(e) { return {airports: [], charts: []}; }
+        }
+        function savePins(p) { localStorage.setItem(PINS_KEY, JSON.stringify(p)); }
+        function isAirportPinned(slug) { return getPins().airports.some(function(a) { return a.slug === slug; }); }
+        function isChartPinned(url) { return getPins().charts.some(function(c) { return c.url === url; }); }
+        function toggleAirportPin(airport) {
+            var pins = getPins();
+            var idx = pins.airports.findIndex(function(a) { return a.slug === airport.slug; });
+            if (idx >= 0) pins.airports.splice(idx, 1);
+            else pins.airports.push(Object.assign({}, airport, {pinnedAt: Date.now()}));
+            savePins(pins);
+        }
+        function toggleChartPin(chart) {
+            var pins = getPins();
+            var idx = pins.charts.findIndex(function(c) { return c.url === chart.url; });
+            if (idx >= 0) pins.charts.splice(idx, 1);
+            else pins.charts.push(Object.assign({}, chart, {pinnedAt: Date.now()}));
+            savePins(pins);
+        }
+        function getPageContext() {
+            var slug = window.location.pathname.split('/').pop().replace('.html', '');
+            var regionSlug = slug.split('-')[0];
+            var links = document.querySelectorAll('.breadcrumb a');
+            var spans = document.querySelectorAll('.breadcrumb span:not(.breadcrumb-separator)');
+            if (links.length >= 2) {
+                return {type: 'airport', slug: slug, name: spans[0] ? spans[0].textContent : slug, region: links[1].textContent, regionSlug: regionSlug};
+            }
+            return {type: 'region', slug: slug, name: spans[0] ? spans[0].textContent : slug};
+        }
+
         const files = [
         {
                 "name": "CYQG_WINDSOR_5_DEP_VECTOR_PG_02.pdf",
@@ -417,16 +470,34 @@
             fileCount.textContent = `Showing ${filesToShow.length} of ${files.length} files`;
             
             filesToShow.forEach(file => {
-                const item = document.createElement('a');
-                item.className = 'file-item';
-                item.href = file.url;
-                item.target = '_blank';
-                item.innerHTML = `
+                const wrapper = document.createElement('div');
+                wrapper.className = 'file-item';
+
+                const link = document.createElement('a');
+                link.className = 'file-link';
+                link.href = file.url;
+                link.target = '_blank';
+                link.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>
                     <span class="file-type">${file.type}</span>
                 `;
-                listEl.appendChild(item);
+
+                const pinned = isChartPinned(file.url);
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'pin-btn' + (pinned ? ' pinned' : '');
+                pinBtn.title = pinned ? 'Unpin from homepage' : 'Pin to homepage';
+                pinBtn.textContent = '📌';
+                pinBtn.onclick = () => {
+                    const ctx = getPageContext();
+                    toggleChartPin({name: file.name, url: file.url, type: file.type, airport: ctx.name, airportSlug: ctx.slug, region: ctx.region});
+                    pinBtn.classList.toggle('pinned');
+                    pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
+                };
+
+                wrapper.appendChild(link);
+                wrapper.appendChild(pinBtn);
+                listEl.appendChild(wrapper);
             });
         }
         
