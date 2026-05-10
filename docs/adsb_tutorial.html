@@ -89,7 +89,7 @@
   .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text2); }
   .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
   footer { margin-top: 2rem; font-size: 12px; color: var(--text3); text-align: center; }
-  #ray3,#wp3-nexus,#ray4,#cone4,#oldray4,#wp4-sigma,#wp5-golfe{transition:opacity 0.5s;}
+  #ray3,#wp3-nexus,#ray4,#wp4-sigma,#wp5-golfe{transition:opacity 0.5s;}
 </style>
 </head>
 <body>
@@ -101,7 +101,7 @@
     <button class="tab active" onclick="showTab(0)">① Altitude filter — unknown callsign</button>
     <button class="tab" onclick="showTab(1)">② Airport filter — arrivals &amp; departures</button>
     <button class="tab" onclick="showTab(2)">③ Old track — where was it going?</button>
-    <button class="tab" onclick="showTab(3)">④ Direct clearance — bearing cone</button>
+    <button class="tab" onclick="showTab(3)">④ Direct clearance — extend bearing</button>
     <button class="tab" onclick="showTab(4)">⑤ Crossing restriction — alt &amp; speed</button>
   </div>
 
@@ -234,7 +234,7 @@
 
   <!-- PANEL 3 -->
   <div class="panel" id="panel-3">
-    <p class="desc">ATC clears the plane <em>"direct <strong>SIGMA</strong>"</em>. It turns onto a new heading but SIGMA isn't on your overlay. The new bearing and the old track together define a cone — the fix must be inside it.</p>
+    <p class="desc">ATC clears the plane <em>"direct <strong>SIGMA</strong>"</em>. It turns onto a new heading. SIGMA isn't on your overlay, but it must be somewhere ahead on the plane's <em>current</em> bearing — extend that line and scan along it.</p>
     <svg class="radar" viewBox="0 0 620 320">
       <circle class="grid-circle" cx="310" cy="160" r="60"/>
       <circle class="grid-circle" cx="310" cy="160" r="120"/>
@@ -256,21 +256,19 @@
       <circle cx="420" cy="94" r="5" fill="#ffaa00"/>
       <text font-size="11" fill="#ffaa00" font-family="monospace" x="428" y="91">AAL55</text>
       <text font-size="10" fill="#ffcc44" font-family="monospace" x="428" y="102">FL310</text>
-      <polygon id="cone4" points="305,158 291,0 579,0" fill="#ffaa00" opacity="0"/>
-      <line id="oldray4" stroke="#88aaff" stroke-width="1" stroke-dasharray="6 4" x1="305" y1="158" x2="291" y2="0" opacity="0"/>
-      <line id="ray4" stroke="#ffaa00" stroke-width="1.2" stroke-dasharray="8 5" x1="305" y1="158" x2="579" y2="0" opacity="0"/>
+      <line id="ray4" stroke="#ffaa00" stroke-width="1.2" stroke-dasharray="8 5" x1="420" y1="94" x2="583" y2="0" opacity="0"/>
       <g id="wp4-sigma" opacity="0">
-        <polygon class="wp-sym" points="430,57 438,74 424,74"/>
-        <text class="waypoint" x="442" y="72">SIGMA</text>
+        <polygon class="wp-sym" points="533,20 541,37 527,37"/>
+        <text class="waypoint" x="545" y="35">SIGMA</text>
       </g>
       <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — DIRECT CLEARANCE</text>
     </svg>
     <div class="controls">
-      <button class="step-btn" id="btn4" onclick="step4()">Extend new bearing</button>
+      <button class="step-btn" id="btn4" onclick="step4()">Extend current bearing</button>
       <button class="step-btn" onclick="reset4()">Reset</button>
     </div>
-    <div class="info-box" id="info4">ATC cleared the aircraft direct <strong>SIGMA</strong> and it turned. Click <strong>Extend new bearing</strong> to project the current heading forward.</div>
-    <div class="info-box info-tip"><span class="badge badge-green">Tip</span> The wider the turn, the narrower the cone — a 90° turn eliminates three-quarters of the display instantly.</div>
+    <div class="info-box" id="info4">ATC cleared AAL55 direct <strong>SIGMA</strong> and it turned. Click <strong>Extend current bearing</strong> to draw the line forward from the plane's present position.</div>
+    <div class="info-box info-tip"><span class="badge badge-green">Tip</span> The fix is ahead on the current bearing — not at some fixed distance. Scan the entire ray for a waypoint symbol on your overlay.</div>
   </div>
 
   <!-- PANEL 4 -->
@@ -384,30 +382,17 @@ function reset3(){
   document.getElementById('btn3').disabled=false;
 }
 
-// Tab ④ — direct clearance bearing cone
-let state4=0;
+// Tab ④ — direct clearance bearing
 function step4(){
-  state4++;
-  if(state4===1){
-    document.getElementById('ray4').setAttribute('opacity','0.75');
-    document.getElementById('info4').innerHTML='The bearing line extends forward. <strong>SIGMA</strong> is somewhere on this ray. Click <strong>Show search cone</strong> to see how the old track narrows the search.';
-    document.getElementById('btn4').textContent='Show search cone';
-  } else if(state4===2){
-    document.getElementById('cone4').setAttribute('opacity','0.06');
-    document.getElementById('oldray4').setAttribute('opacity','0.55');
-    document.getElementById('wp4-sigma').setAttribute('opacity','1');
-    document.getElementById('info4').innerHTML='<strong>Search cone.</strong> SIGMA can only be in the shaded sector — bounded by the new bearing (amber) and the old track extended (blue). The fix is inside this cone.';
-    document.getElementById('btn4').disabled=true;
-  }
+  document.getElementById('ray4').setAttribute('opacity','0.75');
+  document.getElementById('wp4-sigma').setAttribute('opacity','1');
+  document.getElementById('info4').innerHTML='The dashed line extends the current bearing from AAL55\'s present position. <strong>SIGMA</strong> is on this line — scan it for the waypoint symbol on your overlay.';
+  document.getElementById('btn4').disabled=true;
 }
 function reset4(){
-  state4=0;
   document.getElementById('ray4').setAttribute('opacity','0');
-  document.getElementById('cone4').setAttribute('opacity','0');
-  document.getElementById('oldray4').setAttribute('opacity','0');
   document.getElementById('wp4-sigma').setAttribute('opacity','0');
-  document.getElementById('info4').innerHTML='ATC cleared the aircraft direct <strong>SIGMA</strong> and it turned. Click <strong>Extend new bearing</strong> to project the current heading forward.';
-  document.getElementById('btn4').textContent='Extend new bearing';
+  document.getElementById('info4').innerHTML='ATC cleared AAL55 direct <strong>SIGMA</strong> and it turned. Click <strong>Extend current bearing</strong> to draw the line forward from the plane\'s present position.';
   document.getElementById('btn4').disabled=false;
 }
 
