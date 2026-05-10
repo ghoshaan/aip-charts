@@ -89,7 +89,7 @@
   .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text2); }
   .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
   footer { margin-top: 2rem; font-size: 12px; color: var(--text3); text-align: center; }
-  #ray3,#wp3-nexus,#ray4,#wp4-sigma,#wp5-golfe{transition:opacity 0.5s;}
+  #ray3,#wp3-nexus,#ray4,#cone4,#oldray4,#wp4-sigma,#wp5-golfe{transition:opacity 0.5s;}
 </style>
 </head>
 <body>
@@ -234,7 +234,7 @@
 
   <!-- PANEL 3 -->
   <div class="panel" id="panel-3">
-    <p class="desc">ATC clears the plane <em>"direct <strong>SIGMA</strong>"</em>. It turns onto a new heading. SIGMA isn't on your overlay, but it must be somewhere ahead on the plane's <em>current</em> bearing — extend that line and scan along it.</p>
+    <p class="desc">ATC clears AAL55 <em>"direct <strong>SIGMA</strong>"</em>. The plane turns at that position. SIGMA must be somewhere in the sector that opens ahead from the turn: bounded by the new bearing on one side and the old track continued on the other.</p>
     <svg class="radar" viewBox="0 0 620 320">
       <circle class="grid-circle" cx="310" cy="160" r="60"/>
       <circle class="grid-circle" cx="310" cy="160" r="120"/>
@@ -249,26 +249,29 @@
       <circle cx="312" cy="235" r="3" fill="#00cc66" opacity="0.31"/>
       <circle cx="309" cy="200" r="3" fill="#00cc66" opacity="0.34"/>
       <circle cx="306" cy="165" r="3" fill="#00cc66" opacity="0.37"/>
-      <circle cx="305" cy="158" r="4" fill="#aaffcc" opacity="0.6"/>
+      <circle cx="305" cy="158" r="5" fill="#aaffcc" opacity="0.85"/>
+      <text font-size="9" fill="#aaffcc" font-family="monospace" x="313" y="156">← direct SIGMA</text>
       <circle cx="334" cy="142" r="3" fill="#00cc66" opacity="0.55"/>
       <circle cx="363" cy="126" r="3" fill="#00cc66" opacity="0.6"/>
       <circle cx="391" cy="110" r="3" fill="#00cc66" opacity="0.65"/>
       <circle cx="420" cy="94" r="5" fill="#ffaa00"/>
       <text font-size="11" fill="#ffaa00" font-family="monospace" x="428" y="91">AAL55</text>
       <text font-size="10" fill="#ffcc44" font-family="monospace" x="428" y="102">FL310</text>
-      <line id="ray4" stroke="#ffaa00" stroke-width="1.2" stroke-dasharray="8 5" x1="420" y1="94" x2="583" y2="0" opacity="0"/>
+      <polygon id="cone4" points="305,158 291,0 579,0" fill="#ffaa00" opacity="0"/>
+      <line id="oldray4" stroke="#88aaff" stroke-width="1" stroke-dasharray="6 4" x1="305" y1="158" x2="291" y2="0" opacity="0"/>
+      <line id="ray4" stroke="#ffaa00" stroke-width="1.2" stroke-dasharray="8 5" x1="305" y1="158" x2="579" y2="0" opacity="0"/>
       <g id="wp4-sigma" opacity="0">
-        <polygon class="wp-sym" points="533,20 541,37 527,37"/>
-        <text class="waypoint" x="545" y="35">SIGMA</text>
+        <polygon class="wp-sym" points="430,57 438,74 424,74"/>
+        <text class="waypoint" x="442" y="72">SIGMA</text>
       </g>
       <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — DIRECT CLEARANCE</text>
     </svg>
     <div class="controls">
-      <button class="step-btn" id="btn4" onclick="step4()">Extend current bearing</button>
+      <button class="step-btn" id="btn4" onclick="step4()">Show search cone</button>
       <button class="step-btn" onclick="reset4()">Reset</button>
     </div>
-    <div class="info-box" id="info4">ATC cleared AAL55 direct <strong>SIGMA</strong> and it turned. Click <strong>Extend current bearing</strong> to draw the line forward from the plane's present position.</div>
-    <div class="info-box info-tip"><span class="badge badge-green">Tip</span> The fix is ahead on the current bearing — not at some fixed distance. Scan the entire ray for a waypoint symbol on your overlay.</div>
+    <div class="info-box" id="info4">The turn point marks where the direct clearance was given. Click <strong>Show search cone</strong> to open the sector from that position.</div>
+    <div class="info-box info-tip"><span class="badge badge-green">Tip</span> The amber line is the new bearing; the blue line is the old track continued. SIGMA can only be between them — anything outside the cone is ruled out.</div>
   </div>
 
   <!-- PANEL 4 -->
@@ -382,17 +385,21 @@ function reset3(){
   document.getElementById('btn3').disabled=false;
 }
 
-// Tab ④ — direct clearance bearing
+// Tab ④ — direct clearance cone
 function step4(){
+  document.getElementById('cone4').setAttribute('opacity','0.06');
+  document.getElementById('oldray4').setAttribute('opacity','0.55');
   document.getElementById('ray4').setAttribute('opacity','0.75');
   document.getElementById('wp4-sigma').setAttribute('opacity','1');
-  document.getElementById('info4').innerHTML='The dashed line extends the current bearing from AAL55\'s present position. <strong>SIGMA</strong> is on this line — scan it for the waypoint symbol on your overlay.';
+  document.getElementById('info4').innerHTML='<strong>Search cone.</strong> SIGMA is inside the shaded sector — ahead on the new bearing (amber) and within the arc of where the old route was going (blue). Anything outside is ruled out.';
   document.getElementById('btn4').disabled=true;
 }
 function reset4(){
+  document.getElementById('cone4').setAttribute('opacity','0');
+  document.getElementById('oldray4').setAttribute('opacity','0');
   document.getElementById('ray4').setAttribute('opacity','0');
   document.getElementById('wp4-sigma').setAttribute('opacity','0');
-  document.getElementById('info4').innerHTML='ATC cleared AAL55 direct <strong>SIGMA</strong> and it turned. Click <strong>Extend current bearing</strong> to draw the line forward from the plane\'s present position.';
+  document.getElementById('info4').innerHTML='The turn point marks where the direct clearance was given. Click <strong>Show search cone</strong> to open the sector from that position.';
   document.getElementById('btn4').disabled=false;
 }
 
