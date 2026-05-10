@@ -94,12 +94,11 @@
 <body>
 <div class="container">
   <h1>ADS-B Techniques — Visual Tutorial</h1>
-  <p class="subtitle">Three practical techniques from flight debriefs: using altitude filters to find hard-to-hear callsigns, isolate airport traffic, and locate random waypoints.</p>
+  <p class="subtitle">Two practical techniques from flight debriefs: using altitude filters to find hard-to-hear callsigns and isolate airport traffic.</p>
 
   <div class="tabs">
     <button class="tab active" onclick="showTab(0)">① Altitude filter — unknown callsign</button>
     <button class="tab" onclick="showTab(1)">② Airport filter — arrivals &amp; departures</button>
-    <button class="tab" onclick="showTab(2)">③ Finding a fix by altitude</button>
   </div>
 
   <!-- PANEL 0 -->
@@ -190,45 +189,6 @@
     <div class="info-box info-warn"><span class="badge badge-amber">Mountain tip</span> In high-elevation areas like the US mountain west, raise the upper filter — e.g. Denver KDEN sits at 5,431 ft MSL, so traffic at "5,000 ft AGL" is actually 10,000+ ft MSL. Adjust accordingly.</div>
   </div>
 
-  <!-- PANEL 2 -->
-  <div class="panel" id="panel-2">
-    <p class="desc">ATC says <em>"cleared direct <strong>FUBRR</strong>, cross FUBRR at and maintain <strong>FL210</strong>"</em>. Select the aircraft and watch its altitude. When it levels at FL210, pause — the aircraft hasn't crossed FUBRR yet. Scan ahead along its track; the waypoint will be within ~15 nm.</p>
-    <svg class="radar" viewBox="0 0 620 360">
-      <circle class="grid-circle" cx="310" cy="180" r="60"/>
-      <circle class="grid-circle" cx="310" cy="180" r="120"/>
-      <line class="grid-line" x1="310" y1="10" x2="310" y2="350"/>
-      <line class="grid-line" x1="10" y1="180" x2="610" y2="180"/>
-      <g id="wp-fubrr" opacity="0">
-        <polygon class="wp-sym" points="310,95 318,112 304,112"/>
-        <text class="waypoint" x="322" y="108">FUBRR</text>
-      </g>
-      <polygon class="wp-sym" points="120,130 128,147 114,147"/>
-      <text class="waypoint" x="132" y="144">RIBIX</text>
-      <polygon class="wp-sym" points="480,200 488,217 474,217"/>
-      <text class="waypoint" x="492" y="214">MADEP</text>
-      <polygon class="wp-sym" points="400,300 408,317 394,317"/>
-      <text class="waypoint" x="412" y="314">TULEX</text>
-      <g id="target-ac">
-        <circle cx="310" cy="290" r="5" fill="#ffaa00"/>
-        <text font-size="11" fill="#ffaa00" font-family="monospace" x="319" y="287">SWA42</text>
-        <text id="target-alt-label" font-size="10" fill="#ffcc44" font-family="monospace" x="319" y="298">FL160 ↑</text>
-      </g>
-      <line stroke="#ffaa00" stroke-width="0.8" stroke-dasharray="5 4" x1="310" y1="285" x2="310" y2="95" opacity="0.3"/>
-      <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — L/O LABEL MODES</text>
-      <text fill="#1a3a50" font-size="10" font-family="monospace" x="8" y="350">Press L or O to cycle label modes</text>
-    </svg>
-    <div class="controls">
-      <button class="step-btn" id="playBtn" onclick="togglePlay2()">▶ Simulate climb</button>
-      <button class="step-btn" onclick="resetSim2()">Reset</button>
-      <div class="ctrl-group" style="margin-left:auto">
-        <label>Label mode</label>
-        <button class="step-btn" onclick="cycleLabelMode()" id="labelModeBtn">L — Callsign + alt</button>
-      </div>
-    </div>
-    <div class="info-box" id="info2">Click <strong>Simulate climb</strong> to watch SWA42 climb. When it levels at FL210, the display pauses and <strong>FUBRR</strong> appears ahead on the route — not at the aircraft's position.</div>
-    <div class="info-box info-tip"><span class="badge badge-green">Tip</span> The aircraft doesn't fly over FUBRR exactly — it just has to be at FL210 when it <em>crosses</em> it. Once you see it level off, scan ahead along the dashed route line. The fix will be within ~15 nm.</div>
-  </div>
-
   <footer>ADS-B tutorial · techniques from flight debriefs · Sweden extension + waypoint overlay assumed</footer>
 </div>
 
@@ -282,44 +242,6 @@ function updateFilter1(){
 function applyPreset1(){document.getElementById('hi1').value=5000;updateFilter1();}
 function resetFilter1(){document.getElementById('hi1').value=18000;updateFilter1();}
 
-let simRunning=false,simTimer=null,simAlt=160,labelMode=0;
-const labelModes=['L — Callsign + alt','O — Alt only','L — Callsign only'];
-// Aircraft climbs from FL160 (cy=290) and levels at FL210 (cy=195) —
-// well short of FUBRR at cy=95, which is ~15 nm further ahead on the route.
-const SIM_START_CY=290, SIM_END_CY=195;
-function togglePlay2(){
-  if(simRunning){clearInterval(simTimer);simRunning=false;document.getElementById('playBtn').textContent='▶ Simulate climb';}
-  else{simRunning=true;document.getElementById('playBtn').textContent='⏸ Pause';simTimer=setInterval(stepClimb,120);}
-}
-function stepClimb(){
-  if(simAlt>=210){
-    clearInterval(simTimer);simRunning=false;
-    document.getElementById('playBtn').textContent='▶ Simulate climb';
-    document.getElementById('wp-fubrr').setAttribute('opacity','1');
-    document.getElementById('info2').innerHTML='<strong>FL210 reached — paused.</strong> SWA42 leveled at FL210 — still well short of FUBRR. Scan ahead along the dashed route track: the fix must be within ~15 nm. Use the <strong>O</strong> label mode to see only altitudes for a cleaner view.';
-    return;
-  }
-  simAlt+=2;
-  const pct=(simAlt-160)/(210-160);
-  const cy=SIM_START_CY-pct*(SIM_START_CY-SIM_END_CY);
-  const acG=document.getElementById('target-ac');
-  acG.querySelector('circle').setAttribute('cy',Math.round(cy));
-  acG.querySelector('text:nth-child(2)').setAttribute('y',Math.round(cy)-3);
-  acG.querySelector('text:nth-child(3)').setAttribute('y',Math.round(cy)+8);
-  acG.querySelector('text:nth-child(3)').textContent='FL'+simAlt+' ↑';
-}
-function resetSim2(){
-  clearInterval(simTimer);simRunning=false;simAlt=160;
-  document.getElementById('playBtn').textContent='▶ Simulate climb';
-  document.getElementById('wp-fubrr').setAttribute('opacity','0');
-  const acG=document.getElementById('target-ac');
-  acG.querySelector('circle').setAttribute('cy',SIM_START_CY);
-  acG.querySelector('text:nth-child(2)').setAttribute('y',SIM_START_CY-3);
-  acG.querySelector('text:nth-child(3)').setAttribute('y',SIM_START_CY+8);
-  acG.querySelector('text:nth-child(3)').textContent='FL160 ↑';
-  document.getElementById('info2').innerHTML='Click <strong>Simulate climb</strong> to watch SWA42 climb. When it levels at FL210, the display pauses and <strong>FUBRR</strong> appears ahead on the route — not at the aircraft\'s position.';
-}
-function cycleLabelMode(){labelMode=(labelMode+1)%3;document.getElementById('labelModeBtn').textContent=labelModes[labelMode];}
 function showTab(n){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
   document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
