@@ -179,8 +179,8 @@
     <div class="controls">
       <div class="ctrl-group">
         <label>Upper (ft AGL)</label>
-        <input type="range" min="500" max="18000" step="500" value="18000" id="hi1" oninput="updateFilter1()">
-        <span class="ctrl-val" id="hi1-val">18000</span>
+        <input type="range" min="500" max="40000" step="500" value="40000" id="hi1" oninput="updateFilter1()">
+        <span class="ctrl-val" id="hi1-val">40000</span>
       </div>
       <button class="step-btn" onclick="applyPreset1()">Set 0 – 5,000 ft filter</button>
       <button class="step-btn" onclick="resetFilter1()">Reset</button>
@@ -233,14 +233,14 @@ function updateFilter1(){
     else{el.classList.add('dimmed');hidden++;}
   });
   const info=document.getElementById('info1');
-  if(hi>=18000){
+  if(hi>=40000){
     info.innerHTML='Lower filter stays at <strong>0 ft</strong> always. Drag the upper slider down or click the preset.';
   } else {
     info.innerHTML=`Filter: <strong>0 – ${hi.toLocaleString()} ft AGL</strong>. <strong>${shown}</strong> aircraft shown — only low-altitude traffic near the airfield remains.`;
   }
 }
 function applyPreset1(){document.getElementById('hi1').value=5000;updateFilter1();}
-function resetFilter1(){document.getElementById('hi1').value=18000;updateFilter1();}
+function resetFilter1(){document.getElementById('hi1').value=40000;updateFilter1();}
 
 function showTab(n){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
