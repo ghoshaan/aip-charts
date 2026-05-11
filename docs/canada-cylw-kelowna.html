@@ -325,57 +325,58 @@
             flex: 1;
             position: relative;
             overflow: hidden;
+            background: #05070a;
             display: flex;
+            flex-direction: column;
             align-items: center;
+        }
+
+        #pdfViewerContainer {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
             justify-content: center;
             background: #05070a;
-            cursor: default;
+            scroll-behavior: smooth;
         }
 
-        .viewer-content.pan-mode {
-            cursor: grab;
-        }
-
-        .viewer-content.pan-mode:active {
-            cursor: grabbing;
-        }
-
-        .viewer-frame-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease-out;
-            will-change: transform;
-        }
-
-        #viewerFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-            border-radius: 2px;
+        .pdf-page-container {
+            margin: 20px 0;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            pointer-events: auto;
-            image-rendering: -webkit-optimize-contrast;
-            backface-visibility: hidden;
-            -webkit-font-smoothing: subpixel-antialiased;
+            position: relative;
+            background: white;
+            transition: transform 0.1s ease-out;
+            transform-origin: top center;
         }
 
-        .pan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: none;
-        }
-
-        .viewer-content.pan-mode .pan-overlay {
+        canvas {
             display: block;
+            max-width: 100%;
+        }
+
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 0.2;
+            line-height: 1.0;
+        }
+
+        .textLayer > span {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+
+        ::selection {
+            background: rgba(88, 166, 255, 0.3);
         }
 
         .viewer-tip {
@@ -523,6 +524,10 @@
     </div>
     
     
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+
     <div id="viewerModal" class="viewer-modal">
         <div class="viewer-header">
             <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
@@ -530,12 +535,9 @@
             <div class="viewer-controls">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
                     <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
-                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="3" step="0.1" value="1">
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
+                    <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
                 </div>
-
-                <button class="control-btn" id="panToggle" title="Toggle Pan Mode (Drag to move)">
-                    <span>🖐</span> PAN
-                </button>
 
                 <button class="control-btn" id="rotateBtn" title="Rotate Chart">
                     <span>🔄</span> ROTATE
@@ -557,17 +559,15 @@
         <div class="viewer-content" id="viewerContent">
             <div id="viewerLoader" class="viewer-loader">
                 <div class="spinner"></div>
-                <div style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">FETCHING FROM DRIVE...</div>
+                <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
             </div>
 
-            <div class="viewer-frame-container" id="viewerContainer">
-                <iframe id="viewerFrame" src="" allow="autoplay"></iframe>
+            <div id="pdfViewerContainer">
+                <div id="pdfViewer" class="pdfViewer"></div>
             </div>
-
-            <div class="pan-overlay" id="panOverlay"></div>
 
             <div class="viewer-tip">
-                <span>💡 <b>Ctrl+F</b> not working? Click <b>DRIVE</b> to search text.</span>
+                <span>💡 Use <b>Ctrl+F</b> to search text. Use <b>Mouse Wheel</b> to zoom.</span>
             </div>
         </div>
     </div>
@@ -599,151 +599,169 @@
         }
     
         
-        let currentRotation = 0;
-        let currentZoom = 1;
-        let translateX = 0;
-        let translateY = 0;
-        let isDragging = false;
-        let startX, startY;
-        let isPanMode = false;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        function openViewer(id, name, url) {
+        let currentPdf = null;
+        let currentRotation = 0;
+        let currentZoom = 1.5;
+        let visualScale = 1.0; // Added for smooth CSS scaling
+
+        async function openViewer(id, name, driveUrl, localUrl) {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             const title = document.getElementById('viewerTitle');
             const externalLink = document.getElementById('externalLink');
             const loader = document.getElementById('viewerLoader');
-            const container = document.getElementById('viewerContainer');
+            const loaderStatus = document.getElementById('loaderStatus');
+            const container = document.getElementById('pdfViewer');
 
             // Reset state
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            isPanMode = false;
-            document.getElementById('panToggle').classList.remove('active');
-            document.getElementById('viewerContent').classList.remove('pan-mode');
-
-            updateFrameTransform();
-            document.getElementById('zoomRange').value = 1;
-
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
             title.textContent = name;
-            externalLink.href = url;
-
-            // Initial state
-            loader.style.display = 'flex';
-            container.style.opacity = '0';
-
-            // Handler for when loading finishes
-            const onFinish = () => {
-                loader.style.display = 'none';
-                container.style.opacity = '1';
-            };
-
-            frame.onload = onFinish;
-
-            // Safety timeout: Show the frame anyway after 5s if onload doesn't fire
-            setTimeout(onFinish, 5000);
-
-            // Use /preview with additional parameters for better embedding
-            frame.src = `https://drive.google.com/file/d/${id}/preview?rm=minimal`;
-
+            externalLink.href = driveUrl;
+            container.innerHTML = '';
+            container.style.transform = 'scale(1)'; // Reset visual scale
+            
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            loader.style.display = 'flex';
+            loaderStatus.textContent = 'LOADING LOCAL PDF...';
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(localUrl);
+                currentPdf = await loadingTask.promise;
+                loaderStatus.textContent = `RENDERING ${currentPdf.numPages} PAGE(S)...`;
+                await renderAllPages();
+                loader.style.display = 'none';
+            } catch (err) {
+                console.error('PDF Error:', err);
+                loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
+                setTimeout(() => {
+                    window.open(driveUrl, '_blank');
+                    closeViewer();
+                }, 2000);
+            }
+        }
+
+        async function renderAllPages() {
+            const container = document.getElementById('pdfViewer');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= currentPdf.numPages; i++) {
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'pdf-page-container';
+                pageContainer.id = `page-${i}`;
+                container.appendChild(pageContainer);
+                await renderPage(i, pageContainer);
+            }
+            applyVisualTransform();
+        }
+
+        async function renderPage(pageNum, container) {
+            const page = await currentPdf.getPage(pageNum);
+            // Render at the current "high quality" zoom level
+            const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
+            
+            container.style.width = `${viewport.width}px`;
+            container.style.height = `${viewport.height}px`;
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            container.appendChild(canvas);
+
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.className = 'textLayer';
+            container.appendChild(textLayerDiv);
+
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            
+            const textContent = await page.getTextContent();
+            pdfjsLib.renderTextLayer({
+                textContent: textContent,
+                container: textLayerDiv,
+                viewport: viewport,
+                textDivs: []
+            });
+        }
+
+        function applyVisualTransform() {
+            const container = document.getElementById('pdfViewer');
+            // We use CSS scale for the small adjustments between high-quality renders
+            container.style.transform = `scale(${visualScale})`;
         }
 
         function closeViewer() {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             modal.style.display = 'none';
-            frame.src = '';
             document.body.style.overflow = 'auto';
+            currentPdf = null;
         }
 
-        function updateFrameTransform() {
-            const container = document.getElementById('viewerContainer');
-            const frame = document.getElementById('viewerFrame');
-            const isRotated = currentRotation % 180 !== 0;
-
-            // Apply transformations to the container
-            container.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentZoom})`;
-
-            if (isRotated) {
-                container.style.width = '100vh';
-                container.style.height = '100vw';
-            } else {
-                container.style.width = '100%';
-                container.style.height = '100%';
-            }
+        async function updateZoomQuality() {
+            // This is the heavy render that runs AFTER the user stops zooming
+            await renderAllPages();
+            visualScale = 1.0;
+            applyVisualTransform();
         }
 
-        // Drag & Pan Logic
-        const viewerContent = document.getElementById('viewerContent');
-
-        viewerContent.onmousedown = (e) => {
-            if (!isPanMode) return;
-            isDragging = true;
-            startX = e.clientX - translateX;
-            startY = e.clientY - translateY;
-            e.preventDefault();
+        document.getElementById('zoomRange').oninput = (e) => {
+            const newZoom = parseFloat(e.target.value);
+            // Instant visual feedback
+            visualScale = newZoom / currentZoom;
+            applyVisualTransform();
+            document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
         };
 
-        window.onmousemove = (e) => {
-            if (!isDragging) return;
-            translateX = e.clientX - startX;
-            translateY = e.clientY - startY;
-            updateFrameTransform();
+        document.getElementById('zoomRange').onchange = async (e) => {
+            currentZoom = parseFloat(e.target.value);
+            await updateZoomQuality();
         };
 
-        window.onmouseup = () => {
-            isDragging = false;
+        document.getElementById('rotateBtn').onclick = async () => {
+            currentRotation = (currentRotation + 90) % 360;
+            await renderAllPages();
         };
 
-        // Mouse Wheel Zoom
-        viewerContent.onwheel = (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                currentZoom = Math.min(Math.max(0.5, currentZoom + delta), 4);
-                document.getElementById('zoomRange').value = currentZoom;
-                updateFrameTransform();
-            }
-        };
-
-        document.getElementById('panToggle').onclick = () => {
-            isPanMode = !isPanMode;
-            document.getElementById('panToggle').classList.toggle('active', isPanMode);
-            document.getElementById('viewerContent').classList.toggle('pan-mode', isPanMode);
-        };
-
-        document.getElementById('resetBtn').onclick = () => {
+        document.getElementById('resetBtn').onclick = async () => {
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            document.getElementById('zoomRange').value = 1;
-            updateFrameTransform();
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
+            await renderAllPages();
         };
 
         document.getElementById('closeViewer').onclick = closeViewer;
 
-        document.getElementById('rotateBtn').onclick = () => {
-            currentRotation = (currentRotation + 90) % 360;
-            updateFrameTransform();
+        // Mouse Wheel Zoom
+        document.getElementById('pdfViewerContainer').onwheel = (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
+                
+                visualScale = newZoom / currentZoom;
+                applyVisualTransform();
+                
+                document.getElementById('zoomRange').value = newZoom;
+                document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                // Debounce the high-quality re-render
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
         };
 
-        document.getElementById('zoomRange').oninput = (e) => {
-            currentZoom = parseFloat(e.target.value);
-            updateFrameTransform();
-        };
-
-        // Key Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeViewer();
-            if (e.key === ' ') { // Space to toggle pan mode
-                e.preventDefault();
-                document.getElementById('panToggle').click();
-            }
         });
     
         
@@ -772,246 +790,287 @@
                 "id": "1426memmlrOH9hUZkKni_SHd08-ZfW3Y6",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/1426memmlrOH9hUZkKni_SHd08-ZfW3Y6/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/.DS_Store",
                 "type": "doc"
         },
         {
                 "id": "1Up1SHCkPA9vTENGQhSagdP7UXn8cqql4",
                 "name": "CYLW_RNAV_RNP_Y_RWY_34.pdf",
                 "url": "https://drive.google.com/file/d/1Up1SHCkPA9vTENGQhSagdP7UXn8cqql4/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_rnav_rnp_y_rwy_34.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Zt3Icja5GrDKJMPSfvo-yjeSV1npi030",
                 "name": "CYLW_ENDBY_3_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1Zt3Icja5GrDKJMPSfvo-yjeSV1npi030/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1hcURQKAv5-nelDvAnPiXRMpwJbHjWAZ8",
                 "name": "CYLW_RESTRICTED_RNAV_RNP_Z_RWY_34.pdf",
                 "url": "https://drive.google.com/file/d/1hcURQKAv5-nelDvAnPiXRMpwJbHjWAZ8/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1_87Cc1ozEAY_6OuikzpWfiIY0V-QmCwn",
                 "name": "CYLW_RESTRICTED_NADEV_3_DEP_RNAV_RNP.pdf",
                 "url": "https://drive.google.com/file/d/1_87Cc1ozEAY_6OuikzpWfiIY0V-QmCwn/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_nadev_3_dep_rnav_rnp.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1k_vfednmEt4wsYrKeSHiYD0ZeznIuBna",
                 "name": "CYLW_MERYT_6_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1k_vfednmEt4wsYrKeSHiYD0ZeznIuBna/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1qBViSyoGPOEWAS7ZqO1X2I8DtdWeirXD",
                 "name": "CYLW_PRINCETON_6_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1qBViSyoGPOEWAS7ZqO1X2I8DtdWeirXD/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1e4pxcYHXiBnGQjcXHa48Bz69T-uCyTmx",
                 "name": "CYLW_RESTRICTED_KATOL_3_DEP_RNAV_RNP_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1e4pxcYHXiBnGQjcXHa48Bz69T-uCyTmx/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1lVF50uipzV-ZanQiqQGwGR3CDk7_etf8",
                 "name": "CYLW_KELOWNA_1_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1lVF50uipzV-ZanQiqQGwGR3CDk7_etf8/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "14TXdeqw3NCQDdXP3PTB-5kfaYtrdAmu6",
                 "name": "CYLW_MERYT_6_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/14TXdeqw3NCQDdXP3PTB-5kfaYtrdAmu6/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1iJ33EbkE05Ehk7B91gOR64qUzpuNwKZ2",
                 "name": "CYLW_RESTRICTED_KATOL_3_DEP_RNAV_RNP.pdf",
                 "url": "https://drive.google.com/file/d/1iJ33EbkE05Ehk7B91gOR64qUzpuNwKZ2/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1KIIYrWPWzuAcUy9ykokQWnualzSkRBXN",
                 "name": "CYLW_PRINCETON_6_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1KIIYrWPWzuAcUy9ykokQWnualzSkRBXN/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "15o7iZ9bJIfsF0URN2713YHESy83ixdcq",
                 "name": "CYLW_KELOWNA_1_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/15o7iZ9bJIfsF0URN2713YHESy83ixdcq/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1rkgSd2aabV9kRsadsVfdJ9iY4DpbvJo5",
                 "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_16_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1rkgSd2aabV9kRsadsVfdJ9iY4DpbvJo5/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1OcnseTqy1nkM8Ix2HZ2ktcZy9wKPCWG6",
                 "name": "CYLW_TAKEOFF_MINIMUMS.pdf",
                 "url": "https://drive.google.com/file/d/1OcnseTqy1nkM8Ix2HZ2ktcZy9wKPCWG6/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_takeoff_minimums.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1jJWdgotocuWKycTH9-X6OHu1eeUxVQVn",
                 "name": "CYLW_ENDBY_3_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1jJWdgotocuWKycTH9-X6OHu1eeUxVQVn/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1wbMN3R13USn4i8YKnc0N5uofilhkzD3w",
                 "name": "CYLW_PARKING_AREAS_APRON_I.pdf",
                 "url": "https://drive.google.com/file/d/1wbMN3R13USn4i8YKnc0N5uofilhkzD3w/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_parking_areas_apron_i.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1k6qGFTSJvWxo735rSiR9qe8haMm1Aqoy",
                 "name": "CYLW_PARKING_AREAS_APRON_III.pdf",
                 "url": "https://drive.google.com/file/d/1k6qGFTSJvWxo735rSiR9qe8haMm1Aqoy/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_parking_areas_apron_iii.pdf",
                 "type": "pdf"
         },
         {
                 "id": "135YJG1Z4qFsj5SFtZmBqXf4UrlmHFjIR",
                 "name": "CYLW_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/135YJG1Z4qFsj5SFtZmBqXf4UrlmHFjIR/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1yjv46TfSgteAwLIb636uw8UHhq2n70zh",
                 "name": "CYLW_NIGHT_CIRCUIT_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1yjv46TfSgteAwLIb636uw8UHhq2n70zh/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_night_circuit_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1LuIIjhaongUKlY14s33_49NLh4y_kn1B",
                 "name": "CYLW_RNAV_GNSS_Z_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/1LuIIjhaongUKlY14s33_49NLh4y_kn1B/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_rnav_gnss_z_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "15jzOBY-WmZBvXEc_9tpS9v4Y6iRMwIJN",
                 "name": "CYLW_RNAV_GNSS_Y_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/15jzOBY-WmZBvXEc_9tpS9v4Y6iRMwIJN/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_rnav_gnss_y_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1oAFS9r7uBOflRtWbjOssWrFOt8NYdbp7",
                 "name": "CYLW_RESTRICTED_RNAV_GNSS_V_RWY_16_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1oAFS9r7uBOflRtWbjOssWrFOt8NYdbp7/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1hGl2o9687LcshkY4kOpNUi1kwIKEq1Qw",
                 "name": "CYLW_RESTRICTED_RNAV_RNP_Z_RWY_34_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1hGl2o9687LcshkY4kOpNUi1kwIKEq1Qw/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1btVgimkKyk1Abx5wnlMplq3Ph9XvIZhN",
                 "name": "CYLW_RNAV_GNSS_A.pdf",
                 "url": "https://drive.google.com/file/d/1btVgimkKyk1Abx5wnlMplq3Ph9XvIZhN/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_rnav_gnss_a.pdf",
                 "type": "pdf"
         },
         {
                 "id": "10hsKmO_E73ofVsMimwQ3LMByGyJV7LAJ",
                 "name": "CYLW_NDB_B.pdf",
                 "url": "https://drive.google.com/file/d/10hsKmO_E73ofVsMimwQ3LMByGyJV7LAJ/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_ndb_b.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1T_r_bqRnM2VN5usFU7Q-ngYUmh3HuySN",
                 "name": "CYLW_RESTRICTED_RNAV_RNP_W_RWY_34.pdf",
                 "url": "https://drive.google.com/file/d/1T_r_bqRnM2VN5usFU7Q-ngYUmh3HuySN/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_w_rwy_34.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Vfoc1zNLfY92pW53kF_-ZNOGGDijjuwd",
                 "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/1Vfoc1zNLfY92pW53kF_-ZNOGGDijjuwd/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Xd0_ffyIDqgl9JjgMfdcO5M2VjdP6rpW",
                 "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_34.pdf",
                 "url": "https://drive.google.com/file/d/1Xd0_ffyIDqgl9JjgMfdcO5M2VjdP6rpW/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_34.pdf",
                 "type": "pdf"
         },
         {
                 "id": "17jim79UxKzNVVjlzbfmfUd5taSJUOQmx",
                 "name": "CYLW_RESTRICTED_RNAV_RNP_W_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/17jim79UxKzNVVjlzbfmfUd5taSJUOQmx/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_w_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1tRt_fkqjhJIzqhD0MfIEddpTMdXJWIon",
                 "name": "CYLW_RESTRICTED_RNAV_GNSS_V_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/1tRt_fkqjhJIzqhD0MfIEddpTMdXJWIon/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1lUN7T-60h2Stc88qu5v1LjBnanRiwwlw",
                 "name": "CYLW_RESTRICTED_ILS_Z_RWY_16_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1lUN7T-60h2Stc88qu5v1LjBnanRiwwlw/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1CQdvLV9ePPz9yPaQ1z_DBs3fqr4SJieC",
                 "name": "CYLW_RESTRICTED_ILS_Z_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/1CQdvLV9ePPz9yPaQ1z_DBs3fqr4SJieC/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1hxiP6A-VW1Gf7-6dDkFL06S_PfgMWZP4",
                 "name": "CYLW_LOC_Z_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/1hxiP6A-VW1Gf7-6dDkFL06S_PfgMWZP4/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_loc_z_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "11MHTObkIq6lRcmkFFksF9MZT2O6vKvMN",
                 "name": "CYLW_LOC_Y_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/11MHTObkIq6lRcmkFFksF9MZT2O6vKvMN/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_loc_y_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1xcHZnLYdP7R-lza4iukZAL9j_MonzpAF",
                 "name": "CYLW_RESTRICTED_ILS_Y_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/1xcHZnLYdP7R-lza4iukZAL9j_MonzpAF/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1JRw0WFdTeWIgVNeYkMzEbF8jhkxj60U4",
                 "name": "CYLW_SEKAB_5_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1JRw0WFdTeWIgVNeYkMzEbF8jhkxj60U4/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_sekab_5_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1mzimL35TUsZo48jb-qHYAAlnwbqV74cQ",
                 "name": "CYLW_RESTRICTED_ILS_Y_RWY_16_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1mzimL35TUsZo48jb-qHYAAlnwbqV74cQ/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "14X1zV5woZBX8YoCXgLcySBgk9H-jy5Dl",
                 "name": "CYLW_NORIP_5_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/14X1zV5woZBX8YoCXgLcySBgk9H-jy5Dl/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1SCal94MSJrwBAt4B6LNiDOajkaCxGaey",
                 "name": "CYLW_PIGLU_5_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1SCal94MSJrwBAt4B6LNiDOajkaCxGaey/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_piglu_5_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1FEOE9_s9lL37zzmqLmYRz9f_G7zDAC3i",
                 "name": "CYLW_NORIP_5_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1FEOE9_s9lL37zzmqLmYRz9f_G7zDAC3i/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav.pdf",
                 "type": "pdf"
         }
 ];
@@ -1059,7 +1118,7 @@
                 item.href = '#';
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url);
+                    openViewer(file.id, file.name, file.url, file.localUrl);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
@@ -1082,6 +1141,7 @@
                         id: file.id,
                         name: file.name,
                         url: file.url,
+                        localUrl: file.localUrl,
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region

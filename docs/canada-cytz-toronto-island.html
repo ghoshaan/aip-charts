@@ -325,57 +325,58 @@
             flex: 1;
             position: relative;
             overflow: hidden;
+            background: #05070a;
             display: flex;
+            flex-direction: column;
             align-items: center;
+        }
+
+        #pdfViewerContainer {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
             justify-content: center;
             background: #05070a;
-            cursor: default;
+            scroll-behavior: smooth;
         }
 
-        .viewer-content.pan-mode {
-            cursor: grab;
-        }
-
-        .viewer-content.pan-mode:active {
-            cursor: grabbing;
-        }
-
-        .viewer-frame-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease-out;
-            will-change: transform;
-        }
-
-        #viewerFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-            border-radius: 2px;
+        .pdf-page-container {
+            margin: 20px 0;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            pointer-events: auto;
-            image-rendering: -webkit-optimize-contrast;
-            backface-visibility: hidden;
-            -webkit-font-smoothing: subpixel-antialiased;
+            position: relative;
+            background: white;
+            transition: transform 0.1s ease-out;
+            transform-origin: top center;
         }
 
-        .pan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: none;
-        }
-
-        .viewer-content.pan-mode .pan-overlay {
+        canvas {
             display: block;
+            max-width: 100%;
+        }
+
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 0.2;
+            line-height: 1.0;
+        }
+
+        .textLayer > span {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+
+        ::selection {
+            background: rgba(88, 166, 255, 0.3);
         }
 
         .viewer-tip {
@@ -523,6 +524,10 @@
     </div>
     
     
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+
     <div id="viewerModal" class="viewer-modal">
         <div class="viewer-header">
             <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
@@ -530,12 +535,9 @@
             <div class="viewer-controls">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
                     <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
-                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="3" step="0.1" value="1">
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
+                    <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
                 </div>
-
-                <button class="control-btn" id="panToggle" title="Toggle Pan Mode (Drag to move)">
-                    <span>🖐</span> PAN
-                </button>
 
                 <button class="control-btn" id="rotateBtn" title="Rotate Chart">
                     <span>🔄</span> ROTATE
@@ -557,17 +559,15 @@
         <div class="viewer-content" id="viewerContent">
             <div id="viewerLoader" class="viewer-loader">
                 <div class="spinner"></div>
-                <div style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">FETCHING FROM DRIVE...</div>
+                <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
             </div>
 
-            <div class="viewer-frame-container" id="viewerContainer">
-                <iframe id="viewerFrame" src="" allow="autoplay"></iframe>
+            <div id="pdfViewerContainer">
+                <div id="pdfViewer" class="pdfViewer"></div>
             </div>
-
-            <div class="pan-overlay" id="panOverlay"></div>
 
             <div class="viewer-tip">
-                <span>💡 <b>Ctrl+F</b> not working? Click <b>DRIVE</b> to search text.</span>
+                <span>💡 Use <b>Ctrl+F</b> to search text. Use <b>Mouse Wheel</b> to zoom.</span>
             </div>
         </div>
     </div>
@@ -599,151 +599,169 @@
         }
     
         
-        let currentRotation = 0;
-        let currentZoom = 1;
-        let translateX = 0;
-        let translateY = 0;
-        let isDragging = false;
-        let startX, startY;
-        let isPanMode = false;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        function openViewer(id, name, url) {
+        let currentPdf = null;
+        let currentRotation = 0;
+        let currentZoom = 1.5;
+        let visualScale = 1.0; // Added for smooth CSS scaling
+
+        async function openViewer(id, name, driveUrl, localUrl) {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             const title = document.getElementById('viewerTitle');
             const externalLink = document.getElementById('externalLink');
             const loader = document.getElementById('viewerLoader');
-            const container = document.getElementById('viewerContainer');
+            const loaderStatus = document.getElementById('loaderStatus');
+            const container = document.getElementById('pdfViewer');
 
             // Reset state
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            isPanMode = false;
-            document.getElementById('panToggle').classList.remove('active');
-            document.getElementById('viewerContent').classList.remove('pan-mode');
-
-            updateFrameTransform();
-            document.getElementById('zoomRange').value = 1;
-
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
             title.textContent = name;
-            externalLink.href = url;
-
-            // Initial state
-            loader.style.display = 'flex';
-            container.style.opacity = '0';
-
-            // Handler for when loading finishes
-            const onFinish = () => {
-                loader.style.display = 'none';
-                container.style.opacity = '1';
-            };
-
-            frame.onload = onFinish;
-
-            // Safety timeout: Show the frame anyway after 5s if onload doesn't fire
-            setTimeout(onFinish, 5000);
-
-            // Use /preview with additional parameters for better embedding
-            frame.src = `https://drive.google.com/file/d/${id}/preview?rm=minimal`;
-
+            externalLink.href = driveUrl;
+            container.innerHTML = '';
+            container.style.transform = 'scale(1)'; // Reset visual scale
+            
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            loader.style.display = 'flex';
+            loaderStatus.textContent = 'LOADING LOCAL PDF...';
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(localUrl);
+                currentPdf = await loadingTask.promise;
+                loaderStatus.textContent = `RENDERING ${currentPdf.numPages} PAGE(S)...`;
+                await renderAllPages();
+                loader.style.display = 'none';
+            } catch (err) {
+                console.error('PDF Error:', err);
+                loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
+                setTimeout(() => {
+                    window.open(driveUrl, '_blank');
+                    closeViewer();
+                }, 2000);
+            }
+        }
+
+        async function renderAllPages() {
+            const container = document.getElementById('pdfViewer');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= currentPdf.numPages; i++) {
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'pdf-page-container';
+                pageContainer.id = `page-${i}`;
+                container.appendChild(pageContainer);
+                await renderPage(i, pageContainer);
+            }
+            applyVisualTransform();
+        }
+
+        async function renderPage(pageNum, container) {
+            const page = await currentPdf.getPage(pageNum);
+            // Render at the current "high quality" zoom level
+            const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
+            
+            container.style.width = `${viewport.width}px`;
+            container.style.height = `${viewport.height}px`;
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            container.appendChild(canvas);
+
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.className = 'textLayer';
+            container.appendChild(textLayerDiv);
+
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            
+            const textContent = await page.getTextContent();
+            pdfjsLib.renderTextLayer({
+                textContent: textContent,
+                container: textLayerDiv,
+                viewport: viewport,
+                textDivs: []
+            });
+        }
+
+        function applyVisualTransform() {
+            const container = document.getElementById('pdfViewer');
+            // We use CSS scale for the small adjustments between high-quality renders
+            container.style.transform = `scale(${visualScale})`;
         }
 
         function closeViewer() {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             modal.style.display = 'none';
-            frame.src = '';
             document.body.style.overflow = 'auto';
+            currentPdf = null;
         }
 
-        function updateFrameTransform() {
-            const container = document.getElementById('viewerContainer');
-            const frame = document.getElementById('viewerFrame');
-            const isRotated = currentRotation % 180 !== 0;
-
-            // Apply transformations to the container
-            container.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentZoom})`;
-
-            if (isRotated) {
-                container.style.width = '100vh';
-                container.style.height = '100vw';
-            } else {
-                container.style.width = '100%';
-                container.style.height = '100%';
-            }
+        async function updateZoomQuality() {
+            // This is the heavy render that runs AFTER the user stops zooming
+            await renderAllPages();
+            visualScale = 1.0;
+            applyVisualTransform();
         }
 
-        // Drag & Pan Logic
-        const viewerContent = document.getElementById('viewerContent');
-
-        viewerContent.onmousedown = (e) => {
-            if (!isPanMode) return;
-            isDragging = true;
-            startX = e.clientX - translateX;
-            startY = e.clientY - translateY;
-            e.preventDefault();
+        document.getElementById('zoomRange').oninput = (e) => {
+            const newZoom = parseFloat(e.target.value);
+            // Instant visual feedback
+            visualScale = newZoom / currentZoom;
+            applyVisualTransform();
+            document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
         };
 
-        window.onmousemove = (e) => {
-            if (!isDragging) return;
-            translateX = e.clientX - startX;
-            translateY = e.clientY - startY;
-            updateFrameTransform();
+        document.getElementById('zoomRange').onchange = async (e) => {
+            currentZoom = parseFloat(e.target.value);
+            await updateZoomQuality();
         };
 
-        window.onmouseup = () => {
-            isDragging = false;
+        document.getElementById('rotateBtn').onclick = async () => {
+            currentRotation = (currentRotation + 90) % 360;
+            await renderAllPages();
         };
 
-        // Mouse Wheel Zoom
-        viewerContent.onwheel = (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                currentZoom = Math.min(Math.max(0.5, currentZoom + delta), 4);
-                document.getElementById('zoomRange').value = currentZoom;
-                updateFrameTransform();
-            }
-        };
-
-        document.getElementById('panToggle').onclick = () => {
-            isPanMode = !isPanMode;
-            document.getElementById('panToggle').classList.toggle('active', isPanMode);
-            document.getElementById('viewerContent').classList.toggle('pan-mode', isPanMode);
-        };
-
-        document.getElementById('resetBtn').onclick = () => {
+        document.getElementById('resetBtn').onclick = async () => {
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            document.getElementById('zoomRange').value = 1;
-            updateFrameTransform();
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
+            await renderAllPages();
         };
 
         document.getElementById('closeViewer').onclick = closeViewer;
 
-        document.getElementById('rotateBtn').onclick = () => {
-            currentRotation = (currentRotation + 90) % 360;
-            updateFrameTransform();
+        // Mouse Wheel Zoom
+        document.getElementById('pdfViewerContainer').onwheel = (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
+                
+                visualScale = newZoom / currentZoom;
+                applyVisualTransform();
+                
+                document.getElementById('zoomRange').value = newZoom;
+                document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                // Debounce the high-quality re-render
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
         };
 
-        document.getElementById('zoomRange').oninput = (e) => {
-            currentZoom = parseFloat(e.target.value);
-            updateFrameTransform();
-        };
-
-        // Key Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeViewer();
-            if (e.key === ' ') { // Space to toggle pan mode
-                e.preventDefault();
-                document.getElementById('panToggle').click();
-            }
         });
     
         
@@ -772,210 +790,245 @@
                 "id": "1GC3P8a-NZ6hZbTTPOmGDIC4-e7_CeY_M",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/1GC3P8a-NZ6hZbTTPOmGDIC4-e7_CeY_M/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/.DS_Store",
                 "type": "doc"
         },
         {
                 "id": "1Eth0G_gN-iZVhMiUqlLMBqzgi3uyTnll",
                 "name": "CYTZ_OAKVL_3_DEP_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1Eth0G_gN-iZVhMiUqlLMBqzgi3uyTnll/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1U9SONGaARPd7HjF8ubpuE7kATA2O46-I",
                 "name": "CYTZ_ISLND_1_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1U9SONGaARPd7HjF8ubpuE7kATA2O46-I/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_islnd_1_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1_9NNEXSpg8w3Q86rgFjGebZXtwOtIrQ6",
                 "name": "CYTZ_OAKVL_3_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1_9NNEXSpg8w3Q86rgFjGebZXtwOtIrQ6/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1zfOVvu-vYlkKZ9B4ichbFQnXzjkUOeE5",
                 "name": "CYTZ_PERLO_4_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1zfOVvu-vYlkKZ9B4ichbFQnXzjkUOeE5/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "18JReNxjeM_eaT_TpodNZ-b4ZPECJZ69c",
                 "name": "CYTZ_TEVAD_2_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/18JReNxjeM_eaT_TpodNZ-b4ZPECJZ69c/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_tevad_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "100UjaAOuecLuwGhXPNUWVzfvcgIZs6A3",
                 "name": "CYTZ_PERLO_4_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/100UjaAOuecLuwGhXPNUWVzfvcgIZs6A3/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Urzc-8ZbY6dVA7R41hb-0VB40Ir_uv3i",
                 "name": "CYTZ_PERLO_4_DEP_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1Urzc-8ZbY6dVA7R41hb-0VB40Ir_uv3i/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Ud1-Wys_qf1eU8XZpO95RBcGlGGCm2Gh",
                 "name": "CYTZ_MAVAN_2_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1Ud1-Wys_qf1eU8XZpO95RBcGlGGCm2Gh/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_mavan_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1jNT3KUhZcobtBoOvBY2ejLZCiWsF7rOI",
                 "name": "CYTZ_OAKVL_3_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1jNT3KUhZcobtBoOvBY2ejLZCiWsF7rOI/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1tB6bStmiOX5Ut639lylItNmWOFl84WC2",
                 "name": "CYTZ_TEVAD_2_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1tB6bStmiOX5Ut639lylItNmWOFl84WC2/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_tevad_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1XklTb7N9gH-69fpdzYAbr_93FRWx-0mo",
                 "name": "CYTZ_BOMET_7_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1XklTb7N9gH-69fpdzYAbr_93FRWx-0mo/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1uUMwj3QJYSks-RhClzKoZwUuVz7s6cMq",
                 "name": "CYTZ_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1uUMwj3QJYSks-RhClzKoZwUuVz7s6cMq/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1OevAh8LPr3rXYAengCS1TVyqqbY5I6wb",
                 "name": "CYTZ_DUSOM_2_DEP_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1OevAh8LPr3rXYAengCS1TVyqqbY5I6wb/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1FzWeod_-SyB-PhVVS4e_ndFzG-m_Djed",
                 "name": "CYTZ_DUSOM_2_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1FzWeod_-SyB-PhVVS4e_ndFzG-m_Djed/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1jFK5sWe81pU9CnGEwK9VInbOKRB3kNpK",
                 "name": "CYTZ_BOMET_7_DEP_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1jFK5sWe81pU9CnGEwK9VInbOKRB3kNpK/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "10R7ag_pSZ932gdqtust7U1UjzDjt5WKQ",
                 "name": "CYTZ_RNAV_GNSS_Z_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/10R7ag_pSZ932gdqtust7U1UjzDjt5WKQ/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_rnav_gnss_z_rwy_08.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1cCXzTXYDIs1S6AVVDTMleACFOgFjv89_",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_26_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1cCXzTXYDIs1S6AVVDTMleACFOgFjv89_/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_26_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1PPwVm5mzf-JbSsnYm8WNS8_3FHiLndz1",
                 "name": "CYTZ_LOC_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/1PPwVm5mzf-JbSsnYm8WNS8_3FHiLndz1/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_loc_rwy_08.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1uPKRBu6txeJNBvxn1opNpAigPD_WgsX4",
                 "name": "CYTZ_DUSOM_2_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1uPKRBu6txeJNBvxn1opNpAigPD_WgsX4/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1F9i5ztIHdHpKPNFZmbomQJDjjCV6evBK",
                 "name": "CYTZ_ISLND_1_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1F9i5ztIHdHpKPNFZmbomQJDjjCV6evBK/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_islnd_1_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1n5jR6MQbAAPqeWd3wuZHbP98hppt4R85",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_08_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1n5jR6MQbAAPqeWd3wuZHbP98hppt4R85/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_08_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1dCiEgUBvZ8Si2WNC2tTPfSQtNYbwCvJg",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_26.pdf",
                 "url": "https://drive.google.com/file/d/1dCiEgUBvZ8Si2WNC2tTPfSQtNYbwCvJg/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_26.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1wZuV0-P-SfdY8nlHHpBS3M_v8a6kVE76",
                 "name": "CYTZ_TAKEOFF_MINIMUMS.pdf",
                 "url": "https://drive.google.com/file/d/1wZuV0-P-SfdY8nlHHpBS3M_v8a6kVE76/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_takeoff_minimums.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1u0hWcNyf8VLIkQ4q852-KGLEbyQlZAjZ",
                 "name": "CYTZ_BOMET_7_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1u0hWcNyf8VLIkQ4q852-KGLEbyQlZAjZ/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1D5TRbnYEbX1JZ3P7Tletsdl2lLes1xAl",
                 "name": "CYTZ_RNAV_RNP_Y_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/1D5TRbnYEbX1JZ3P7Tletsdl2lLes1xAl/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_rnav_rnp_y_rwy_08.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1HvTocZ8uHG1QMo7W0JCZPLYRtg8uc1ub",
                 "name": "CYTZ_MAVAN_2_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1HvTocZ8uHG1QMo7W0JCZPLYRtg8uc1ub/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_mavan_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1CAlvK7cUcmMLw1V7_2GCJJxiUwhOps-I",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/1CAlvK7cUcmMLw1V7_2GCJJxiUwhOps-I/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_08.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1KxaIuGZnH3_CYvRPtF7pt2fo5w0kiK7L",
                 "name": "CYTZ_LOC_RWY_26.pdf",
                 "url": "https://drive.google.com/file/d/1KxaIuGZnH3_CYvRPtF7pt2fo5w0kiK7L/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_loc_rwy_26.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1nflzHoVg8tcH6Hg7f0R9c89lozvN7hdq",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_W_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/1nflzHoVg8tcH6Hg7f0R9c89lozvN7hdq/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_w_rwy_08.pdf",
                 "type": "pdf"
         },
         {
                 "id": "15BvTRqUpYzuvUc6_BQDm3LTYanK-t1xk",
                 "name": "CYTZ_ILS_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/15BvTRqUpYzuvUc6_BQDm3LTYanK-t1xk/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_ils_rwy_08.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1jWmefPcayb0lz7XDzVrW6qT-q-j2I5Aa",
                 "name": "CYTZ_ILIXU_1_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1jWmefPcayb0lz7XDzVrW6qT-q-j2I5Aa/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_ilixu_1_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1-yICL4xT0IKIm_oa41wZ0lI8ILXu2YNa",
                 "name": "CYTZ_KAXOL_2_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1-yICL4xT0IKIm_oa41wZ0lI8ILXu2YNa/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_kaxol_2_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1IcAbQyor1AbLhFDpyYtmKcs26UzUP4iP",
                 "name": "CYTZ_ILIXU_1_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1IcAbQyor1AbLhFDpyYtmKcs26UzUP4iP/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_ilixu_1_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1odU69gLG2N-riNGJUT3lPm2X8xsilE-w",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_W_RWY_08_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1odU69gLG2N-riNGJUT3lPm2X8xsilE-w/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_w_rwy_08_pg_02.pdf",
                 "type": "pdf"
         }
 ];
@@ -1023,7 +1076,7 @@
                 item.href = '#';
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url);
+                    openViewer(file.id, file.name, file.url, file.localUrl);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
@@ -1046,6 +1099,7 @@
                         id: file.id,
                         name: file.name,
                         url: file.url,
+                        localUrl: file.localUrl,
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region

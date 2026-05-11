@@ -325,57 +325,58 @@
             flex: 1;
             position: relative;
             overflow: hidden;
+            background: #05070a;
             display: flex;
+            flex-direction: column;
             align-items: center;
+        }
+
+        #pdfViewerContainer {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
             justify-content: center;
             background: #05070a;
-            cursor: default;
+            scroll-behavior: smooth;
         }
 
-        .viewer-content.pan-mode {
-            cursor: grab;
-        }
-
-        .viewer-content.pan-mode:active {
-            cursor: grabbing;
-        }
-
-        .viewer-frame-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease-out;
-            will-change: transform;
-        }
-
-        #viewerFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-            border-radius: 2px;
+        .pdf-page-container {
+            margin: 20px 0;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            pointer-events: auto;
-            image-rendering: -webkit-optimize-contrast;
-            backface-visibility: hidden;
-            -webkit-font-smoothing: subpixel-antialiased;
+            position: relative;
+            background: white;
+            transition: transform 0.1s ease-out;
+            transform-origin: top center;
         }
 
-        .pan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: none;
-        }
-
-        .viewer-content.pan-mode .pan-overlay {
+        canvas {
             display: block;
+            max-width: 100%;
+        }
+
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 0.2;
+            line-height: 1.0;
+        }
+
+        .textLayer > span {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+
+        ::selection {
+            background: rgba(88, 166, 255, 0.3);
         }
 
         .viewer-tip {
@@ -523,6 +524,10 @@
     </div>
     
     
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+
     <div id="viewerModal" class="viewer-modal">
         <div class="viewer-header">
             <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
@@ -530,12 +535,9 @@
             <div class="viewer-controls">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
                     <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
-                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="3" step="0.1" value="1">
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
+                    <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
                 </div>
-
-                <button class="control-btn" id="panToggle" title="Toggle Pan Mode (Drag to move)">
-                    <span>🖐</span> PAN
-                </button>
 
                 <button class="control-btn" id="rotateBtn" title="Rotate Chart">
                     <span>🔄</span> ROTATE
@@ -557,17 +559,15 @@
         <div class="viewer-content" id="viewerContent">
             <div id="viewerLoader" class="viewer-loader">
                 <div class="spinner"></div>
-                <div style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">FETCHING FROM DRIVE...</div>
+                <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
             </div>
 
-            <div class="viewer-frame-container" id="viewerContainer">
-                <iframe id="viewerFrame" src="" allow="autoplay"></iframe>
+            <div id="pdfViewerContainer">
+                <div id="pdfViewer" class="pdfViewer"></div>
             </div>
-
-            <div class="pan-overlay" id="panOverlay"></div>
 
             <div class="viewer-tip">
-                <span>💡 <b>Ctrl+F</b> not working? Click <b>DRIVE</b> to search text.</span>
+                <span>💡 Use <b>Ctrl+F</b> to search text. Use <b>Mouse Wheel</b> to zoom.</span>
             </div>
         </div>
     </div>
@@ -599,151 +599,169 @@
         }
     
         
-        let currentRotation = 0;
-        let currentZoom = 1;
-        let translateX = 0;
-        let translateY = 0;
-        let isDragging = false;
-        let startX, startY;
-        let isPanMode = false;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        function openViewer(id, name, url) {
+        let currentPdf = null;
+        let currentRotation = 0;
+        let currentZoom = 1.5;
+        let visualScale = 1.0; // Added for smooth CSS scaling
+
+        async function openViewer(id, name, driveUrl, localUrl) {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             const title = document.getElementById('viewerTitle');
             const externalLink = document.getElementById('externalLink');
             const loader = document.getElementById('viewerLoader');
-            const container = document.getElementById('viewerContainer');
+            const loaderStatus = document.getElementById('loaderStatus');
+            const container = document.getElementById('pdfViewer');
 
             // Reset state
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            isPanMode = false;
-            document.getElementById('panToggle').classList.remove('active');
-            document.getElementById('viewerContent').classList.remove('pan-mode');
-
-            updateFrameTransform();
-            document.getElementById('zoomRange').value = 1;
-
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
             title.textContent = name;
-            externalLink.href = url;
-
-            // Initial state
-            loader.style.display = 'flex';
-            container.style.opacity = '0';
-
-            // Handler for when loading finishes
-            const onFinish = () => {
-                loader.style.display = 'none';
-                container.style.opacity = '1';
-            };
-
-            frame.onload = onFinish;
-
-            // Safety timeout: Show the frame anyway after 5s if onload doesn't fire
-            setTimeout(onFinish, 5000);
-
-            // Use /preview with additional parameters for better embedding
-            frame.src = `https://drive.google.com/file/d/${id}/preview?rm=minimal`;
-
+            externalLink.href = driveUrl;
+            container.innerHTML = '';
+            container.style.transform = 'scale(1)'; // Reset visual scale
+            
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            loader.style.display = 'flex';
+            loaderStatus.textContent = 'LOADING LOCAL PDF...';
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(localUrl);
+                currentPdf = await loadingTask.promise;
+                loaderStatus.textContent = `RENDERING ${currentPdf.numPages} PAGE(S)...`;
+                await renderAllPages();
+                loader.style.display = 'none';
+            } catch (err) {
+                console.error('PDF Error:', err);
+                loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
+                setTimeout(() => {
+                    window.open(driveUrl, '_blank');
+                    closeViewer();
+                }, 2000);
+            }
+        }
+
+        async function renderAllPages() {
+            const container = document.getElementById('pdfViewer');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= currentPdf.numPages; i++) {
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'pdf-page-container';
+                pageContainer.id = `page-${i}`;
+                container.appendChild(pageContainer);
+                await renderPage(i, pageContainer);
+            }
+            applyVisualTransform();
+        }
+
+        async function renderPage(pageNum, container) {
+            const page = await currentPdf.getPage(pageNum);
+            // Render at the current "high quality" zoom level
+            const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
+            
+            container.style.width = `${viewport.width}px`;
+            container.style.height = `${viewport.height}px`;
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            container.appendChild(canvas);
+
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.className = 'textLayer';
+            container.appendChild(textLayerDiv);
+
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            
+            const textContent = await page.getTextContent();
+            pdfjsLib.renderTextLayer({
+                textContent: textContent,
+                container: textLayerDiv,
+                viewport: viewport,
+                textDivs: []
+            });
+        }
+
+        function applyVisualTransform() {
+            const container = document.getElementById('pdfViewer');
+            // We use CSS scale for the small adjustments between high-quality renders
+            container.style.transform = `scale(${visualScale})`;
         }
 
         function closeViewer() {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             modal.style.display = 'none';
-            frame.src = '';
             document.body.style.overflow = 'auto';
+            currentPdf = null;
         }
 
-        function updateFrameTransform() {
-            const container = document.getElementById('viewerContainer');
-            const frame = document.getElementById('viewerFrame');
-            const isRotated = currentRotation % 180 !== 0;
-
-            // Apply transformations to the container
-            container.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentZoom})`;
-
-            if (isRotated) {
-                container.style.width = '100vh';
-                container.style.height = '100vw';
-            } else {
-                container.style.width = '100%';
-                container.style.height = '100%';
-            }
+        async function updateZoomQuality() {
+            // This is the heavy render that runs AFTER the user stops zooming
+            await renderAllPages();
+            visualScale = 1.0;
+            applyVisualTransform();
         }
 
-        // Drag & Pan Logic
-        const viewerContent = document.getElementById('viewerContent');
-
-        viewerContent.onmousedown = (e) => {
-            if (!isPanMode) return;
-            isDragging = true;
-            startX = e.clientX - translateX;
-            startY = e.clientY - translateY;
-            e.preventDefault();
+        document.getElementById('zoomRange').oninput = (e) => {
+            const newZoom = parseFloat(e.target.value);
+            // Instant visual feedback
+            visualScale = newZoom / currentZoom;
+            applyVisualTransform();
+            document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
         };
 
-        window.onmousemove = (e) => {
-            if (!isDragging) return;
-            translateX = e.clientX - startX;
-            translateY = e.clientY - startY;
-            updateFrameTransform();
+        document.getElementById('zoomRange').onchange = async (e) => {
+            currentZoom = parseFloat(e.target.value);
+            await updateZoomQuality();
         };
 
-        window.onmouseup = () => {
-            isDragging = false;
+        document.getElementById('rotateBtn').onclick = async () => {
+            currentRotation = (currentRotation + 90) % 360;
+            await renderAllPages();
         };
 
-        // Mouse Wheel Zoom
-        viewerContent.onwheel = (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                currentZoom = Math.min(Math.max(0.5, currentZoom + delta), 4);
-                document.getElementById('zoomRange').value = currentZoom;
-                updateFrameTransform();
-            }
-        };
-
-        document.getElementById('panToggle').onclick = () => {
-            isPanMode = !isPanMode;
-            document.getElementById('panToggle').classList.toggle('active', isPanMode);
-            document.getElementById('viewerContent').classList.toggle('pan-mode', isPanMode);
-        };
-
-        document.getElementById('resetBtn').onclick = () => {
+        document.getElementById('resetBtn').onclick = async () => {
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            document.getElementById('zoomRange').value = 1;
-            updateFrameTransform();
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
+            await renderAllPages();
         };
 
         document.getElementById('closeViewer').onclick = closeViewer;
 
-        document.getElementById('rotateBtn').onclick = () => {
-            currentRotation = (currentRotation + 90) % 360;
-            updateFrameTransform();
+        // Mouse Wheel Zoom
+        document.getElementById('pdfViewerContainer').onwheel = (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
+                
+                visualScale = newZoom / currentZoom;
+                applyVisualTransform();
+                
+                document.getElementById('zoomRange').value = newZoom;
+                document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                // Debounce the high-quality re-render
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
         };
 
-        document.getElementById('zoomRange').oninput = (e) => {
-            currentZoom = parseFloat(e.target.value);
-            updateFrameTransform();
-        };
-
-        // Key Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeViewer();
-            if (e.key === ' ') { // Space to toggle pan mode
-                e.preventDefault();
-                document.getElementById('panToggle').click();
-            }
         });
     
         
@@ -772,450 +790,525 @@
                 "id": "16hrNSLJqa7PfIYIPJt9pY4YwcEUCcY5Y",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/16hrNSLJqa7PfIYIPJt9pY4YwcEUCcY5Y/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/.DS_Store",
                 "type": "doc"
         },
         {
                 "id": "1TsjsTF2n2NZeFf-VrkhDjCGFu_M30d7y",
                 "name": "CYVR_STANLEY_5_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1TsjsTF2n2NZeFf-VrkhDjCGFu_M30d7y/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Ilb_wNXU1f4vHj-X_ThrY-soSZh2zEFX",
                 "name": "CYVR_STANLEY_5_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1Ilb_wNXU1f4vHj-X_ThrY-soSZh2zEFX/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1zjN-EC_YIfFc_ijUBeVAMNXcnwBFQMuj",
                 "name": "CYVR_GEORGIA_8_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1zjN-EC_YIfFc_ijUBeVAMNXcnwBFQMuj/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1-uSIqgz0I5fx6hjg6oywEeNOsAMkqy28",
                 "name": "CYVR_FRASER_9_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1-uSIqgz0I5fx6hjg6oywEeNOsAMkqy28/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "179LwziVmivTP5oRdYPSGU7Dgr044CynV",
                 "name": "CYVR_RICHMOND_8_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/179LwziVmivTP5oRdYPSGU7Dgr044CynV/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1fv88coLhk0En7ZPJsQuVKracD8GvbY9X",
                 "name": "CYVR_VANCOUVER_4_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1fv88coLhk0En7ZPJsQuVKracD8GvbY9X/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1EQItgiMCYQmT54QKjPMeNnOfi6aJUKkj",
                 "name": "CYVR_FRASER_9_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1EQItgiMCYQmT54QKjPMeNnOfi6aJUKkj/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1E1N89wQbRuMl80VlN3s82b8rySgf8lPp",
                 "name": "CYVR_VANCOUVER_4_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1E1N89wQbRuMl80VlN3s82b8rySgf8lPp/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1BzflPRkHL_kpwrZmkZmFEUPYbJN02gU0",
                 "name": "CYVR_GEORGIA_8_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1BzflPRkHL_kpwrZmkZmFEUPYbJN02gU0/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "18_bCSCspXByFrZzRhpupi-6JiXt22Fo1",
                 "name": "CYVR_TAXI_CHART_PG_05.pdf",
                 "url": "https://drive.google.com/file/d/18_bCSCspXByFrZzRhpupi-6JiXt22Fo1/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_05.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ZSxK0Ue-TPyeYh_Xl2nqjzN4q3mCXDWT",
                 "name": "CYVR_TAXI_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1ZSxK0Ue-TPyeYh_Xl2nqjzN4q3mCXDWT/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1tuqjtHbZ0HCHNKUoNR_c7ii2q-bUuilt",
                 "name": "CYVR_RICHMOND_8_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1tuqjtHbZ0HCHNKUoNR_c7ii2q-bUuilt/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1yUET5K0cDJZDTLOYY_rkcgfChnjA7UcK",
                 "name": "CYVR_DE-ICING_GENERAL_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1yUET5K0cDJZDTLOYY_rkcgfChnjA7UcK/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_de-icing_general_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "14YToNwqR8uIeNf-6GzXuFCj3w-3CMxFR",
                 "name": "CYVR_SOUTH_DE-ICING_FACILITY_GRE.pdf",
                 "url": "https://drive.google.com/file/d/14YToNwqR8uIeNf-6GzXuFCj3w-3CMxFR/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_south_de-icing_facility_gre.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1liJdyHHfHm4sWzseKQcS6HYkqj52AMsj",
                 "name": "CYVR_LOW_VISIBILITY_TAXI_CHART_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1liJdyHHfHm4sWzseKQcS6HYkqj52AMsj/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1MFCAF95AMkRxHPpidgzR94rIoAJWADFk",
                 "name": "CYVR_PARKING_AREAS_COMMON_USE_CARGO.pdf",
                 "url": "https://drive.google.com/file/d/1MFCAF95AMkRxHPpidgzR94rIoAJWADFk/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_parking_areas_common_use_cargo.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1cGzHpRq0i2tl50PL3Fo2kAVl75KE-JeL",
                 "name": "CYVR_TAXI_CHART_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1cGzHpRq0i2tl50PL3Fo2kAVl75KE-JeL/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Zk6VMJaB2b8QVpaMjzHxsT3Q5siVSfmR",
                 "name": "CYVR_PARKING_AREAS_SOUTH_TERMINAL.pdf",
                 "url": "https://drive.google.com/file/d/1Zk6VMJaB2b8QVpaMjzHxsT3Q5siVSfmR/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_parking_areas_south_terminal.pdf",
                 "type": "pdf"
         },
         {
                 "id": "16mb6-dq8jj_Rn3Jar7o_5m_tsJvFrpvr",
                 "name": "CYVR_DE-ICING_GENERAL.pdf",
                 "url": "https://drive.google.com/file/d/16mb6-dq8jj_Rn3Jar7o_5m_tsJvFrpvr/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_de-icing_general.pdf",
                 "type": "pdf"
         },
         {
                 "id": "13vLkMsNUBTI8DKrwxgW5kHllvxvsgZOX",
                 "name": "CYVR_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/13vLkMsNUBTI8DKrwxgW5kHllvxvsgZOX/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1h_xLpagw31rL8p1g6H8z1HGVtBQnVr6A",
                 "name": "CYVR_LOW_VISIBILITY_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1h_xLpagw31rL8p1g6H8z1HGVtBQnVr6A/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_low_visibility_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1WCk3O2sg0GreZzuVUqTVtQgwpjPTPqbN",
                 "name": "CYVR_START_BOXES.pdf",
                 "url": "https://drive.google.com/file/d/1WCk3O2sg0GreZzuVUqTVtQgwpjPTPqbN/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_start_boxes.pdf",
                 "type": "pdf"
         },
         {
                 "id": "13AupHOD9sbOQKpNr0F5DJhkITeuitSox",
                 "name": "CYVR_TAXI_CHART_PG_04.pdf",
                 "url": "https://drive.google.com/file/d/13AupHOD9sbOQKpNr0F5DJhkITeuitSox/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_04.pdf",
                 "type": "pdf"
         },
         {
                 "id": "17A8EIdMFTuNTYXKIsDQCKMWaxfiRmSCP",
                 "name": "CYVR_CODED_TAXI_ROUTES.pdf",
                 "url": "https://drive.google.com/file/d/17A8EIdMFTuNTYXKIsDQCKMWaxfiRmSCP/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_coded_taxi_routes.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1BcXdfNXPS2Qk1CyY2qj4v7g7QrJtBNkc",
                 "name": "CYVR_LOW_VISIBILITY_TAXI_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1BcXdfNXPS2Qk1CyY2qj4v7g7QrJtBNkc/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1UPsT2nnv9FoWP6Zo5Pw-pyADtKmrKqWR",
                 "name": "CYVR_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1UPsT2nnv9FoWP6Zo5Pw-pyADtKmrKqWR/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1oKAooFffQRa2JamXXScHcriN5wqShUPc",
                 "name": "CYVR_TAXI_CHART_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1oKAooFffQRa2JamXXScHcriN5wqShUPc/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1kXfC5tS9GyVEh9UE8TZefcs9_T3b1Yvz",
                 "name": "CYVR_PARKING_AREAS.pdf",
                 "url": "https://drive.google.com/file/d/1kXfC5tS9GyVEh9UE8TZefcs9_T3b1Yvz/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_parking_areas.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1IHQvZbNWITudK9kdfc4fs9y5yqQK-KhP",
                 "name": "CYVR_RNAV_RNP_Y_RWY_26L.pdf",
                 "url": "https://drive.google.com/file/d/1IHQvZbNWITudK9kdfc4fs9y5yqQK-KhP/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_rnp_y_rwy_26l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1D5ntogj6jHyM7x6LP42dkMTWQ1FGivHn",
                 "name": "CYVR_CENTRAL_DE-ICING_FACILITY.pdf",
                 "url": "https://drive.google.com/file/d/1D5ntogj6jHyM7x6LP42dkMTWQ1FGivHn/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_central_de-icing_facility.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1-9rN37qExweQpWUjLlHErt-svRBt9RoL",
                 "name": "CYVR_ATTENTION_ALL_USERS_EOR.pdf",
                 "url": "https://drive.google.com/file/d/1-9rN37qExweQpWUjLlHErt-svRBt9RoL/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_attention_all_users_eor.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1arP-7SIuVb65beij8cCUDx8BHKWjRH7r",
                 "name": "CYVR_RNAV_GNSS_Z_RWY_08R.pdf",
                 "url": "https://drive.google.com/file/d/1arP-7SIuVb65beij8cCUDx8BHKWjRH7r/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_gnss_z_rwy_08r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1LyXS6aovmxpYmenHzSyMCMxHL2QqUb8z",
                 "name": "CYVR_RNAV_RNP_Y_RWY_08L.pdf",
                 "url": "https://drive.google.com/file/d/1LyXS6aovmxpYmenHzSyMCMxHL2QqUb8z/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_rnp_y_rwy_08l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1HWb6cNn9MmOM1TXQa-3RRsh-6wfGWPOt",
                 "name": "CYVR_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1HWb6cNn9MmOM1TXQa-3RRsh-6wfGWPOt/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Q7SeUYS0Cz6DYy1ksL-IlWviPaCQ_Gxn",
                 "name": "CYVR_RNAV_GNSS_RWY_13.pdf",
                 "url": "https://drive.google.com/file/d/1Q7SeUYS0Cz6DYy1ksL-IlWviPaCQ_Gxn/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_gnss_rwy_13.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Ci9jDixJ2u4NU1CTppRxqtyCJBWj-cVa",
                 "name": "CYVR_RNAV_RNP_X_RWY_26L.pdf",
                 "url": "https://drive.google.com/file/d/1Ci9jDixJ2u4NU1CTppRxqtyCJBWj-cVa/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_rnp_x_rwy_26l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1k4PuuR4kAZs088EMQDp7uJVDcJe40xNX",
                 "name": "CYVR_RNAV_GNSS_Z_RWY_26L.pdf",
                 "url": "https://drive.google.com/file/d/1k4PuuR4kAZs088EMQDp7uJVDcJe40xNX/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_gnss_z_rwy_26l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1GEvL4-Rx37BlduSMzOoX1wGOQrEJzBPU",
                 "name": "CYVR_RNAV_GNSS_Z_RWY_26R.pdf",
                 "url": "https://drive.google.com/file/d/1GEvL4-Rx37BlduSMzOoX1wGOQrEJzBPU/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_gnss_z_rwy_26r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1QLymL3Mlp_3XuWR_AmZ216V9kyzwnBKq",
                 "name": "CYVR_RNAV_GNSS_Z_RWY_08L.pdf",
                 "url": "https://drive.google.com/file/d/1QLymL3Mlp_3XuWR_AmZ216V9kyzwnBKq/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_gnss_z_rwy_08l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1G-9dBvivV9DaiZTGTljCZAuF52vhB9Ed",
                 "name": "CYVR_RNAV_RNP_X_RWY_08R.pdf",
                 "url": "https://drive.google.com/file/d/1G-9dBvivV9DaiZTGTljCZAuF52vhB9Ed/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_rnp_x_rwy_08r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Eg0h1ZJZ8uuzIkbr4-temy2-Qx5zLXhl",
                 "name": "CYVR_RNAV_RNP_Y_RWY_26R.pdf",
                 "url": "https://drive.google.com/file/d/1Eg0h1ZJZ8uuzIkbr4-temy2-Qx5zLXhl/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_rnp_y_rwy_26r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1UD_zJt9sM6lmWIkCFyVlGIvlWDCdshwi",
                 "name": "CYVR_RNAV_RNP_X_RWY_26R.pdf",
                 "url": "https://drive.google.com/file/d/1UD_zJt9sM6lmWIkCFyVlGIvlWDCdshwi/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_rnp_x_rwy_26r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1CkwIo4q0nGPGiq3v0_P0c_Ey6sqHot9Y",
                 "name": "CYVR_RNAV_RNP_Y_RWY_08R.pdf",
                 "url": "https://drive.google.com/file/d/1CkwIo4q0nGPGiq3v0_P0c_Ey6sqHot9Y/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_rnp_y_rwy_08r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1CjHmgqTJiVlTKdoKpsgthYfTzMzYx_HE",
                 "name": "CYVR_ILS_RWY_08R.pdf",
                 "url": "https://drive.google.com/file/d/1CjHmgqTJiVlTKdoKpsgthYfTzMzYx_HE/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_ils_rwy_08r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Tv-07vnAnGZy45YIkCO-vQSTmmR3UUKR",
                 "name": "CYVR_ILS_CAT_II_OR_III_RWY_08R.pdf",
                 "url": "https://drive.google.com/file/d/1Tv-07vnAnGZy45YIkCO-vQSTmmR3UUKR/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_ils_cat_ii_or_iii_rwy_08r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "12no8uLzkUy81eg6UBHJR1Ep3iywTl0Gy",
                 "name": "CYVR_ILS_Y_CAT_II_OR_III_RWY_26L.pdf",
                 "url": "https://drive.google.com/file/d/12no8uLzkUy81eg6UBHJR1Ep3iywTl0Gy/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_ils_y_cat_ii_or_iii_rwy_26l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1fpQOlTlUSAab5MxL6_TgfMxK-ii8HGso",
                 "name": "CYVR_ILS_Z_RWY_26L.pdf",
                 "url": "https://drive.google.com/file/d/1fpQOlTlUSAab5MxL6_TgfMxK-ii8HGso/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_ils_z_rwy_26l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "10nn3W2vhjruezsrFI6iocOZhgYK0u8H2",
                 "name": "CYVR_ILS_Z_RWY_08L.pdf",
                 "url": "https://drive.google.com/file/d/10nn3W2vhjruezsrFI6iocOZhgYK0u8H2/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_ils_z_rwy_08l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1VZi0ynYF7ZvlzMIOQP54Yi7mFKvSpWjf",
                 "name": "CYVR_ILS_Z_RWY_26R.pdf",
                 "url": "https://drive.google.com/file/d/1VZi0ynYF7ZvlzMIOQP54Yi7mFKvSpWjf/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_ils_z_rwy_26r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1gf7rsH4Yg3W0oL6Pux0AwkJljgmaQZqV",
                 "name": "CYVR_ILS_RWY_13.pdf",
                 "url": "https://drive.google.com/file/d/1gf7rsH4Yg3W0oL6Pux0AwkJljgmaQZqV/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_ils_rwy_13.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1QmzzFC1z9EbHUAXCp-1CPKTAUOKFoT8d",
                 "name": "CYVR_WHISTLER_8_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1QmzzFC1z9EbHUAXCp-1CPKTAUOKFoT8d/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1cKZAbloEheE3Corptgzo6GoO_yCy92Yt",
                 "name": "CYVR_SOUND_6_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1cKZAbloEheE3Corptgzo6GoO_yCy92Yt/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1U9s2kl0ycmBObaMubpsNCy9MCh2WBURb",
                 "name": "CYVR_ILS_Y_CAT_II_OR_III_RWY_26R.pdf",
                 "url": "https://drive.google.com/file/d/1U9s2kl0ycmBObaMubpsNCy9MCh2WBURb/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_ils_y_cat_ii_or_iii_rwy_26r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1tfsX6zkXJn9LyXVxN5jr1-7zXWHnEEui",
                 "name": "CYVR_RNAV_GNSS_RWY_31.pdf",
                 "url": "https://drive.google.com/file/d/1tfsX6zkXJn9LyXVxN5jr1-7zXWHnEEui/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_gnss_rwy_31.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1rZlLo6vmAFf87VWwwq3GxDY2O2nep-BX",
                 "name": "CYVR_WHISTLER_8_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1rZlLo6vmAFf87VWwwq3GxDY2O2nep-BX/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1m92JFPy9NL8HnbRWLUXY-jLVxliwjRX8",
                 "name": "CYVR_ILS_Y_CAT_II_OR_III_RWY_08L.pdf",
                 "url": "https://drive.google.com/file/d/1m92JFPy9NL8HnbRWLUXY-jLVxliwjRX8/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_ils_y_cat_ii_or_iii_rwy_08l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ejgZIcJVP8LkgAyfxMT6Llt3S2EmuQgL",
                 "name": "CYVR_WHISTLER_8_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1ejgZIcJVP8LkgAyfxMT6Llt3S2EmuQgL/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1j5INdAFjZl-jXcIWuZMN7VgIb0cIah7d",
                 "name": "CYVR_SOUND_6_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1j5INdAFjZl-jXcIWuZMN7VgIb0cIah7d/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1TFp_inurdQ_rFCBvYtbzu3qAXyw1gmSY",
                 "name": "CYVR_GRIZZ_9_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1TFp_inurdQ_rFCBvYtbzu3qAXyw1gmSY/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1fO9B5TW5bjtIsW4c3QuxY-Gg0Ni2aIml",
                 "name": "CYVR_DUXUM_6_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1fO9B5TW5bjtIsW4c3QuxY-Gg0Ni2aIml/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_duxum_6_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "12Cn3OKGfHxg8c2wZSLSvX_pTnWalPhRw",
                 "name": "CYVR_SHARK_4_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/12Cn3OKGfHxg8c2wZSLSvX_pTnWalPhRw/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1mXHfVcsRzIHFDVJiJPKXOqTJ5-R683jw",
                 "name": "CYVR_GRIZZ_9_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1mXHfVcsRzIHFDVJiJPKXOqTJ5-R683jw/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "14p0gEW2aZRsjZwTvFmXCK8mBUFsmma0z",
                 "name": "CYVR_LIONN_4_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/14p0gEW2aZRsjZwTvFmXCK8mBUFsmma0z/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1m207bMN70YL7FCbBI5oQoWsv3OPHXXsx",
                 "name": "CYVR_SHARK_4_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1m207bMN70YL7FCbBI5oQoWsv3OPHXXsx/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Rp5TjFrXwch6h5pIpNK2nIPJZFIQWX0N",
                 "name": "CYVR_GRIZZ_9_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1Rp5TjFrXwch6h5pIpNK2nIPJZFIQWX0N/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1PyJviPR_gvdiW2paK2DAb5ZHXvjMJMDs",
                 "name": "CYVR_LIONN_4_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1PyJviPR_gvdiW2paK2DAb5ZHXvjMJMDs/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1cNaLfbO1bYF1svPRTXCcIf1hTRys4bJF",
                 "name": "CYVR_ISLAND_9_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1cNaLfbO1bYF1svPRTXCcIf1hTRys4bJF/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_island_9_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1BWYtyo_fXfE2EIHV5AgpEAz7qP5GoAoI",
                 "name": "CYVR_CYPRESS_2_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1BWYtyo_fXfE2EIHV5AgpEAz7qP5GoAoI/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1d-5TuNPOpW_2z6Db2C2eTXcLp6cXpKzl",
                 "name": "CYVR_CYPRESS_2_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1d-5TuNPOpW_2z6Db2C2eTXcLp6cXpKzl/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Eb_0iA7XijEQo_WXrkLE8Ogn2NPH1Lm6",
                 "name": "CYVR_SHARK_4_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1Eb_0iA7XijEQo_WXrkLE8Ogn2NPH1Lm6/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1xHYrDOFw1Bryw35503ODVuuGXAtIRLus",
                 "name": "CYVR_VITEV_5_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1xHYrDOFw1Bryw35503ODVuuGXAtIRLus/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_vitev_5_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1zFTJPC1znNZy_a85sVvuppGK1DqbxeYB",
                 "name": "CYVR_CYPRESS_2_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1zFTJPC1znNZy_a85sVvuppGK1DqbxeYB/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1miwxwTQeCnriTCObNUIDZrvYpzQccVRb",
                 "name": "CYVR_CANUCK_6_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1miwxwTQeCnriTCObNUIDZrvYpzQccVRb/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1_SgHeMEfn8qhdffV1WyffFi19H5YPXUX",
                 "name": "CYVR_CANUCK_6_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1_SgHeMEfn8qhdffV1WyffFi19H5YPXUX/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         }
 ];
@@ -1263,7 +1356,7 @@
                 item.href = '#';
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url);
+                    openViewer(file.id, file.name, file.url, file.localUrl);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
@@ -1286,6 +1379,7 @@
                         id: file.id,
                         name: file.name,
                         url: file.url,
+                        localUrl: file.localUrl,
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region

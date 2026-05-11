@@ -325,57 +325,58 @@
             flex: 1;
             position: relative;
             overflow: hidden;
+            background: #05070a;
             display: flex;
+            flex-direction: column;
             align-items: center;
+        }
+
+        #pdfViewerContainer {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
             justify-content: center;
             background: #05070a;
-            cursor: default;
+            scroll-behavior: smooth;
         }
 
-        .viewer-content.pan-mode {
-            cursor: grab;
-        }
-
-        .viewer-content.pan-mode:active {
-            cursor: grabbing;
-        }
-
-        .viewer-frame-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease-out;
-            will-change: transform;
-        }
-
-        #viewerFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-            border-radius: 2px;
+        .pdf-page-container {
+            margin: 20px 0;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            pointer-events: auto;
-            image-rendering: -webkit-optimize-contrast;
-            backface-visibility: hidden;
-            -webkit-font-smoothing: subpixel-antialiased;
+            position: relative;
+            background: white;
+            transition: transform 0.1s ease-out;
+            transform-origin: top center;
         }
 
-        .pan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: none;
-        }
-
-        .viewer-content.pan-mode .pan-overlay {
+        canvas {
             display: block;
+            max-width: 100%;
+        }
+
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 0.2;
+            line-height: 1.0;
+        }
+
+        .textLayer > span {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+
+        ::selection {
+            background: rgba(88, 166, 255, 0.3);
         }
 
         .viewer-tip {
@@ -523,6 +524,10 @@
     </div>
     
     
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+
     <div id="viewerModal" class="viewer-modal">
         <div class="viewer-header">
             <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
@@ -530,12 +535,9 @@
             <div class="viewer-controls">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
                     <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
-                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="3" step="0.1" value="1">
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
+                    <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
                 </div>
-
-                <button class="control-btn" id="panToggle" title="Toggle Pan Mode (Drag to move)">
-                    <span>🖐</span> PAN
-                </button>
 
                 <button class="control-btn" id="rotateBtn" title="Rotate Chart">
                     <span>🔄</span> ROTATE
@@ -557,17 +559,15 @@
         <div class="viewer-content" id="viewerContent">
             <div id="viewerLoader" class="viewer-loader">
                 <div class="spinner"></div>
-                <div style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">FETCHING FROM DRIVE...</div>
+                <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
             </div>
 
-            <div class="viewer-frame-container" id="viewerContainer">
-                <iframe id="viewerFrame" src="" allow="autoplay"></iframe>
+            <div id="pdfViewerContainer">
+                <div id="pdfViewer" class="pdfViewer"></div>
             </div>
-
-            <div class="pan-overlay" id="panOverlay"></div>
 
             <div class="viewer-tip">
-                <span>💡 <b>Ctrl+F</b> not working? Click <b>DRIVE</b> to search text.</span>
+                <span>💡 Use <b>Ctrl+F</b> to search text. Use <b>Mouse Wheel</b> to zoom.</span>
             </div>
         </div>
     </div>
@@ -599,151 +599,169 @@
         }
     
         
-        let currentRotation = 0;
-        let currentZoom = 1;
-        let translateX = 0;
-        let translateY = 0;
-        let isDragging = false;
-        let startX, startY;
-        let isPanMode = false;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        function openViewer(id, name, url) {
+        let currentPdf = null;
+        let currentRotation = 0;
+        let currentZoom = 1.5;
+        let visualScale = 1.0; // Added for smooth CSS scaling
+
+        async function openViewer(id, name, driveUrl, localUrl) {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             const title = document.getElementById('viewerTitle');
             const externalLink = document.getElementById('externalLink');
             const loader = document.getElementById('viewerLoader');
-            const container = document.getElementById('viewerContainer');
+            const loaderStatus = document.getElementById('loaderStatus');
+            const container = document.getElementById('pdfViewer');
 
             // Reset state
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            isPanMode = false;
-            document.getElementById('panToggle').classList.remove('active');
-            document.getElementById('viewerContent').classList.remove('pan-mode');
-
-            updateFrameTransform();
-            document.getElementById('zoomRange').value = 1;
-
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
             title.textContent = name;
-            externalLink.href = url;
-
-            // Initial state
-            loader.style.display = 'flex';
-            container.style.opacity = '0';
-
-            // Handler for when loading finishes
-            const onFinish = () => {
-                loader.style.display = 'none';
-                container.style.opacity = '1';
-            };
-
-            frame.onload = onFinish;
-
-            // Safety timeout: Show the frame anyway after 5s if onload doesn't fire
-            setTimeout(onFinish, 5000);
-
-            // Use /preview with additional parameters for better embedding
-            frame.src = `https://drive.google.com/file/d/${id}/preview?rm=minimal`;
-
+            externalLink.href = driveUrl;
+            container.innerHTML = '';
+            container.style.transform = 'scale(1)'; // Reset visual scale
+            
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            loader.style.display = 'flex';
+            loaderStatus.textContent = 'LOADING LOCAL PDF...';
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(localUrl);
+                currentPdf = await loadingTask.promise;
+                loaderStatus.textContent = `RENDERING ${currentPdf.numPages} PAGE(S)...`;
+                await renderAllPages();
+                loader.style.display = 'none';
+            } catch (err) {
+                console.error('PDF Error:', err);
+                loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
+                setTimeout(() => {
+                    window.open(driveUrl, '_blank');
+                    closeViewer();
+                }, 2000);
+            }
+        }
+
+        async function renderAllPages() {
+            const container = document.getElementById('pdfViewer');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= currentPdf.numPages; i++) {
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'pdf-page-container';
+                pageContainer.id = `page-${i}`;
+                container.appendChild(pageContainer);
+                await renderPage(i, pageContainer);
+            }
+            applyVisualTransform();
+        }
+
+        async function renderPage(pageNum, container) {
+            const page = await currentPdf.getPage(pageNum);
+            // Render at the current "high quality" zoom level
+            const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
+            
+            container.style.width = `${viewport.width}px`;
+            container.style.height = `${viewport.height}px`;
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            container.appendChild(canvas);
+
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.className = 'textLayer';
+            container.appendChild(textLayerDiv);
+
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            
+            const textContent = await page.getTextContent();
+            pdfjsLib.renderTextLayer({
+                textContent: textContent,
+                container: textLayerDiv,
+                viewport: viewport,
+                textDivs: []
+            });
+        }
+
+        function applyVisualTransform() {
+            const container = document.getElementById('pdfViewer');
+            // We use CSS scale for the small adjustments between high-quality renders
+            container.style.transform = `scale(${visualScale})`;
         }
 
         function closeViewer() {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             modal.style.display = 'none';
-            frame.src = '';
             document.body.style.overflow = 'auto';
+            currentPdf = null;
         }
 
-        function updateFrameTransform() {
-            const container = document.getElementById('viewerContainer');
-            const frame = document.getElementById('viewerFrame');
-            const isRotated = currentRotation % 180 !== 0;
-
-            // Apply transformations to the container
-            container.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentZoom})`;
-
-            if (isRotated) {
-                container.style.width = '100vh';
-                container.style.height = '100vw';
-            } else {
-                container.style.width = '100%';
-                container.style.height = '100%';
-            }
+        async function updateZoomQuality() {
+            // This is the heavy render that runs AFTER the user stops zooming
+            await renderAllPages();
+            visualScale = 1.0;
+            applyVisualTransform();
         }
 
-        // Drag & Pan Logic
-        const viewerContent = document.getElementById('viewerContent');
-
-        viewerContent.onmousedown = (e) => {
-            if (!isPanMode) return;
-            isDragging = true;
-            startX = e.clientX - translateX;
-            startY = e.clientY - translateY;
-            e.preventDefault();
+        document.getElementById('zoomRange').oninput = (e) => {
+            const newZoom = parseFloat(e.target.value);
+            // Instant visual feedback
+            visualScale = newZoom / currentZoom;
+            applyVisualTransform();
+            document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
         };
 
-        window.onmousemove = (e) => {
-            if (!isDragging) return;
-            translateX = e.clientX - startX;
-            translateY = e.clientY - startY;
-            updateFrameTransform();
+        document.getElementById('zoomRange').onchange = async (e) => {
+            currentZoom = parseFloat(e.target.value);
+            await updateZoomQuality();
         };
 
-        window.onmouseup = () => {
-            isDragging = false;
+        document.getElementById('rotateBtn').onclick = async () => {
+            currentRotation = (currentRotation + 90) % 360;
+            await renderAllPages();
         };
 
-        // Mouse Wheel Zoom
-        viewerContent.onwheel = (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                currentZoom = Math.min(Math.max(0.5, currentZoom + delta), 4);
-                document.getElementById('zoomRange').value = currentZoom;
-                updateFrameTransform();
-            }
-        };
-
-        document.getElementById('panToggle').onclick = () => {
-            isPanMode = !isPanMode;
-            document.getElementById('panToggle').classList.toggle('active', isPanMode);
-            document.getElementById('viewerContent').classList.toggle('pan-mode', isPanMode);
-        };
-
-        document.getElementById('resetBtn').onclick = () => {
+        document.getElementById('resetBtn').onclick = async () => {
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            document.getElementById('zoomRange').value = 1;
-            updateFrameTransform();
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
+            await renderAllPages();
         };
 
         document.getElementById('closeViewer').onclick = closeViewer;
 
-        document.getElementById('rotateBtn').onclick = () => {
-            currentRotation = (currentRotation + 90) % 360;
-            updateFrameTransform();
+        // Mouse Wheel Zoom
+        document.getElementById('pdfViewerContainer').onwheel = (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
+                
+                visualScale = newZoom / currentZoom;
+                applyVisualTransform();
+                
+                document.getElementById('zoomRange').value = newZoom;
+                document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                // Debounce the high-quality re-render
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
         };
 
-        document.getElementById('zoomRange').oninput = (e) => {
-            currentZoom = parseFloat(e.target.value);
-            updateFrameTransform();
-        };
-
-        // Key Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeViewer();
-            if (e.key === ' ') { // Space to toggle pan mode
-                e.preventDefault();
-                document.getElementById('panToggle').click();
-            }
         });
     
         
@@ -772,264 +790,308 @@
                 "id": "1bCZtIa3IL40fRZy0-lGqRUBtD83zRq19",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_10L_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1bCZtIa3IL40fRZy0-lGqRUBtD83zRq19/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/precision_approach_terrain_chart_rwy_10l_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "100YGyYtVEGHcTaqe2ro1TUhlRuMKKsGw",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_28R_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/100YGyYtVEGHcTaqe2ro1TUhlRuMKKsGw/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/precision_approach_terrain_chart_rwy_28r_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1q4MlP1eTNHirhfVnecu2IflTY4LuiZ_a",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_10R_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1q4MlP1eTNHirhfVnecu2IflTY4LuiZ_a/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/precision_approach_terrain_chart_rwy_10r_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1rbQ77fMLpZny5hWmIvWiU9aZZkM6c2C8",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_28L_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1rbQ77fMLpZny5hWmIvWiU9aZZkM6c2C8/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/precision_approach_terrain_chart_rwy_28l_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ispfht-MmdXtrFWt0nIvWdXxycMwee-b",
                 "name": "AERODROME_OBSTACLE_CHART_RWY_1634_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1ispfht-MmdXtrFWt0nIvWdXxycMwee-b/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/aerodrome_obstacle_chart_rwy_1634_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1fy5NnzKI9NX4v4bl8ewY_-9TGA7XC59s",
                 "name": "AERODROME_OBSTACLE_CHART_RWY_10L28R_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1fy5NnzKI9NX4v4bl8ewY_-9TGA7XC59s/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/aerodrome_obstacle_chart_rwy_10l28r_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1z1FPszNFVKVS677BRdGw9j49xqjCKiG6",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_T_RWY_28L_ACFT_CAT_A,_B,_C,_D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1z1FPszNFVKVS677BRdGw9j49xqjCKiG6/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_rnp_t_rwy_28l_acft_cat_a_b_c_d_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1EpsFO7FpsmUm6XO4cgJ-IdzfaSTMwEZ1",
                 "name": "INSTRUMENT_APPROACH_CHART_VOR_T_RWY_28L_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1EpsFO7FpsmUm6XO4cgJ-IdzfaSTMwEZ1/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_vor_t_rwy_28l_cat_abcd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1V1R8hh0cMM81UyGjhqciPcVsA9bnqtR2",
                 "name": "VISUAL_APPROACH_CHART_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1V1R8hh0cMM81UyGjhqciPcVsA9bnqtR2/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/visual_approach_chart_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1bPNmnHsh0GaAGV2nMxmU0U1s8Kx61-PT",
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1bPNmnHsh0GaAGV2nMxmU0U1s8Kx61-PT/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/atc_surveillance_minimum_altitude_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1FFFHbwj9R5T2k_w5SuVrseKItUc8O_LK",
                 "name": "INSTRUMENT_APPROACH_CHART_VOR_RWY_34_ACFT_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1FFFHbwj9R5T2k_w5SuVrseKItUc8O_LK/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_vor_rwy_34_acft_cat_abcd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1cfEpUWEdFQnSE3wQWjlIqeWX7ZrfRuVI",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_34_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1cfEpUWEdFQnSE3wQWjlIqeWX7ZrfRuVI/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_rnp_rwy_34_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1XDDBF4m5yxZ3J99CUISZXJuVemD2sJ8E",
                 "name": "INSTRUMENT_APPROACH_CHART_VOR_RWY_16_(ACFT_CAT_A,_B,C,D)_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1XDDBF4m5yxZ3J99CUISZXJuVemD2sJ8E/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_vor_rwy_16_acft_cat_a_bcd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1mKImsf7I0_CMuLSavFUx7YYxrTe_eASS",
                 "name": "AERODROME_OBSTACLE_CHART_RWY_10R28L_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1mKImsf7I0_CMuLSavFUx7YYxrTe_eASS/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/aerodrome_obstacle_chart_rwy_10r28l_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1wTkAfrGNOXro77wwIxWpOwAhwThZlSLg",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_I_OR_LOC_RWY_16_(_ACFT_CAT_A,_B,_C,D)_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1wTkAfrGNOXro77wwIxWpOwAhwThZlSLg/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_ils_cat_i_or_loc_rwy_16__acft_cat_a_b_cd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1mneEqJzUhhBogXz5Hl_7lUBbR_lAdsUk",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_16_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1mneEqJzUhhBogXz5Hl_7lUBbR_lAdsUk/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_rnp_rwy_16_cat_abcd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1OGHUyNmB5dXePE8TEPVY1f65RVuQnpBL",
                 "name": "INSTRUMENT_APPROACH_CHART_VOR_RWY_10R_ACFT_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1OGHUyNmB5dXePE8TEPVY1f65RVuQnpBL/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_vor_rwy_10r_acft_cat_abcd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "14r8TlME_e1nKLQYNcRqZgepV3mNNnQnF",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_I_AND_II_OR_LOC_RWY_10R_ACFT_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/14r8TlME_e1nKLQYNcRqZgepV3mNNnQnF/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_ils_cat_i_and_ii_or_loc_rwy_10r_acft_cat_abcd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1UieTNJHy8wvPvMyUxOVA6Up4fDENqfaX",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_10R_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1UieTNJHy8wvPvMyUxOVA6Up4fDENqfaX/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_rnp_rwy_10r_cat_abcd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ziIcBbglhxOFPtw_B8V4nGqbVolEd0z4",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_I_AND_II_OR_LOC_RWY_10L_ACFT_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1ziIcBbglhxOFPtw_B8V4nGqbVolEd0z4/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_ils_cat_i_and_ii_or_loc_rwy_10l_acft_cat_abcd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Ad6PcAHgfa33h2VB7VhImJSyG8wipcjC",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_10L_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1Ad6PcAHgfa33h2VB7VhImJSyG8wipcjC/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_rnp_rwy_10l_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1JO0oY2IypAqlGnjLzJZFDkvFAOSsNCWO",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_I_AND_II_OR_LOC_RWY_28R_CAT_A,_B,_C,_D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1JO0oY2IypAqlGnjLzJZFDkvFAOSsNCWO/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_ils_cat_i_and_ii_or_loc_rwy_28r_cat_a_b_c_d_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1y-owvyZfOwiw2g1WPsjnEBNjFScoVsnz",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1y-owvyZfOwiw2g1WPsjnEBNjFScoVsnz/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/aircraft_parkingdocking_chart_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1hsVruPPKM58jK8yoQQR5HldvqnsJ269a",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_28R_CAT_A,_B,_C,_D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1hsVruPPKM58jK8yoQQR5HldvqnsJ269a/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_rnp_rwy_28r_cat_a_b_c_d_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1I36vGqp23CxAkbFOJkx__5wo0lZB3tNc",
                 "name": "INSTRUMENT_APPROACH_CHART_VOR_RWY_28L_(ACFT_CAT_A,B,C,D).pdf",
                 "url": "https://drive.google.com/file/d/1I36vGqp23CxAkbFOJkx__5wo0lZB3tNc/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_vor_rwy_28l_acft_cat_abcd.pdf",
                 "type": "pdf"
         },
         {
                 "id": "15oGfgqAzHjd76v6niU--W0gtrbErCamH",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_I_AND_II_OR_LOC_RWY_28L_ACFT_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/15oGfgqAzHjd76v6niU--W0gtrbErCamH/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_ils_cat_i_and_ii_or_loc_rwy_28l_acft_cat_abcd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1itskyAOeWoiRDEqvvTsICZpD3NpMv5pM",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_28L_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1itskyAOeWoiRDEqvvTsICZpD3NpMv5pM/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/instrument_approach_chart_rnp_rwy_28l_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1LNw7ueKHa1P3m2KTmWzMjEzpPhwV78t2",
                 "name": "RNAV_STANDARD_ARRIVAL_CHART_INSTRUMENT(STAR)_-_RWY_34_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1LNw7ueKHa1P3m2KTmWzMjEzpPhwV78t2/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_arrival_chart_instrumentstar_-_rwy_34_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1fN_IbIphXU1GTZxMBCmxY4xkmq3H6zgZ",
                 "name": "RNAV_INSTRUMENT_ARRIVAL_CHART_(STAR)_RWY_16_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1fN_IbIphXU1GTZxMBCmxY4xkmq3H6zgZ/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_instrument_arrival_chart_star_rwy_16_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1AtqT5lMcgsHv24jPokTua_uDH_UiPizy",
                 "name": "RNAV_STANDARD_ARRIVAL_CHART_INSTRUMENT_(STAR)_RWY_10_LR_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1AtqT5lMcgsHv24jPokTua_uDH_UiPizy/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_arrival_chart_instrument_star_rwy_10_lr_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "15bL-P_ENM6IsggBcjUaTHrU2q-ttmsh8",
                 "name": "RNAV_STANDARD_ARRIVAL_CHART_INSTRUMENT_(STAR)_RWY_28_LR_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/15bL-P_ENM6IsggBcjUaTHrU2q-ttmsh8/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_arrival_chart_instrument_star_rwy_28_lr_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1tD-WYOGKOstX7-LMQSQLIe-zNvtTRWtL",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT(SID)_RWY_34_CAT_C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1tD-WYOGKOstX7-LMQSQLIe-zNvtTRWtL/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrumentsid_rwy_34_cat_cd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1C4KKoXJcafVxP8uaLiIJ0vJtqEJHv5XH",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_34_-_CAT_A,B_-ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1C4KKoXJcafVxP8uaLiIJ0vJtqEJHv5XH/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrument_sid_rwy_34_-_cat_ab_-icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1xt0gv1S_2sT_RAn539tkYGZv647l0XC0",
                 "name": "AERODROME_CHART_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1xt0gv1S_2sT_RAn539tkYGZv647l0XC0/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/aerodrome_chart_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1TgctWRnifDDhTbTl974nYYZz4a9m6HnT",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT(_SID)_RWY_16_CAT_C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1TgctWRnifDDhTbTl974nYYZz4a9m6HnT/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrument_sid_rwy_16_cat_cd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1LOjAB_CpaOkbv6nTp1P_Z6i66z6Ua1pC",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_16_-_CAT_A,B_-ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1LOjAB_CpaOkbv6nTp1P_Z6i66z6Ua1pC/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrument_sid_rwy_16_-_cat_ab_-icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1DNorFY8Iff8q7OiCt5d-hFYtffYK-hz6",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_10R_CAT_C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1DNorFY8Iff8q7OiCt5d-hFYtffYK-hz6/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrument_sid_rwy_10r_cat_cd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1cl3obHVHcXlOaiiiJuHyLrJ-f4tIaSwP",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_10R_CAT_A,B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1cl3obHVHcXlOaiiiJuHyLrJ-f4tIaSwP/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrument_sid_rwy_10r_cat_ab_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1klUEY15hZw2k9DeS8bos6PemmRu3mzkY",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_10L_CAT_C,_D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1klUEY15hZw2k9DeS8bos6PemmRu3mzkY/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrument_sid_rwy_10l_cat_c_d_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "15BIXnZWp57WBqtjaq2mjvMrzs29uJsNZ",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_10L_CAT_A,_B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/15BIXnZWp57WBqtjaq2mjvMrzs29uJsNZ/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrument_sid_rwy_10l_cat_a_b_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1TGtlShVaT66h2y5sn5t-xB69bxmL7PBE",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_28R_CAT_C,_D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1TGtlShVaT66h2y5sn5t-xB69bxmL7PBE/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrument_sid_rwy_28r_cat_c_d_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1haZntnj_lvyoOqzpy4K1ZsGVAe0uFpLj",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_28R_CAT_A,B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1haZntnj_lvyoOqzpy4K1ZsGVAe0uFpLj/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrument_sid_rwy_28r_cat_ab_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "14RC2c_QLkVHNDb_TJfjY27Aq708Ilrc0",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_28L_CAT_C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/14RC2c_QLkVHNDb_TJfjY27Aq708Ilrc0/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrument_sid_rwy_28l_cat_cd_-_icao.pdf",
                 "type": "pdf"
         },
         {
                 "id": "17wgT3CpZjfKiaVoCGM6f4NChM_Hj4w1d",
                 "name": "RNAV_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_28L_CAT_A,B_-ICAO.pdf",
                 "url": "https://drive.google.com/file/d/17wgT3CpZjfKiaVoCGM6f4NChM_Hj4w1d/view?usp=drivesdk",
+                "localUrl": "charts_data/ireland/eidw/rnav_standard_departure_chart_instrument_sid_rwy_28l_cat_ab_-icao.pdf",
                 "type": "pdf"
         }
 ];
@@ -1077,7 +1139,7 @@
                 item.href = '#';
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url);
+                    openViewer(file.id, file.name, file.url, file.localUrl);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
@@ -1100,6 +1162,7 @@
                         id: file.id,
                         name: file.name,
                         url: file.url,
+                        localUrl: file.localUrl,
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region

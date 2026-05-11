@@ -325,57 +325,58 @@
             flex: 1;
             position: relative;
             overflow: hidden;
+            background: #05070a;
             display: flex;
+            flex-direction: column;
             align-items: center;
+        }
+
+        #pdfViewerContainer {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
             justify-content: center;
             background: #05070a;
-            cursor: default;
+            scroll-behavior: smooth;
         }
 
-        .viewer-content.pan-mode {
-            cursor: grab;
-        }
-
-        .viewer-content.pan-mode:active {
-            cursor: grabbing;
-        }
-
-        .viewer-frame-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease-out;
-            will-change: transform;
-        }
-
-        #viewerFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-            border-radius: 2px;
+        .pdf-page-container {
+            margin: 20px 0;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            pointer-events: auto;
-            image-rendering: -webkit-optimize-contrast;
-            backface-visibility: hidden;
-            -webkit-font-smoothing: subpixel-antialiased;
+            position: relative;
+            background: white;
+            transition: transform 0.1s ease-out;
+            transform-origin: top center;
         }
 
-        .pan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: none;
-        }
-
-        .viewer-content.pan-mode .pan-overlay {
+        canvas {
             display: block;
+            max-width: 100%;
+        }
+
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 0.2;
+            line-height: 1.0;
+        }
+
+        .textLayer > span {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+
+        ::selection {
+            background: rgba(88, 166, 255, 0.3);
         }
 
         .viewer-tip {
@@ -523,6 +524,10 @@
     </div>
     
     
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+
     <div id="viewerModal" class="viewer-modal">
         <div class="viewer-header">
             <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
@@ -530,12 +535,9 @@
             <div class="viewer-controls">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
                     <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
-                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="3" step="0.1" value="1">
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
+                    <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
                 </div>
-
-                <button class="control-btn" id="panToggle" title="Toggle Pan Mode (Drag to move)">
-                    <span>🖐</span> PAN
-                </button>
 
                 <button class="control-btn" id="rotateBtn" title="Rotate Chart">
                     <span>🔄</span> ROTATE
@@ -557,17 +559,15 @@
         <div class="viewer-content" id="viewerContent">
             <div id="viewerLoader" class="viewer-loader">
                 <div class="spinner"></div>
-                <div style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">FETCHING FROM DRIVE...</div>
+                <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
             </div>
 
-            <div class="viewer-frame-container" id="viewerContainer">
-                <iframe id="viewerFrame" src="" allow="autoplay"></iframe>
+            <div id="pdfViewerContainer">
+                <div id="pdfViewer" class="pdfViewer"></div>
             </div>
-
-            <div class="pan-overlay" id="panOverlay"></div>
 
             <div class="viewer-tip">
-                <span>💡 <b>Ctrl+F</b> not working? Click <b>DRIVE</b> to search text.</span>
+                <span>💡 Use <b>Ctrl+F</b> to search text. Use <b>Mouse Wheel</b> to zoom.</span>
             </div>
         </div>
     </div>
@@ -599,151 +599,169 @@
         }
     
         
-        let currentRotation = 0;
-        let currentZoom = 1;
-        let translateX = 0;
-        let translateY = 0;
-        let isDragging = false;
-        let startX, startY;
-        let isPanMode = false;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        function openViewer(id, name, url) {
+        let currentPdf = null;
+        let currentRotation = 0;
+        let currentZoom = 1.5;
+        let visualScale = 1.0; // Added for smooth CSS scaling
+
+        async function openViewer(id, name, driveUrl, localUrl) {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             const title = document.getElementById('viewerTitle');
             const externalLink = document.getElementById('externalLink');
             const loader = document.getElementById('viewerLoader');
-            const container = document.getElementById('viewerContainer');
+            const loaderStatus = document.getElementById('loaderStatus');
+            const container = document.getElementById('pdfViewer');
 
             // Reset state
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            isPanMode = false;
-            document.getElementById('panToggle').classList.remove('active');
-            document.getElementById('viewerContent').classList.remove('pan-mode');
-
-            updateFrameTransform();
-            document.getElementById('zoomRange').value = 1;
-
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
             title.textContent = name;
-            externalLink.href = url;
-
-            // Initial state
-            loader.style.display = 'flex';
-            container.style.opacity = '0';
-
-            // Handler for when loading finishes
-            const onFinish = () => {
-                loader.style.display = 'none';
-                container.style.opacity = '1';
-            };
-
-            frame.onload = onFinish;
-
-            // Safety timeout: Show the frame anyway after 5s if onload doesn't fire
-            setTimeout(onFinish, 5000);
-
-            // Use /preview with additional parameters for better embedding
-            frame.src = `https://drive.google.com/file/d/${id}/preview?rm=minimal`;
-
+            externalLink.href = driveUrl;
+            container.innerHTML = '';
+            container.style.transform = 'scale(1)'; // Reset visual scale
+            
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            loader.style.display = 'flex';
+            loaderStatus.textContent = 'LOADING LOCAL PDF...';
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(localUrl);
+                currentPdf = await loadingTask.promise;
+                loaderStatus.textContent = `RENDERING ${currentPdf.numPages} PAGE(S)...`;
+                await renderAllPages();
+                loader.style.display = 'none';
+            } catch (err) {
+                console.error('PDF Error:', err);
+                loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
+                setTimeout(() => {
+                    window.open(driveUrl, '_blank');
+                    closeViewer();
+                }, 2000);
+            }
+        }
+
+        async function renderAllPages() {
+            const container = document.getElementById('pdfViewer');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= currentPdf.numPages; i++) {
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'pdf-page-container';
+                pageContainer.id = `page-${i}`;
+                container.appendChild(pageContainer);
+                await renderPage(i, pageContainer);
+            }
+            applyVisualTransform();
+        }
+
+        async function renderPage(pageNum, container) {
+            const page = await currentPdf.getPage(pageNum);
+            // Render at the current "high quality" zoom level
+            const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
+            
+            container.style.width = `${viewport.width}px`;
+            container.style.height = `${viewport.height}px`;
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            container.appendChild(canvas);
+
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.className = 'textLayer';
+            container.appendChild(textLayerDiv);
+
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            
+            const textContent = await page.getTextContent();
+            pdfjsLib.renderTextLayer({
+                textContent: textContent,
+                container: textLayerDiv,
+                viewport: viewport,
+                textDivs: []
+            });
+        }
+
+        function applyVisualTransform() {
+            const container = document.getElementById('pdfViewer');
+            // We use CSS scale for the small adjustments between high-quality renders
+            container.style.transform = `scale(${visualScale})`;
         }
 
         function closeViewer() {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             modal.style.display = 'none';
-            frame.src = '';
             document.body.style.overflow = 'auto';
+            currentPdf = null;
         }
 
-        function updateFrameTransform() {
-            const container = document.getElementById('viewerContainer');
-            const frame = document.getElementById('viewerFrame');
-            const isRotated = currentRotation % 180 !== 0;
-
-            // Apply transformations to the container
-            container.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentZoom})`;
-
-            if (isRotated) {
-                container.style.width = '100vh';
-                container.style.height = '100vw';
-            } else {
-                container.style.width = '100%';
-                container.style.height = '100%';
-            }
+        async function updateZoomQuality() {
+            // This is the heavy render that runs AFTER the user stops zooming
+            await renderAllPages();
+            visualScale = 1.0;
+            applyVisualTransform();
         }
 
-        // Drag & Pan Logic
-        const viewerContent = document.getElementById('viewerContent');
-
-        viewerContent.onmousedown = (e) => {
-            if (!isPanMode) return;
-            isDragging = true;
-            startX = e.clientX - translateX;
-            startY = e.clientY - translateY;
-            e.preventDefault();
+        document.getElementById('zoomRange').oninput = (e) => {
+            const newZoom = parseFloat(e.target.value);
+            // Instant visual feedback
+            visualScale = newZoom / currentZoom;
+            applyVisualTransform();
+            document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
         };
 
-        window.onmousemove = (e) => {
-            if (!isDragging) return;
-            translateX = e.clientX - startX;
-            translateY = e.clientY - startY;
-            updateFrameTransform();
+        document.getElementById('zoomRange').onchange = async (e) => {
+            currentZoom = parseFloat(e.target.value);
+            await updateZoomQuality();
         };
 
-        window.onmouseup = () => {
-            isDragging = false;
+        document.getElementById('rotateBtn').onclick = async () => {
+            currentRotation = (currentRotation + 90) % 360;
+            await renderAllPages();
         };
 
-        // Mouse Wheel Zoom
-        viewerContent.onwheel = (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                currentZoom = Math.min(Math.max(0.5, currentZoom + delta), 4);
-                document.getElementById('zoomRange').value = currentZoom;
-                updateFrameTransform();
-            }
-        };
-
-        document.getElementById('panToggle').onclick = () => {
-            isPanMode = !isPanMode;
-            document.getElementById('panToggle').classList.toggle('active', isPanMode);
-            document.getElementById('viewerContent').classList.toggle('pan-mode', isPanMode);
-        };
-
-        document.getElementById('resetBtn').onclick = () => {
+        document.getElementById('resetBtn').onclick = async () => {
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            document.getElementById('zoomRange').value = 1;
-            updateFrameTransform();
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
+            await renderAllPages();
         };
 
         document.getElementById('closeViewer').onclick = closeViewer;
 
-        document.getElementById('rotateBtn').onclick = () => {
-            currentRotation = (currentRotation + 90) % 360;
-            updateFrameTransform();
+        // Mouse Wheel Zoom
+        document.getElementById('pdfViewerContainer').onwheel = (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
+                
+                visualScale = newZoom / currentZoom;
+                applyVisualTransform();
+                
+                document.getElementById('zoomRange').value = newZoom;
+                document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                // Debounce the high-quality re-render
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
         };
 
-        document.getElementById('zoomRange').oninput = (e) => {
-            currentZoom = parseFloat(e.target.value);
-            updateFrameTransform();
-        };
-
-        // Key Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeViewer();
-            if (e.key === ' ') { // Space to toggle pan mode
-                e.preventDefault();
-                document.getElementById('panToggle').click();
-            }
         });
     
         
@@ -772,426 +790,497 @@
                 "id": "1tfbcUx6bjYmL0j_FPjaxcQGZoB7eurSU",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/1tfbcUx6bjYmL0j_FPjaxcQGZoB7eurSU/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/.DS_Store",
                 "type": "doc"
         },
         {
                 "id": "1whW0DihILfSAlc8EazEPz_6zQV9y3L9j",
                 "name": "CYYC_STAMPEDE_2_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1whW0DihILfSAlc8EazEPz_6zQV9y3L9j/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1WQyq3iT1e2UcevkZAB6WxwFHfpFZp1gV",
                 "name": "CYYC_COWBOY_2_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1WQyq3iT1e2UcevkZAB6WxwFHfpFZp1gV/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Y3vm2Y2eDTZ3g4jPDo2HgBikKUcJTjEE",
                 "name": "CYYC_RODEO_2_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1Y3vm2Y2eDTZ3g4jPDo2HgBikKUcJTjEE/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "19SAd5dBWN0JTdYoFxcXyI3t7Zrs6juXF",
                 "name": "CYYC_STAMPEDE_2_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/19SAd5dBWN0JTdYoFxcXyI3t7Zrs6juXF/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "14sRr-BYi71nuprjsCn5s4itcj_PIEVi4",
                 "name": "CYYC_AERODROME_CHART_PG_02_HIGH_INTENSITY_RUNWAY_OPERATIONS_-_HIRO.pdf",
                 "url": "https://drive.google.com/file/d/14sRr-BYi71nuprjsCn5s4itcj_PIEVi4/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart_pg_02_high_intensity_runway_operations_-_hiro.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1cEhmGI9vXGi9_wD9NlXb_UkyogfZ01e8",
                 "name": "CYYC_CALGARY_8_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1cEhmGI9vXGi9_wD9NlXb_UkyogfZ01e8/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1KIJycrzpKajL4sW6_6PwX7VncG8x5NSU",
                 "name": "CYYC_TAXI_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1KIJycrzpKajL4sW6_6PwX7VncG8x5NSU/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_taxi_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1egT_fboghYWGuTYqT9F-Dp5E1FQnOWEl",
                 "name": "CYYC_LOW_REDUCED_VISIBILITY_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1egT_fboghYWGuTYqT9F-Dp5E1FQnOWEl/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "12hgp7yDL-6fVF6nH7ii2qDJAAPQjSQbQ",
                 "name": "CYYC_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/12hgp7yDL-6fVF6nH7ii2qDJAAPQjSQbQ/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1CPTNicZ1Dl_Gop1i_Zo--lehGr50D3lc",
                 "name": "CYYC_TAKEOFF_MINIMUMS.pdf",
                 "url": "https://drive.google.com/file/d/1CPTNicZ1Dl_Gop1i_Zo--lehGr50D3lc/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_takeoff_minimums.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1nLKyCKifaH2IRzO5i-GPyVuKGkazdxQT",
                 "name": "CYYC_LOW_VISIBILITY_TAXI_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1nLKyCKifaH2IRzO5i-GPyVuKGkazdxQT/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1-aQnphJe-Fdj2w8y-d46zdcJa3DFJg8w",
                 "name": "CYYC_TAXI_CHART_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1-aQnphJe-Fdj2w8y-d46zdcJa3DFJg8w/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_taxi_chart_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1RnoOFB4T-MqS4o0OqYkBBoPE6rDUkbKK",
                 "name": "CYYC_COWBOY_2_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1RnoOFB4T-MqS4o0OqYkBBoPE6rDUkbKK/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1--Hl2Npi_5UXOd8bd3oxG-6NWZwLp9AG",
                 "name": "CYYC_DE-ICING_OPERATIONS_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1--Hl2Npi_5UXOd8bd3oxG-6NWZwLp9AG/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_de-icing_operations_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1NYn6kkU7_DM9A-IuxhSwYDVJ_Wqlgsgj",
                 "name": "CYYC_PARKING_AREAS.pdf",
                 "url": "https://drive.google.com/file/d/1NYn6kkU7_DM9A-IuxhSwYDVJ_Wqlgsgj/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_parking_areas.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1dlxU0AW_ieNSulSe4pJwuLC92NSEioiC",
                 "name": "CYYC_LOW_VISIBILITY_TAXI_CHART_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1dlxU0AW_ieNSulSe4pJwuLC92NSEioiC/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1CMca-sqbVx5JoO6wvFGc9HodXR4dI3yh",
                 "name": "CYYC_RODEO_2_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1CMca-sqbVx5JoO6wvFGc9HodXR4dI3yh/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1p-oF2SNtZFkN4nIz8zEsbeXzV8PmLxfA",
                 "name": "CYYC_LOW_REDUCED_VISIBILITY_PROCEDURES_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1p-oF2SNtZFkN4nIz8zEsbeXzV8PmLxfA/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1fOemaCPpD0DlTLGW-Ulg6gDDHr8w2gXq",
                 "name": "CYYC_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1fOemaCPpD0DlTLGW-Ulg6gDDHr8w2gXq/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "11uzAChi18jpLmo9Kb8F_M5dV1QOFA09N",
                 "name": "CYYC_DE-ICING_OPERATIONS.pdf",
                 "url": "https://drive.google.com/file/d/11uzAChi18jpLmo9Kb8F_M5dV1QOFA09N/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_de-icing_operations.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1l4LBXi4CY0n1pOghKDa2bvTyys4B-R6E",
                 "name": "CYYC_CALGARY_8_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1l4LBXi4CY0n1pOghKDa2bvTyys4B-R6E/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1nLAB_1lp-E7cnhjjMA7CyKgvcXMC2Zmt",
                 "name": "CYYC_RNAV_RNP_Y_RWY_17R.pdf",
                 "url": "https://drive.google.com/file/d/1nLAB_1lp-E7cnhjjMA7CyKgvcXMC2Zmt/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_17r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1jhPvyqfC59r1sebgIwP-w_5kT_E9zewe",
                 "name": "CYYC_RNAV_RNP_Y_RWY_35L.pdf",
                 "url": "https://drive.google.com/file/d/1jhPvyqfC59r1sebgIwP-w_5kT_E9zewe/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_35l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1y2MxHtJR49lY90rkpsCoujIHzZZmDqUl",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_35R.pdf",
                 "url": "https://drive.google.com/file/d/1y2MxHtJR49lY90rkpsCoujIHzZZmDqUl/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_35r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1eMunSOglVuNE4KMvPGd4GotdtpwWGoOn",
                 "name": "CYYC_AERODROME_CHART_PG_03_REDUCED_TAKE_OFF_RUNS.pdf",
                 "url": "https://drive.google.com/file/d/1eMunSOglVuNE4KMvPGd4GotdtpwWGoOn/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart_pg_03_reduced_take_off_runs.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1dmoDJGxcQ3vuPx88Af56g-g7JB8Aonnm",
                 "name": "CYYC_RNAV_RNP_Y_RWY_35R.pdf",
                 "url": "https://drive.google.com/file/d/1dmoDJGxcQ3vuPx88Af56g-g7JB8Aonnm/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_35r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1tkj6lKBWpVK6qlzw5RzMcb0lqEd4lzvu",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_17R.pdf",
                 "url": "https://drive.google.com/file/d/1tkj6lKBWpVK6qlzw5RzMcb0lqEd4lzvu/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_17r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1jxv5W7Aeltu9zdc6IFjWEtWuoUvHf2Xe",
                 "name": "CYYC_RNAV_RNP_Y_RWY_17L.pdf",
                 "url": "https://drive.google.com/file/d/1jxv5W7Aeltu9zdc6IFjWEtWuoUvHf2Xe/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_17l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1NgvFfZ31Og1qrCMfF86H3AfVdD_tGCo9",
                 "name": "CYYC_ATTENTION_ALL_USERS.pdf",
                 "url": "https://drive.google.com/file/d/1NgvFfZ31Og1qrCMfF86H3AfVdD_tGCo9/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_attention_all_users.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Uxq0J_wByhMLSsbkuVTFKblMkdVmbWG1",
                 "name": "CYYC_RNAV_RNP_Y_RWY_11.pdf",
                 "url": "https://drive.google.com/file/d/1Uxq0J_wByhMLSsbkuVTFKblMkdVmbWG1/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_11.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1qGg7hz4I8DUeUbCQA6NCynXEPpooT6iJ",
                 "name": "CYYC_RNAV_RNP_Y_RWY_29.pdf",
                 "url": "https://drive.google.com/file/d/1qGg7hz4I8DUeUbCQA6NCynXEPpooT6iJ/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_29.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1teN6WrAY6i9P0YPn2z6Z_bLhgBpgEvJg",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_35L.pdf",
                 "url": "https://drive.google.com/file/d/1teN6WrAY6i9P0YPn2z6Z_bLhgBpgEvJg/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_35l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "15twWHBPzUOpBS9dKZ-O_JhUb0dXmKUaU",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_29.pdf",
                 "url": "https://drive.google.com/file/d/15twWHBPzUOpBS9dKZ-O_JhUb0dXmKUaU/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_29.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1kEp9uYS-9MzFZAQQ7e4WehCQ4UkB-qMd",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_17L.pdf",
                 "url": "https://drive.google.com/file/d/1kEp9uYS-9MzFZAQQ7e4WehCQ4UkB-qMd/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_17l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1kIS9zj6Yy-IwWChSBTKrOaNXdPOJ8Nux",
                 "name": "CYYC_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1kIS9zj6Yy-IwWChSBTKrOaNXdPOJ8Nux/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1pvmy5VFk4UVf-QBN_pGH0ITW2BcLKCT_",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_11.pdf",
                 "url": "https://drive.google.com/file/d/1pvmy5VFk4UVf-QBN_pGH0ITW2BcLKCT_/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_11.pdf",
                 "type": "pdf"
         },
         {
                 "id": "17D-MmAf4j-1YAH-KoS7qzhguvqDELQJt",
                 "name": "CYYC_TOTUB_5_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/17D-MmAf4j-1YAH-KoS7qzhguvqDELQJt/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "149zuJXd2dm4LtcRgw2foH48Oa8WjdB-v",
                 "name": "CYYC_ILS_RWY_17R.pdf",
                 "url": "https://drive.google.com/file/d/149zuJXd2dm4LtcRgw2foH48Oa8WjdB-v/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_17r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1_y1vDFIrNMTAc59LWMfY8tAWBvgw6uKa",
                 "name": "CYYC_ILS_RWY_29.pdf",
                 "url": "https://drive.google.com/file/d/1_y1vDFIrNMTAc59LWMfY8tAWBvgw6uKa/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_29.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1f0b7Yi7NB2VBvLwj421kWpvGL7uttgiq",
                 "name": "CYYC_TIDUK_7_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1f0b7Yi7NB2VBvLwj421kWpvGL7uttgiq/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1mRZOoEkUJ8dMwRdjI0CPBWlu8TZ8AUme",
                 "name": "CYYC_VESGA_6_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1mRZOoEkUJ8dMwRdjI0CPBWlu8TZ8AUme/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1j295fbZQQAqURM86yhT61meGSm3ea-zp",
                 "name": "CYYC_VESGA_6_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1j295fbZQQAqURM86yhT61meGSm3ea-zp/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1NXIBdVZSehdc_CK_ZTKJ-wfelr-aUL5-",
                 "name": "CYYC_ILS_CAT_II_OR_III_RWY_35R.pdf",
                 "url": "https://drive.google.com/file/d/1NXIBdVZSehdc_CK_ZTKJ-wfelr-aUL5-/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_or_iii_rwy_35r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1BAxoSxnmvG72ceKBiQbR2WcKX71W0eap",
                 "name": "CYYC_ILS_CAT_II_RWY_35L.pdf",
                 "url": "https://drive.google.com/file/d/1BAxoSxnmvG72ceKBiQbR2WcKX71W0eap/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_rwy_35l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1DLwldeX2VNXjz38cMkiMSpzRdjjSxd3W",
                 "name": "CYYC_ILS_CAT_II_RWY_17R.pdf",
                 "url": "https://drive.google.com/file/d/1DLwldeX2VNXjz38cMkiMSpzRdjjSxd3W/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_rwy_17r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "16JH083wlZP0jLoDCB2oDH1y4_yYW_WWa",
                 "name": "CYYC_ILS_RWY_35L.pdf",
                 "url": "https://drive.google.com/file/d/16JH083wlZP0jLoDCB2oDH1y4_yYW_WWa/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_35l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1f0GKXJzAK4qcQxpJML1QrrYdwOHqvLwS",
                 "name": "CYYC_TOTUB_5_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1f0GKXJzAK4qcQxpJML1QrrYdwOHqvLwS/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1wfXu4oWohB3x_N7hTgFAS3GMywlN_WFp",
                 "name": "CYYC_ILS_RWY_17L.pdf",
                 "url": "https://drive.google.com/file/d/1wfXu4oWohB3x_N7hTgFAS3GMywlN_WFp/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_17l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Llhcc9GtZMvxYHcU3DWFdVZBC4vvxPga",
                 "name": "CYYC_ILS_RWY_11.pdf",
                 "url": "https://drive.google.com/file/d/1Llhcc9GtZMvxYHcU3DWFdVZBC4vvxPga/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_11.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1NEyGMxvrNdwLAAY3HZt1iBL9jHFS9hXq",
                 "name": "CYYC_ILS_RWY_35R.pdf",
                 "url": "https://drive.google.com/file/d/1NEyGMxvrNdwLAAY3HZt1iBL9jHFS9hXq/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_35r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1LEh-ZapWuf23CfKhsCRa6LhvWuZvwh2Y",
                 "name": "CYYC_ILS_CAT_II_OR_III_RWY_17L.pdf",
                 "url": "https://drive.google.com/file/d/1LEh-ZapWuf23CfKhsCRa6LhvWuZvwh2Y/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_or_iii_rwy_17l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1uP4aQVield9g8k7sI3lGQK--E2n0S0tZ",
                 "name": "CYYC_TOTUB_5_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1uP4aQVield9g8k7sI3lGQK--E2n0S0tZ/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1SPz2xHgdCptS6LLNlIOyfUrPvVK62gTt",
                 "name": "CYYC_VESGA_6_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1SPz2xHgdCptS6LLNlIOyfUrPvVK62gTt/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1m01bmUBOMYftQ0hktLs0ENtWJGPpWAa9",
                 "name": "CYYC_FLAAM_7_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1m01bmUBOMYftQ0hktLs0ENtWJGPpWAa9/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Xq2nO3XDGeVnmZ4bLJZF3M6EqCb4oKTe",
                 "name": "CYYC_FLAAM_7_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1Xq2nO3XDGeVnmZ4bLJZF3M6EqCb4oKTe/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "17HrY_B1-DpawKmGwxw4T7qQdfgHiUXnW",
                 "name": "CYYC_BIRKO_6_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/17HrY_B1-DpawKmGwxw4T7qQdfgHiUXnW/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1k5X-7hwpSehl21yiNOV2mxP5Ll05NaB7",
                 "name": "CYYC_BIRKO_6_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1k5X-7hwpSehl21yiNOV2mxP5Ll05NaB7/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1W8MerU1SIB9u2LWkLSIJTxQWAqsl1_-J",
                 "name": "CYYC_IGVEP_7_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1W8MerU1SIB9u2LWkLSIJTxQWAqsl1_-J/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1-kwZlngSNQqO-F8ejhywTlJ0Zpj2M2MC",
                 "name": "CYYC_EBGAL_7_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1-kwZlngSNQqO-F8ejhywTlJ0Zpj2M2MC/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ZvJ3oQ2E_8MxEg3b13Sp5GyGhCYKnNsG",
                 "name": "CYYC_ADVOX_9_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1ZvJ3oQ2E_8MxEg3b13Sp5GyGhCYKnNsG/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1dM97WVt2uMW7fxPVUY0ZS0u1ISFfI4O9",
                 "name": "CYYC_EBGAL_7_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1dM97WVt2uMW7fxPVUY0ZS0u1ISFfI4O9/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1bu4qUZUOw4sYUwDu-VrRBS-HCZMiaW3C",
                 "name": "CYYC_EBGAL_7_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1bu4qUZUOw4sYUwDu-VrRBS-HCZMiaW3C/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1P-zPlmU1CoZB-AT7OTrseF6GTqOSzH4A",
                 "name": "CYYC_BIRKO_6_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1P-zPlmU1CoZB-AT7OTrseF6GTqOSzH4A/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1wcB1R_z2GHiSzeS2Fq8blUUTACIB3t97",
                 "name": "CYYC_IGVEP_7_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1wcB1R_z2GHiSzeS2Fq8blUUTACIB3t97/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "14VFrRx0aprKtzIZ2U69V0RTVyMJQs6UW",
                 "name": "CYYC_ADVOX_9_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/14VFrRx0aprKtzIZ2U69V0RTVyMJQs6UW/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1QAqPAB0sGKZj_Xp3FtLHKJ6XiPKMfH_h",
                 "name": "CYYC_IGVEP_7_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1QAqPAB0sGKZj_Xp3FtLHKJ6XiPKMfH_h/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1mv6hya24ogt8cG4fAjHFQcMMkn4hwp26",
                 "name": "CYYC_TIDUK_7_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1mv6hya24ogt8cG4fAjHFQcMMkn4hwp26/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1fAZL63s4UMrwyWBIkiD8CS9V59uoB4XH",
                 "name": "CYYC_TIDUK_7_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1fAZL63s4UMrwyWBIkiD8CS9V59uoB4XH/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1gg5YearRBko3iH1Z9bG_7ePTlxqJjepd",
                 "name": "CYYC_FLAAM_7_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1gg5YearRBko3iH1Z9bG_7ePTlxqJjepd/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1_PheT-S2bDQyngc-ltkjhgLuHV3moOEl",
                 "name": "CYYC_ADVOX_9_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1_PheT-S2bDQyngc-ltkjhgLuHV3moOEl/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav.pdf",
                 "type": "pdf"
         }
 ];
@@ -1239,7 +1328,7 @@
                 item.href = '#';
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url);
+                    openViewer(file.id, file.name, file.url, file.localUrl);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
@@ -1262,6 +1351,7 @@
                         id: file.id,
                         name: file.name,
                         url: file.url,
+                        localUrl: file.localUrl,
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region

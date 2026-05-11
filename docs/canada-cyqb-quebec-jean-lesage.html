@@ -325,57 +325,58 @@
             flex: 1;
             position: relative;
             overflow: hidden;
+            background: #05070a;
             display: flex;
+            flex-direction: column;
             align-items: center;
+        }
+
+        #pdfViewerContainer {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
             justify-content: center;
             background: #05070a;
-            cursor: default;
+            scroll-behavior: smooth;
         }
 
-        .viewer-content.pan-mode {
-            cursor: grab;
-        }
-
-        .viewer-content.pan-mode:active {
-            cursor: grabbing;
-        }
-
-        .viewer-frame-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease-out;
-            will-change: transform;
-        }
-
-        #viewerFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-            border-radius: 2px;
+        .pdf-page-container {
+            margin: 20px 0;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            pointer-events: auto;
-            image-rendering: -webkit-optimize-contrast;
-            backface-visibility: hidden;
-            -webkit-font-smoothing: subpixel-antialiased;
+            position: relative;
+            background: white;
+            transition: transform 0.1s ease-out;
+            transform-origin: top center;
         }
 
-        .pan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: none;
-        }
-
-        .viewer-content.pan-mode .pan-overlay {
+        canvas {
             display: block;
+            max-width: 100%;
+        }
+
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 0.2;
+            line-height: 1.0;
+        }
+
+        .textLayer > span {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+
+        ::selection {
+            background: rgba(88, 166, 255, 0.3);
         }
 
         .viewer-tip {
@@ -523,6 +524,10 @@
     </div>
     
     
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+
     <div id="viewerModal" class="viewer-modal">
         <div class="viewer-header">
             <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
@@ -530,12 +535,9 @@
             <div class="viewer-controls">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
                     <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
-                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="3" step="0.1" value="1">
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
+                    <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
                 </div>
-
-                <button class="control-btn" id="panToggle" title="Toggle Pan Mode (Drag to move)">
-                    <span>🖐</span> PAN
-                </button>
 
                 <button class="control-btn" id="rotateBtn" title="Rotate Chart">
                     <span>🔄</span> ROTATE
@@ -557,17 +559,15 @@
         <div class="viewer-content" id="viewerContent">
             <div id="viewerLoader" class="viewer-loader">
                 <div class="spinner"></div>
-                <div style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">FETCHING FROM DRIVE...</div>
+                <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
             </div>
 
-            <div class="viewer-frame-container" id="viewerContainer">
-                <iframe id="viewerFrame" src="" allow="autoplay"></iframe>
+            <div id="pdfViewerContainer">
+                <div id="pdfViewer" class="pdfViewer"></div>
             </div>
-
-            <div class="pan-overlay" id="panOverlay"></div>
 
             <div class="viewer-tip">
-                <span>💡 <b>Ctrl+F</b> not working? Click <b>DRIVE</b> to search text.</span>
+                <span>💡 Use <b>Ctrl+F</b> to search text. Use <b>Mouse Wheel</b> to zoom.</span>
             </div>
         </div>
     </div>
@@ -599,151 +599,169 @@
         }
     
         
-        let currentRotation = 0;
-        let currentZoom = 1;
-        let translateX = 0;
-        let translateY = 0;
-        let isDragging = false;
-        let startX, startY;
-        let isPanMode = false;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        function openViewer(id, name, url) {
+        let currentPdf = null;
+        let currentRotation = 0;
+        let currentZoom = 1.5;
+        let visualScale = 1.0; // Added for smooth CSS scaling
+
+        async function openViewer(id, name, driveUrl, localUrl) {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             const title = document.getElementById('viewerTitle');
             const externalLink = document.getElementById('externalLink');
             const loader = document.getElementById('viewerLoader');
-            const container = document.getElementById('viewerContainer');
+            const loaderStatus = document.getElementById('loaderStatus');
+            const container = document.getElementById('pdfViewer');
 
             // Reset state
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            isPanMode = false;
-            document.getElementById('panToggle').classList.remove('active');
-            document.getElementById('viewerContent').classList.remove('pan-mode');
-
-            updateFrameTransform();
-            document.getElementById('zoomRange').value = 1;
-
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
             title.textContent = name;
-            externalLink.href = url;
-
-            // Initial state
-            loader.style.display = 'flex';
-            container.style.opacity = '0';
-
-            // Handler for when loading finishes
-            const onFinish = () => {
-                loader.style.display = 'none';
-                container.style.opacity = '1';
-            };
-
-            frame.onload = onFinish;
-
-            // Safety timeout: Show the frame anyway after 5s if onload doesn't fire
-            setTimeout(onFinish, 5000);
-
-            // Use /preview with additional parameters for better embedding
-            frame.src = `https://drive.google.com/file/d/${id}/preview?rm=minimal`;
-
+            externalLink.href = driveUrl;
+            container.innerHTML = '';
+            container.style.transform = 'scale(1)'; // Reset visual scale
+            
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            loader.style.display = 'flex';
+            loaderStatus.textContent = 'LOADING LOCAL PDF...';
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(localUrl);
+                currentPdf = await loadingTask.promise;
+                loaderStatus.textContent = `RENDERING ${currentPdf.numPages} PAGE(S)...`;
+                await renderAllPages();
+                loader.style.display = 'none';
+            } catch (err) {
+                console.error('PDF Error:', err);
+                loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
+                setTimeout(() => {
+                    window.open(driveUrl, '_blank');
+                    closeViewer();
+                }, 2000);
+            }
+        }
+
+        async function renderAllPages() {
+            const container = document.getElementById('pdfViewer');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= currentPdf.numPages; i++) {
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'pdf-page-container';
+                pageContainer.id = `page-${i}`;
+                container.appendChild(pageContainer);
+                await renderPage(i, pageContainer);
+            }
+            applyVisualTransform();
+        }
+
+        async function renderPage(pageNum, container) {
+            const page = await currentPdf.getPage(pageNum);
+            // Render at the current "high quality" zoom level
+            const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
+            
+            container.style.width = `${viewport.width}px`;
+            container.style.height = `${viewport.height}px`;
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            container.appendChild(canvas);
+
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.className = 'textLayer';
+            container.appendChild(textLayerDiv);
+
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            
+            const textContent = await page.getTextContent();
+            pdfjsLib.renderTextLayer({
+                textContent: textContent,
+                container: textLayerDiv,
+                viewport: viewport,
+                textDivs: []
+            });
+        }
+
+        function applyVisualTransform() {
+            const container = document.getElementById('pdfViewer');
+            // We use CSS scale for the small adjustments between high-quality renders
+            container.style.transform = `scale(${visualScale})`;
         }
 
         function closeViewer() {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             modal.style.display = 'none';
-            frame.src = '';
             document.body.style.overflow = 'auto';
+            currentPdf = null;
         }
 
-        function updateFrameTransform() {
-            const container = document.getElementById('viewerContainer');
-            const frame = document.getElementById('viewerFrame');
-            const isRotated = currentRotation % 180 !== 0;
-
-            // Apply transformations to the container
-            container.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentZoom})`;
-
-            if (isRotated) {
-                container.style.width = '100vh';
-                container.style.height = '100vw';
-            } else {
-                container.style.width = '100%';
-                container.style.height = '100%';
-            }
+        async function updateZoomQuality() {
+            // This is the heavy render that runs AFTER the user stops zooming
+            await renderAllPages();
+            visualScale = 1.0;
+            applyVisualTransform();
         }
 
-        // Drag & Pan Logic
-        const viewerContent = document.getElementById('viewerContent');
-
-        viewerContent.onmousedown = (e) => {
-            if (!isPanMode) return;
-            isDragging = true;
-            startX = e.clientX - translateX;
-            startY = e.clientY - translateY;
-            e.preventDefault();
+        document.getElementById('zoomRange').oninput = (e) => {
+            const newZoom = parseFloat(e.target.value);
+            // Instant visual feedback
+            visualScale = newZoom / currentZoom;
+            applyVisualTransform();
+            document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
         };
 
-        window.onmousemove = (e) => {
-            if (!isDragging) return;
-            translateX = e.clientX - startX;
-            translateY = e.clientY - startY;
-            updateFrameTransform();
+        document.getElementById('zoomRange').onchange = async (e) => {
+            currentZoom = parseFloat(e.target.value);
+            await updateZoomQuality();
         };
 
-        window.onmouseup = () => {
-            isDragging = false;
+        document.getElementById('rotateBtn').onclick = async () => {
+            currentRotation = (currentRotation + 90) % 360;
+            await renderAllPages();
         };
 
-        // Mouse Wheel Zoom
-        viewerContent.onwheel = (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                currentZoom = Math.min(Math.max(0.5, currentZoom + delta), 4);
-                document.getElementById('zoomRange').value = currentZoom;
-                updateFrameTransform();
-            }
-        };
-
-        document.getElementById('panToggle').onclick = () => {
-            isPanMode = !isPanMode;
-            document.getElementById('panToggle').classList.toggle('active', isPanMode);
-            document.getElementById('viewerContent').classList.toggle('pan-mode', isPanMode);
-        };
-
-        document.getElementById('resetBtn').onclick = () => {
+        document.getElementById('resetBtn').onclick = async () => {
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            document.getElementById('zoomRange').value = 1;
-            updateFrameTransform();
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
+            await renderAllPages();
         };
 
         document.getElementById('closeViewer').onclick = closeViewer;
 
-        document.getElementById('rotateBtn').onclick = () => {
-            currentRotation = (currentRotation + 90) % 360;
-            updateFrameTransform();
+        // Mouse Wheel Zoom
+        document.getElementById('pdfViewerContainer').onwheel = (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
+                
+                visualScale = newZoom / currentZoom;
+                applyVisualTransform();
+                
+                document.getElementById('zoomRange').value = newZoom;
+                document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                // Debounce the high-quality re-render
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
         };
 
-        document.getElementById('zoomRange').oninput = (e) => {
-            currentZoom = parseFloat(e.target.value);
-            updateFrameTransform();
-        };
-
-        // Key Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeViewer();
-            if (e.key === ' ') { // Space to toggle pan mode
-                e.preventDefault();
-                document.getElementById('panToggle').click();
-            }
         });
     
         
@@ -772,222 +790,259 @@
                 "id": "1kw60N3UdjjdAzJeJiWZ8ePnosy4xfy7z",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/1kw60N3UdjjdAzJeJiWZ8ePnosy4xfy7z/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/.DS_Store",
                 "type": "doc"
         },
         {
                 "id": "1xmZ8GbMa1G52OEiE2G_yV0FRrv65VUAL",
                 "name": "CYQB_NORDIK_4_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1xmZ8GbMa1G52OEiE2G_yV0FRrv65VUAL/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_nordik_4_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1dRfmXnlWoBrIXDs8qn8pBcn8yaPtWPX4",
                 "name": "CYQB_QUEBEC_6_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1dRfmXnlWoBrIXDs8qn8pBcn8yaPtWPX4/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_quebec_6_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1wFSsfhnVNVcqPssr_k4KM8JNM7J2A2QS",
                 "name": "CYQB_GOXEV_2_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1wFSsfhnVNVcqPssr_k4KM8JNM7J2A2QS/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_goxev_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1dW_Oo0mANBdzljepWXAoZH6Y7PRiv9tP",
                 "name": "CYQB_SEBIP_2_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1dW_Oo0mANBdzljepWXAoZH6Y7PRiv9tP/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_sebip_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "10J_zYeQbfFNvuHh3SgT99nYaYu_rkRxP",
                 "name": "CYQB_TILAC_2_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/10J_zYeQbfFNvuHh3SgT99nYaYu_rkRxP/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_tilac_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1xsmnMjoiiHiHavQgwh-JqE0eRwjSAano",
                 "name": "CYQB_SEBIP_2_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1xsmnMjoiiHiHavQgwh-JqE0eRwjSAano/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_sebip_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1GWRt46ilXta1TrQKdxTCrGkZqqzmWFxk",
                 "name": "CYQB_NORDIK_4_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1GWRt46ilXta1TrQKdxTCrGkZqqzmWFxk/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_nordik_4_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Sv9gufgBGhaKdyYy4GeNwRDdHa3WTwYQ",
                 "name": "CYQB_TILAC_2_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1Sv9gufgBGhaKdyYy4GeNwRDdHa3WTwYQ/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_tilac_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1sramSsoLra9BvhpWXDfgjVGjmuzz9V4P",
                 "name": "CYQB_QUEBEC_6_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1sramSsoLra9BvhpWXDfgjVGjmuzz9V4P/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_quebec_6_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Bdb9M35fQZ4rTMDTToryh3U1ckRozRh1",
                 "name": "CYQB_RNAV_GNSS_Z_RWY_24.pdf",
                 "url": "https://drive.google.com/file/d/1Bdb9M35fQZ4rTMDTToryh3U1ckRozRh1/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_24.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1hfSi34Y5yyi7AmJ-6Uqhni7IkHe-zEmD",
                 "name": "CYQB_ILS_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1hfSi34Y5yyi7AmJ-6Uqhni7IkHe-zEmD/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_ils_rwy_06.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1-3i5cGLonGufI13cdi4m7NOLGVLBKPVF",
                 "name": "CYQB_RNAV_RNP_Y_RWY_29.pdf",
                 "url": "https://drive.google.com/file/d/1-3i5cGLonGufI13cdi4m7NOLGVLBKPVF/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_29.pdf",
                 "type": "pdf"
         },
         {
                 "id": "10qfZswBS9JQLkBxdXxrgifxTUbY0OxlX",
                 "name": "CYQB_RNAV_GNSS_Z_RWY_29.pdf",
                 "url": "https://drive.google.com/file/d/10qfZswBS9JQLkBxdXxrgifxTUbY0OxlX/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_29.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1MZCaIqB7dT6huUcPYVIaXn3Pc_hR-qnJ",
                 "name": "CYQB_RNAV_GNSS_Z_RWY_11.pdf",
                 "url": "https://drive.google.com/file/d/1MZCaIqB7dT6huUcPYVIaXn3Pc_hR-qnJ/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_11.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1_KgK9t1kC-dQeY0JDmL-I0hN1apZe62f",
                 "name": "CYQB_TAKEOFF_MINIMUMS.pdf",
                 "url": "https://drive.google.com/file/d/1_KgK9t1kC-dQeY0JDmL-I0hN1apZe62f/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_takeoff_minimums.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1PCwB8e3wdDpD4dp-FDV6y7Ul8qGZvQum",
                 "name": "CYQB_REDUCED_VISIBILITY_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1PCwB8e3wdDpD4dp-FDV6y7Ul8qGZvQum/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_reduced_visibility_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1lnD_wwVG0ZYEAkhgSV0_CFDZo-65xgSg",
                 "name": "CYQB_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1lnD_wwVG0ZYEAkhgSV0_CFDZo-65xgSg/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Umt9ldIfixHHlCan6AkkkLM_NlrI-Bd4",
                 "name": "CYQB_RNAV_RNP_Y_RWY_11.pdf",
                 "url": "https://drive.google.com/file/d/1Umt9ldIfixHHlCan6AkkkLM_NlrI-Bd4/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_11.pdf",
                 "type": "pdf"
         },
         {
                 "id": "13tdQIeHfCub37XtFJAVAWMegoBsHZNTK",
                 "name": "CYQB_RNAV_RNP_Y_RWY_24.pdf",
                 "url": "https://drive.google.com/file/d/13tdQIeHfCub37XtFJAVAWMegoBsHZNTK/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_24.pdf",
                 "type": "pdf"
         },
         {
                 "id": "16sWpz5OW8z54cDMFwahNDilCSAWXOSCl",
                 "name": "CYQB_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/16sWpz5OW8z54cDMFwahNDilCSAWXOSCl/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_noise_abatement_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1pRrKVrjtu2h-r4--XYmVtjn1zF4bdCIR",
                 "name": "CYQB_SIMTO_4_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1pRrKVrjtu2h-r4--XYmVtjn1zF4bdCIR/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_simto_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1n36xtUpodV6sdRYSYdgKTddMIy1Kaabe",
                 "name": "CYQB_PARKING_AREAS.pdf",
                 "url": "https://drive.google.com/file/d/1n36xtUpodV6sdRYSYdgKTddMIy1Kaabe/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_parking_areas.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1U7ktoPB-9YE6rvtaVubPmFsI17pRQ5-8",
                 "name": "CYQB_PESAC_4_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1U7ktoPB-9YE6rvtaVubPmFsI17pRQ5-8/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_pesac_4_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "12dcVQ8USE-x9keBK56dYb9tscOhv9SaY",
                 "name": "CYQB_RNAV_GNSS_Z_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/12dcVQ8USE-x9keBK56dYb9tscOhv9SaY/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_06.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1jpNRHjlGbuTj1aoF7nFUDy7tW7Yctv7G",
                 "name": "CYQB_GOXEV_2_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1jpNRHjlGbuTj1aoF7nFUDy7tW7Yctv7G/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_goxev_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1JImJVpc-pz4my49A845pwa57pr99VVtY",
                 "name": "CYQB_RNAV_RNP_Y_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1JImJVpc-pz4my49A845pwa57pr99VVtY/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_06.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1JbhCzyiwBLaiN06AdHOYV-isPMFMf-Qs",
                 "name": "CYQB_OMVAR_1_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1JbhCzyiwBLaiN06AdHOYV-isPMFMf-Qs/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_omvar_1_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1voDPclrc4thaE-anwuwTwdl0up-9b-7I",
                 "name": "CYQB_OMVAR_1_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1voDPclrc4thaE-anwuwTwdl0up-9b-7I/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_omvar_1_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "116rnNbB01l7QfUvX3JLq1RxRi06qVoft",
                 "name": "CYQB_OMVAR_1_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/116rnNbB01l7QfUvX3JLq1RxRi06qVoft/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_omvar_1_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1MllHkxrud8TIBDAxFct7F7RbhrqjAEX2",
                 "name": "CYQB_SIMTO_4_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1MllHkxrud8TIBDAxFct7F7RbhrqjAEX2/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_simto_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1DVaIgYDR-_AcriRd9Kay_OQpVe3cIraA",
                 "name": "CYQB_OLAVO_4_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1DVaIgYDR-_AcriRd9Kay_OQpVe3cIraA/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_olavo_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1gGEgbMQ_JCKIj_wKAIOuR-0xpabME_gi",
                 "name": "CYQB_KAROT_6_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1gGEgbMQ_JCKIj_wKAIOuR-0xpabME_gi/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_karot_6_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1H4-BejnK6-ELyuXX6tNhNJ-uDzCXF0Ds",
                 "name": "CYQB_OLAVO_4_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1H4-BejnK6-ELyuXX6tNhNJ-uDzCXF0Ds/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_olavo_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "199lNDLNsdB1tftm3zMSD337psQyxbF9s",
                 "name": "CYQB_PESAC_4_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/199lNDLNsdB1tftm3zMSD337psQyxbF9s/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_pesac_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Yh6wTs-2n5bVavv1YdnIqT1zWqVcwvMa",
                 "name": "CYQB_KAROT_6_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1Yh6wTs-2n5bVavv1YdnIqT1zWqVcwvMa/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_karot_6_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1mfeJL6DPftGdvBwOxet4yk6lnCIw6zA3",
                 "name": "CYQB_PESAC_4_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1mfeJL6DPftGdvBwOxet4yk6lnCIw6zA3/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_pesac_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         }
 ];
@@ -1035,7 +1090,7 @@
                 item.href = '#';
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url);
+                    openViewer(file.id, file.name, file.url, file.localUrl);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
@@ -1058,6 +1113,7 @@
                         id: file.id,
                         name: file.name,
                         url: file.url,
+                        localUrl: file.localUrl,
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region

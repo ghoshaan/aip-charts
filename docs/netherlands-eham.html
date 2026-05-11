@@ -325,57 +325,58 @@
             flex: 1;
             position: relative;
             overflow: hidden;
+            background: #05070a;
             display: flex;
+            flex-direction: column;
             align-items: center;
+        }
+
+        #pdfViewerContainer {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
             justify-content: center;
             background: #05070a;
-            cursor: default;
+            scroll-behavior: smooth;
         }
 
-        .viewer-content.pan-mode {
-            cursor: grab;
-        }
-
-        .viewer-content.pan-mode:active {
-            cursor: grabbing;
-        }
-
-        .viewer-frame-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease-out;
-            will-change: transform;
-        }
-
-        #viewerFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-            border-radius: 2px;
+        .pdf-page-container {
+            margin: 20px 0;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            pointer-events: auto;
-            image-rendering: -webkit-optimize-contrast;
-            backface-visibility: hidden;
-            -webkit-font-smoothing: subpixel-antialiased;
+            position: relative;
+            background: white;
+            transition: transform 0.1s ease-out;
+            transform-origin: top center;
         }
 
-        .pan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: none;
-        }
-
-        .viewer-content.pan-mode .pan-overlay {
+        canvas {
             display: block;
+            max-width: 100%;
+        }
+
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 0.2;
+            line-height: 1.0;
+        }
+
+        .textLayer > span {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+
+        ::selection {
+            background: rgba(88, 166, 255, 0.3);
         }
 
         .viewer-tip {
@@ -523,6 +524,10 @@
     </div>
     
     
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+
     <div id="viewerModal" class="viewer-modal">
         <div class="viewer-header">
             <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
@@ -530,12 +535,9 @@
             <div class="viewer-controls">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
                     <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
-                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="3" step="0.1" value="1">
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
+                    <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
                 </div>
-
-                <button class="control-btn" id="panToggle" title="Toggle Pan Mode (Drag to move)">
-                    <span>🖐</span> PAN
-                </button>
 
                 <button class="control-btn" id="rotateBtn" title="Rotate Chart">
                     <span>🔄</span> ROTATE
@@ -557,17 +559,15 @@
         <div class="viewer-content" id="viewerContent">
             <div id="viewerLoader" class="viewer-loader">
                 <div class="spinner"></div>
-                <div style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">FETCHING FROM DRIVE...</div>
+                <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
             </div>
 
-            <div class="viewer-frame-container" id="viewerContainer">
-                <iframe id="viewerFrame" src="" allow="autoplay"></iframe>
+            <div id="pdfViewerContainer">
+                <div id="pdfViewer" class="pdfViewer"></div>
             </div>
-
-            <div class="pan-overlay" id="panOverlay"></div>
 
             <div class="viewer-tip">
-                <span>💡 <b>Ctrl+F</b> not working? Click <b>DRIVE</b> to search text.</span>
+                <span>💡 Use <b>Ctrl+F</b> to search text. Use <b>Mouse Wheel</b> to zoom.</span>
             </div>
         </div>
     </div>
@@ -599,151 +599,169 @@
         }
     
         
-        let currentRotation = 0;
-        let currentZoom = 1;
-        let translateX = 0;
-        let translateY = 0;
-        let isDragging = false;
-        let startX, startY;
-        let isPanMode = false;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        function openViewer(id, name, url) {
+        let currentPdf = null;
+        let currentRotation = 0;
+        let currentZoom = 1.5;
+        let visualScale = 1.0; // Added for smooth CSS scaling
+
+        async function openViewer(id, name, driveUrl, localUrl) {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             const title = document.getElementById('viewerTitle');
             const externalLink = document.getElementById('externalLink');
             const loader = document.getElementById('viewerLoader');
-            const container = document.getElementById('viewerContainer');
+            const loaderStatus = document.getElementById('loaderStatus');
+            const container = document.getElementById('pdfViewer');
 
             // Reset state
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            isPanMode = false;
-            document.getElementById('panToggle').classList.remove('active');
-            document.getElementById('viewerContent').classList.remove('pan-mode');
-
-            updateFrameTransform();
-            document.getElementById('zoomRange').value = 1;
-
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
             title.textContent = name;
-            externalLink.href = url;
-
-            // Initial state
-            loader.style.display = 'flex';
-            container.style.opacity = '0';
-
-            // Handler for when loading finishes
-            const onFinish = () => {
-                loader.style.display = 'none';
-                container.style.opacity = '1';
-            };
-
-            frame.onload = onFinish;
-
-            // Safety timeout: Show the frame anyway after 5s if onload doesn't fire
-            setTimeout(onFinish, 5000);
-
-            // Use /preview with additional parameters for better embedding
-            frame.src = `https://drive.google.com/file/d/${id}/preview?rm=minimal`;
-
+            externalLink.href = driveUrl;
+            container.innerHTML = '';
+            container.style.transform = 'scale(1)'; // Reset visual scale
+            
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            loader.style.display = 'flex';
+            loaderStatus.textContent = 'LOADING LOCAL PDF...';
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(localUrl);
+                currentPdf = await loadingTask.promise;
+                loaderStatus.textContent = `RENDERING ${currentPdf.numPages} PAGE(S)...`;
+                await renderAllPages();
+                loader.style.display = 'none';
+            } catch (err) {
+                console.error('PDF Error:', err);
+                loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
+                setTimeout(() => {
+                    window.open(driveUrl, '_blank');
+                    closeViewer();
+                }, 2000);
+            }
+        }
+
+        async function renderAllPages() {
+            const container = document.getElementById('pdfViewer');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= currentPdf.numPages; i++) {
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'pdf-page-container';
+                pageContainer.id = `page-${i}`;
+                container.appendChild(pageContainer);
+                await renderPage(i, pageContainer);
+            }
+            applyVisualTransform();
+        }
+
+        async function renderPage(pageNum, container) {
+            const page = await currentPdf.getPage(pageNum);
+            // Render at the current "high quality" zoom level
+            const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
+            
+            container.style.width = `${viewport.width}px`;
+            container.style.height = `${viewport.height}px`;
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            container.appendChild(canvas);
+
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.className = 'textLayer';
+            container.appendChild(textLayerDiv);
+
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            
+            const textContent = await page.getTextContent();
+            pdfjsLib.renderTextLayer({
+                textContent: textContent,
+                container: textLayerDiv,
+                viewport: viewport,
+                textDivs: []
+            });
+        }
+
+        function applyVisualTransform() {
+            const container = document.getElementById('pdfViewer');
+            // We use CSS scale for the small adjustments between high-quality renders
+            container.style.transform = `scale(${visualScale})`;
         }
 
         function closeViewer() {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             modal.style.display = 'none';
-            frame.src = '';
             document.body.style.overflow = 'auto';
+            currentPdf = null;
         }
 
-        function updateFrameTransform() {
-            const container = document.getElementById('viewerContainer');
-            const frame = document.getElementById('viewerFrame');
-            const isRotated = currentRotation % 180 !== 0;
-
-            // Apply transformations to the container
-            container.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentZoom})`;
-
-            if (isRotated) {
-                container.style.width = '100vh';
-                container.style.height = '100vw';
-            } else {
-                container.style.width = '100%';
-                container.style.height = '100%';
-            }
+        async function updateZoomQuality() {
+            // This is the heavy render that runs AFTER the user stops zooming
+            await renderAllPages();
+            visualScale = 1.0;
+            applyVisualTransform();
         }
 
-        // Drag & Pan Logic
-        const viewerContent = document.getElementById('viewerContent');
-
-        viewerContent.onmousedown = (e) => {
-            if (!isPanMode) return;
-            isDragging = true;
-            startX = e.clientX - translateX;
-            startY = e.clientY - translateY;
-            e.preventDefault();
+        document.getElementById('zoomRange').oninput = (e) => {
+            const newZoom = parseFloat(e.target.value);
+            // Instant visual feedback
+            visualScale = newZoom / currentZoom;
+            applyVisualTransform();
+            document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
         };
 
-        window.onmousemove = (e) => {
-            if (!isDragging) return;
-            translateX = e.clientX - startX;
-            translateY = e.clientY - startY;
-            updateFrameTransform();
+        document.getElementById('zoomRange').onchange = async (e) => {
+            currentZoom = parseFloat(e.target.value);
+            await updateZoomQuality();
         };
 
-        window.onmouseup = () => {
-            isDragging = false;
+        document.getElementById('rotateBtn').onclick = async () => {
+            currentRotation = (currentRotation + 90) % 360;
+            await renderAllPages();
         };
 
-        // Mouse Wheel Zoom
-        viewerContent.onwheel = (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                currentZoom = Math.min(Math.max(0.5, currentZoom + delta), 4);
-                document.getElementById('zoomRange').value = currentZoom;
-                updateFrameTransform();
-            }
-        };
-
-        document.getElementById('panToggle').onclick = () => {
-            isPanMode = !isPanMode;
-            document.getElementById('panToggle').classList.toggle('active', isPanMode);
-            document.getElementById('viewerContent').classList.toggle('pan-mode', isPanMode);
-        };
-
-        document.getElementById('resetBtn').onclick = () => {
+        document.getElementById('resetBtn').onclick = async () => {
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            document.getElementById('zoomRange').value = 1;
-            updateFrameTransform();
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
+            await renderAllPages();
         };
 
         document.getElementById('closeViewer').onclick = closeViewer;
 
-        document.getElementById('rotateBtn').onclick = () => {
-            currentRotation = (currentRotation + 90) % 360;
-            updateFrameTransform();
+        // Mouse Wheel Zoom
+        document.getElementById('pdfViewerContainer').onwheel = (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
+                
+                visualScale = newZoom / currentZoom;
+                applyVisualTransform();
+                
+                document.getElementById('zoomRange').value = newZoom;
+                document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                // Debounce the high-quality re-render
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
         };
 
-        document.getElementById('zoomRange').oninput = (e) => {
-            currentZoom = parseFloat(e.target.value);
-            updateFrameTransform();
-        };
-
-        // Key Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeViewer();
-            if (e.key === ' ') { // Space to toggle pan mode
-                e.preventDefault();
-                document.getElementById('panToggle').click();
-            }
         });
     
         
@@ -772,390 +790,455 @@
                 "id": "1zXGofESZqhwdh6m19N2DtP3RCeLqG05J",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_09.pdf",
                 "url": "https://drive.google.com/file/d/1zXGofESZqhwdh6m19N2DtP3RCeLqG05J/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_09.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1OnZpLOxpOeZlLFp2GBUGDZNG89nbV_k3",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_06_(SUPPLEMENTARY).pdf",
                 "url": "https://drive.google.com/file/d/1OnZpLOxpOeZlLFp2GBUGDZNG89nbV_k3/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_06_supplementary.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1wVl3WJ-0gFFQ0ktoCND6a9smKwIBbxas",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1wVl3WJ-0gFFQ0ktoCND6a9smKwIBbxas/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_06.pdf",
                 "type": "pdf"
         },
         {
                 "id": "18_7tscA1-DeZWaeYYycBMBrnnmeZwFTy",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_04.pdf",
                 "url": "https://drive.google.com/file/d/18_7tscA1-DeZWaeYYycBMBrnnmeZwFTy/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_04.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1FLbtsZo_ouXRCtfgre7DxL3szq3SXKMO",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36L_(SUPPLEMENTARY).pdf",
                 "url": "https://drive.google.com/file/d/1FLbtsZo_ouXRCtfgre7DxL3szq3SXKMO/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_36l_supplementary.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1t9fCPx9CEjV2Qik7AgnNJ40yXeoWKBtM",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36L.pdf",
                 "url": "https://drive.google.com/file/d/1t9fCPx9CEjV2Qik7AgnNJ40yXeoWKBtM/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_36l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1AHNbpSbeWzXuaN0iJM9_ofFBRFhQf18c",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36C.pdf",
                 "url": "https://drive.google.com/file/d/1AHNbpSbeWzXuaN0iJM9_ofFBRFhQf18c/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_36c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1CzZRfWnGgiva2gYfIQKcO5jKO_nd8DQL",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_27.pdf",
                 "url": "https://drive.google.com/file/d/1CzZRfWnGgiva2gYfIQKcO5jKO_nd8DQL/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_27.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1cbgIPR6mf55TcoPO1zXQfZE0nXsceA4N",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_24_WEST.pdf",
                 "url": "https://drive.google.com/file/d/1cbgIPR6mf55TcoPO1zXQfZE0nXsceA4N/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_24_west.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1SU03axYMK0z_PQoS4iU7B09GeXXFjQR2",
                 "name": "STANDARD_DEPARTURE_CHART_-_INSTRUMENT.pdf",
                 "url": "https://drive.google.com/file/d/1SU03axYMK0z_PQoS4iU7B09GeXXFjQR2/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart_-_instrument.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1VbFEYEbHRZnVX6qkbRSa-X7pjn7lTvjT",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_24_EAST.pdf",
                 "url": "https://drive.google.com/file/d/1VbFEYEbHRZnVX6qkbRSa-X7pjn7lTvjT/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_24_east.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1btWo5ovHXLKfMiKdgg-rtgwYb5hz0Eb9",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_22.pdf",
                 "url": "https://drive.google.com/file/d/1btWo5ovHXLKfMiKdgg-rtgwYb5hz0Eb9/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_22.pdf",
                 "type": "pdf"
         },
         {
                 "id": "17pDgwPUVxlvNxW8F-B5TvbbVPE5aWgD8",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18L_WEST.pdf",
                 "url": "https://drive.google.com/file/d/17pDgwPUVxlvNxW8F-B5TvbbVPE5aWgD8/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_18l_west.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1rkIsPTumTyhp4h0zMd6cvIYzHP_wmB_O",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18L_EAST.pdf",
                 "url": "https://drive.google.com/file/d/1rkIsPTumTyhp4h0zMd6cvIYzHP_wmB_O/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_18l_east.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1sIKFGkAokO2NRxdaLhcY_6q6k9idu9-q",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18C.pdf",
                 "url": "https://drive.google.com/file/d/1sIKFGkAokO2NRxdaLhcY_6q6k9idu9-q/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1xhJccx11sSi5tPgy06t5qpDGFCUJ0iLw",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_36C.pdf",
                 "url": "https://drive.google.com/file/d/1xhJccx11sSi5tPgy06t5qpDGFCUJ0iLw/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_36c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1XF9LYtpJcp1sgB2DCKDt416uSMZNt4ST",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_27.pdf",
                 "url": "https://drive.google.com/file/d/1XF9LYtpJcp1sgB2DCKDt416uSMZNt4ST/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_27.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1fCOzHzTL2XsLBuhZyzEaSQRZoYEU67w5",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_18R.pdf",
                 "url": "https://drive.google.com/file/d/1fCOzHzTL2XsLBuhZyzEaSQRZoYEU67w5/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_18r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1gtdUNNNaNV_4S_G3cp4My0DjrcOgZpyt",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_18C.pdf",
                 "url": "https://drive.google.com/file/d/1gtdUNNNaNV_4S_G3cp4My0DjrcOgZpyt/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1N9ZPJDYAHBR7vMugjVPCwKs2y0941Ktc",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1N9ZPJDYAHBR7vMugjVPCwKs2y0941Ktc/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_06.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1CaxubaT0BZY8WDQ-1ZTWdYpd-1aiz8BX",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_36R.pdf",
                 "url": "https://drive.google.com/file/d/1CaxubaT0BZY8WDQ-1ZTWdYpd-1aiz8BX/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_36r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1t8Lcphs3GCnrocV-VgW-FI_sKIK0R7Th",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_18L.pdf",
                 "url": "https://drive.google.com/file/d/1t8Lcphs3GCnrocV-VgW-FI_sKIK0R7Th/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_18l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1zPYdQ42qC_vCYSFDZQew6ta0ql7HPxsD",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_18C-36C.pdf",
                 "url": "https://drive.google.com/file/d/1zPYdQ42qC_vCYSFDZQew6ta0ql7HPxsD/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_18c-36c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "11RUYDY_CkQiGE-cVspW266aSw9ieCqcH",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_09-27.pdf",
                 "url": "https://drive.google.com/file/d/11RUYDY_CkQiGE-cVspW266aSw9ieCqcH/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_09-27.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1iJKohFOyzQ_4foyRqUs8zFYT7GPaChA0",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_06-24.pdf",
                 "url": "https://drive.google.com/file/d/1iJKohFOyzQ_4foyRqUs8zFYT7GPaChA0/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_06-24.pdf",
                 "type": "pdf"
         },
         {
                 "id": "16VFszhbUihPC8_5QoNRPrk4r-LWQM8o7",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_04-22.pdf",
                 "url": "https://drive.google.com/file/d/16VFszhbUihPC8_5QoNRPrk4r-LWQM8o7/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_04-22.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ZwmL_t0aJO2mOQy5lCsN1KCxGmV28d9u",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_36L.pdf",
                 "url": "https://drive.google.com/file/d/1ZwmL_t0aJO2mOQy5lCsN1KCxGmV28d9u/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_36l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "19ubYw0dxT7rqLPLw7Kr1hMWcDfVQ9PmY",
                 "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_B747-8_RESTRICTIONS.pdf",
                 "url": "https://drive.google.com/file/d/19ubYw0dxT7rqLPLw7Kr1hMWcDfVQ9PmY/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aerodrome_ground_movement_chartcode_letter_f_acft_-_b747-8_restrictions.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1XCYWSLrsoKhIN7czXobCjIsomXFoikLh",
                 "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_AN124_RESTRICTIONS.pdf",
                 "url": "https://drive.google.com/file/d/1XCYWSLrsoKhIN7czXobCjIsomXFoikLh/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aerodrome_ground_movement_chartcode_letter_f_acft_-_an124_restrictions.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1_XvGF2stK1-gRdWEnN057P-3G_3pAzC1",
                 "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_A380_RESTRICTIONS.pdf",
                 "url": "https://drive.google.com/file/d/1_XvGF2stK1-gRdWEnN057P-3G_3pAzC1/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aerodrome_ground_movement_chartcode_letter_f_acft_-_a380_restrictions.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Gqj-K4UIhVi97eAnU06MMwSeFMW1lKwr",
                 "name": "AERODROME_GROUND_MOVEMENT_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1Gqj-K4UIhVi97eAnU06MMwSeFMW1lKwr/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aerodrome_ground_movement_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1reI8LjqqhtgtqkXvDZESCc42mgGK-EKt",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_CENTRE_U-APRON.pdf",
                 "url": "https://drive.google.com/file/d/1reI8LjqqhtgtqkXvDZESCc42mgGK-EKt/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_centre_u-apron.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1KCLr0fvTgSD04d3s_DtJZjDJ9YUhlvQV",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_EAST_M-APRON.pdf",
                 "url": "https://drive.google.com/file/d/1KCLr0fvTgSD04d3s_DtJZjDJ9YUhlvQV/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_east_m-apron.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1itaty85cqs5HC9a1E_XpDvwHQCYAjBwt",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_EAST_K-APRON.pdf",
                 "url": "https://drive.google.com/file/d/1itaty85cqs5HC9a1E_XpDvwHQCYAjBwt/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_east_k-apron.pdf",
                 "type": "pdf"
         },
         {
                 "id": "10iKR7XvZm451QmQCGwGIpgNW-7y7AAqy",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_CENTRE.pdf",
                 "url": "https://drive.google.com/file/d/10iKR7XvZm451QmQCGwGIpgNW-7y7AAqy/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_centre.pdf",
                 "type": "pdf"
         },
         {
                 "id": "12uevTy5tg42-LOZ4C7q2Qkb-d8PHAVvc",
                 "name": "AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/12uevTy5tg42-LOZ4C7q2Qkb-d8PHAVvc/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Y55jkAagfDoHr6wCOc4C65lSkexOONbU",
                 "name": "VFR_TRAFFIC_CIRCUITS.pdf",
                 "url": "https://drive.google.com/file/d/1Y55jkAagfDoHr6wCOc4C65lSkexOONbU/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/vfr_traffic_circuits.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1E-bOBkiRidtns82WW6F35euPjLDwepY8",
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1E-bOBkiRidtns82WW6F35euPjLDwepY8/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/visual_approach_chartvfr_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1jgYas9bCSUB5s02_Hon_8tBmbeuSneU9",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_18C.pdf",
                 "url": "https://drive.google.com/file/d/1jgYas9bCSUB5s02_Hon_8tBmbeuSneU9/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1fCWgDyglLBMLmN_im_nMNorr419mwzCL",
                 "name": "INSTRUMENT_APPROACH_CHART_RWY_09.pdf",
                 "url": "https://drive.google.com/file/d/1fCWgDyglLBMLmN_im_nMNorr419mwzCL/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rwy_09.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1hZJNIIcE7gXMQxmEv04JWbM6TKUoKm0-",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1hZJNIIcE7gXMQxmEv04JWbM6TKUoKm0-/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_06.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1oX9NT06PxFzZhsdaXZ_PvgNAZ4pI94GA",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1oX9NT06PxFzZhsdaXZ_PvgNAZ4pI94GA/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_06.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1DnwJAuHnJUWJIpXel9X-GOAQ7zAfqexO",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_36R.pdf",
                 "url": "https://drive.google.com/file/d/1DnwJAuHnJUWJIpXel9X-GOAQ7zAfqexO/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_36r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1whdQ17JtDbsSRuQu075KGb_baMqCaP3t",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_36R.pdf",
                 "url": "https://drive.google.com/file/d/1whdQ17JtDbsSRuQu075KGb_baMqCaP3t/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1vf4pmb0C1cqexgy5iNzu6DcWgRLrdocw",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_36C.pdf",
                 "url": "https://drive.google.com/file/d/1vf4pmb0C1cqexgy5iNzu6DcWgRLrdocw/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_36c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1XIL45uwSre5QOEkofJSjafMysw7RWv2B",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_27.pdf",
                 "url": "https://drive.google.com/file/d/1XIL45uwSre5QOEkofJSjafMysw7RWv2B/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_27.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1JjV1yWtPt2cLsPZ_sPY6X_4BAofj_VXu",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_36C.pdf",
                 "url": "https://drive.google.com/file/d/1JjV1yWtPt2cLsPZ_sPY6X_4BAofj_VXu/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1lqi1DDY3oq2QEowrw_1RCnlNKI8A5HPs",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_27.pdf",
                 "url": "https://drive.google.com/file/d/1lqi1DDY3oq2QEowrw_1RCnlNKI8A5HPs/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_27.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1QIFN8ylXZiJhoMaeoE0aMK9aoEc0vtVP",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_22.pdf",
                 "url": "https://drive.google.com/file/d/1QIFN8ylXZiJhoMaeoE0aMK9aoEc0vtVP/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_22.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1N7PRHNv1iMLsUH8itaRvMv4rb5XHW8dq",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_24.pdf",
                 "url": "https://drive.google.com/file/d/1N7PRHNv1iMLsUH8itaRvMv4rb5XHW8dq/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_24.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1DA9RBerUvD1dl-5huTQ4k5gA9HdKfq92",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_04.pdf",
                 "url": "https://drive.google.com/file/d/1DA9RBerUvD1dl-5huTQ4k5gA9HdKfq92/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_04.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1x8poiL2R4GvFA7vWVAx72q9Mk4du1GqA",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_18R.pdf",
                 "url": "https://drive.google.com/file/d/1x8poiL2R4GvFA7vWVAx72q9Mk4du1GqA/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_18r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1lN76EjDILr8ov1_SH4fupjAxF1_IGDbM",
                 "name": "INSTRUMENT_APPROACH_CHART_CAT_H_ILS_OR_LOC_RWY_22.pdf",
                 "url": "https://drive.google.com/file/d/1lN76EjDILr8ov1_SH4fupjAxF1_IGDbM/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_cat_h_ils_or_loc_rwy_22.pdf",
                 "type": "pdf"
         },
         {
                 "id": "11QA1URA8nKfef8HnYuhkoOfNBPrhIYbE",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_OR_LOC_RWY_22.pdf",
                 "url": "https://drive.google.com/file/d/11QA1URA8nKfef8HnYuhkoOfNBPrhIYbE/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_or_loc_rwy_22.pdf",
                 "type": "pdf"
         },
         {
                 "id": "12RWWWH0uWsm1wN4W2zRfnSIom-umbcUU",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_18C.pdf",
                 "url": "https://drive.google.com/file/d/12RWWWH0uWsm1wN4W2zRfnSIom-umbcUU/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1KC8Fkb6uKNoQERBhWvQfHHg9Aw0axsXR",
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1KC8Fkb6uKNoQERBhWvQfHHg9Aw0axsXR/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/atc_surveillance_minimum_altitude_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1uWnDABzJ54ZfpsWSv8BilHu80SdiLBV1",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_18R.pdf",
                 "url": "https://drive.google.com/file/d/1uWnDABzJ54ZfpsWSv8BilHu80SdiLBV1/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1P1DVl-GKRDkblFa-8D5BsTStp6-dCTsD",
                 "name": "NIGHT_TRANSITION_ILS_RWY_18C.pdf",
                 "url": "https://drive.google.com/file/d/1P1DVl-GKRDkblFa-8D5BsTStp6-dCTsD/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/night_transition_ils_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1j0_VFHuzINlpdlwIvY5cjYKeCF5zKBFH",
                 "name": "NIGHT_TRANSITION_RNP_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1j0_VFHuzINlpdlwIvY5cjYKeCF5zKBFH/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/night_transition_rnp_rwy_06.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1vmWp4DB4lllzEX5_sFpMaoDaDEKl1_q4",
                 "name": "NIGHT_TRANSITION_RNP_RWY_18C.pdf",
                 "url": "https://drive.google.com/file/d/1vmWp4DB4lllzEX5_sFpMaoDaDEKl1_q4/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/night_transition_rnp_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1qFvsrbt54fl-YdzgjyVJGaKcQjKZkmXz",
                 "name": "STANDARD_ARRIVAL_CHART-INSTRUMENT.pdf",
                 "url": "https://drive.google.com/file/d/1qFvsrbt54fl-YdzgjyVJGaKcQjKZkmXz/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/standard_arrival_chart-instrument.pdf",
                 "type": "pdf"
         },
         {
                 "id": "16dtV4-m4kYRAUvTMX9zb8t0Wf0lP4kAx",
                 "name": "NIGHT_TRANSITION_ILS_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/16dtV4-m4kYRAUvTMX9zb8t0Wf0lP4kAx/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/night_transition_ils_rwy_06.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1oU_KQIL229hvzSz7FPLBzz3RayRoxGyk",
                 "name": "RNAV_TRANSITION_CHART_VIA_AM669_TO_RWY_36R.pdf",
                 "url": "https://drive.google.com/file/d/1oU_KQIL229hvzSz7FPLBzz3RayRoxGyk/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/rnav_transition_chart_via_am669_to_rwy_36r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1yRXQLC4vmBIXlgY_3JBWnAdtoQhW3lyH",
                 "name": "NIGHT_TRANSITION_RNP_RWY_18R.pdf",
                 "url": "https://drive.google.com/file/d/1yRXQLC4vmBIXlgY_3JBWnAdtoQhW3lyH/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/night_transition_rnp_rwy_18r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1eYWMk6rYO9zSpgBkOaWw5Y7RU-70_s7M",
                 "name": "NIGHT_TRANSITION_ILS_RWY_18R.pdf",
                 "url": "https://drive.google.com/file/d/1eYWMk6rYO9zSpgBkOaWw5Y7RU-70_s7M/view?usp=drivesdk",
+                "localUrl": "charts_data/netherlands/eham/night_transition_ils_rwy_18r.pdf",
                 "type": "pdf"
         }
 ];
@@ -1203,7 +1286,7 @@
                 item.href = '#';
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url);
+                    openViewer(file.id, file.name, file.url, file.localUrl);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
@@ -1226,6 +1309,7 @@
                         id: file.id,
                         name: file.name,
                         url: file.url,
+                        localUrl: file.localUrl,
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region

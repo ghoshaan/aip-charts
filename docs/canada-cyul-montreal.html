@@ -325,57 +325,58 @@
             flex: 1;
             position: relative;
             overflow: hidden;
+            background: #05070a;
             display: flex;
+            flex-direction: column;
             align-items: center;
+        }
+
+        #pdfViewerContainer {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
             justify-content: center;
             background: #05070a;
-            cursor: default;
+            scroll-behavior: smooth;
         }
 
-        .viewer-content.pan-mode {
-            cursor: grab;
-        }
-
-        .viewer-content.pan-mode:active {
-            cursor: grabbing;
-        }
-
-        .viewer-frame-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease-out;
-            will-change: transform;
-        }
-
-        #viewerFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-            border-radius: 2px;
+        .pdf-page-container {
+            margin: 20px 0;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            pointer-events: auto;
-            image-rendering: -webkit-optimize-contrast;
-            backface-visibility: hidden;
-            -webkit-font-smoothing: subpixel-antialiased;
+            position: relative;
+            background: white;
+            transition: transform 0.1s ease-out;
+            transform-origin: top center;
         }
 
-        .pan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: none;
-        }
-
-        .viewer-content.pan-mode .pan-overlay {
+        canvas {
             display: block;
+            max-width: 100%;
+        }
+
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 0.2;
+            line-height: 1.0;
+        }
+
+        .textLayer > span {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+
+        ::selection {
+            background: rgba(88, 166, 255, 0.3);
         }
 
         .viewer-tip {
@@ -523,6 +524,10 @@
     </div>
     
     
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+
     <div id="viewerModal" class="viewer-modal">
         <div class="viewer-header">
             <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
@@ -530,12 +535,9 @@
             <div class="viewer-controls">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
                     <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
-                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="3" step="0.1" value="1">
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
+                    <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
                 </div>
-
-                <button class="control-btn" id="panToggle" title="Toggle Pan Mode (Drag to move)">
-                    <span>🖐</span> PAN
-                </button>
 
                 <button class="control-btn" id="rotateBtn" title="Rotate Chart">
                     <span>🔄</span> ROTATE
@@ -557,17 +559,15 @@
         <div class="viewer-content" id="viewerContent">
             <div id="viewerLoader" class="viewer-loader">
                 <div class="spinner"></div>
-                <div style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">FETCHING FROM DRIVE...</div>
+                <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
             </div>
 
-            <div class="viewer-frame-container" id="viewerContainer">
-                <iframe id="viewerFrame" src="" allow="autoplay"></iframe>
+            <div id="pdfViewerContainer">
+                <div id="pdfViewer" class="pdfViewer"></div>
             </div>
-
-            <div class="pan-overlay" id="panOverlay"></div>
 
             <div class="viewer-tip">
-                <span>💡 <b>Ctrl+F</b> not working? Click <b>DRIVE</b> to search text.</span>
+                <span>💡 Use <b>Ctrl+F</b> to search text. Use <b>Mouse Wheel</b> to zoom.</span>
             </div>
         </div>
     </div>
@@ -599,151 +599,169 @@
         }
     
         
-        let currentRotation = 0;
-        let currentZoom = 1;
-        let translateX = 0;
-        let translateY = 0;
-        let isDragging = false;
-        let startX, startY;
-        let isPanMode = false;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        function openViewer(id, name, url) {
+        let currentPdf = null;
+        let currentRotation = 0;
+        let currentZoom = 1.5;
+        let visualScale = 1.0; // Added for smooth CSS scaling
+
+        async function openViewer(id, name, driveUrl, localUrl) {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             const title = document.getElementById('viewerTitle');
             const externalLink = document.getElementById('externalLink');
             const loader = document.getElementById('viewerLoader');
-            const container = document.getElementById('viewerContainer');
+            const loaderStatus = document.getElementById('loaderStatus');
+            const container = document.getElementById('pdfViewer');
 
             // Reset state
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            isPanMode = false;
-            document.getElementById('panToggle').classList.remove('active');
-            document.getElementById('viewerContent').classList.remove('pan-mode');
-
-            updateFrameTransform();
-            document.getElementById('zoomRange').value = 1;
-
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
             title.textContent = name;
-            externalLink.href = url;
-
-            // Initial state
-            loader.style.display = 'flex';
-            container.style.opacity = '0';
-
-            // Handler for when loading finishes
-            const onFinish = () => {
-                loader.style.display = 'none';
-                container.style.opacity = '1';
-            };
-
-            frame.onload = onFinish;
-
-            // Safety timeout: Show the frame anyway after 5s if onload doesn't fire
-            setTimeout(onFinish, 5000);
-
-            // Use /preview with additional parameters for better embedding
-            frame.src = `https://drive.google.com/file/d/${id}/preview?rm=minimal`;
-
+            externalLink.href = driveUrl;
+            container.innerHTML = '';
+            container.style.transform = 'scale(1)'; // Reset visual scale
+            
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            loader.style.display = 'flex';
+            loaderStatus.textContent = 'LOADING LOCAL PDF...';
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(localUrl);
+                currentPdf = await loadingTask.promise;
+                loaderStatus.textContent = `RENDERING ${currentPdf.numPages} PAGE(S)...`;
+                await renderAllPages();
+                loader.style.display = 'none';
+            } catch (err) {
+                console.error('PDF Error:', err);
+                loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
+                setTimeout(() => {
+                    window.open(driveUrl, '_blank');
+                    closeViewer();
+                }, 2000);
+            }
+        }
+
+        async function renderAllPages() {
+            const container = document.getElementById('pdfViewer');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= currentPdf.numPages; i++) {
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'pdf-page-container';
+                pageContainer.id = `page-${i}`;
+                container.appendChild(pageContainer);
+                await renderPage(i, pageContainer);
+            }
+            applyVisualTransform();
+        }
+
+        async function renderPage(pageNum, container) {
+            const page = await currentPdf.getPage(pageNum);
+            // Render at the current "high quality" zoom level
+            const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
+            
+            container.style.width = `${viewport.width}px`;
+            container.style.height = `${viewport.height}px`;
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            container.appendChild(canvas);
+
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.className = 'textLayer';
+            container.appendChild(textLayerDiv);
+
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            
+            const textContent = await page.getTextContent();
+            pdfjsLib.renderTextLayer({
+                textContent: textContent,
+                container: textLayerDiv,
+                viewport: viewport,
+                textDivs: []
+            });
+        }
+
+        function applyVisualTransform() {
+            const container = document.getElementById('pdfViewer');
+            // We use CSS scale for the small adjustments between high-quality renders
+            container.style.transform = `scale(${visualScale})`;
         }
 
         function closeViewer() {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             modal.style.display = 'none';
-            frame.src = '';
             document.body.style.overflow = 'auto';
+            currentPdf = null;
         }
 
-        function updateFrameTransform() {
-            const container = document.getElementById('viewerContainer');
-            const frame = document.getElementById('viewerFrame');
-            const isRotated = currentRotation % 180 !== 0;
-
-            // Apply transformations to the container
-            container.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentZoom})`;
-
-            if (isRotated) {
-                container.style.width = '100vh';
-                container.style.height = '100vw';
-            } else {
-                container.style.width = '100%';
-                container.style.height = '100%';
-            }
+        async function updateZoomQuality() {
+            // This is the heavy render that runs AFTER the user stops zooming
+            await renderAllPages();
+            visualScale = 1.0;
+            applyVisualTransform();
         }
 
-        // Drag & Pan Logic
-        const viewerContent = document.getElementById('viewerContent');
-
-        viewerContent.onmousedown = (e) => {
-            if (!isPanMode) return;
-            isDragging = true;
-            startX = e.clientX - translateX;
-            startY = e.clientY - translateY;
-            e.preventDefault();
+        document.getElementById('zoomRange').oninput = (e) => {
+            const newZoom = parseFloat(e.target.value);
+            // Instant visual feedback
+            visualScale = newZoom / currentZoom;
+            applyVisualTransform();
+            document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
         };
 
-        window.onmousemove = (e) => {
-            if (!isDragging) return;
-            translateX = e.clientX - startX;
-            translateY = e.clientY - startY;
-            updateFrameTransform();
+        document.getElementById('zoomRange').onchange = async (e) => {
+            currentZoom = parseFloat(e.target.value);
+            await updateZoomQuality();
         };
 
-        window.onmouseup = () => {
-            isDragging = false;
+        document.getElementById('rotateBtn').onclick = async () => {
+            currentRotation = (currentRotation + 90) % 360;
+            await renderAllPages();
         };
 
-        // Mouse Wheel Zoom
-        viewerContent.onwheel = (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                currentZoom = Math.min(Math.max(0.5, currentZoom + delta), 4);
-                document.getElementById('zoomRange').value = currentZoom;
-                updateFrameTransform();
-            }
-        };
-
-        document.getElementById('panToggle').onclick = () => {
-            isPanMode = !isPanMode;
-            document.getElementById('panToggle').classList.toggle('active', isPanMode);
-            document.getElementById('viewerContent').classList.toggle('pan-mode', isPanMode);
-        };
-
-        document.getElementById('resetBtn').onclick = () => {
+        document.getElementById('resetBtn').onclick = async () => {
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            document.getElementById('zoomRange').value = 1;
-            updateFrameTransform();
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
+            await renderAllPages();
         };
 
         document.getElementById('closeViewer').onclick = closeViewer;
 
-        document.getElementById('rotateBtn').onclick = () => {
-            currentRotation = (currentRotation + 90) % 360;
-            updateFrameTransform();
+        // Mouse Wheel Zoom
+        document.getElementById('pdfViewerContainer').onwheel = (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
+                
+                visualScale = newZoom / currentZoom;
+                applyVisualTransform();
+                
+                document.getElementById('zoomRange').value = newZoom;
+                document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                // Debounce the high-quality re-render
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
         };
 
-        document.getElementById('zoomRange').oninput = (e) => {
-            currentZoom = parseFloat(e.target.value);
-            updateFrameTransform();
-        };
-
-        // Key Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeViewer();
-            if (e.key === ' ') { // Space to toggle pan mode
-                e.preventDefault();
-                document.getElementById('panToggle').click();
-            }
         });
     
         
@@ -772,294 +790,343 @@
                 "id": "1A9NNfaFULNz7D9CJrOd5Qel8vzxDVZFI",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/1A9NNfaFULNz7D9CJrOd5Qel8vzxDVZFI/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/.DS_Store",
                 "type": "doc"
         },
         {
                 "id": "1rNfAt03t0ooIm7PR9l74tn17mpku_FWA",
                 "name": "CYUL_TAKEOFF_MINIMUMS.pdf",
                 "url": "https://drive.google.com/file/d/1rNfAt03t0ooIm7PR9l74tn17mpku_FWA/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_takeoff_minimums.pdf",
                 "type": "pdf"
         },
         {
                 "id": "17O4ORO5TjNZVE4v2aGeH35CFHOsWwhSF",
                 "name": "CYUL_MONTREAL_5_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/17O4ORO5TjNZVE4v2aGeH35CFHOsWwhSF/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_montreal_5_dep_vector.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1xLmoJh-MUyqXKW1MY5WN1qVTAtdsPTSO",
                 "name": "CYUL_PLAN_OF_OPERATIONS_IN_THE_ABSENCE_OF_APRON_CONTROL.pdf",
                 "url": "https://drive.google.com/file/d/1xLmoJh-MUyqXKW1MY5WN1qVTAtdsPTSO/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_plan_of_operations_in_the_absence_of_apron_control.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1S7RbFIcGfK0wJtK0Cy3d_UBh-G9eBaCW",
                 "name": "CYUL_TAXI_CHART_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1S7RbFIcGfK0wJtK0Cy3d_UBh-G9eBaCW/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_taxi_chart_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1jzEyvOVyShFLcRIgnmafX-lDBwQRMRh4",
                 "name": "CYUL_MONTREAL_5_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1jzEyvOVyShFLcRIgnmafX-lDBwQRMRh4/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_montreal_5_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1HKY6b3noSuAo0SN3BZYHoEpSfYrY1R4Q",
                 "name": "CYUL_START_BOXES.pdf",
                 "url": "https://drive.google.com/file/d/1HKY6b3noSuAo0SN3BZYHoEpSfYrY1R4Q/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_start_boxes.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1QUOcGXjjnpQNw2lGIQYNM_rskuT0rvQV",
                 "name": "CYUL_TAXI_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1QUOcGXjjnpQNw2lGIQYNM_rskuT0rvQV/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_taxi_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1dCq82z1vXP07uRNSlCYgglGSD1jcI3P5",
                 "name": "CYUL_AERODROME_CHART_PG_02_REDUCED_TAKE-OFF_RUNS.pdf",
                 "url": "https://drive.google.com/file/d/1dCq82z1vXP07uRNSlCYgglGSD1jcI3P5/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_aerodrome_chart_pg_02_reduced_take-off_runs.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1-y3xLa3j1t28zG80ccBWVsvzrj94ty62",
                 "name": "CYUL_ENGINE_FAN_BLADE_ICE_SHEDDING_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1-y3xLa3j1t28zG80ccBWVsvzrj94ty62/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_engine_fan_blade_ice_shedding_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1qVr6Nwj4aui3e_Sx5hsTVOejgr2lE_sg",
                 "name": "CYUL_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1qVr6Nwj4aui3e_Sx5hsTVOejgr2lE_sg/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "196kWNK_ZnoXnjmpzF3fKHVyUUI2vPnvx",
                 "name": "CYUL_RNAV_GNSS_Z_RWY_06R.pdf",
                 "url": "https://drive.google.com/file/d/196kWNK_ZnoXnjmpzF3fKHVyUUI2vPnvx/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_06r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "16cVEBCIe_EO7TjmE0gX17ZLy6Bz3doif",
                 "name": "CYUL_LOW_VISIBILITY_TAXI_CHART.pdf",
                 "url": "https://drive.google.com/file/d/16cVEBCIe_EO7TjmE0gX17ZLy6Bz3doif/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_low_visibility_taxi_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1az5ZJZgROlyzRrNSajCZpS92uWK078IR",
                 "name": "CYUL_PARKING_AREAS.pdf",
                 "url": "https://drive.google.com/file/d/1az5ZJZgROlyzRrNSajCZpS92uWK078IR/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_parking_areas.pdf",
                 "type": "pdf"
         },
         {
                 "id": "12lxGYuW2tdWqJboaBEGAkrTiwSGujddT",
                 "name": "CYUL_LOW_VISIBILITY_PROCEDURES_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/12lxGYuW2tdWqJboaBEGAkrTiwSGujddT/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_low_visibility_procedures_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1o-PlCx_IeO-hLPx-UyqGVPGULI9YmrEO",
                 "name": "CYUL_LOW_VISIBILITY_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1o-PlCx_IeO-hLPx-UyqGVPGULI9YmrEO/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_low_visibility_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1pDXEJz5578Yymrj6k09KmmOuzWYZkrlB",
                 "name": "CYUL_PARKING_CENTRE_AREAS_AND_DE-ICING_POSITIONS_AND_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1pDXEJz5578Yymrj6k09KmmOuzWYZkrlB/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_parking_centre_areas_and_de-icing_positions_and_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1qgo3rNHyYtKYYygVfMmzNCdt8yOiuLvn",
                 "name": "CYUL_RNAV_GNSS_Z_RWY_24R.pdf",
                 "url": "https://drive.google.com/file/d/1qgo3rNHyYtKYYygVfMmzNCdt8yOiuLvn/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_24r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "12I98HfE6C_P3fDPRR670ypPb1yP-USGD",
                 "name": "CYUL_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/12I98HfE6C_P3fDPRR670ypPb1yP-USGD/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "13oyUjayulSa2oCcSUbC3iDLUlJK7t56k",
                 "name": "CYUL_RNAV_GNSS_Z_RWY_24L.pdf",
                 "url": "https://drive.google.com/file/d/13oyUjayulSa2oCcSUbC3iDLUlJK7t56k/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_24l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1wUXgrtm9Ex_7NENxWMAm35vIx7ow4BDF",
                 "name": "CYUL_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1wUXgrtm9Ex_7NENxWMAm35vIx7ow4BDF/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures.pdf",
                 "type": "pdf"
         },
         {
                 "id": "10eQ1p_0DkiJE4dFS0xLxSkNbV7fVuwnP",
                 "name": "CYUL_NOISE_ABATEMENT_PROCEDURES_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/10eQ1p_0DkiJE4dFS0xLxSkNbV7fVuwnP/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1_H9zVHZVHeyt_jpYB6o607WLPBQunwDx",
                 "name": "CYUL_NORTH_PARKING_AREA.pdf",
                 "url": "https://drive.google.com/file/d/1_H9zVHZVHeyt_jpYB6o607WLPBQunwDx/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_north_parking_area.pdf",
                 "type": "pdf"
         },
         {
                 "id": "125tYtjPu4tAfiWPEiZK9KwM_P2M9dq66",
                 "name": "CYUL_ENGINE_FAN_BLADE_ICE_SHEDDING_PROCEDURES_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/125tYtjPu4tAfiWPEiZK9KwM_P2M9dq66/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_engine_fan_blade_ice_shedding_procedures_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1gc6u6_tk2wVa5cz6cJWGnEll2B3QcS8D",
                 "name": "CYUL_ILS_RWY_24L.pdf",
                 "url": "https://drive.google.com/file/d/1gc6u6_tk2wVa5cz6cJWGnEll2B3QcS8D/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_ils_rwy_24l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1__2vhlF4neeS5BwpIaovIAfk3KHDQ7tj",
                 "name": "CYUL_ILS_CAT_II_RWY_06L.pdf",
                 "url": "https://drive.google.com/file/d/1__2vhlF4neeS5BwpIaovIAfk3KHDQ7tj/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_ils_cat_ii_rwy_06l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Hhbyxbfpp9UN_Pg2foyYFV2M8XFjCRII",
                 "name": "CYUL_RNAV_GNSS_X_RWY_06L.pdf",
                 "url": "https://drive.google.com/file/d/1Hhbyxbfpp9UN_Pg2foyYFV2M8XFjCRII/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_06l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1IUOQ_bXYJ8VbQZLUEFgnJqZo-eK6pxBz",
                 "name": "CYUL_ILS_RWY_06L.pdf",
                 "url": "https://drive.google.com/file/d/1IUOQ_bXYJ8VbQZLUEFgnJqZo-eK6pxBz/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_ils_rwy_06l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "16zBfpIopqPb2B9hBpHNpSG5jb_7TMHTA",
                 "name": "CYUL_IMPACT_4_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/16zBfpIopqPb2B9hBpHNpSG5jb_7TMHTA/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1q5M7D6mCtw7jj3AeWFM4yVqZnB70uiaL",
                 "name": "CYUL_ILS_RWY_06R.pdf",
                 "url": "https://drive.google.com/file/d/1q5M7D6mCtw7jj3AeWFM4yVqZnB70uiaL/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_ils_rwy_06r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1EP6EEqFg6fgjWRdgxAZAFVbuCCVoeG_-",
                 "name": "CYUL_RNAV_GNSS_X_RWY_06R.pdf",
                 "url": "https://drive.google.com/file/d/1EP6EEqFg6fgjWRdgxAZAFVbuCCVoeG_-/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_06r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1QYnafGiPCsjNfGBP620jLUUhVmPyyBe9",
                 "name": "CYUL_ROCKET_3_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1QYnafGiPCsjNfGBP620jLUUhVmPyyBe9/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_rocket_3_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1XEDgx85rtMJPdgTyER0RZkgDUoKxEr92",
                 "name": "CYUL_RNAV_GNSS_Z_RWY_06L.pdf",
                 "url": "https://drive.google.com/file/d/1XEDgx85rtMJPdgTyER0RZkgDUoKxEr92/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_06l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1B0V2D3dnd0l45_6ObJoNV3AFsjgfYMe9",
                 "name": "CYUL_RNAV_GNSS_X_RWY_24R.pdf",
                 "url": "https://drive.google.com/file/d/1B0V2D3dnd0l45_6ObJoNV3AFsjgfYMe9/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_24r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1De_6RZ0BTopPlzjzTYzG1SsTrxLAKLvG",
                 "name": "CYUL_RNAV_GNSS_X_RWY_24L.pdf",
                 "url": "https://drive.google.com/file/d/1De_6RZ0BTopPlzjzTYzG1SsTrxLAKLvG/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_24l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1BFBzEOWfTAngX0oBhFEFjptwsnrDJWsn",
                 "name": "CYUL_ILS_RWY_24R.pdf",
                 "url": "https://drive.google.com/file/d/1BFBzEOWfTAngX0oBhFEFjptwsnrDJWsn/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_ils_rwy_24r.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1LDt_U7d8jNbOaaMXwWucL3rE5LnEkeae",
                 "name": "CYUL_LAFLEUR_7_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1LDt_U7d8jNbOaaMXwWucL3rE5LnEkeae/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_lafleur_7_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ub_OlZxmp2lw4Tzpj8REzm0Y3CwruPlO",
                 "name": "CYUL_LAFLEUR_7_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1ub_OlZxmp2lw4Tzpj8REzm0Y3CwruPlO/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_lafleur_7_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1y3xuNQtghr4aiSoC0WRh5LbjyN1UFS1W",
                 "name": "CYUL_IMPACT_4_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1y3xuNQtghr4aiSoC0WRh5LbjyN1UFS1W/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ZN_Phlw7Zcwl--ivvNUZSwbEKZOB_6Aw",
                 "name": "CYUL_ROCKET_3_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1ZN_Phlw7Zcwl--ivvNUZSwbEKZOB_6Aw/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_rocket_3_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1vFKubtOzSNhEd5qYOxCwPsyOnS_xpBAa",
                 "name": "CYUL_IMPACT_4_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1vFKubtOzSNhEd5qYOxCwPsyOnS_xpBAa/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1u60kax-N5KuYYA4_gHhEGC7D4ieXgVa2",
                 "name": "CYUL_CARTER_5_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1u60kax-N5KuYYA4_gHhEGC7D4ieXgVa2/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_carter_5_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1S2XO4296lNkTF7ynqpHn3oAKp6k1iP12",
                 "name": "CYUL_ALOET_4_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1S2XO4296lNkTF7ynqpHn3oAKp6k1iP12/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_aloet_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1gEJtZtQs8VEHVPmZTvlqzm68w-DWqUKg",
                 "name": "CYUL_HABBS_7_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1gEJtZtQs8VEHVPmZTvlqzm68w-DWqUKg/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "13Bn43OsLvJb24ciltxG19KelGBews3dH",
                 "name": "CYUL_HABBS_7_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/13Bn43OsLvJb24ciltxG19KelGBews3dH/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Dt8_cparD5kX6saIoJhH5Wc6SigZkgJp",
                 "name": "CYUL_ALOET_4_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1Dt8_cparD5kX6saIoJhH5Wc6SigZkgJp/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_aloet_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1RDii3W5u9xNSvBMr_rifsE4gqGh5t5eq",
                 "name": "CYUL_HABBS_7_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1RDii3W5u9xNSvBMr_rifsE4gqGh5t5eq/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1IFjGgXbUM4dIpqW9h8bODTqkzKrWu_bX",
                 "name": "CYYC_VESGA_6_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1IFjGgXbUM4dIpqW9h8bODTqkzKrWu_bX/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyyc_vesga_6_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1KSQIbRSCdqZ2LXj1AAnWFS49c0-oQUJp",
                 "name": "CYYC_VESGA_6_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1KSQIbRSCdqZ2LXj1AAnWFS49c0-oQUJp/view?usp=drivesdk",
+                "localUrl": "charts_data/canada/cyul-montreal/cyyc_vesga_6_arr_rnav_pg_03.pdf",
                 "type": "pdf"
         }
 ];
@@ -1107,7 +1174,7 @@
                 item.href = '#';
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url);
+                    openViewer(file.id, file.name, file.url, file.localUrl);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
@@ -1130,6 +1197,7 @@
                         id: file.id,
                         name: file.name,
                         url: file.url,
+                        localUrl: file.localUrl,
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region

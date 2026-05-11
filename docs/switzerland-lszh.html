@@ -325,57 +325,58 @@
             flex: 1;
             position: relative;
             overflow: hidden;
+            background: #05070a;
             display: flex;
+            flex-direction: column;
             align-items: center;
+        }
+
+        #pdfViewerContainer {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
             justify-content: center;
             background: #05070a;
-            cursor: default;
+            scroll-behavior: smooth;
         }
 
-        .viewer-content.pan-mode {
-            cursor: grab;
-        }
-
-        .viewer-content.pan-mode:active {
-            cursor: grabbing;
-        }
-
-        .viewer-frame-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease-out;
-            will-change: transform;
-        }
-
-        #viewerFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-            border-radius: 2px;
+        .pdf-page-container {
+            margin: 20px 0;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            pointer-events: auto;
-            image-rendering: -webkit-optimize-contrast;
-            backface-visibility: hidden;
-            -webkit-font-smoothing: subpixel-antialiased;
+            position: relative;
+            background: white;
+            transition: transform 0.1s ease-out;
+            transform-origin: top center;
         }
 
-        .pan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: none;
-        }
-
-        .viewer-content.pan-mode .pan-overlay {
+        canvas {
             display: block;
+            max-width: 100%;
+        }
+
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 0.2;
+            line-height: 1.0;
+        }
+
+        .textLayer > span {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+
+        ::selection {
+            background: rgba(88, 166, 255, 0.3);
         }
 
         .viewer-tip {
@@ -523,6 +524,10 @@
     </div>
     
     
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+
     <div id="viewerModal" class="viewer-modal">
         <div class="viewer-header">
             <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
@@ -530,12 +535,9 @@
             <div class="viewer-controls">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
                     <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
-                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="3" step="0.1" value="1">
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
+                    <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
                 </div>
-
-                <button class="control-btn" id="panToggle" title="Toggle Pan Mode (Drag to move)">
-                    <span>🖐</span> PAN
-                </button>
 
                 <button class="control-btn" id="rotateBtn" title="Rotate Chart">
                     <span>🔄</span> ROTATE
@@ -557,17 +559,15 @@
         <div class="viewer-content" id="viewerContent">
             <div id="viewerLoader" class="viewer-loader">
                 <div class="spinner"></div>
-                <div style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">FETCHING FROM DRIVE...</div>
+                <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
             </div>
 
-            <div class="viewer-frame-container" id="viewerContainer">
-                <iframe id="viewerFrame" src="" allow="autoplay"></iframe>
+            <div id="pdfViewerContainer">
+                <div id="pdfViewer" class="pdfViewer"></div>
             </div>
-
-            <div class="pan-overlay" id="panOverlay"></div>
 
             <div class="viewer-tip">
-                <span>💡 <b>Ctrl+F</b> not working? Click <b>DRIVE</b> to search text.</span>
+                <span>💡 Use <b>Ctrl+F</b> to search text. Use <b>Mouse Wheel</b> to zoom.</span>
             </div>
         </div>
     </div>
@@ -599,151 +599,169 @@
         }
     
         
-        let currentRotation = 0;
-        let currentZoom = 1;
-        let translateX = 0;
-        let translateY = 0;
-        let isDragging = false;
-        let startX, startY;
-        let isPanMode = false;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        function openViewer(id, name, url) {
+        let currentPdf = null;
+        let currentRotation = 0;
+        let currentZoom = 1.5;
+        let visualScale = 1.0; // Added for smooth CSS scaling
+
+        async function openViewer(id, name, driveUrl, localUrl) {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             const title = document.getElementById('viewerTitle');
             const externalLink = document.getElementById('externalLink');
             const loader = document.getElementById('viewerLoader');
-            const container = document.getElementById('viewerContainer');
+            const loaderStatus = document.getElementById('loaderStatus');
+            const container = document.getElementById('pdfViewer');
 
             // Reset state
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            isPanMode = false;
-            document.getElementById('panToggle').classList.remove('active');
-            document.getElementById('viewerContent').classList.remove('pan-mode');
-
-            updateFrameTransform();
-            document.getElementById('zoomRange').value = 1;
-
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
             title.textContent = name;
-            externalLink.href = url;
-
-            // Initial state
-            loader.style.display = 'flex';
-            container.style.opacity = '0';
-
-            // Handler for when loading finishes
-            const onFinish = () => {
-                loader.style.display = 'none';
-                container.style.opacity = '1';
-            };
-
-            frame.onload = onFinish;
-
-            // Safety timeout: Show the frame anyway after 5s if onload doesn't fire
-            setTimeout(onFinish, 5000);
-
-            // Use /preview with additional parameters for better embedding
-            frame.src = `https://drive.google.com/file/d/${id}/preview?rm=minimal`;
-
+            externalLink.href = driveUrl;
+            container.innerHTML = '';
+            container.style.transform = 'scale(1)'; // Reset visual scale
+            
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            loader.style.display = 'flex';
+            loaderStatus.textContent = 'LOADING LOCAL PDF...';
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(localUrl);
+                currentPdf = await loadingTask.promise;
+                loaderStatus.textContent = `RENDERING ${currentPdf.numPages} PAGE(S)...`;
+                await renderAllPages();
+                loader.style.display = 'none';
+            } catch (err) {
+                console.error('PDF Error:', err);
+                loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
+                setTimeout(() => {
+                    window.open(driveUrl, '_blank');
+                    closeViewer();
+                }, 2000);
+            }
+        }
+
+        async function renderAllPages() {
+            const container = document.getElementById('pdfViewer');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= currentPdf.numPages; i++) {
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'pdf-page-container';
+                pageContainer.id = `page-${i}`;
+                container.appendChild(pageContainer);
+                await renderPage(i, pageContainer);
+            }
+            applyVisualTransform();
+        }
+
+        async function renderPage(pageNum, container) {
+            const page = await currentPdf.getPage(pageNum);
+            // Render at the current "high quality" zoom level
+            const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
+            
+            container.style.width = `${viewport.width}px`;
+            container.style.height = `${viewport.height}px`;
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            container.appendChild(canvas);
+
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.className = 'textLayer';
+            container.appendChild(textLayerDiv);
+
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            
+            const textContent = await page.getTextContent();
+            pdfjsLib.renderTextLayer({
+                textContent: textContent,
+                container: textLayerDiv,
+                viewport: viewport,
+                textDivs: []
+            });
+        }
+
+        function applyVisualTransform() {
+            const container = document.getElementById('pdfViewer');
+            // We use CSS scale for the small adjustments between high-quality renders
+            container.style.transform = `scale(${visualScale})`;
         }
 
         function closeViewer() {
             const modal = document.getElementById('viewerModal');
-            const frame = document.getElementById('viewerFrame');
             modal.style.display = 'none';
-            frame.src = '';
             document.body.style.overflow = 'auto';
+            currentPdf = null;
         }
 
-        function updateFrameTransform() {
-            const container = document.getElementById('viewerContainer');
-            const frame = document.getElementById('viewerFrame');
-            const isRotated = currentRotation % 180 !== 0;
-
-            // Apply transformations to the container
-            container.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentZoom})`;
-
-            if (isRotated) {
-                container.style.width = '100vh';
-                container.style.height = '100vw';
-            } else {
-                container.style.width = '100%';
-                container.style.height = '100%';
-            }
+        async function updateZoomQuality() {
+            // This is the heavy render that runs AFTER the user stops zooming
+            await renderAllPages();
+            visualScale = 1.0;
+            applyVisualTransform();
         }
 
-        // Drag & Pan Logic
-        const viewerContent = document.getElementById('viewerContent');
-
-        viewerContent.onmousedown = (e) => {
-            if (!isPanMode) return;
-            isDragging = true;
-            startX = e.clientX - translateX;
-            startY = e.clientY - translateY;
-            e.preventDefault();
+        document.getElementById('zoomRange').oninput = (e) => {
+            const newZoom = parseFloat(e.target.value);
+            // Instant visual feedback
+            visualScale = newZoom / currentZoom;
+            applyVisualTransform();
+            document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
         };
 
-        window.onmousemove = (e) => {
-            if (!isDragging) return;
-            translateX = e.clientX - startX;
-            translateY = e.clientY - startY;
-            updateFrameTransform();
+        document.getElementById('zoomRange').onchange = async (e) => {
+            currentZoom = parseFloat(e.target.value);
+            await updateZoomQuality();
         };
 
-        window.onmouseup = () => {
-            isDragging = false;
+        document.getElementById('rotateBtn').onclick = async () => {
+            currentRotation = (currentRotation + 90) % 360;
+            await renderAllPages();
         };
 
-        // Mouse Wheel Zoom
-        viewerContent.onwheel = (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                currentZoom = Math.min(Math.max(0.5, currentZoom + delta), 4);
-                document.getElementById('zoomRange').value = currentZoom;
-                updateFrameTransform();
-            }
-        };
-
-        document.getElementById('panToggle').onclick = () => {
-            isPanMode = !isPanMode;
-            document.getElementById('panToggle').classList.toggle('active', isPanMode);
-            document.getElementById('viewerContent').classList.toggle('pan-mode', isPanMode);
-        };
-
-        document.getElementById('resetBtn').onclick = () => {
+        document.getElementById('resetBtn').onclick = async () => {
             currentRotation = 0;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            document.getElementById('zoomRange').value = 1;
-            updateFrameTransform();
+            currentZoom = 1.5;
+            visualScale = 1.0;
+            document.getElementById('zoomRange').value = 1.5;
+            document.getElementById('zoomValue').textContent = '1.5x';
+            await renderAllPages();
         };
 
         document.getElementById('closeViewer').onclick = closeViewer;
 
-        document.getElementById('rotateBtn').onclick = () => {
-            currentRotation = (currentRotation + 90) % 360;
-            updateFrameTransform();
+        // Mouse Wheel Zoom
+        document.getElementById('pdfViewerContainer').onwheel = (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
+                
+                visualScale = newZoom / currentZoom;
+                applyVisualTransform();
+                
+                document.getElementById('zoomRange').value = newZoom;
+                document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                // Debounce the high-quality re-render
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
         };
 
-        document.getElementById('zoomRange').oninput = (e) => {
-            currentZoom = parseFloat(e.target.value);
-            updateFrameTransform();
-        };
-
-        // Key Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeViewer();
-            if (e.key === ' ') { // Space to toggle pan mode
-                e.preventDefault();
-                document.getElementById('panToggle').click();
-            }
         });
     
         
@@ -772,330 +790,385 @@
                 "id": "1C9KSh0gnAvkeTJa6gfh0JmIPeEs1Q1Hg",
                 "name": "STAR_ICAO_RNAV_AMIKI_-_NEGRA_2A_RILAX_2A_TRA_2A.pdf",
                 "url": "https://drive.google.com/file/d/1C9KSh0gnAvkeTJa6gfh0JmIPeEs1Q1Hg/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/star_icao_rnav_amiki_-_negra_2a_rilax_2a_tra_2a.pdf",
                 "type": "pdf"
         },
         {
                 "id": "13b1Gm0E3-Yt9FETE9-NRhdrOQNk8lquS",
                 "name": "STAR_ICAO_GIPOL_-_WIL_3Z.pdf",
                 "url": "https://drive.google.com/file/d/13b1Gm0E3-Yt9FETE9-NRhdrOQNk8lquS/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/star_icao_gipol_-_wil_3z.pdf",
                 "type": "pdf"
         },
         {
                 "id": "14qsRQ9fXXjBMs0YYWXs34kbIdgQaScyw",
                 "name": "STAR_ICAO_RNAV_GIPOL_-_BERSU_2G_BLM_3G_DOPIL_2G_KELIP_3G.pdf",
                 "url": "https://drive.google.com/file/d/14qsRQ9fXXjBMs0YYWXs34kbIdgQaScyw/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/star_icao_rnav_gipol_-_bersu_2g_blm_3g_dopil_2g_kelip_3g.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1gGNq-3qcpe8Zj3xmy44iF9tLhz7oeYj4",
                 "name": "SID_ICAO_STRAIGHT_AHEAD_AND_TURN_RWY_10162834_-_SAT_2E_SAT_2F_SAT_2H_SAT_2S_SAT_2W.pdf",
                 "url": "https://drive.google.com/file/d/1gGNq-3qcpe8Zj3xmy44iF9tLhz7oeYj4/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_straight_ahead_and_turn_rwy_10162834_-_sat_2e_sat_2f_sat_2h_sat_2s_sat_2w.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1QCxYIzS2SRJTxsZb5f-feDAoXWlOkWqD",
                 "name": "SID_ICAO_RWY_34_-_ZUE_2G.pdf",
                 "url": "https://drive.google.com/file/d/1QCxYIzS2SRJTxsZb5f-feDAoXWlOkWqD/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rwy_34_-_zue_2g.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ToaZFQ38fDKLiMIqSTv4ae75nUk9nA7X",
                 "name": "SID_ICAO_RNAV_RWY_34_-_DEGES_1J_(BY_ATC_ONLY).pdf",
                 "url": "https://drive.google.com/file/d/1ToaZFQ38fDKLiMIqSTv4ae75nUk9nA7X/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_34_-_deges_1j_by_atc_only.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1pqx7P8VFJQnsuCub4FVBqUaJppsbGt0K",
                 "name": "SID_ICAO_RNAV_RWY_34_-_DEGES_5F_VEBIT_4H_ZUE_5F.pdf",
                 "url": "https://drive.google.com/file/d/1pqx7P8VFJQnsuCub4FVBqUaJppsbGt0K/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_34_-_deges_5f_vebit_4h_zue_5f.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1UDysT-S61voC0ACgy02N4je1dT0xXvUm",
                 "name": "SID_ICAO_RNP_RWY_34_-_VEBIT_2K.pdf",
                 "url": "https://drive.google.com/file/d/1UDysT-S61voC0ACgy02N4je1dT0xXvUm/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnp_rwy_34_-_vebit_2k.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1GC0nTmbhZmnmV8itvuiBkmnZ2mcfqnla",
                 "name": "SID_ICAO_RWY_32_-_ZUE_2M.pdf",
                 "url": "https://drive.google.com/file/d/1GC0nTmbhZmnmV8itvuiBkmnZ2mcfqnla/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rwy_32_-_zue_2m.pdf",
                 "type": "pdf"
         },
         {
                 "id": "187F5QOSrEAIvteq0kAWD2L7F8h3dLLDD",
                 "name": "SID_ICAO_RNAV_RWY_32_-_DEGES_1P_(BY_ATC_ONLY).pdf",
                 "url": "https://drive.google.com/file/d/187F5QOSrEAIvteq0kAWD2L7F8h3dLLDD/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_32_-_deges_1p_by_atc_only.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1qy6cMG5wR5JoIGsWIGrAeiBPI7NTejK4",
                 "name": "SID_ICAO_RNAV_RWY_32_-_DEGES_5L_VEBIT_4N_ZUE_5L.pdf",
                 "url": "https://drive.google.com/file/d/1qy6cMG5wR5JoIGsWIGrAeiBPI7NTejK4/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_32_-_deges_5l_vebit_4n_zue_5l.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1sJFaoRXKxwJr0zl_VZzmCIHIFcsRiPMn",
                 "name": "SID_ICAO_RWY_28_-_ZUE_3V.pdf",
                 "url": "https://drive.google.com/file/d/1sJFaoRXKxwJr0zl_VZzmCIHIFcsRiPMn/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rwy_28_-_zue_3v.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ku-YFB1KuQ_DpWhkHakw_4qvoll9PDKU",
                 "name": "SID_ICAO_RNAV_RWY_28_-_DEGES_2X_VEBIT_1X_(BY_ATC_ONLY).pdf",
                 "url": "https://drive.google.com/file/d/1ku-YFB1KuQ_DpWhkHakw_4qvoll9PDKU/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_28_-_deges_2x_vebit_1x_by_atc_only.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1aBgFQr3Bp37NsqYrmSsXuRW0jnxc_q_V",
                 "name": "SID_ICAO_RNP_RWY_28_-_VEBIT_1Y_(BY_ATC_ONLY).pdf",
                 "url": "https://drive.google.com/file/d/1aBgFQr3Bp37NsqYrmSsXuRW0jnxc_q_V/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnp_rwy_28_-_vebit_1y_by_atc_only.pdf",
                 "type": "pdf"
         },
         {
                 "id": "10CoGguDPbx1T5VT3i5-7Etc4RLl_MB7B",
                 "name": "SID_ICAO_RNP_RWY_28_-_DEGES_2Y_(BY_ATC_ONLY).pdf",
                 "url": "https://drive.google.com/file/d/10CoGguDPbx1T5VT3i5-7Etc4RLl_MB7B/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnp_rwy_28_-_deges_2y_by_atc_only.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1_cX3MnaZwJ1Ib7NwQR8qR8YvZkBm4_mc",
                 "name": "SID_ICAO_RNAV_RWY_28_-_DEGES_3W_GERSA_2W_VEBIT_4W.pdf",
                 "url": "https://drive.google.com/file/d/1_cX3MnaZwJ1Ib7NwQR8qR8YvZkBm4_mc/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_28_-_deges_3w_gersa_2w_vebit_4w.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1lXnK1dOSOIHdJkjTEF8Ut4ifZYbQ39Fs",
                 "name": "SID_ICAO_RWY_16_-_WIL_3Q.pdf",
                 "url": "https://drive.google.com/file/d/1lXnK1dOSOIHdJkjTEF8Ut4ifZYbQ39Fs/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rwy_16_-_wil_3q.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1N78nrrIrdNUTThE-DGaKF3HC0osC1w2N",
                 "name": "SID_ICAO_RNAV_RWY_16_-_DEGES_1T_VEBIT_1T_(BY_ATC_ONLY).pdf",
                 "url": "https://drive.google.com/file/d/1N78nrrIrdNUTThE-DGaKF3HC0osC1w2N/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_16_-_deges_1t_vebit_1t_by_atc_only.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1AGjAVSlvi-4l6c8--1o_xvGjToiKMZcO",
                 "name": "SID_ICAO_RNAV_RWY_16_-_DEGES_2R_GERSA_2S_VEBIT_4S.pdf",
                 "url": "https://drive.google.com/file/d/1AGjAVSlvi-4l6c8--1o_xvGjToiKMZcO/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_16_-_deges_2r_gersa_2s_vebit_4s.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1LrPHSL0_zdzCiyXOGxKwxSgfQ6ewjS0h",
                 "name": "SID_ICAO_RNAV_RWY_16_-_DEGES_3S.pdf",
                 "url": "https://drive.google.com/file/d/1LrPHSL0_zdzCiyXOGxKwxSgfQ6ewjS0h/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_16_-_deges_3s.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1GHtFyQUcPi_LAcj4qmgMNf5i340k7Irt",
                 "name": "SID_ICAO_RWY_10_-_WIL_3C.pdf",
                 "url": "https://drive.google.com/file/d/1GHtFyQUcPi_LAcj4qmgMNf5i340k7Irt/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rwy_10_-_wil_3c.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Lg_4mXq-_PWvEIjlwWKwE8PgQ-gMba2X",
                 "name": "SID_ICAO_RNAV_RWY_10_-_DEGES_3E_GERSA_3C_GERSA_2E_VEBIT_4E_ZUE_1E.pdf",
                 "url": "https://drive.google.com/file/d/1Lg_4mXq-_PWvEIjlwWKwE8PgQ-gMba2X/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_10_-_deges_3e_gersa_3c_gersa_2e_vebit_4e_zue_1e.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1__ejtwDZVzKz9jwBeQjEIPHsoqk-rIKy",
                 "name": "SID_ICAO_RNP_RWY_10_-_GERSA_1D_VEBIT_1D.pdf",
                 "url": "https://drive.google.com/file/d/1__ejtwDZVzKz9jwBeQjEIPHsoqk-rIKy/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnp_rwy_10_-_gersa_1d_vebit_1d.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1sVsd0aBxu13Om02L6EnM-9OPmXArzEv-",
                 "name": "AREA_CHART_ICAO_TMA_TRANSIT_ROUTES.pdf",
                 "url": "https://drive.google.com/file/d/1sVsd0aBxu13Om02L6EnM-9OPmXArzEv-/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/area_chart_icao_tma_transit_routes.pdf",
                 "type": "pdf"
         },
         {
                 "id": "131rrFFbx9VXmCUETSjEFO3JJY5t-qo9e",
                 "name": "AREA_CHART_ICAO_-_TRANSITION_AFTER_DEPARTURE_ROUTES_VEBIT.pdf",
                 "url": "https://drive.google.com/file/d/131rrFFbx9VXmCUETSjEFO3JJY5t-qo9e/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/area_chart_icao_-_transition_after_departure_routes_vebit.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Dev83H9zgVKubyS1yBn8dthhF6tbrOK3",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_-_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/1Dev83H9zgVKubyS1yBn8dthhF6tbrOK3/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/precision_approach_terrain_chart_-_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "19MRsg0OKlSNcIaeRNCGI0v-lKsj9YjCH",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_-_RWY_14.pdf",
                 "url": "https://drive.google.com/file/d/19MRsg0OKlSNcIaeRNCGI0v-lKsj9YjCH/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/precision_approach_terrain_chart_-_rwy_14.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1wIvrGlT3wtsXo_NkqtBW8nTsN1vTt10n",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/1wIvrGlT3wtsXo_NkqtBW8nTsN1vTt10n/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/aerodrome_obstacle_chart_-_type_a_-_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "182wegM-rYmO9xUtyY3MvamkpMNzRZGyM",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_32.pdf",
                 "url": "https://drive.google.com/file/d/182wegM-rYmO9xUtyY3MvamkpMNzRZGyM/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/aerodrome_obstacle_chart_-_type_a_-_rwy_32.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1cerf_07Xhmi65NBdppn9NusIQflIZ_qb",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_14.pdf",
                 "url": "https://drive.google.com/file/d/1cerf_07Xhmi65NBdppn9NusIQflIZ_qb/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/aerodrome_obstacle_chart_-_type_a_-_rwy_14.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Nko6urfdxBfFKD2qoOUNHIw1BZb2m2UM",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_28.pdf",
                 "url": "https://drive.google.com/file/d/1Nko6urfdxBfFKD2qoOUNHIw1BZb2m2UM/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/aerodrome_obstacle_chart_-_type_a_-_rwy_28.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1OrUpJ2cP9g76zBTjbofQnhOBXy8nWBG8",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_10.pdf",
                 "url": "https://drive.google.com/file/d/1OrUpJ2cP9g76zBTjbofQnhOBXy8nWBG8/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/aerodrome_obstacle_chart_-_type_a_-_rwy_10.pdf",
                 "type": "pdf"
         },
         {
                 "id": "14ITc8IY0P78cmQn2s2lkAbnc7UcTunU9",
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART.pdf",
                 "url": "https://drive.google.com/file/d/14ITc8IY0P78cmQn2s2lkAbnc7UcTunU9/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/atc_surveillance_minimum_altitude_chart.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ARLijNud8hAG8B6mqnUuVjdi2XpEGtyS",
                 "name": "IAC_ICAO_RNP_RWY_34.pdf",
                 "url": "https://drive.google.com/file/d/1ARLijNud8hAG8B6mqnUuVjdi2XpEGtyS/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_rnp_rwy_34.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1XjhBWi4YGanmnjBX7h664fKvaT4NTPV5",
                 "name": "IAC_ICAO_LOC_RWY_34.pdf",
                 "url": "https://drive.google.com/file/d/1XjhBWi4YGanmnjBX7h664fKvaT4NTPV5/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_loc_rwy_34.pdf",
                 "type": "pdf"
         },
         {
                 "id": "10J7txmQQD-jf_XYvxEz9Ec61MVlwz-xQ",
                 "name": "IAC_ICAO_ILS_RWY_34.pdf",
                 "url": "https://drive.google.com/file/d/10J7txmQQD-jf_XYvxEz9Ec61MVlwz-xQ/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_ils_rwy_34.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1oyPsYv8XDT5HdYHBZIjSfqdktzzxsEr8",
                 "name": "IAC_ICAO_RNP_RWY_28.pdf",
                 "url": "https://drive.google.com/file/d/1oyPsYv8XDT5HdYHBZIjSfqdktzzxsEr8/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_rnp_rwy_28.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1RKaaTYVSsEzMkiN_nr-BOJ5dHQ35TdYG",
                 "name": "IAC_ICAO_LOC_RWY_28.pdf",
                 "url": "https://drive.google.com/file/d/1RKaaTYVSsEzMkiN_nr-BOJ5dHQ35TdYG/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_loc_rwy_28.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ZUdw7-pp_c9IMWBzU9vMqi2SLBkE0BXX",
                 "name": "IAC_ICAO_ILS_RWY_28.pdf",
                 "url": "https://drive.google.com/file/d/1ZUdw7-pp_c9IMWBzU9vMqi2SLBkE0BXX/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_ils_rwy_28.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1N3NNwLRPID5bEeFPP4CskBNVRcMULC8F",
                 "name": "STAR_ICAO_TRANSITION_TO_FINAL_APPROACH_RNAV_RWY_28_-_AMIKI_28_GIPOL_28_RILAX_28.pdf",
                 "url": "https://drive.google.com/file/d/1N3NNwLRPID5bEeFPP4CskBNVRcMULC8F/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/star_icao_transition_to_final_approach_rnav_rwy_28_-_amiki_28_gipol_28_rilax_28.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1NFkhZpUPNzRoAtMaybpm2FAam93lGhTo",
                 "name": "IAC_ICAO_LOC_RWY_16.pdf",
                 "url": "https://drive.google.com/file/d/1NFkhZpUPNzRoAtMaybpm2FAam93lGhTo/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_loc_rwy_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1a6E6Z-xdTgtBcyjocQiK3Vfr-0yWKq8e",
                 "name": "IAC_ICAO_ILS_RWY_16_CAT_II_&_III.pdf",
                 "url": "https://drive.google.com/file/d/1a6E6Z-xdTgtBcyjocQiK3Vfr-0yWKq8e/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_ils_rwy_16_cat_ii__iii.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1AKQho3guQlrJ5Fe1wYs5xA81WcuZ6K3r",
                 "name": "STAR_ICAO_TRANSITION_TO_FINAL_APPROACH_RNAV_RWY_16_-_AMIKI_16_GIPOL_16_RILAX_16.pdf",
                 "url": "https://drive.google.com/file/d/1AKQho3guQlrJ5Fe1wYs5xA81WcuZ6K3r/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/star_icao_transition_to_final_approach_rnav_rwy_16_-_amiki_16_gipol_16_rilax_16.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1MqGecbjQPwTfTeboiRN3G-RDFoKqww8E",
                 "name": "IAC_ICAO_RNP_RWY_14.pdf",
                 "url": "https://drive.google.com/file/d/1MqGecbjQPwTfTeboiRN3G-RDFoKqww8E/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_rnp_rwy_14.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1e7FKP5gJNXYmYkVZ0XfyRrFpEnxp9HOa",
                 "name": "IAC_ICAO_GLS_RWY_14.pdf",
                 "url": "https://drive.google.com/file/d/1e7FKP5gJNXYmYkVZ0XfyRrFpEnxp9HOa/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_gls_rwy_14.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1S6czwQraBdlU9_fmJShaTXKmkDowOYDp",
                 "name": "IAC_ICAO_LOC_RWY_14.pdf",
                 "url": "https://drive.google.com/file/d/1S6czwQraBdlU9_fmJShaTXKmkDowOYDp/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_loc_rwy_14.pdf",
                 "type": "pdf"
         },
         {
                 "id": "11baPFK6kkJvVtzCv6eb8MgwQgZzHJ4fz",
                 "name": "IAC_ICAO_ILS_RWY_14_CAT_II_&_III.pdf",
                 "url": "https://drive.google.com/file/d/11baPFK6kkJvVtzCv6eb8MgwQgZzHJ4fz/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/iac_icao_ils_rwy_14_cat_ii__iii.pdf",
                 "type": "pdf"
         },
         {
                 "id": "18PWlPb8GyCDwUVjiohN4aoWEo4EyyW7f",
                 "name": "STAR_ICAO_TRANSITION_TO_FINAL_APPROACH_RNAV_RWY_14_-_AMIKI_14_GIPOL_14_RILAX_14.pdf",
                 "url": "https://drive.google.com/file/d/18PWlPb8GyCDwUVjiohN4aoWEo4EyyW7f/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/star_icao_transition_to_final_approach_rnav_rwy_14_-_amiki_14_gipol_14_rilax_14.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1I4XDjJhWfH6BPOGnaDtjEHQPXzoqEpeW",
                 "name": "SID_ICAO_RNAV_RWY_34_-_DEGES_4H_GERSA_1H.pdf",
                 "url": "https://drive.google.com/file/d/1I4XDjJhWfH6BPOGnaDtjEHQPXzoqEpeW/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_34_-_deges_4h_gersa_1h.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1e4_SG452sZLoUGqVuDLxBU8uBMbx4txr",
                 "name": "SID_ICAO_RNAV_RWY_32_-_DEGES_4N_GERSA_1N.pdf",
                 "url": "https://drive.google.com/file/d/1e4_SG452sZLoUGqVuDLxBU8uBMbx4txr/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/sid_icao_rnav_rwy_32_-_deges_4n_gersa_1n.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1VDzcTkoDRxmpHK4U40i0o45_x1nLmp3C",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_34.pdf",
                 "url": "https://drive.google.com/file/d/1VDzcTkoDRxmpHK4U40i0o45_x1nLmp3C/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/aerodrome_obstacle_chart_-_type_a_-_rwy_34.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1ZeDSnUXCnxrxXd8QY3nB6yPgbcluGxYp",
                 "name": "GROUND_MOVEMENT_CHART_ICAO_CODE_F_AIRCRAFT.pdf",
                 "url": "https://drive.google.com/file/d/1ZeDSnUXCnxrxXd8QY3nB6yPgbcluGxYp/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/ground_movement_chart_icao_code_f_aircraft.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1olYLzZzEuRBQVka5cgR_2VnD5buEDqFQ",
                 "name": "AIRCRAFT_PARKING_DOCKING_CHART_-_AREA_NORTH.pdf",
                 "url": "https://drive.google.com/file/d/1olYLzZzEuRBQVka5cgR_2VnD5buEDqFQ/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/aircraft_parking_docking_chart_-_area_north.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1Y3CNW-QwjcHd1cCj6S5glkv2NLCGiYsY",
                 "name": "AIRCRAFT_PARKING_DOCKING_CHART_-_AREA_SOUTH.pdf",
                 "url": "https://drive.google.com/file/d/1Y3CNW-QwjcHd1cCj6S5glkv2NLCGiYsY/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/aircraft_parking_docking_chart_-_area_south.pdf",
                 "type": "pdf"
         },
         {
                 "id": "1NCyRZMyNG7MRNH3Qs6tu4ZYDxRz7ZOi0",
                 "name": "AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1NCyRZMyNG7MRNH3Qs6tu4ZYDxRz7ZOi0/view?usp=drivesdk",
+                "localUrl": "charts_data/switzerland/lszh/aerodrome_chart.pdf",
                 "type": "pdf"
         }
 ];
@@ -1143,7 +1216,7 @@
                 item.href = '#';
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url);
+                    openViewer(file.id, file.name, file.url, file.localUrl);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
@@ -1166,6 +1239,7 @@
                         id: file.id,
                         name: file.name,
                         url: file.url,
+                        localUrl: file.localUrl,
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region
