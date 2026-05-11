@@ -66,8 +66,13 @@
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
             border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
         
+        .header-content { flex: 1; }
+
         h1 {
             font-family: 'Rajdhani', sans-serif;
             font-size: 2.5rem;
@@ -195,6 +200,55 @@
         /* Favicon-like icon styling */
         img[src*="favicon"] {
             border-radius: 20%;
+        }
+
+        /* Pinning System Styles */
+        .pin-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            opacity: 0.25;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 4px;
+        }
+        .pin-btn:hover { opacity: 0.8; background: var(--accent-glow); }
+        .pin-btn.pinned { opacity: 1; color: var(--accent); }
+
+        .pinned-section {
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+        }
+
+        .pinned-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .pin-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .pin-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
         }
     
         
@@ -558,13 +612,6 @@
                 "name": "CYYG Charlottetown",
                 "displayName": "CYYG Charlottetown",
                 "slug": "canada-cyyg-charlottetown",
-                "fileCount": 13
-        },
-        {
-                "icao": "CYYG Victoria",
-                "name": "CYYG Victoria",
-                "displayName": "CYYG Victoria",
-                "slug": "canada-cyyg-victoria",
                 "fileCount": 13
         },
         {

@@ -66,8 +66,13 @@
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
             border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
         
+        .header-content { flex: 1; }
+
         h1 {
             font-family: 'Rajdhani', sans-serif;
             font-size: 2.5rem;
@@ -196,6 +201,55 @@
         img[src*="favicon"] {
             border-radius: 20%;
         }
+
+        /* Pinning System Styles */
+        .pin-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            opacity: 0.25;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 4px;
+        }
+        .pin-btn:hover { opacity: 0.8; background: var(--accent-glow); }
+        .pin-btn.pinned { opacity: 1; color: var(--accent); }
+
+        .pinned-section {
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+        }
+
+        .pinned-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .pin-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .pin-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
     
         
         .file-count {
@@ -255,8 +309,11 @@
         </div>
         
         <header>
-            <h1>LSZG - Grenchen</h1>
-            <div class="subtitle">Charts and procedures</div>
+            <div class="header-content">
+                <h1>LSZG - Grenchen</h1>
+                <div class="subtitle">Charts and procedures</div>
+            </div>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
         </header>
         
         <div class="search-section">
@@ -287,6 +344,51 @@
     </div>
     
     <script>
+        
+        const PINS_KEY = 'atc_pins';
+        function getPins() {
+            try { return JSON.parse(localStorage.getItem(PINS_KEY)) || {airports: [], charts: []}; }
+            catch(e) { return {airports: [], charts: []}; }
+        }
+        function savePins(p) { localStorage.setItem(PINS_KEY, JSON.stringify(p)); }
+        
+        function toggleAirportPin(airport) {
+            let pins = getPins();
+            let idx = pins.airports.findIndex(a => a.slug === airport.slug);
+            if (idx >= 0) pins.airports.splice(idx, 1);
+            else pins.airports.push({...airport, pinnedAt: Date.now()});
+            savePins(pins);
+        }
+        
+        function toggleChartPin(chart) {
+            let pins = getPins();
+            let idx = pins.charts.findIndex(c => c.url === chart.url);
+            if (idx >= 0) pins.charts.splice(idx, 1);
+            else pins.charts.push({...chart, pinnedAt: Date.now()});
+            savePins(pins);
+        }
+    
+        
+        const airportCtx = {
+            slug: 'switzerland-lszg',
+            name: 'LSZG - Grenchen',
+            region: 'Switzerland'
+        };
+
+        const pinAirportBtn = document.getElementById('pinAirportBtn');
+        const updateAirportPinState = () => {
+            const pins = getPins();
+            const isPinned = pins.airports.some(a => a.slug === airportCtx.slug);
+            pinAirportBtn.classList.toggle('pinned', isPinned);
+            pinAirportBtn.title = isPinned ? 'Unpin from homepage' : 'Pin to homepage';
+        };
+
+        pinAirportBtn.onclick = () => {
+            toggleAirportPin(airportCtx);
+            updateAirportPinState();
+        };
+        updateAirportPinState();
+
         const files = [
         {
                 "name": "SID_ICAO_RNAV_RWY_0624_(VISUAL)_-_BIRKI_7V_FRIBU_1V_WIL_3V.pdf",
@@ -373,16 +475,46 @@
             fileCount.textContent = `Showing ${filesToShow.length} of ${files.length} files`;
             
             filesToShow.forEach(file => {
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.borderBottom = '1px solid var(--border)';
+
                 const item = document.createElement('a');
                 item.className = 'file-item';
                 item.href = file.url;
                 item.target = '_blank';
+                item.style.borderBottom = 'none';
+                item.style.flex = '1';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>
                     <span class="file-type">${file.type}</span>
                 `;
-                listEl.appendChild(item);
+
+                const pins = getPins();
+                const isPinned = pins.charts.some(c => c.url === file.url);
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'pin-btn' + (isPinned ? ' pinned' : '');
+                pinBtn.style.marginRight = '1rem';
+                pinBtn.title = isPinned ? 'Unpin from homepage' : 'Pin to homepage';
+                pinBtn.innerHTML = '📌';
+                pinBtn.onclick = (e) => {
+                    e.preventDefault();
+                    toggleChartPin({
+                        name: file.name,
+                        url: file.url,
+                        type: file.type,
+                        airport: airportCtx.name,
+                        region: airportCtx.region
+                    });
+                    pinBtn.classList.toggle('pinned');
+                    pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
+                };
+
+                wrapper.appendChild(item);
+                wrapper.appendChild(pinBtn);
+                listEl.appendChild(wrapper);
             });
         }
         

@@ -536,7 +536,6 @@ def generate_index_page(hierarchy):
         renderPins();
 
         const fuse = new Fuse(searchIndex, {{
-{
             keys: [
                 {{ name: 'name', weight: 2 }},
                 {{ name: 'code', weight: 2 }},
