@@ -290,6 +290,7 @@ def generate_index_page(hierarchy):
             for f in files:
                 global_search_index.append({
                     'type': 'chart',
+                    'id': f['id'],
                     'name': f['name'],
                     'airport': airport_display,
                     'region': region_name,
@@ -524,8 +525,12 @@ def generate_index_page(hierarchy):
             pins.charts.forEach(c => {{
                 const card = document.createElement('a');
                 card.className = 'pin-card';
-                card.href = c.url;
-                card.target = '_blank';
+                card.href = '#';
+                card.onclick = (e) => {{ 
+                    e.preventDefault(); 
+                    if (c.id) openViewer(c.id, c.name, c.url);
+                    else window.open(c.url, '_blank');
+                }};
                 card.innerHTML = `
                     <span style="font-size: 1.25rem;">📄</span>
                     <div style="flex: 1;">
@@ -588,8 +593,15 @@ def generate_index_page(hierarchy):
                 const item = result.item;
                 const div = document.createElement('a');
                 div.className = 'search-result-item';
-                div.href = item.url;
-                if (item.type === 'chart') div.target = '_blank';
+                div.href = '#';
+                div.onclick = (e) => {{
+                    e.preventDefault();
+                    if (item.type === 'chart') {{
+                        openViewer(item.id, item.name, item.url);
+                    }} else {{
+                        window.location.href = item.url;
+                    }}
+                }};
 
                 const meta = item.type === 'airport' 
                     ? `${{item.region}}` 
@@ -873,8 +885,11 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
 
                 const item = document.createElement('a');
                 item.className = 'file-item';
-                item.href = file.url;
-                item.target = '_blank';
+                item.href = '#';
+                item.onclick = (e) => {{
+                    e.preventDefault();
+                    openViewer(file.id, file.name, file.url);
+                }};
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
                 item.innerHTML = `
@@ -893,6 +908,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
                 pinBtn.onclick = (e) => {{
                     e.preventDefault();
                     toggleChartPin({{
+                        id: file.id,
                         name: file.name,
                         url: file.url,
                         type: file.type,

@@ -1048,8 +1048,11 @@
 
                 const item = document.createElement('a');
                 item.className = 'file-item';
-                item.href = file.url;
-                item.target = '_blank';
+                item.href = '#';
+                item.onclick = (e) => {
+                    e.preventDefault();
+                    openViewer(file.id, file.name, file.url);
+                };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
                 item.innerHTML = `
@@ -1068,6 +1071,7 @@
                 pinBtn.onclick = (e) => {
                     e.preventDefault();
                     toggleChartPin({
+                        id: file.id,
                         name: file.name,
                         url: file.url,
                         type: file.type,
