@@ -89,21 +89,18 @@
   .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text2); }
   .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
   footer { margin-top: 2rem; font-size: 12px; color: var(--text3); text-align: center; }
-  #ray3,#wp3-nexus,#ray4,#cone4,#wp4-sigma,#wp5-golfe{transition:opacity 0.5s;}
 </style>
     <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body>
 <div class="container">
   <h1>ADS-B Techniques — Visual Tutorial</h1>
-  <p class="subtitle">Five practical techniques from flight debriefs: altitude filters, airport traffic isolation, extended track, direct-clearance cone, and crossing restrictions.</p>
+  <p class="subtitle">Three practical techniques from flight debriefs: using altitude filters to find hard-to-hear callsigns, isolate airport traffic, and locate random waypoints.</p>
 
   <div class="tabs">
     <button class="tab active" onclick="showTab(0)">① Altitude filter — unknown callsign</button>
     <button class="tab" onclick="showTab(1)">② Airport filter — arrivals &amp; departures</button>
-    <button class="tab" onclick="showTab(2)">③ Old track — where was it going?</button>
-    <button class="tab" onclick="showTab(3)">④ Direct clearance — extend bearing</button>
-    <button class="tab" onclick="showTab(4)">⑤ Crossing restriction — alt &amp; speed</button>
+    <button class="tab" onclick="showTab(2)">③ Finding a fix by altitude</button>
   </div>
 
   <!-- PANEL 0 -->
@@ -184,8 +181,8 @@
     <div class="controls">
       <div class="ctrl-group">
         <label>Upper (ft AGL)</label>
-        <input type="range" min="500" max="40000" step="500" value="40000" id="hi1" oninput="updateFilter1()">
-        <span class="ctrl-val" id="hi1-val">40000</span>
+        <input type="range" min="500" max="18000" step="500" value="18000" id="hi1" oninput="updateFilter1()">
+        <span class="ctrl-val" id="hi1-val">18000</span>
       </div>
       <button class="step-btn" onclick="applyPreset1()">Set 0 – 5,000 ft filter</button>
       <button class="step-btn" onclick="resetFilter1()">Reset</button>
@@ -196,107 +193,41 @@
 
   <!-- PANEL 2 -->
   <div class="panel" id="panel-2">
-    <p class="desc">The plane made a turn — but before it did, it was heading toward an unknown fix. Extend the old track forward as a line: the fix is somewhere ahead on that bearing.</p>
-    <svg class="radar" viewBox="0 0 620 320">
-      <circle class="grid-circle" cx="310" cy="160" r="60"/>
-      <circle class="grid-circle" cx="310" cy="160" r="120"/>
-      <line class="grid-line" x1="310" y1="10" x2="310" y2="310"/>
-      <line class="grid-line" x1="10" y1="160" x2="610" y2="160"/>
-      <polygon class="wp-sym" points="130,70 138,87 124,87"/>
-      <text class="waypoint" x="142" y="85">ROLAV</text>
-      <polygon class="wp-sym" points="500,250 508,267 494,267"/>
-      <text class="waypoint" x="512" y="265">BIMEX</text>
-      <circle cx="65" cy="300" r="3" fill="#00cc66" opacity="0.35"/>
-      <circle cx="116" cy="268" r="3" fill="#00cc66" opacity="0.4"/>
-      <circle cx="167" cy="236" r="3" fill="#00cc66" opacity="0.45"/>
-      <circle cx="218" cy="204" r="3" fill="#00cc66" opacity="0.5"/>
-      <circle cx="269" cy="172" r="3" fill="#00cc66" opacity="0.55"/>
-      <circle cx="285" cy="162" r="4" fill="#aaffcc" opacity="0.7"/>
-      <circle cx="287" cy="134" r="3" fill="#00cc66" opacity="0.55"/>
-      <circle cx="290" cy="106" r="3" fill="#00cc66" opacity="0.6"/>
-      <circle cx="292" cy="78" r="3" fill="#00cc66" opacity="0.65"/>
-      <circle cx="293" cy="62" r="5" fill="#ffaa00"/>
-      <text font-size="11" fill="#ffaa00" font-family="monospace" x="301" y="59">SWA??</text>
-      <text font-size="10" fill="#ffcc44" font-family="monospace" x="301" y="70">FL230</text>
-      <line id="ray3" stroke="#ffaa00" stroke-width="1.2" stroke-dasharray="8 5" x1="285" y1="162" x2="497" y2="30" opacity="0"/>
-      <g id="wp3-nexus" opacity="0">
-        <polygon class="wp-sym" points="415,72 423,89 409,89"/>
-        <text class="waypoint" x="427" y="87">NEXUS</text>
+    <p class="desc">ATC says <em>"cleared direct <strong>FUBRR</strong>, cross FUBRR at and maintain <strong>FL210</strong>"</em>. Select the aircraft and watch its altitude. When it reaches FL210, pause — the waypoint is within ~15 miles along its track.</p>
+    <svg class="radar" viewBox="0 0 620 360">
+      <circle class="grid-circle" cx="310" cy="180" r="60"/>
+      <circle class="grid-circle" cx="310" cy="180" r="120"/>
+      <line class="grid-line" x1="310" y1="10" x2="310" y2="350"/>
+      <line class="grid-line" x1="10" y1="180" x2="610" y2="180"/>
+      <g id="wp-fubrr" opacity="0">
+        <polygon class="wp-sym" points="310,95 318,112 304,112"/>
+        <text class="waypoint" x="322" y="108">FUBRR</text>
       </g>
-      <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — TRACK HISTORY</text>
+      <polygon class="wp-sym" points="120,130 128,147 114,147"/>
+      <text class="waypoint" x="132" y="144">RIBIX</text>
+      <polygon class="wp-sym" points="480,200 488,217 474,217"/>
+      <text class="waypoint" x="492" y="214">MADEP</text>
+      <polygon class="wp-sym" points="400,300 408,317 394,317"/>
+      <text class="waypoint" x="412" y="314">TULEX</text>
+      <g id="target-ac">
+        <circle cx="310" cy="290" r="5" fill="#ffaa00"/>
+        <text font-size="11" fill="#ffaa00" font-family="monospace" x="319" y="287">SWA42</text>
+        <text id="target-alt-label" font-size="10" fill="#ffcc44" font-family="monospace" x="319" y="298">FL160 ↑</text>
+      </g>
+      <line stroke="#ffaa00" stroke-width="0.8" stroke-dasharray="5 4" x1="310" y1="285" x2="310" y2="95" opacity="0.3"/>
+      <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — L/O LABEL MODES</text>
+      <text fill="#1a3a50" font-size="10" font-family="monospace" x="8" y="350">Press L or O to cycle label modes</text>
     </svg>
     <div class="controls">
-      <button class="step-btn" id="btn3" onclick="step3()">Extend old track</button>
-      <button class="step-btn" onclick="reset3()">Reset</button>
+      <button class="step-btn" id="playBtn" onclick="togglePlay2()">▶ Simulate climb</button>
+      <button class="step-btn" onclick="resetSim2()">Reset</button>
+      <div class="ctrl-group" style="margin-left:auto">
+        <label>Label mode</label>
+        <button class="step-btn" onclick="cycleLabelMode()" id="labelModeBtn">L — Callsign + alt</button>
+      </div>
     </div>
-    <div class="info-box" id="info3">The aircraft turned. Before the turn it was heading toward an unknown fix. Click <strong>Extend old track</strong> to project the original heading forward.</div>
-  </div>
-
-  <!-- PANEL 3 -->
-  <div class="panel" id="panel-3">
-    <p class="desc">ATC clears AAL55 <em>"direct <strong>SIGMA</strong>"</em>. The plane has been tracking consistently on this heading. Cast a wide cone ahead from its current position — SIGMA is somewhere in that sector.</p>
-    <svg class="radar" viewBox="0 0 620 320">
-      <circle class="grid-circle" cx="310" cy="160" r="60"/>
-      <circle class="grid-circle" cx="310" cy="160" r="120"/>
-      <line class="grid-line" x1="310" y1="10" x2="310" y2="310"/>
-      <line class="grid-line" x1="10" y1="160" x2="610" y2="160"/>
-      <polygon class="wp-sym" points="150,75 158,92 144,92"/>
-      <text class="waypoint" x="162" y="90">FOBEX</text>
-      <polygon class="wp-sym" points="500,258 508,275 494,275"/>
-      <text class="waypoint" x="512" y="273">KETAR</text>
-      <circle cx="292" cy="305" r="3" fill="#00cc66" opacity="0.35"/>
-      <circle cx="298" cy="270" r="3" fill="#00cc66" opacity="0.4"/>
-      <circle cx="304" cy="235" r="3" fill="#00cc66" opacity="0.5"/>
-      <circle cx="310" cy="200" r="5" fill="#ffaa00"/>
-      <text font-size="11" fill="#ffaa00" font-family="monospace" x="318" y="197">AAL55</text>
-      <text font-size="10" fill="#ffcc44" font-family="monospace" x="318" y="208">FL310</text>
-      <polygon id="cone4" points="310,200 237,0 478,0" fill="#ffaa00" opacity="0"/>
-      <line id="ray4" stroke="#ffaa00" stroke-width="0.8" stroke-dasharray="6 4" x1="310" y1="200" x2="344" y2="8" opacity="0"/>
-      <g id="wp4-sigma" opacity="0">
-        <polygon class="wp-sym" points="370,50 378,67 364,67"/>
-        <text class="waypoint" x="382" y="65">SIGMA</text>
-      </g>
-      <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — DIRECT CLEARANCE</text>
-    </svg>
-    <div class="controls">
-      <button class="step-btn" id="btn4" onclick="step4()">Cast search cone</button>
-      <button class="step-btn" onclick="reset4()">Reset</button>
-    </div>
-    <div class="info-box" id="info4">AAL55 has been cleared direct <strong>SIGMA</strong>. Click <strong>Cast search cone</strong> to open the search sector ahead of the aircraft.</div>
-  </div>
-
-  <!-- PANEL 4 -->
-  <div class="panel" id="panel-4">
-    <p class="desc">ATC says <em>"cross <strong>GOLFE</strong> at <strong>18,000 ft</strong>, speed <strong>250 knots</strong>"</em>. Watch the plane descend and slow. The moment both parameters match the restriction simultaneously, that's the fix.</p>
-    <svg class="radar" viewBox="0 0 620 320">
-      <circle class="grid-circle" cx="310" cy="160" r="60"/>
-      <circle class="grid-circle" cx="310" cy="160" r="120"/>
-      <line class="grid-line" x1="310" y1="10" x2="310" y2="310"/>
-      <line class="grid-line" x1="10" y1="160" x2="610" y2="160"/>
-      <polygon class="wp-sym" points="150,80 158,97 144,97"/>
-      <text class="waypoint" x="162" y="95">DIBIX</text>
-      <polygon class="wp-sym" points="520,198 528,215 514,215"/>
-      <text class="waypoint" x="532" y="213">ERHAN</text>
-      <line stroke="#2a4060" stroke-width="0.8" stroke-dasharray="4 4" x1="90" y1="255" x2="480" y2="148"/>
-      <g id="wp5-golfe" opacity="0">
-        <polygon class="wp-sym" points="430,133 438,150 424,150"/>
-        <text class="waypoint" x="390" y="131">GOLFE</text>
-      </g>
-      <g id="ac5">
-        <circle cx="90" cy="255" r="5" fill="#ffaa00"/>
-        <text class="ac5-label" font-size="11" fill="#ffaa00" font-family="monospace" x="98" y="252">AAL77</text>
-        <text id="ac5-alt" font-size="10" fill="#ffcc44" font-family="monospace" x="98" y="263">24,000 ft ↓</text>
-      </g>
-      <rect x="438" y="262" width="174" height="48" fill="#060e18" rx="3" opacity="0.9"/>
-      <text id="gauge5-alt" font-size="12" fill="#55aaaa" font-family="monospace" x="445" y="279">ALT  24,000 ft ↓</text>
-      <text id="gauge5-spd" font-size="12" fill="#55aaaa" font-family="monospace" x="445" y="298">SPD     318 kt ↓</text>
-      <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — CROSSING RESTRICTION</text>
-    </svg>
-    <div class="controls">
-      <button class="step-btn" id="play5" onclick="togglePlay5()">▶ Simulate descent</button>
-      <button class="step-btn" onclick="resetSim5()">Reset</button>
-    </div>
-    <div class="info-box" id="info5">ATC said <em>"cross GOLFE at 18,000 ft, 250 knots"</em>. Both conditions must be met simultaneously. Click <strong>Simulate descent</strong>.</div>
+    <div class="info-box" id="info2">Click <strong>Simulate climb</strong> to watch SWA42 climb. When it hits FL210, the display pauses and <strong>FUBRR</strong> becomes visible on the overlay. Use <strong>L / O</strong> to toggle label modes and check altitude quickly.</div>
+    <div class="info-box info-tip"><span class="badge badge-green">Tip</span> You only need to search along the aircraft's track — not the whole display. The fix will be within ~15 nm of the aircraft's position at the moment it levels off.</div>
   </div>
 
   <footer>ADS-B tutorial · techniques from flight debriefs · Sweden extension + waypoint overlay assumed</footer>
@@ -343,111 +274,53 @@ function updateFilter1(){
     else{el.classList.add('dimmed');hidden++;}
   });
   const info=document.getElementById('info1');
-  if(hi>=40000){
+  if(hi>=18000){
     info.innerHTML='Lower filter stays at <strong>0 ft</strong> always. Drag the upper slider down or click the preset.';
   } else {
     info.innerHTML=`Filter: <strong>0 – ${hi.toLocaleString()} ft AGL</strong>. <strong>${shown}</strong> aircraft shown — only low-altitude traffic near the airfield remains.`;
   }
 }
 function applyPreset1(){document.getElementById('hi1').value=5000;updateFilter1();}
-function resetFilter1(){document.getElementById('hi1').value=40000;updateFilter1();}
+function resetFilter1(){document.getElementById('hi1').value=18000;updateFilter1();}
 
+let simRunning=false,simTimer=null,simAlt=160,labelMode=0;
+const labelModes=['L — Callsign + alt','O — Alt only','L — Callsign only'];
+function togglePlay2(){
+  if(simRunning){clearInterval(simTimer);simRunning=false;document.getElementById('playBtn').textContent='▶ Simulate climb';}
+  else{simRunning=true;document.getElementById('playBtn').textContent='⏸ Pause';simTimer=setInterval(stepClimb,120);}
+}
+function stepClimb(){
+  if(simAlt>=210){
+    clearInterval(simTimer);simRunning=false;
+    document.getElementById('playBtn').textContent='▶ Simulate climb';
+    document.getElementById('wp-fubrr').setAttribute('opacity','1');
+    document.getElementById('info2').innerHTML='<strong>FL210 reached — paused.</strong> FUBRR appeared on the overlay at the aircraft\'s position. Search within ~15 nm along the flight path. Use the <strong>O</strong> label mode to see only altitudes for a cleaner view.';
+    return;
+  }
+  simAlt+=2;
+  const pct=(simAlt-160)/(210-160);
+  const cy=290-pct*(290-100);
+  const acG=document.getElementById('target-ac');
+  acG.querySelector('circle').setAttribute('cy',Math.round(cy));
+  acG.querySelector('text:nth-child(2)').setAttribute('y',Math.round(cy)-3);
+  acG.querySelector('text:nth-child(3)').setAttribute('y',Math.round(cy)+8);
+  acG.querySelector('text:nth-child(3)').textContent='FL'+simAlt+' ↑';
+}
+function resetSim2(){
+  clearInterval(simTimer);simRunning=false;simAlt=160;
+  document.getElementById('playBtn').textContent='▶ Simulate climb';
+  document.getElementById('wp-fubrr').setAttribute('opacity','0');
+  const acG=document.getElementById('target-ac');
+  acG.querySelector('circle').setAttribute('cy',290);
+  acG.querySelector('text:nth-child(2)').setAttribute('y',287);
+  acG.querySelector('text:nth-child(3)').setAttribute('y',298);
+  acG.querySelector('text:nth-child(3)').textContent='FL160 ↑';
+  document.getElementById('info2').innerHTML='Click <strong>Simulate climb</strong> to watch SWA42 climb. When it hits FL210, the display pauses and <strong>FUBRR</strong> becomes visible on the overlay.';
+}
+function cycleLabelMode(){labelMode=(labelMode+1)%3;document.getElementById('labelModeBtn').textContent=labelModes[labelMode];}
 function showTab(n){
-  if(sim5Timer){clearInterval(sim5Timer);sim5Timer=null;sim5Running=false;const p=document.getElementById('play5');if(p)p.textContent='▶ Simulate descent';}
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
   document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
-}
-
-// Tab ③ — extended inbound track
-let revealed3=false;
-function step3(){
-  revealed3=true;
-  document.getElementById('ray3').setAttribute('opacity','0.75');
-  document.getElementById('wp3-nexus').setAttribute('opacity','1');
-  document.getElementById('info3').innerHTML='The dashed line extends the old heading forward. <strong>NEXUS</strong> is on this bearing — where the aircraft was originally heading before the reclearance.';
-  document.getElementById('btn3').disabled=true;
-}
-function reset3(){
-  revealed3=false;
-  document.getElementById('ray3').setAttribute('opacity','0');
-  document.getElementById('wp3-nexus').setAttribute('opacity','0');
-  document.getElementById('info3').innerHTML='The aircraft turned. Before the turn it was heading toward an unknown fix. Click <strong>Extend old track</strong> to project the original heading forward.';
-  document.getElementById('btn3').disabled=false;
-}
-
-// Tab ④ — direct clearance cone
-function step4(){
-  document.getElementById('cone4').setAttribute('opacity','0.07');
-  document.getElementById('ray4').setAttribute('opacity','0.5');
-  document.getElementById('wp4-sigma').setAttribute('opacity','1');
-  document.getElementById('info4').innerHTML='<strong>Search cone open.</strong> SIGMA is somewhere inside the shaded sector. Scan forward along the heading — anything outside the cone is ruled out.';
-  document.getElementById('btn4').disabled=true;
-}
-function reset4(){
-  document.getElementById('cone4').setAttribute('opacity','0');
-  document.getElementById('ray4').setAttribute('opacity','0');
-  document.getElementById('wp4-sigma').setAttribute('opacity','0');
-  document.getElementById('info4').innerHTML='AAL55 has been cleared direct <strong>SIGMA</strong>. Click <strong>Cast search cone</strong> to open the search sector ahead of the aircraft.';
-  document.getElementById('btn4').disabled=false;
-}
-
-// Tab ⑤ — crossing restriction
-let sim5Running=false,sim5Timer=null,sim5Step=0;
-const SIM5_STEPS=30;
-function togglePlay5(){
-  if(sim5Step>=SIM5_STEPS)return;
-  if(sim5Running){clearInterval(sim5Timer);sim5Running=false;document.getElementById('play5').textContent='▶ Simulate descent';}
-  else{sim5Running=true;document.getElementById('play5').textContent='⏸ Pause';sim5Timer=setInterval(stepSim5,120);}
-}
-function stepSim5(){
-  sim5Step++;
-  const t=sim5Step/SIM5_STEPS;
-  const cx=Math.round(90+340*t);
-  const cy=Math.round(255-95*t);
-  const alt_ft=24000-200*sim5Step;
-  const spd=Math.round(318-68*t);
-  const acG=document.getElementById('ac5');
-  acG.querySelector('circle').setAttribute('cx',cx);
-  acG.querySelector('circle').setAttribute('cy',cy);
-  acG.querySelector('.ac5-label').setAttribute('x',cx+8);
-  acG.querySelector('.ac5-label').setAttribute('y',cy-3);
-  document.getElementById('ac5-alt').setAttribute('x',cx+8);
-  document.getElementById('ac5-alt').setAttribute('y',cy+8);
-  document.getElementById('ac5-alt').textContent=alt_ft.toLocaleString()+' ft ↓';
-  const altEl=document.getElementById('gauge5-alt');
-  const spdEl=document.getElementById('gauge5-spd');
-  altEl.textContent='ALT  '+alt_ft.toLocaleString()+' ft ↓';
-  spdEl.textContent='SPD     '+spd+' kt ↓';
-  altEl.setAttribute('fill',alt_ft<=20000?'#ffaa00':'#55aaaa');
-  spdEl.setAttribute('fill',spd<=270?'#ffaa00':'#55aaaa');
-  document.getElementById('info5').innerHTML='ALT <strong>'+alt_ft.toLocaleString()+' ft</strong> → 18,000 &nbsp;|&nbsp; SPD <strong>'+spd+' kt</strong> → 250';
-  if(sim5Step>=SIM5_STEPS){
-    clearInterval(sim5Timer);sim5Timer=null;sim5Running=false;
-    document.getElementById('play5').textContent='▶ Simulate descent';
-    document.getElementById('wp5-golfe').setAttribute('opacity','1');
-    altEl.setAttribute('fill','#00cc66');spdEl.setAttribute('fill','#00cc66');
-    document.getElementById('ac5-alt').textContent='18,000 ft ✓';
-    altEl.textContent='ALT  18,000 ft ✓';spdEl.textContent='SPD     250 kt ✓';
-    document.getElementById('info5').innerHTML='<strong>Both restrictions met — 18,000 ft, 250 kt.</strong> AAL77 is at GOLFE.';
-  }
-}
-function resetSim5(){
-  clearInterval(sim5Timer);sim5Timer=null;sim5Running=false;sim5Step=0;
-  document.getElementById('play5').textContent='▶ Simulate descent';
-  document.getElementById('wp5-golfe').setAttribute('opacity','0');
-  const acG=document.getElementById('ac5');
-  acG.querySelector('circle').setAttribute('cx','90');
-  acG.querySelector('circle').setAttribute('cy','255');
-  acG.querySelector('.ac5-label').setAttribute('x','98');
-  acG.querySelector('.ac5-label').setAttribute('y','252');
-  document.getElementById('ac5-alt').setAttribute('x','98');
-  document.getElementById('ac5-alt').setAttribute('y','263');
-  document.getElementById('ac5-alt').textContent='24,000 ft ↓';
-  document.getElementById('gauge5-alt').textContent='ALT  24,000 ft ↓';
-  document.getElementById('gauge5-alt').setAttribute('fill','#55aaaa');
-  document.getElementById('gauge5-spd').textContent='SPD     318 kt ↓';
-  document.getElementById('gauge5-spd').setAttribute('fill','#55aaaa');
-  document.getElementById('info5').innerHTML='ATC said <em>"cross GOLFE at 18,000 ft, 250 knots"</em>. Both conditions must be met simultaneously. Click <strong>Simulate descent</strong>.';
 }
 </script>
 </body>
