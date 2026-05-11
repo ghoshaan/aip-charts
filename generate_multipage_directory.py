@@ -1209,20 +1209,22 @@ def get_common_styles():
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(13, 17, 23, 0.95);
+            background: rgba(13, 17, 23, 0.98);
             z-index: 1000;
             display: none;
             flex-direction: column;
+            backdrop-filter: blur(4px);
         }
 
         .viewer-header {
-            padding: 1rem 2rem;
+            padding: 0.75rem 1.5rem;
             background: var(--surface);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             gap: 1.5rem;
             z-index: 1001;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
         .viewer-title {
@@ -1233,32 +1235,41 @@ def get_common_styles():
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-size: 1.1rem;
         }
 
         .viewer-controls {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
 
         .control-btn {
             background: var(--bg);
             border: 1px solid var(--border);
             color: var(--text);
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 0.75rem;
             border-radius: 4px;
             cursor: pointer;
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
         .control-btn:hover {
             border-color: var(--accent);
             background: var(--surface-hover);
+            transform: translateY(-1px);
+        }
+
+        .control-btn.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
         }
 
         .viewer-content {
@@ -1268,7 +1279,27 @@ def get_common_styles():
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            background: #05070a;
+            cursor: default;
+        }
+
+        .viewer-content.pan-mode {
+            cursor: grab;
+        }
+
+        .viewer-content.pan-mode:active {
+            cursor: grabbing;
+        }
+
+        .viewer-frame-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s ease-out;
+            will-change: transform;
         }
 
         #viewerFrame {
@@ -1276,13 +1307,75 @@ def get_common_styles():
             height: 100%;
             border: none;
             background: white;
-            border-radius: 4px;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 2px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            pointer-events: auto;
+        }
+
+        .pan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: none;
+        }
+
+        .viewer-content.pan-mode .pan-overlay {
+            display: block;
+        }
+
+        .viewer-tip {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            z-index: 20;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .viewer-tip b { color: var(--accent); }
+
+        .viewer-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: var(--accent);
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .zoom-slider {
-            width: 100px;
+            width: 80px;
             accent-color: var(--accent);
+            cursor: pointer;
         }
     '''
 
@@ -1292,53 +1385,103 @@ def get_viewer_html():
     <div id="viewerModal" class="viewer-modal">
         <div class="viewer-header">
             <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
-            
+
             <div class="viewer-controls">
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
-                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
-                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
+                    <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="3" step="0.1" value="1">
                 </div>
-                
-                <button class="control-btn" id="rotateBtn">
+
+                <button class="control-btn" id="panToggle" title="Toggle Pan Mode (Drag to move)">
+                    <span>🖐</span> PAN
+                </button>
+
+                <button class="control-btn" id="rotateBtn" title="Rotate Chart">
                     <span>🔄</span> ROTATE
                 </button>
-                
-                <a id="externalLink" class="control-btn" target="_blank">
+
+                <button class="control-btn" id="resetBtn" title="Reset View">
+                    <span>🏠</span> RESET
+                </button>
+
+                <a id="externalLink" class="control-btn" target="_blank" title="Open in Google Drive">
                     <span>🔗</span> DRIVE
                 </a>
-                
+
                 <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
                     <span>✖</span> CLOSE
                 </button>
             </div>
         </div>
-        <div class="viewer-content">
-            <iframe id="viewerFrame" src=""></iframe>
+        <div class="viewer-content" id="viewerContent">
+            <div id="viewerLoader" class="viewer-loader">
+                <div class="spinner"></div>
+                <div style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">FETCHING FROM DRIVE...</div>
+            </div>
+
+            <div class="viewer-frame-container" id="viewerContainer">
+                <iframe id="viewerFrame" src="" allow="autoplay"></iframe>
+            </div>
+
+            <div class="pan-overlay" id="panOverlay"></div>
+
+            <div class="viewer-tip">
+                <span>💡 <b>Ctrl+F</b> not working? Click <b>DRIVE</b> to search text.</span>
+            </div>
         </div>
     </div>
     '''
-
 def get_viewer_js():
     """JS for the integrated viewer logic"""
     return '''
         let currentRotation = 0;
         let currentZoom = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX, startY;
+        let isPanMode = false;
 
         function openViewer(id, name, url) {
             const modal = document.getElementById('viewerModal');
             const frame = document.getElementById('viewerFrame');
             const title = document.getElementById('viewerTitle');
             const externalLink = document.getElementById('externalLink');
-            
+            const loader = document.getElementById('viewerLoader');
+            const container = document.getElementById('viewerContainer');
+
+            // Reset state
             currentRotation = 0;
             currentZoom = 1;
+            translateX = 0;
+            translateY = 0;
+            isPanMode = false;
+            document.getElementById('panToggle').classList.remove('active');
+            document.getElementById('viewerContent').classList.remove('pan-mode');
+
             updateFrameTransform();
             document.getElementById('zoomRange').value = 1;
 
             title.textContent = name;
             externalLink.href = url;
+
+            // Initial state
+            loader.style.display = 'flex';
+            container.style.opacity = '0';
+
+            // Handler for when loading finishes
+            const onFinish = () => {
+                loader.style.display = 'none';
+                container.style.opacity = '1';
+            };
+
+            frame.onload = onFinish;
+
+            // Safety timeout: Show the frame anyway after 5s if onload doesn't fire
+            setTimeout(onFinish, 5000);
+
             frame.src = `https://drive.google.com/file/d/${id}/preview`;
-            
+
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
@@ -1352,12 +1495,70 @@ def get_viewer_js():
         }
 
         function updateFrameTransform() {
-            const frame = document.getElementById('viewerFrame');
-            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+            const container = document.getElementById('viewerContainer');
+            const isRotated = currentRotation % 180 !== 0;
+
+            container.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentZoom})`;
+
+            if (isRotated) {
+                container.style.width = '100vh';
+                container.style.height = '100vw';
+            } else {
+                container.style.width = '100%';
+                container.style.height = '100%';
+            }
         }
 
+        // Drag & Pan Logic
+        const viewerContent = document.getElementById('viewerContent');
+
+        viewerContent.onmousedown = (e) => {
+            if (!isPanMode) return;
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+            e.preventDefault();
+        };
+
+        window.onmousemove = (e) => {
+            if (!isDragging) return;
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateFrameTransform();
+        };
+
+        window.onmouseup = () => {
+            isDragging = false;
+        };
+
+        // Mouse Wheel Zoom
+        viewerContent.onwheel = (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                currentZoom = Math.min(Math.max(0.5, currentZoom + delta), 4);
+                document.getElementById('zoomRange').value = currentZoom;
+                updateFrameTransform();
+            }
+        };
+
+        document.getElementById('panToggle').onclick = () => {
+            isPanMode = !isPanMode;
+            document.getElementById('panToggle').classList.toggle('active', isPanMode);
+            document.getElementById('viewerContent').classList.toggle('pan-mode', isPanMode);
+        };
+
+        document.getElementById('resetBtn').onclick = () => {
+            currentRotation = 0;
+            currentZoom = 1;
+            translateX = 0;
+            translateY = 0;
+            document.getElementById('zoomRange').value = 1;
+            updateFrameTransform();
+        };
+
         document.getElementById('closeViewer').onclick = closeViewer;
-        
+
         document.getElementById('rotateBtn').onclick = () => {
             currentRotation = (currentRotation + 90) % 360;
             updateFrameTransform();
@@ -1368,12 +1569,15 @@ def get_viewer_js():
             updateFrameTransform();
         };
 
-        // Close on Esc
+        // Key Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeViewer();
+            if (e.key === ' ') { // Space to toggle pan mode
+                e.preventDefault();
+                document.getElementById('panToggle').click();
+            }
         });
     '''
-
 def get_pinning_js():
     """Shared JS for pinning logic"""
     return '''
