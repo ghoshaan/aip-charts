@@ -1303,10 +1303,8 @@ def get_common_styles():
         }
 
         #viewerFrame {
-            width: 200%;
-            height: 200%;
-            transform: scale(0.5);
-            transform-origin: 0 0;
+            width: 100%;
+            height: 100%;
             border: none;
             background: white;
             border-radius: 2px;
@@ -1505,15 +1503,8 @@ def get_viewer_js():
             const frame = document.getElementById('viewerFrame');
             const isRotated = currentRotation % 180 !== 0;
 
-            // To maintain high resolution while zooming, we use a larger base size for the iframe
-            // and then scale the container. To improve clarity, we use CSS image-rendering.
+            // Apply transformations to the container
             container.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentZoom})`;
-            
-            // Apply sharpness fixes
-            frame.style.imageRendering = 'auto';
-            if (currentZoom > 1.5) {
-                frame.style.imageRendering = 'crisp-edges';
-            }
 
             if (isRotated) {
                 container.style.width = '100vh';
