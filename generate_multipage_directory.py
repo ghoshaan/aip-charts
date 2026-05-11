@@ -282,6 +282,7 @@ def generate_index_page(hierarchy):
     <title>ATC Charts Directory</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
     <style>
         {get_common_styles()}
         
@@ -300,6 +301,7 @@ def generate_index_page(hierarchy):
             color: var(--text);
             transition: all 0.2s;
             position: relative;
+            display: block;
         }}
         
         .region-card::before {{
@@ -368,20 +370,68 @@ def generate_index_page(hierarchy):
                 <span class="stat-label">Total Files</span>
             </div>
         </div>
+
+        <div class="search-section">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" 
+                       placeholder="Search regions..." autocomplete="off">
+            </div>
+        </div>
         
-        <div class="card-grid">
-            {''.join([f'''
-            <a href="{r['slug']}.html" class="region-card">
-                <span class="card-icon">{r['icon']}</span>
-                <div class="card-title">{r['name']}</div>
-                <div class="card-count">
-                    <strong>{r['airportCount']}</strong> airports • 
-                    <strong>{r['fileCount']}</strong> files
-                </div>
-            </a>
-            ''' for r in regions])}
+        <div class="card-grid" id="regionGrid"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
+            <p>No regions found.</p>
         </div>
     </div>
+
+    <script>
+        const regions = {json.dumps(regions, indent=8)};
+        
+        const fuse = new Fuse(regions, {{
+            keys: ['name'],
+            threshold: 0.3,
+            includeMatches: true
+        }});
+        
+        function renderRegions(results = null) {{
+            const grid = document.getElementById('regionGrid');
+            const emptyState = document.getElementById('emptyState');
+            grid.innerHTML = '';
+            
+            const regionsToShow = results ? results.map(r => r.item) : regions;
+            
+            if (regionsToShow.length === 0) {{
+                emptyState.style.display = 'block';
+                return;
+            }}
+            
+            emptyState.style.display = 'none';
+            
+            regionsToShow.forEach(r => {{
+                const card = document.createElement('a');
+                card.className = 'region-card';
+                card.href = r.slug + '.html';
+                card.innerHTML = `
+                    <span class="card-icon">${{r.icon}}</span>
+                    <div class="card-title">${{r.name}}</div>
+                    <div class="card-count">
+                        <strong>${{r.airportCount}}</strong> airports • 
+                        <strong>${{r.fileCount}}</strong> files
+                    </div>
+                `;
+                grid.appendChild(card);
+            }});
+        }}
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {{
+            const query = e.target.value.trim();
+            renderRegions(query ? fuse.search(query) : null);
+        }});
+        
+        renderRegions();
+    </script>
 </body>
 </html>'''
     
@@ -836,6 +886,11 @@ def get_common_styles():
         
         .filter-btn:hover { border-color: var(--accent); color: var(--text); }
         .filter-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+        /* Favicon-like icon styling */
+        img[src*="favicon"] {
+            border-radius: 20%;
+        }
     '''
 
 
