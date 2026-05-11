@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CYQI Yarmouth - ATC Charts</title>
+    <title>CYYG Victoria - ATC Charts</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
@@ -246,11 +246,11 @@
             <span class="breadcrumb-separator">›</span>
             <a href="canada.html">CANADA</a>
             <span class="breadcrumb-separator">›</span>
-            <span>CYQI Yarmouth</span>
+            <span>CYYG Victoria</span>
         </div>
         
         <header>
-            <h1>CYQI Yarmouth</h1>
+            <h1>CYYG Victoria</h1>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -273,7 +273,7 @@
         
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
         
-        <div class="file-count" id="fileCount">Showing 9 files</div>
+        <div class="file-count" id="fileCount">Showing 13 files</div>
         <div class="file-list" id="fileList"></div>
         <div id="emptyState" class="empty-state" style="display: none;">
             <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
@@ -284,48 +284,68 @@
     <script>
         const files = [
         {
-                "name": "CYQI_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/18j9pNsFwT1bcQd4Vy5SjrgZF90M83hne/view?usp=drivesdk",
+                "name": ".DS_Store",
+                "url": "https://drive.google.com/file/d/1qTRsEzmz_ZOPiIkpcPqGqA4EmbKL9gU8/view?usp=drivesdk",
+                "type": "doc"
+        },
+        {
+                "name": "CYYG_RNAV_RNP_Y_RWY_21.pdf",
+                "url": "https://drive.google.com/file/d/1uf2hoQLv6t5Bjfuao5StIR6G0ZJU-Lml/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
-                "name": "CYQI_RNAV_GNSS_Z_RWY_33.pdf",
-                "url": "https://drive.google.com/file/d/1Oek4s_qc_P_rTYyX3hz0blDjOQx7zzc-/view?usp=drivesdk",
+                "name": "CYYG_RNAV_GNSS_Z_RWY_03.pdf",
+                "url": "https://drive.google.com/file/d/18wqZQY8kvLk-pRLr3yA_HVstQCTBS6Ta/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
-                "name": "CYQI_RNAV_GNSS_Z_RWY_24.pdf",
-                "url": "https://drive.google.com/file/d/1cGOzPcLb6lMpC7maScFlbt_m-miEBtIg/view?usp=drivesdk",
+                "name": "CYYG_CHARLOTTETOWN_3_DEP_VECTOR_PG_02.pdf",
+                "url": "https://drive.google.com/file/d/1LPl2jCOmfzgRJ6Z54dqX0mdwJOV82jPH/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
-                "name": "CYQI_RNAV_GNSS_Z_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1ozuB4CcSj4dSOz9_H-X1grUCjrEM0_Jz/view?usp=drivesdk",
+                "name": "CYYG_RNAV_RNP_Y_RWY_28.pdf",
+                "url": "https://drive.google.com/file/d/1xYDZ4DWBzDHNMzItGP32edbT8L3U88AV/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
-                "name": "CYQI_RNAV_GNSS_Z_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1o9ftCW1GfnhB8lgJxHc2Ky9cciijfrC2/view?usp=drivesdk",
+                "name": "CYYG_RNAV_GNSS_Z_RWY_28.pdf",
+                "url": "https://drive.google.com/file/d/1yBP03E6q0gCiILz4jjTf_8RPFQlXh2vl/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
-                "name": "CYQI_RNAV_GNSS_Y_RWY_33.pdf",
-                "url": "https://drive.google.com/file/d/1d94P-hJAY-jBuqHQJTvCuiCfootC3g2L/view?usp=drivesdk",
+                "name": "CYYG_RNAV_RNP_Y_RWY_10.pdf",
+                "url": "https://drive.google.com/file/d/1eI4zyNh1n9qTdgKb9STckYXr-CGsS4Bl/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
-                "name": "CYQI_RNAV_GNSS_Y_RWY_24.pdf",
-                "url": "https://drive.google.com/file/d/1APVb_zG65SC3VM3oZ9xmY11xlIMtn2Xd/view?usp=drivesdk",
+                "name": "CYYG_RNAV_RNP_Y_RWY_03.pdf",
+                "url": "https://drive.google.com/file/d/1VjZ0oyDDUHmqj2YxYpj8cnbh36WHALRP/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
-                "name": "CYQI_RNAV_GNSS_Y_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1fxmj7QXSLhzjQZ0wIHZf2OopJv54lf99/view?usp=drivesdk",
+                "name": "CYYG_RNAV_GNSS_Z_RWY_21.pdf",
+                "url": "https://drive.google.com/file/d/1UVpB-iBhkPB7SRt-NuzjwgfspkUmuEU2/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
-                "name": "CYQI_RNAV_GNSS_Y_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1yHDThqC3-d96aEyx_uxeCOcVnnaFoQ4j/view?usp=drivesdk",
+                "name": "CYYG_RNAV_GNSS_Z_RWY_10.pdf",
+                "url": "https://drive.google.com/file/d/14rqpds3aZv4gnTCC1yjW2sJWzXbJqSEM/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYYG_AERODROME_CHART.pdf",
+                "url": "https://drive.google.com/file/d/1bYDnEqyYNsGbJ8xqVm8CamD5BcIHNX7W/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYYG_CHARLOTTETOWN_3_DEP_VECTOR.pdf",
+                "url": "https://drive.google.com/file/d/17fYTJx6U6_Lyu0Fo4Sx51hBe5D7axnLS/view?usp=drivesdk",
+                "type": "pdf"
+        },
+        {
+                "name": "CYYG_ILS_RWY_03.pdf",
+                "url": "https://drive.google.com/file/d/1icdi_RQz8e7tJxc7oDHvm7JCF8YaPKGb/view?usp=drivesdk",
                 "type": "pdf"
         }
 ];

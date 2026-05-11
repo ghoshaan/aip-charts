@@ -157,7 +157,7 @@
         }
         
         .stat-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
             text-transform: uppercase;
             letter-spacing: 0.1em;
@@ -203,10 +203,11 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--text);
             transition: all 0.2s;
             position: relative;
-            display: flex;
-            align-items: flex-start;
         }
         
         .airport-card::before {
@@ -219,7 +220,6 @@
             background: var(--accent);
             transform: scaleY(0);
             transition: transform 0.2s;
-            border-radius: 8px 0 0 8px;
         }
         
         .airport-card:hover {
@@ -229,30 +229,6 @@
         }
         
         .airport-card:hover::before { transform: scaleY(1); }
-        
-        .airport-link {
-            display: block;
-            padding: 1.5rem;
-            text-decoration: none;
-            color: var(--text);
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .airport-card .pin-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            opacity: 0.25;
-            transition: opacity 0.2s;
-            padding: 0.75rem 0.75rem 0 0;
-            line-height: 1;
-            flex-shrink: 0;
-            align-self: flex-start;
-        }
-        .airport-card .pin-btn:hover { opacity: 0.8; }
-        .airport-card .pin-btn.pinned { opacity: 1; }
         
         .airport-code {
             font-family: 'Rajdhani', sans-serif;
@@ -272,7 +248,7 @@
             color: var(--text-dim);
         }
         
-        .airport-stats strong { color: var(--accent); }}
+        .airport-stats strong { color: var(--accent); }
     
     </style>
 </head>
@@ -305,308 +281,333 @@
     </div>
     
     <script>
-        const PINS_KEY = 'atc_pins';
-        function getPins() {
-            try { return JSON.parse(localStorage.getItem(PINS_KEY)) || {airports: [], charts: []}; }
-            catch(e) { return {airports: [], charts: []}; }
-        }
-        function savePins(p) { localStorage.setItem(PINS_KEY, JSON.stringify(p)); }
-        function isAirportPinned(slug) { return getPins().airports.some(function(a) { return a.slug === slug; }); }
-        function isChartPinned(url) { return getPins().charts.some(function(c) { return c.url === url; }); }
-        function toggleAirportPin(airport) {
-            var pins = getPins();
-            var idx = pins.airports.findIndex(function(a) { return a.slug === airport.slug; });
-            if (idx >= 0) pins.airports.splice(idx, 1);
-            else pins.airports.push(Object.assign({}, airport, {pinnedAt: Date.now()}));
-            savePins(pins);
-        }
-        function toggleChartPin(chart) {
-            var pins = getPins();
-            var idx = pins.charts.findIndex(function(c) { return c.url === chart.url; });
-            if (idx >= 0) pins.charts.splice(idx, 1);
-            else pins.charts.push(Object.assign({}, chart, {pinnedAt: Date.now()}));
-            savePins(pins);
-        }
-        function getPageContext() {
-            var slug = window.location.pathname.split('/').pop().replace('.html', '');
-            var regionSlug = slug.split('-')[0];
-            var links = document.querySelectorAll('.breadcrumb a');
-            var spans = document.querySelectorAll('.breadcrumb span:not(.breadcrumb-separator)');
-            if (links.length >= 2) {
-                return {type: 'airport', slug: slug, name: spans[0] ? spans[0].textContent : slug, region: links[1].textContent, regionSlug: regionSlug};
-            }
-            return {type: 'region', slug: slug, name: spans[0] ? spans[0].textContent : slug};
-        }
-
         const airports = [
         {
                 "icao": "CEN4 High River Regional",
                 "name": "CEN4 High River Regional",
+                "displayName": "CEN4 High River Regional",
                 "slug": "canada-cen4-high-river-regional",
                 "fileCount": 5
         },
         {
                 "icao": "CJB3 Steinbach",
                 "name": "CJB3 Steinbach",
+                "displayName": "CJB3 Steinbach",
                 "slug": "canada-cjb3-steinbach",
                 "fileCount": 4
         },
         {
                 "icao": "CNF4 Lindsay Kawartha Lakes Municipal",
                 "name": "CNF4 Lindsay Kawartha Lakes Municipal",
+                "displayName": "CNF4 Lindsay Kawartha Lakes Municipal",
                 "slug": "canada-cnf4-lindsay-kawartha-lakes-municipal",
                 "fileCount": 3
         },
         {
                 "icao": "CNP3 Arnprior",
                 "name": "CNP3 Arnprior",
+                "displayName": "CNP3 Arnprior",
                 "slug": "canada-cnp3-arnprior",
                 "fileCount": 3
         },
         {
                 "icao": "CYAM Sault Ste Marie",
                 "name": "CYAM Sault Ste Marie",
+                "displayName": "CYAM Sault Ste Marie",
                 "slug": "canada-cyam-sault-ste-marie",
                 "fileCount": 10
         },
         {
                 "icao": "CYBW Calgary Springbank",
                 "name": "CYBW Calgary Springbank",
+                "displayName": "CYBW Calgary Springbank",
                 "slug": "canada-cybw-calgary-springbank",
                 "fileCount": 17
         },
         {
+                "icao": "CYEE Huronia Midland",
+                "name": "CYEE Huronia Midland",
+                "displayName": "CYEE Huronia Midland",
+                "slug": "canada-cyee-huronia-midland",
+                "fileCount": 3
+        },
+        {
                 "icao": "CYEG Edmonton",
                 "name": "CYEG Edmonton",
+                "displayName": "CYEG Edmonton",
                 "slug": "canada-cyeg-edmonton",
                 "fileCount": 35
         },
         {
                 "icao": "CYFB Iqaluit",
                 "name": "CYFB Iqaluit",
+                "displayName": "CYFB Iqaluit",
                 "slug": "canada-cyfb-iqaluit",
                 "fileCount": 9
         },
         {
                 "icao": "CYFC Fredericton",
                 "name": "CYFC Fredericton",
+                "displayName": "CYFC Fredericton",
                 "slug": "canada-cyfc-fredericton",
                 "fileCount": 14
         },
         {
                 "icao": "CYFD Brantford",
                 "name": "CYFD Brantford",
+                "displayName": "CYFD Brantford",
                 "slug": "canada-cyfd-brantford",
                 "fileCount": 4
         },
         {
                 "icao": "CYHM John C Munro Hamilton Airport",
                 "name": "CYHM John C Munro Hamilton Airport",
+                "displayName": "CYHM John C Munro Hamilton Airport",
                 "slug": "canada-cyhm-john-c-munro-hamilton-airport",
                 "fileCount": 25
         },
         {
                 "icao": "CYHZ Halifax",
                 "name": "CYHZ Halifax",
+                "displayName": "CYHZ Halifax",
                 "slug": "canada-cyhz-halifax",
                 "fileCount": 31
         },
         {
                 "icao": "CYKF Kitchener Waterloo",
                 "name": "CYKF Kitchener Waterloo",
+                "displayName": "CYKF Kitchener Waterloo",
                 "slug": "canada-cykf-kitchener-waterloo",
                 "fileCount": 12
         },
         {
                 "icao": "CYLW Kelowna",
                 "name": "CYLW Kelowna",
+                "displayName": "CYLW Kelowna",
                 "slug": "canada-cylw-kelowna",
                 "fileCount": 41
         },
         {
                 "icao": "CYMM Fort McMurray",
                 "name": "CYMM Fort McMurray",
+                "displayName": "CYMM Fort McMurray",
                 "slug": "canada-cymm-fort-mcmurray",
                 "fileCount": 16
         },
         {
                 "icao": "CYNJ Langley Regional",
                 "name": "CYNJ Langley Regional",
+                "displayName": "CYNJ Langley Regional",
                 "slug": "canada-cynj-langley-regional",
                 "fileCount": 5
         },
         {
                 "icao": "CYOW Ottawa",
                 "name": "CYOW Ottawa",
+                "displayName": "CYOW Ottawa",
                 "slug": "canada-cyow-ottawa",
                 "fileCount": 33
         },
         {
                 "icao": "CYPK Pitt Meadows",
                 "name": "CYPK Pitt Meadows",
+                "displayName": "CYPK Pitt Meadows",
                 "slug": "canada-cypk-pitt-meadows",
                 "fileCount": 5
         },
         {
                 "icao": "CYPQ Peterborough",
                 "name": "CYPQ Peterborough",
+                "displayName": "CYPQ Peterborough",
                 "slug": "canada-cypq-peterborough",
                 "fileCount": 4
         },
         {
                 "icao": "CYQB Quebec Jean Lesage",
                 "name": "CYQB Quebec Jean Lesage",
+                "displayName": "CYQB Quebec Jean Lesage",
                 "slug": "canada-cyqb-quebec-jean-lesage",
                 "fileCount": 37
         },
         {
                 "icao": "CYQG Windsor",
                 "name": "CYQG Windsor",
+                "displayName": "CYQG Windsor",
                 "slug": "canada-cyqg-windsor",
                 "fileCount": 20
         },
         {
                 "icao": "CYQI Yarmouth",
                 "name": "CYQI Yarmouth",
+                "displayName": "CYQI Yarmouth",
                 "slug": "canada-cyqi-yarmouth",
                 "fileCount": 9
         },
         {
                 "icao": "CYQM Greater Moncton Romeo LeBlanc",
                 "name": "CYQM Greater Moncton Romeo LeBlanc",
+                "displayName": "CYQM Greater Moncton Romeo LeBlanc",
                 "slug": "canada-cyqm-greater-moncton-romeo-leblanc",
                 "fileCount": 16
         },
         {
                 "icao": "CYQQ CFB Comox or 19 wing",
                 "name": "CYQQ CFB Comox or 19 wing",
+                "displayName": "CYQQ CFB Comox or 19 wing",
                 "slug": "canada-cyqq-cfb-comox-or-19-wing",
                 "fileCount": 21
         },
         {
                 "icao": "CYQR Regina",
                 "name": "CYQR Regina",
+                "displayName": "CYQR Regina",
                 "slug": "canada-cyqr-regina",
                 "fileCount": 19
         },
         {
                 "icao": "CYQT Thunder Bay",
                 "name": "CYQT Thunder Bay",
+                "displayName": "CYQT Thunder Bay",
                 "slug": "canada-cyqt-thunder-bay",
                 "fileCount": 23
         },
         {
                 "icao": "CYSU Summerside",
                 "name": "CYSU Summerside",
+                "displayName": "CYSU Summerside",
                 "slug": "canada-cysu-summerside",
                 "fileCount": 3
         },
         {
                 "icao": "CYTS Timmins Victor M Power",
                 "name": "CYTS Timmins Victor M Power",
+                "displayName": "CYTS Timmins Victor M Power",
                 "slug": "canada-cyts-timmins-victor-m-power",
                 "fileCount": 14
         },
         {
                 "icao": "CYTZ Toronto Island",
                 "name": "CYTZ Toronto Island",
+                "displayName": "CYTZ Toronto Island",
                 "slug": "canada-cytz-toronto-island",
                 "fileCount": 35
         },
         {
                 "icao": "CYUL Montreal",
                 "name": "CYUL Montreal",
+                "displayName": "CYUL Montreal",
                 "slug": "canada-cyul-montreal",
                 "fileCount": 49
         },
         {
                 "icao": "CYVR Vancouver",
                 "name": "CYVR Vancouver",
+                "displayName": "CYVR Vancouver",
                 "slug": "canada-cyvr-vancouver",
                 "fileCount": 75
         },
         {
                 "icao": "CYWG Winnipeg",
                 "name": "CYWG Winnipeg",
+                "displayName": "CYWG Winnipeg",
                 "slug": "canada-cywg-winnipeg",
                 "fileCount": 49
         },
         {
                 "icao": "CYXE Saskatoon",
                 "name": "CYXE Saskatoon",
+                "displayName": "CYXE Saskatoon",
                 "slug": "canada-cyxe-saskatoon",
                 "fileCount": 29
         },
         {
                 "icao": "CYXS Prince George",
                 "name": "CYXS Prince George",
+                "displayName": "CYXS Prince George",
                 "slug": "canada-cyxs-prince-george",
                 "fileCount": 13
         },
         {
                 "icao": "CYXU London",
                 "name": "CYXU London",
+                "displayName": "CYXU London",
                 "slug": "canada-cyxu-london",
                 "fileCount": 15
         },
         {
                 "icao": "CYXX Abbotsford",
                 "name": "CYXX Abbotsford",
+                "displayName": "CYXX Abbotsford",
                 "slug": "canada-cyxx-abbotsford",
                 "fileCount": 21
         },
         {
                 "icao": "CYYC Calgary",
                 "name": "CYYC Calgary",
+                "displayName": "CYYC Calgary",
                 "slug": "canada-cyyc-calgary",
                 "fileCount": 71
         },
         {
                 "icao": "CYYG Charlottetown",
                 "name": "CYYG Charlottetown",
+                "displayName": "CYYG Charlottetown",
                 "slug": "canada-cyyg-charlottetown",
+                "fileCount": 13
+        },
+        {
+                "icao": "CYYG Victoria",
+                "name": "CYYG Victoria",
+                "displayName": "CYYG Victoria",
+                "slug": "canada-cyyg-victoria",
                 "fileCount": 13
         },
         {
                 "icao": "CYYJ Victoria International",
                 "name": "CYYJ Victoria International",
+                "displayName": "CYYJ Victoria International",
                 "slug": "canada-cyyj-victoria-international",
                 "fileCount": 21
         },
         {
                 "icao": "CYYR CFB Goose Bay",
                 "name": "CYYR CFB Goose Bay",
+                "displayName": "CYYR CFB Goose Bay",
                 "slug": "canada-cyyr-cfb-goose-bay",
                 "fileCount": 25
         },
         {
                 "icao": "CYYT St Johns",
                 "name": "CYYT St Johns",
+                "displayName": "CYYT St Johns",
                 "slug": "canada-cyyt-st-johns",
                 "fileCount": 28
         },
         {
                 "icao": "CYYZ Toronto Pearson",
                 "name": "CYYZ Toronto Pearson",
+                "displayName": "CYYZ Toronto Pearson",
                 "slug": "canada-cyyz-toronto-pearson",
                 "fileCount": 216
         },
         {
                 "icao": "CYZF Yellowknife",
                 "name": "CYZF Yellowknife",
+                "displayName": "CYZF Yellowknife",
                 "slug": "canada-cyzf-yellowknife",
                 "fileCount": 16
         },
         {
                 "icao": "CYZX CFB Greenwood",
                 "name": "CYZX CFB Greenwood",
+                "displayName": "CYZX CFB Greenwood",
                 "slug": "canada-cyzx-cfb-greenwood",
                 "fileCount": 25
         }
 ];
         
         const fuse = new Fuse(airports, {
-            keys: ['icao', 'name'],
+            keys: ['icao', 'name', 'displayName'],
             threshold: 0.3,
             includeMatches: true
         });
@@ -625,37 +626,18 @@
             document.getElementById('emptyState').style.display = 'none';
             
             airportsToShow.forEach(airport => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'airport-card';
-
-                const link = document.createElement('a');
-                link.className = 'airport-link';
-                link.href = airport.slug + '.html';
-                link.innerHTML = `
-                    <div class="airport-code">${airport.icao}</div>
-                    <div class="airport-name">${airport.name}</div>
+                const card = document.createElement('a');
+                card.className = 'airport-card';
+                card.href = airport.slug + '.html';
+                card.innerHTML = `
+                    <div class="airport-code">${airport.displayName}</div>
                     <div class="airport-stats">
                         <span>📄 <strong>${airport.fileCount}</strong> files</span>
                     </div>
                 `;
-
-                const pinned = isAirportPinned(airport.slug);
-                const pinBtn = document.createElement('button');
-                pinBtn.className = 'pin-btn' + (pinned ? ' pinned' : '');
-                pinBtn.title = pinned ? 'Unpin from homepage' : 'Pin to homepage';
-                pinBtn.textContent = '📌';
-                pinBtn.onclick = function(e) {
-                    e.stopPropagation();
-                    const ctx = getPageContext();
-                    toggleAirportPin({icao: airport.icao, name: airport.name, slug: airport.slug, region: ctx.name, regionSlug: ctx.slug, fileCount: airport.fileCount});
-                    pinBtn.classList.toggle('pinned');
-                    pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
-                };
-
-                wrapper.appendChild(link);
-                wrapper.appendChild(pinBtn);
-                grid.appendChild(wrapper);
+                grid.appendChild(card);
             });
+
         }
         
         document.getElementById('searchInput').addEventListener('input', (e) => {

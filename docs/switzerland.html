@@ -157,7 +157,7 @@
         }
         
         .stat-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
             text-transform: uppercase;
             letter-spacing: 0.1em;
@@ -203,10 +203,11 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--text);
             transition: all 0.2s;
             position: relative;
-            display: flex;
-            align-items: flex-start;
         }
         
         .airport-card::before {
@@ -219,7 +220,6 @@
             background: var(--accent);
             transform: scaleY(0);
             transition: transform 0.2s;
-            border-radius: 8px 0 0 8px;
         }
         
         .airport-card:hover {
@@ -229,30 +229,6 @@
         }
         
         .airport-card:hover::before { transform: scaleY(1); }
-        
-        .airport-link {
-            display: block;
-            padding: 1.5rem;
-            text-decoration: none;
-            color: var(--text);
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .airport-card .pin-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            opacity: 0.25;
-            transition: opacity 0.2s;
-            padding: 0.75rem 0.75rem 0 0;
-            line-height: 1;
-            flex-shrink: 0;
-            align-self: flex-start;
-        }
-        .airport-card .pin-btn:hover { opacity: 0.8; }
-        .airport-card .pin-btn.pinned { opacity: 1; }
         
         .airport-code {
             font-family: 'Rajdhani', sans-serif;
@@ -272,7 +248,7 @@
             color: var(--text-dim);
         }
         
-        .airport-stats strong { color: var(--accent); }}
+        .airport-stats strong { color: var(--accent); }
     
     </style>
 </head>
@@ -305,116 +281,95 @@
     </div>
     
     <script>
-        const PINS_KEY = 'atc_pins';
-        function getPins() {
-            try { return JSON.parse(localStorage.getItem(PINS_KEY)) || {airports: [], charts: []}; }
-            catch(e) { return {airports: [], charts: []}; }
-        }
-        function savePins(p) { localStorage.setItem(PINS_KEY, JSON.stringify(p)); }
-        function isAirportPinned(slug) { return getPins().airports.some(function(a) { return a.slug === slug; }); }
-        function isChartPinned(url) { return getPins().charts.some(function(c) { return c.url === url; }); }
-        function toggleAirportPin(airport) {
-            var pins = getPins();
-            var idx = pins.airports.findIndex(function(a) { return a.slug === airport.slug; });
-            if (idx >= 0) pins.airports.splice(idx, 1);
-            else pins.airports.push(Object.assign({}, airport, {pinnedAt: Date.now()}));
-            savePins(pins);
-        }
-        function toggleChartPin(chart) {
-            var pins = getPins();
-            var idx = pins.charts.findIndex(function(c) { return c.url === chart.url; });
-            if (idx >= 0) pins.charts.splice(idx, 1);
-            else pins.charts.push(Object.assign({}, chart, {pinnedAt: Date.now()}));
-            savePins(pins);
-        }
-        function getPageContext() {
-            var slug = window.location.pathname.split('/').pop().replace('.html', '');
-            var regionSlug = slug.split('-')[0];
-            var links = document.querySelectorAll('.breadcrumb a');
-            var spans = document.querySelectorAll('.breadcrumb span:not(.breadcrumb-separator)');
-            if (links.length >= 2) {
-                return {type: 'airport', slug: slug, name: spans[0] ? spans[0].textContent : slug, region: links[1].textContent, regionSlug: regionSlug};
-            }
-            return {type: 'region', slug: slug, name: spans[0] ? spans[0].textContent : slug};
-        }
-
         const airports = [
         {
                 "icao": "ENROUTE",
                 "name": "ENROUTE",
+                "displayName": "ENROUTE",
                 "slug": "switzerland-enroute",
                 "fileCount": 5
         },
         {
                 "icao": "LSGC",
-                "name": "LSGC",
+                "name": "Les Eplatures",
+                "displayName": "LSGC - Les Eplatures",
                 "slug": "switzerland-lsgc",
                 "fileCount": 9
         },
         {
                 "icao": "LSGG",
-                "name": "LSGG",
+                "name": "Geneva",
+                "displayName": "LSGG - Geneva",
                 "slug": "switzerland-lsgg",
                 "fileCount": 25
         },
         {
                 "icao": "LSGS",
-                "name": "LSGS",
+                "name": "Sion",
+                "displayName": "LSGS - Sion",
                 "slug": "switzerland-lsgs",
                 "fileCount": 11
         },
         {
                 "icao": "LSMP",
-                "name": "LSMP",
+                "name": "Payerne",
+                "displayName": "LSMP - Payerne",
                 "slug": "switzerland-lsmp",
                 "fileCount": 8
         },
         {
                 "icao": "LSZA",
-                "name": "LSZA",
+                "name": "Lugano",
+                "displayName": "LSZA - Lugano",
                 "slug": "switzerland-lsza",
                 "fileCount": 12
         },
         {
                 "icao": "LSZB",
-                "name": "LSZB",
+                "name": "Bern",
+                "displayName": "LSZB - Bern",
                 "slug": "switzerland-lszb",
                 "fileCount": 16
         },
         {
                 "icao": "LSZC",
-                "name": "LSZC",
+                "name": "Buochs",
+                "displayName": "LSZC - Buochs",
                 "slug": "switzerland-lszc",
                 "fileCount": 6
         },
         {
                 "icao": "LSZG",
-                "name": "LSZG",
+                "name": "Grenchen",
+                "displayName": "LSZG - Grenchen",
                 "slug": "switzerland-lszg",
                 "fileCount": 10
         },
         {
                 "icao": "LSZH",
-                "name": "LSZH",
+                "name": "Zurich",
+                "displayName": "LSZH - Zurich",
                 "slug": "switzerland-lszh",
                 "fileCount": 55
         },
         {
                 "icao": "LSZR",
-                "name": "LSZR",
+                "name": "St. Gallen-Altenrhein",
+                "displayName": "LSZR - St. Gallen-Altenrhein",
                 "slug": "switzerland-lszr",
                 "fileCount": 15
         },
         {
                 "icao": "LSZS",
-                "name": "LSZS",
+                "name": "Samedan",
+                "displayName": "LSZS - Samedan",
                 "slug": "switzerland-lszs",
                 "fileCount": 11
         }
 ];
         
         const fuse = new Fuse(airports, {
-            keys: ['icao', 'name'],
+            keys: ['icao', 'name', 'displayName'],
             threshold: 0.3,
             includeMatches: true
         });
@@ -433,37 +388,18 @@
             document.getElementById('emptyState').style.display = 'none';
             
             airportsToShow.forEach(airport => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'airport-card';
-
-                const link = document.createElement('a');
-                link.className = 'airport-link';
-                link.href = airport.slug + '.html';
-                link.innerHTML = `
-                    <div class="airport-code">${airport.icao}</div>
-                    <div class="airport-name">${airport.name}</div>
+                const card = document.createElement('a');
+                card.className = 'airport-card';
+                card.href = airport.slug + '.html';
+                card.innerHTML = `
+                    <div class="airport-code">${airport.displayName}</div>
                     <div class="airport-stats">
                         <span>📄 <strong>${airport.fileCount}</strong> files</span>
                     </div>
                 `;
-
-                const pinned = isAirportPinned(airport.slug);
-                const pinBtn = document.createElement('button');
-                pinBtn.className = 'pin-btn' + (pinned ? ' pinned' : '');
-                pinBtn.title = pinned ? 'Unpin from homepage' : 'Pin to homepage';
-                pinBtn.textContent = '📌';
-                pinBtn.onclick = function(e) {
-                    e.stopPropagation();
-                    const ctx = getPageContext();
-                    toggleAirportPin({icao: airport.icao, name: airport.name, slug: airport.slug, region: ctx.name, regionSlug: ctx.slug, fileCount: airport.fileCount});
-                    pinBtn.classList.toggle('pinned');
-                    pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
-                };
-
-                wrapper.appendChild(link);
-                wrapper.appendChild(pinBtn);
-                grid.appendChild(wrapper);
+                grid.appendChild(card);
             });
+
         }
         
         document.getElementById('searchInput').addEventListener('input', (e) => {

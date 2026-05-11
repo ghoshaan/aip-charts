@@ -156,7 +156,7 @@
         }
         
         .stat-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
             text-transform: uppercase;
             letter-spacing: 0.1em;
@@ -252,153 +252,6 @@
         .card-count strong {
             color: var(--accent);
         }
-
-        /* Pinned section */
-        .pinned-section {
-            margin-bottom: 2rem;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.5rem;
-        }
-
-        .pinned-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .pinned-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--text-dim);
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-        }
-
-        .clear-pins-btn {
-            background: none;
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.75rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.2s;
-        }
-        .clear-pins-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-        .pinned-sub-title {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin: 0.75rem 0 0.5rem;
-            padding-bottom: 0.25rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .pinned-airports-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 0.6rem;
-        }
-
-        .pinned-airport-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 0.6rem 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.5rem;
-            transition: border-color 0.15s;
-        }
-        .pinned-airport-card:hover { border-color: var(--accent); }
-
-        .pinned-airport-link {
-            text-decoration: none;
-            color: var(--text);
-            flex: 1;
-            min-width: 0;
-        }
-
-        .pinned-airport-code {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--accent);
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .pinned-airport-meta {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            display: block;
-        }
-
-        .pinned-charts-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
-
-        .pinned-chart-item {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 0.6rem 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            transition: border-color 0.15s;
-        }
-        .pinned-chart-item:hover { border-color: var(--accent); }
-
-        .pinned-chart-link {
-            text-decoration: none;
-            color: var(--text);
-            flex: 1;
-            min-width: 0;
-        }
-
-        .pinned-chart-name {
-            font-size: 0.8rem;
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .pinned-chart-meta {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            display: block;
-            margin-top: 0.1rem;
-        }
-
-        .unpin-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            padding: 0.2rem 0.3rem;
-            opacity: 0.5;
-            transition: opacity 0.2s, color 0.2s;
-            flex-shrink: 0;
-            line-height: 1;
-        }
-        .unpin-btn:hover { opacity: 1; color: var(--accent); }
     </style>
 </head>
 <body>
@@ -408,27 +261,17 @@
             <div class="subtitle">Select a region to browse charts</div>
         </header>
         
-
-        <div id="pinnedSection" class="pinned-section" style="display:none">
-            <div class="pinned-header">
-                <span class="pinned-title">📌 Pinned</span>
-                <button class="clear-pins-btn" onclick="clearAllPins()">Clear all</button>
-            </div>
-            <div id="pinnedAirports"></div>
-            <div id="pinnedCharts"></div>
-        </div>
-
         <div class="stats">
             <div class="stat">
                 <span class="stat-value">4</span>
                 <span class="stat-label">Regions</span>
             </div>
             <div class="stat">
-                <span class="stat-value">92</span>
+                <span class="stat-value">93</span>
                 <span class="stat-label">Airports</span>
             </div>
             <div class="stat">
-                <span class="stat-value">1700</span>
+                <span class="stat-value">1703</span>
                 <span class="stat-label">Total Files</span>
             </div>
         </div>
@@ -439,8 +282,8 @@
                 <span class="card-icon">🇨🇦</span>
                 <div class="card-title">CANADA</div>
                 <div class="card-count">
-                    <strong>45</strong> airports • 
-                    <strong>1152</strong> files
+                    <strong>46</strong> airports • 
+                    <strong>1155</strong> files
                 </div>
             </a>
             
@@ -472,134 +315,6 @@
             </a>
             
         </div>
-
-        <div style="margin-top:2.5rem; text-align:center;">
-            <a href="adsb_tutorial.html" style="font-size:0.75rem; color:var(--text-dim); text-decoration:none; letter-spacing:0.04em; opacity:0.6; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">ADS-B Techniques — Visual Tutorial</a>
-        </div>
     </div>
-
-    <script>
-        const PINS_KEY = 'atc_pins';
-        function getPins() {
-            try { return JSON.parse(localStorage.getItem(PINS_KEY)) || {airports: [], charts: []}; }
-            catch(e) { return {airports: [], charts: []}; }
-        }
-        function savePins(p) { localStorage.setItem(PINS_KEY, JSON.stringify(p)); }
-
-        function renderPinned() {
-            const pins = getPins();
-            const section = document.getElementById('pinnedSection');
-            if (pins.airports.length === 0 && pins.charts.length === 0) {
-                section.style.display = 'none';
-                return;
-            }
-            section.style.display = 'block';
-
-            const airportsEl = document.getElementById('pinnedAirports');
-            const chartsEl = document.getElementById('pinnedCharts');
-            airportsEl.innerHTML = '';
-            chartsEl.innerHTML = '';
-
-            if (pins.airports.length > 0) {
-                const title = document.createElement('div');
-                title.className = 'pinned-sub-title';
-                title.textContent = 'Airports';
-                airportsEl.appendChild(title);
-
-                const grid = document.createElement('div');
-                grid.className = 'pinned-airports-grid';
-
-                pins.airports.forEach(function(airport) {
-                    const card = document.createElement('div');
-                    card.className = 'pinned-airport-card';
-
-                    const link = document.createElement('a');
-                    link.className = 'pinned-airport-link';
-                    link.href = airport.slug + '.html';
-                    link.innerHTML = '<span class="pinned-airport-code">' + airport.icao + '</span>' +
-                        '<span class="pinned-airport-meta">' + airport.region + ' &bull; ' + airport.fileCount + ' files</span>';
-
-                    const unpinBtn = document.createElement('button');
-                    unpinBtn.className = 'unpin-btn';
-                    unpinBtn.title = 'Unpin';
-                    unpinBtn.textContent = '✕';
-                    unpinBtn.onclick = function() { unpinAirport(airport.slug, card); };
-
-                    card.appendChild(link);
-                    card.appendChild(unpinBtn);
-                    grid.appendChild(card);
-                });
-                airportsEl.appendChild(grid);
-            }
-
-            if (pins.charts.length > 0) {
-                const title = document.createElement('div');
-                title.className = 'pinned-sub-title';
-                title.textContent = 'Charts';
-                chartsEl.appendChild(title);
-
-                const list = document.createElement('div');
-                list.className = 'pinned-charts-list';
-
-                pins.charts.forEach(function(chart) {
-                    const item = document.createElement('div');
-                    item.className = 'pinned-chart-item';
-
-                    const icon = document.createElement('span');
-                    icon.style.fontSize = '1rem';
-                    icon.textContent = '📄';
-
-                    const link = document.createElement('a');
-                    link.className = 'pinned-chart-link';
-                    link.href = chart.url;
-                    link.target = '_blank';
-                    link.innerHTML = '<span class="pinned-chart-name">' + chart.name + '</span>' +
-                        '<span class="pinned-chart-meta">' + chart.airport + ' &bull; ' + chart.region + '</span>';
-
-                    const unpinBtn = document.createElement('button');
-                    unpinBtn.className = 'unpin-btn';
-                    unpinBtn.title = 'Unpin';
-                    unpinBtn.textContent = '✕';
-                    unpinBtn.onclick = function() { unpinChart(chart.url, item); };
-
-                    item.appendChild(icon);
-                    item.appendChild(link);
-                    item.appendChild(unpinBtn);
-                    list.appendChild(item);
-                });
-                chartsEl.appendChild(list);
-            }
-        }
-
-        function unpinAirport(slug, cardEl) {
-            const pins = getPins();
-            pins.airports = pins.airports.filter(function(a) { return a.slug !== slug; });
-            savePins(pins);
-            cardEl.remove();
-            checkPinnedEmpty();
-        }
-
-        function unpinChart(url, itemEl) {
-            const pins = getPins();
-            pins.charts = pins.charts.filter(function(c) { return c.url !== url; });
-            savePins(pins);
-            itemEl.remove();
-            checkPinnedEmpty();
-        }
-
-        function checkPinnedEmpty() {
-            const pins = getPins();
-            if (pins.airports.length === 0 && pins.charts.length === 0) {
-                document.getElementById('pinnedSection').style.display = 'none';
-            }
-        }
-
-        function clearAllPins() {
-            savePins({airports: [], charts: []});
-            document.getElementById('pinnedSection').style.display = 'none';
-        }
-
-        renderPinned();
-    </script>
 </body>
 </html>

@@ -46,6 +46,58 @@ REGION_ICONS = {
     'default': '🌍'
 }
 
+AIRPORT_NAMES = {
+    # Ireland
+    'EICK': 'Cork',
+    'EIDL': 'Donegal',
+    'EIDW': 'Dublin',
+    'EIKN': 'Ireland West (Knock)',
+    'EIKY': 'Kerry',
+    'EINN': 'Shannon',
+    'EISG': 'Sligo',
+    'EIWF': 'Waterford',
+    'EIWT': 'Weston',
+    
+    # Netherlands
+    'EHAL': 'Ameland',
+    'EHAM': 'Amsterdam Schiphol',
+    'EHBD': 'Budel',
+    'EHBK': 'Maastricht Aachen',
+    'EHDR': 'Drachten',
+    'EHEH': 'Eindhoven',
+    'EHGG': 'Groningen Eelde',
+    'EHHA': 'Amsterdam FIR',
+    'EHHE': 'Heerenveen',
+    'EHHO': 'Hoogeveen',
+    'EHHV': 'Hilversum',
+    'EHJR': 'Arnhem',
+    'EHKD': 'De Kooy',
+    'EHLE': 'Lelystad',
+    'EHMM': 'Maastricht FIR',
+    'EHMZ': 'Midden-Zeeland',
+    'EHOW': 'Oostwold',
+    'EHRD': 'Rotterdam The Hague',
+    'EHSE': 'Seppe',
+    'EHST': 'Stadskanaal',
+    'EHTE': 'Teuge',
+    'EHTL': 'Terlet',
+    'EHTW': 'Twente',
+    'EHTX': 'Texel',
+    
+    # Switzerland
+    'LSGC': 'Les Eplatures',
+    'LSGG': 'Geneva',
+    'LSGS': 'Sion',
+    'LSMP': 'Payerne',
+    'LSZA': 'Lugano',
+    'LSZB': 'Bern',
+    'LSZC': 'Buochs',
+    'LSZG': 'Grenchen',
+    'LSZH': 'Zurich',
+    'LSZR': 'St. Gallen-Altenrhein',
+    'LSZS': 'Samedan'
+}
+
 # ============================================================================
 # AUTHENTICATION
 # ============================================================================
@@ -60,8 +112,16 @@ def authenticate_drive():
     
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+            try:
+                creds.refresh(Request())
+            except Exception as e:
+                print(f"⚠️  Refresh failed: {e}")
+                creds = None
+                if os.path.exists('token.json'):
+                    os.remove('token.json')
+                    print("🗑️  Deleted expired token.json")
+        
+        if not creds or not creds.valid:
             if not os.path.exists('credentials.json'):
                 print("❌ credentials.json not found!")
                 return None
@@ -337,9 +397,13 @@ def generate_region_page(region_name, region_slug, airports):
     airport_list = []
     
     for airport_code, files in airports.items():
+        name = AIRPORT_NAMES.get(airport_code, airport_code)
+        display_name = f"{airport_code} - {name}" if name != airport_code else airport_code
+        
         airport_list.append({
             'icao': airport_code,
-            'name': airport_code,  # You might want to add full names
+            'name': name,
+            'displayName': display_name,
             'slug': slugify(f"{region_slug}-{airport_code}"),
             'fileCount': len(files)
         })
@@ -394,7 +458,7 @@ def generate_region_page(region_name, region_slug, airports):
         const airports = {json.dumps(airport_list, indent=8)};
         
         const fuse = new Fuse(airports, {{
-            keys: ['icao', 'name'],
+            keys: ['icao', 'name', 'displayName'],
             threshold: 0.3,
             includeMatches: true
         }});
@@ -417,14 +481,14 @@ def generate_region_page(region_name, region_slug, airports):
                 card.className = 'airport-card';
                 card.href = airport.slug + '.html';
                 card.innerHTML = `
-                    <div class="airport-code">${{airport.icao}}</div>
-                    <div class="airport-name">${{airport.name}}</div>
+                    <div class="airport-code">${{airport.displayName}}</div>
                     <div class="airport-stats">
                         <span>📄 <strong>${{airport.fileCount}}</strong> files</span>
                     </div>
                 `;
                 grid.appendChild(card);
             }});
+
         }}
         
         document.getElementById('searchInput').addEventListener('input', (e) => {{
@@ -447,12 +511,15 @@ def generate_region_page(region_name, region_slug, airports):
 def generate_airport_page(region_name, region_slug, airport_code, files):
     """Generate airport page with file listings"""
     
+    name = AIRPORT_NAMES.get(airport_code, airport_code)
+    display_title = f"{airport_code} - {name}" if name != airport_code else airport_code
+
     html = f'''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{airport_code} - ATC Charts</title>
+    <title>{display_title} - ATC Charts</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
@@ -472,7 +539,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
         </div>
         
         <header>
-            <h1>{airport_code}</h1>
+            <h1>{display_title}</h1>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
