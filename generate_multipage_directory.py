@@ -425,10 +425,17 @@ def generate_index_page(hierarchy):
 <body>
     <div class="container">
         <header>
-            <h1>ATC Charts Directory</h1>
-            <div class="subtitle">Search airports, charts, or browse regions</div>
+            <div class="header-content">
+                <h1>ATC Charts Directory</h1>
+                <div class="subtitle">Search airports, charts, or browse regions</div>
+            </div>
         </header>
         
+        <div id="pinnedSection" class="pinned-section" style="display: none;">
+            <div class="subtitle" style="color: var(--accent); margin-bottom: 0.5rem;">📌 Pinned Items</div>
+            <div id="pinnedGrid" class="pinned-grid"></div>
+        </div>
+
         <div class="stats">
             <div class="stat">
                 <span class="stat-value">{len(regions)}</span>
@@ -480,9 +487,56 @@ def generate_index_page(hierarchy):
     </div>
 
     <script>
+        {get_pinning_js()}
         const searchIndex = {json.dumps(global_search_index, indent=8)};
-        
+
+        function renderPins() {{
+            const pins = getPins();
+            const section = document.getElementById('pinnedSection');
+            const grid = document.getElementById('pinnedGrid');
+
+            if (pins.airports.length === 0 && pins.charts.length === 0) {{
+                section.style.display = 'none';
+                return;
+            }}
+
+            section.style.display = 'block';
+            grid.innerHTML = '';
+
+            pins.airports.forEach(a => {{
+                const card = document.createElement('a');
+                card.className = 'pin-card';
+                card.href = a.slug + '.html';
+                card.innerHTML = `
+                    <span style="font-size: 1.25rem;">✈️</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 0.9rem;">${{a.name}}</div>
+                        <div style="font-size: 0.7rem; color: var(--text-dim);">${{a.region}}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }});
+
+            pins.charts.forEach(c => {{
+                const card = document.createElement('a');
+                card.className = 'pin-card';
+                card.href = c.url;
+                card.target = '_blank';
+                card.innerHTML = `
+                    <span style="font-size: 1.25rem;">📄</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 0.9rem;">${{c.name}}</div>
+                        <div style="font-size: 0.7rem; color: var(--text-dim);">${{c.airport}} • ${{c.region}}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }});
+        }}
+
+        renderPins();
+
         const fuse = new Fuse(searchIndex, {{
+{
             keys: [
                 {{ name: 'name', weight: 2 }},
                 {{ name: 'code', weight: 2 }},
@@ -502,15 +556,19 @@ def generate_index_page(hierarchy):
 
         searchInput.addEventListener('input', (e) => {{
             const query = e.target.value.trim();
-            
+            const pinnedSection = document.getElementById('pinnedSection');
+
             if (query.length < 2) {{
                 searchResults.style.display = 'none';
                 defaultView.style.display = 'block';
                 emptyState.style.display = 'none';
+                renderPins(); // Refresh pins when returning to default view
                 return;
             }}
 
+            pinnedSection.style.display = 'none';
             const results = fuse.search(query);
+
             defaultView.style.display = 'none';
             
             if (results.length === 0) {{
@@ -683,6 +741,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
     
     name = AIRPORT_NAMES.get(airport_code, airport_code)
     display_title = f"{airport_code} - {name}" if name != airport_code else airport_code
+    airport_slug = slugify(f"{region_slug}-{airport_code}")
 
     html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -709,8 +768,11 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
         </div>
         
         <header>
-            <h1>{display_title}</h1>
-            <div class="subtitle">Charts and procedures</div>
+            <div class="header-content">
+                <h1>{display_title}</h1>
+                <div class="subtitle">Charts and procedures</div>
+            </div>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
         </header>
         
         <div class="search-section">
@@ -741,6 +803,28 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
     </div>
     
     <script>
+        {get_pinning_js()}
+        
+        const airportCtx = {{
+            slug: '{airport_slug}',
+            name: '{display_title}',
+            region: '{region_name}'
+        }};
+
+        const pinAirportBtn = document.getElementById('pinAirportBtn');
+        const updateAirportPinState = () => {{
+            const pins = getPins();
+            const isPinned = pins.airports.some(a => a.slug === airportCtx.slug);
+            pinAirportBtn.classList.toggle('pinned', isPinned);
+            pinAirportBtn.title = isPinned ? 'Unpin from homepage' : 'Pin to homepage';
+        }};
+
+        pinAirportBtn.onclick = () => {{
+            toggleAirportPin(airportCtx);
+            updateAirportPinState();
+        }};
+        updateAirportPinState();
+
         const files = {json.dumps(files, indent=8)};
         const fileIcons = {{pdf: '📄', image: '🖼️', doc: '📝'}};
         let currentFilter = 'all';
@@ -776,16 +860,46 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
             fileCount.textContent = `Showing ${{filesToShow.length}} of ${{files.length}} files`;
             
             filesToShow.forEach(file => {{
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.borderBottom = '1px solid var(--border)';
+
                 const item = document.createElement('a');
                 item.className = 'file-item';
                 item.href = file.url;
                 item.target = '_blank';
+                item.style.borderBottom = 'none';
+                item.style.flex = '1';
                 item.innerHTML = `
                     <span class="file-icon">${{fileIcons[file.type] || '📄'}}</span>
                     <span class="file-name">${{file.name}}</span>
                     <span class="file-type">${{file.type}}</span>
                 `;
-                listEl.appendChild(item);
+
+                const pins = getPins();
+                const isPinned = pins.charts.some(c => c.url === file.url);
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'pin-btn' + (isPinned ? ' pinned' : '');
+                pinBtn.style.marginRight = '1rem';
+                pinBtn.title = isPinned ? 'Unpin from homepage' : 'Pin to homepage';
+                pinBtn.innerHTML = '📌';
+                pinBtn.onclick = (e) => {{
+                    e.preventDefault();
+                    toggleChartPin({{
+                        name: file.name,
+                        url: file.url,
+                        type: file.type,
+                        airport: airportCtx.name,
+                        region: airportCtx.region
+                    }});
+                    pinBtn.classList.toggle('pinned');
+                    pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
+                }};
+
+                wrapper.appendChild(item);
+                wrapper.appendChild(pinBtn);
+                listEl.appendChild(wrapper);
             }});
         }}
         
@@ -881,8 +995,13 @@ def get_common_styles():
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
             border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
         
+        .header-content { flex: 1; }
+
         h1 {
             font-family: 'Rajdhani', sans-serif;
             font-size: 2.5rem;
@@ -1010,6 +1129,82 @@ def get_common_styles():
         /* Favicon-like icon styling */
         img[src*="favicon"] {
             border-radius: 20%;
+        }
+
+        /* Pinning System Styles */
+        .pin-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            opacity: 0.25;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 4px;
+        }
+        .pin-btn:hover { opacity: 0.8; background: var(--accent-glow); }
+        .pin-btn.pinned { opacity: 1; color: var(--accent); }
+
+        .pinned-section {
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+        }
+
+        .pinned-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .pin-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .pin-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+    '''
+
+def get_pinning_js():
+    """Shared JS for pinning logic"""
+    return '''
+        const PINS_KEY = 'atc_pins';
+        function getPins() {
+            try { return JSON.parse(localStorage.getItem(PINS_KEY)) || {airports: [], charts: []}; }
+            catch(e) { return {airports: [], charts: []}; }
+        }
+        function savePins(p) { localStorage.setItem(PINS_KEY, JSON.stringify(p)); }
+        
+        function toggleAirportPin(airport) {
+            let pins = getPins();
+            let idx = pins.airports.findIndex(a => a.slug === airport.slug);
+            if (idx >= 0) pins.airports.splice(idx, 1);
+            else pins.airports.push({...airport, pinnedAt: Date.now()});
+            savePins(pins);
+        }
+        
+        function toggleChartPin(chart) {
+            let pins = getPins();
+            let idx = pins.charts.findIndex(c => c.url === chart.url);
+            if (idx >= 0) pins.charts.splice(idx, 1);
+            else pins.charts.push({...chart, pinnedAt: Date.now()});
+            savePins(pins);
         }
     '''
 
