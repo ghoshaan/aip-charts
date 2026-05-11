@@ -342,13 +342,17 @@
             scroll-behavior: smooth;
         }
 
+        #pdfViewer {
+            position: relative;
+            transform-origin: top center;
+            transition: transform 0.1s ease-out;
+        }
+
         .pdf-page-container {
             margin: 20px 0;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
             position: relative;
             background: white;
-            transition: transform 0.1s ease-out;
-            transform-origin: top center;
         }
 
         canvas {
@@ -363,8 +367,9 @@
             right: 0;
             bottom: 0;
             overflow: hidden;
-            opacity: 0.2;
+            opacity: 1; /* Keep visible for Ctrl+F */
             line-height: 1.0;
+            pointer-events: none; /* Let clicks pass through to canvas if needed, but spans will have pointer-events: auto */
         }
 
         .textLayer > span {
@@ -373,6 +378,7 @@
             white-space: pre;
             cursor: text;
             transform-origin: 0% 0%;
+            pointer-events: auto;
         }
 
         ::selection {
@@ -398,39 +404,7 @@
         }
 
         .viewer-tip b { color: var(--accent); }
-
-        .viewer-loader {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            color: var(--accent);
-            z-index: 1000;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .zoom-slider {
-            width: 80px;
-            accent-color: var(--accent);
-            cursor: pointer;
-        }
-    
+        
         
         .airport-grid {
             display: grid;

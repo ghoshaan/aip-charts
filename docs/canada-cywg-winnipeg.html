@@ -342,13 +342,17 @@
             scroll-behavior: smooth;
         }
 
+        #pdfViewer {
+            position: relative;
+            transform-origin: top center;
+            transition: transform 0.1s ease-out;
+        }
+
         .pdf-page-container {
             margin: 20px 0;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
             position: relative;
             background: white;
-            transition: transform 0.1s ease-out;
-            transform-origin: top center;
         }
 
         canvas {
@@ -363,8 +367,9 @@
             right: 0;
             bottom: 0;
             overflow: hidden;
-            opacity: 0.2;
+            opacity: 1; /* Keep visible for Ctrl+F */
             line-height: 1.0;
+            pointer-events: none; /* Let clicks pass through to canvas if needed, but spans will have pointer-events: auto */
         }
 
         .textLayer > span {
@@ -373,6 +378,7 @@
             white-space: pre;
             cursor: text;
             transform-origin: 0% 0%;
+            pointer-events: auto;
         }
 
         ::selection {
@@ -398,39 +404,7 @@
         }
 
         .viewer-tip b { color: var(--accent); }
-
-        .viewer-loader {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            color: var(--accent);
-            z-index: 1000;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .zoom-slider {
-            width: 80px;
-            accent-color: var(--accent);
-            cursor: pointer;
-        }
-    
+        
         
         .file-count {
             font-size: 0.875rem;
@@ -524,54 +498,58 @@
     </div>
     
     
-    <!-- PDF.js library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+        <!-- PDF.js library -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
 
-    <div id="viewerModal" class="viewer-modal">
-        <div class="viewer-header">
-            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+        <div id="viewerModal" class="viewer-modal">
+            <div class="viewer-header">
+                <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
 
-            <div class="viewer-controls">
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
-                    <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
-                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
-                    <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
+                <div class="viewer-controls">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
+                        <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
+                        <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
+                        <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
+                    </div>
+
+                    <button class="control-btn" id="rotateBtn" title="Rotate Chart">
+                        <span>🔄</span> ROTATE
+                    </button>
+
+                    <button class="control-btn" id="copyLinkBtn" title="Copy Link to this Chart">
+                        <span>🔗</span> COPY LINK
+                    </button>
+
+                    <button class="control-btn" id="resetBtn" title="Reset View">
+                        <span>🏠</span> RESET
+                    </button>
+
+                    <a id="externalLink" class="control-btn" target="_blank" title="Open in Google Drive">
+                        <span>🔗</span> DRIVE
+                    </a>
+
+                    <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                        <span>✖</span> CLOSE
+                    </button>
+                </div>
+            </div>
+            <div class="viewer-content" id="viewerContent">
+                <div id="viewerLoader" class="viewer-loader">
+                    <div class="spinner"></div>
+                    <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
                 </div>
 
-                <button class="control-btn" id="rotateBtn" title="Rotate Chart">
-                    <span>🔄</span> ROTATE
-                </button>
+                <div id="pdfViewerContainer">
+                    <div id="pdfViewer"></div>
+                </div>
 
-                <button class="control-btn" id="resetBtn" title="Reset View">
-                    <span>🏠</span> RESET
-                </button>
-
-                <a id="externalLink" class="control-btn" target="_blank" title="Open in Google Drive">
-                    <span>🔗</span> DRIVE
-                </a>
-
-                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
-                    <span>✖</span> CLOSE
-                </button>
+                <div class="viewer-tip">
+                    <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                </div>
             </div>
         </div>
-        <div class="viewer-content" id="viewerContent">
-            <div id="viewerLoader" class="viewer-loader">
-                <div class="spinner"></div>
-                <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
-            </div>
-
-            <div id="pdfViewerContainer">
-                <div id="pdfViewer" class="pdfViewer"></div>
-            </div>
-
-            <div class="viewer-tip">
-                <span>💡 Use <b>Ctrl+F</b> to search text. Use <b>Mouse Wheel</b> to zoom.</span>
-            </div>
-        </div>
-    </div>
-    
+        
 
     <script>
         
@@ -599,171 +577,229 @@
         }
     
         
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        let currentPdf = null;
-        let currentRotation = 0;
-        let currentZoom = 1.5;
-        let visualScale = 1.0; // Added for smooth CSS scaling
+            let currentPdf = null;
+            let currentRotation = 0;
+            let currentZoom = 1.5;
+            let visualScale = 1.0;
+            let isOpeningFromHash = false;
 
-        async function openViewer(id, name, driveUrl, localUrl) {
-            const modal = document.getElementById('viewerModal');
-            const title = document.getElementById('viewerTitle');
-            const externalLink = document.getElementById('externalLink');
-            const loader = document.getElementById('viewerLoader');
-            const loaderStatus = document.getElementById('loaderStatus');
-            const container = document.getElementById('pdfViewer');
+            async function openViewer(id, name, driveUrl, localUrl, skipHash = false) {
+                const modal = document.getElementById('viewerModal');
+                const title = document.getElementById('viewerTitle');
+                const externalLink = document.getElementById('externalLink');
+                const loader = document.getElementById('viewerLoader');
+                const loaderStatus = document.getElementById('loaderStatus');
+                const container = document.getElementById('pdfViewer');
 
-            // Reset state
-            currentRotation = 0;
-            currentZoom = 1.5;
-            visualScale = 1.0;
-            document.getElementById('zoomRange').value = 1.5;
-            document.getElementById('zoomValue').textContent = '1.5x';
-            title.textContent = name;
-            externalLink.href = driveUrl;
-            container.innerHTML = '';
-            container.style.transform = 'scale(1)'; // Reset visual scale
-            
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            loader.style.display = 'flex';
-            loaderStatus.textContent = 'LOADING LOCAL PDF...';
+                // Update hash for deep linking - now much shorter!
+                if (!skipHash) {
+                    isOpeningFromHash = true;
+                    window.location.hash = `view=${id}`;
+                    setTimeout(() => isOpeningFromHash = false, 100);
+                }
 
-            try {
-                const loadingTask = pdfjsLib.getDocument(localUrl);
-                currentPdf = await loadingTask.promise;
-                loaderStatus.textContent = `RENDERING ${currentPdf.numPages} PAGE(S)...`;
+                // Reset state
+                currentRotation = 0;
+                currentZoom = 1.5;
+                visualScale = 1.0;
+                document.getElementById('zoomRange').value = 1.5;
+                document.getElementById('zoomValue').textContent = '1.5x';
+                title.textContent = name;
+                externalLink.href = driveUrl;
+                container.innerHTML = '';
+                container.style.transform = 'scale(1)';
+
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                loader.style.display = 'flex';
+                loaderStatus.textContent = 'LOADING LOCAL PDF...';
+
+                try {
+                    const loadingTask = pdfjsLib.getDocument(localUrl);
+                    currentPdf = await loadingTask.promise;
+                    loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
+                    await renderAllPages();
+                    loader.style.display = 'none';
+                } catch (err) {
+                    console.error('PDF Error:', err);
+                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
+                    setTimeout(() => {
+                        window.open(driveUrl, '_blank');
+                        closeViewer();
+                    }, 2000);
+                }
+            }
+
+            async function checkHash() {
+                const hash = window.location.hash;
+                if (hash.startsWith('#view=') && !isOpeningFromHash) {
+                    try {
+                        const hashValue = hash.substring(6);
+                        let found = null;
+                        
+                        // 1. Try to find in local 'files' array (for airport pages)
+                        if (typeof files !== 'undefined') {
+                            found = files.find(f => f.id === hashValue);
+                        }
+                        
+                        // 2. Try to find in global 'searchIndex' (for home page)
+                        if (!found && typeof searchIndex !== 'undefined') {
+                            found = searchIndex.find(item => item.id === hashValue);
+                        }
+                        
+                        if (found) {
+                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                        } else {
+                            // 3. Fallback: Check if it's a legacy Base64 encoded JSON
+                            try {
+                                const chartData = JSON.parse(decodeURIComponent(atob(hashValue)));
+                                if (chartData && chartData.localUrl) {
+                                    await openViewer(chartData.id, chartData.name, chartData.driveUrl, chartData.localUrl, true);
+                                }
+                            } catch (e) {
+                                // Not a legacy hash, just not found
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Hash parse error:', e);
+                    }
+                } else if (!hash && document.getElementById('viewerModal').style.display === 'flex') {
+                    closeViewer(true);
+                }
+            }
+
+            window.addEventListener('hashchange', checkHash);
+            window.addEventListener('DOMContentLoaded', () => setTimeout(checkHash, 500));
+
+            async function renderAllPages() {
+                const container = document.getElementById('pdfViewer');
+                container.innerHTML = '';
+
+                for (let i = 1; i <= currentPdf.numPages; i++) {
+                    const pageContainer = document.createElement('div');
+                    pageContainer.className = 'pdf-page-container';
+                    pageContainer.id = `page-${i}`;
+                    container.appendChild(pageContainer);
+                    await renderPage(i, pageContainer);
+                }
+                applyVisualTransform();
+            }
+
+            async function renderPage(pageNum, container) {
+                const page = await currentPdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
+
+                container.style.width = `${viewport.width}px`;
+                container.style.height = `${viewport.height}px`;
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                container.appendChild(canvas);
+
+                const textLayerDiv = document.createElement('div');
+                textLayerDiv.className = 'textLayer';
+                container.appendChild(textLayerDiv);
+
+                // Render visual content
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+                // Render text content for Ctrl+F
+                const textContent = await page.getTextContent();
+                await pdfjsLib.renderTextLayer({
+                    textContent: textContent,
+                    container: textLayerDiv,
+                    viewport: viewport,
+                    textDivs: []
+                }).promise;
+            }
+
+            function applyVisualTransform() {
+                const container = document.getElementById('pdfViewer');
+                container.style.transform = `scale(${visualScale})`;
+            }
+
+            function closeViewer(skipHash = false) {
+                const modal = document.getElementById('viewerModal');
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                currentPdf = null;
+                if (!skipHash && window.location.hash.startsWith('#view=')) {
+                    history.pushState("", document.title, window.location.pathname + window.location.search);
+                }
+            }
+
+            async function updateZoomQuality() {
                 await renderAllPages();
-                loader.style.display = 'none';
-            } catch (err) {
-                console.error('PDF Error:', err);
-                loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
-                setTimeout(() => {
-                    window.open(driveUrl, '_blank');
-                    closeViewer();
-                }, 2000);
+                visualScale = 1.0;
+                applyVisualTransform();
             }
-        }
 
-        async function renderAllPages() {
-            const container = document.getElementById('pdfViewer');
-            container.innerHTML = '';
-            
-            for (let i = 1; i <= currentPdf.numPages; i++) {
-                const pageContainer = document.createElement('div');
-                pageContainer.className = 'pdf-page-container';
-                pageContainer.id = `page-${i}`;
-                container.appendChild(pageContainer);
-                await renderPage(i, pageContainer);
-            }
-            applyVisualTransform();
-        }
-
-        async function renderPage(pageNum, container) {
-            const page = await currentPdf.getPage(pageNum);
-            // Render at the current "high quality" zoom level
-            const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
-            
-            container.style.width = `${viewport.width}px`;
-            container.style.height = `${viewport.height}px`;
-
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-            container.appendChild(canvas);
-
-            const textLayerDiv = document.createElement('div');
-            textLayerDiv.className = 'textLayer';
-            container.appendChild(textLayerDiv);
-
-            await page.render({ canvasContext: context, viewport: viewport }).promise;
-            
-            const textContent = await page.getTextContent();
-            pdfjsLib.renderTextLayer({
-                textContent: textContent,
-                container: textLayerDiv,
-                viewport: viewport,
-                textDivs: []
-            });
-        }
-
-        function applyVisualTransform() {
-            const container = document.getElementById('pdfViewer');
-            // We use CSS scale for the small adjustments between high-quality renders
-            container.style.transform = `scale(${visualScale})`;
-        }
-
-        function closeViewer() {
-            const modal = document.getElementById('viewerModal');
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            currentPdf = null;
-        }
-
-        async function updateZoomQuality() {
-            // This is the heavy render that runs AFTER the user stops zooming
-            await renderAllPages();
-            visualScale = 1.0;
-            applyVisualTransform();
-        }
-
-        document.getElementById('zoomRange').oninput = (e) => {
-            const newZoom = parseFloat(e.target.value);
-            // Instant visual feedback
-            visualScale = newZoom / currentZoom;
-            applyVisualTransform();
-            document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
-        };
-
-        document.getElementById('zoomRange').onchange = async (e) => {
-            currentZoom = parseFloat(e.target.value);
-            await updateZoomQuality();
-        };
-
-        document.getElementById('rotateBtn').onclick = async () => {
-            currentRotation = (currentRotation + 90) % 360;
-            await renderAllPages();
-        };
-
-        document.getElementById('resetBtn').onclick = async () => {
-            currentRotation = 0;
-            currentZoom = 1.5;
-            visualScale = 1.0;
-            document.getElementById('zoomRange').value = 1.5;
-            document.getElementById('zoomValue').textContent = '1.5x';
-            await renderAllPages();
-        };
-
-        document.getElementById('closeViewer').onclick = closeViewer;
-
-        // Mouse Wheel Zoom
-        document.getElementById('pdfViewerContainer').onwheel = (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
-                
+            document.getElementById('zoomRange').oninput = (e) => {
+                const newZoom = parseFloat(e.target.value);
                 visualScale = newZoom / currentZoom;
                 applyVisualTransform();
-                
-                document.getElementById('zoomRange').value = newZoom;
                 document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+            };
 
-                // Debounce the high-quality re-render
-                clearTimeout(window.zoomTimeout);
-                window.zoomTimeout = setTimeout(async () => {
-                    currentZoom = newZoom;
-                    await updateZoomQuality();
-                }, 500);
-            }
-        };
+            document.getElementById('zoomRange').onchange = async (e) => {
+                currentZoom = parseFloat(e.target.value);
+                await updateZoomQuality();
+            };
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeViewer();
-        });
-    
+            document.getElementById('rotateBtn').onclick = async () => {
+                currentRotation = (currentRotation + 90) % 360;
+                await renderAllPages();
+            };
+
+            document.getElementById('copyLinkBtn').onclick = () => {
+                const url = window.location.href;
+                navigator.clipboard.writeText(url).then(() => {
+                    const btn = document.getElementById('copyLinkBtn');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<span>✅</span> COPIED!';
+                    setTimeout(() => btn.innerHTML = originalText, 2000);
+                });
+            };
+
+            document.getElementById('resetBtn').onclick = async () => {
+                currentRotation = 0;
+                currentZoom = 1.5;
+                visualScale = 1.0;
+                document.getElementById('zoomRange').value = 1.5;
+                document.getElementById('zoomValue').textContent = '1.5x';
+                await renderAllPages();
+            };
+
+            document.getElementById('closeViewer').onclick = closeViewer;
+
+            document.getElementById('pdfViewerContainer').onwheel = (e) => {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                    const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
+
+                    visualScale = newZoom / currentZoom;
+                    applyVisualTransform();
+
+                    document.getElementById('zoomRange').value = newZoom;
+                    document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                    clearTimeout(window.zoomTimeout);
+                    window.zoomTimeout = setTimeout(async () => {
+                        currentZoom = newZoom;
+                        await updateZoomQuality();
+                    }, 500);
+                }
+            };
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeViewer();
+            });
+        
         
         const airportCtx = {
             slug: 'canada-cywg-winnipeg',
@@ -1171,7 +1207,7 @@
 
                 const item = document.createElement('a');
                 item.className = 'file-item';
-                item.href = '#';
+                item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
                     openViewer(file.id, file.name, file.url, file.localUrl);
