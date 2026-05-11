@@ -579,21 +579,35 @@ def generate_index_page(hierarchy):
                 const card = document.createElement('a');
                 card.className = 'pin-card';
 
-                // Deep link support and recovery for old pins
+                // Robust recovery for old pins
+                let id = c.id;
                 let localUrl = c.localUrl;
-                if (!localUrl && typeof searchIndex !== 'undefined') {{
-                    const found = searchIndex.find(item => item.id === c.id || item.url === c.url);
-                    if (found) localUrl = found.localUrl;
+                let driveUrl = c.url;
+                let name = c.name;
+
+                if ((!id || !localUrl) && typeof searchIndex !== 'undefined') {{
+                    const found = searchIndex.find(item => 
+                        (c.id && item.id === c.id) || 
+                        (c.url && item.url.split('?')[0] === c.url.split('?')[0]) ||
+                        (item.name === c.name && item.airport === c.airport)
+                    );
+                    if (found) {{
+                        id = id || found.id;
+                        localUrl = localUrl || found.localUrl;
+                        driveUrl = driveUrl || found.url;
+                        console.log('🔄 Recovered pin data for:', name);
+                    }}
                 }}
 
                 if (localUrl && localUrl !== '#') {{
-                    card.href = `#view=${{c.id}}`;
+                    card.href = `#view=${{id}}`;
                     card.onclick = (e) => {{ 
                         e.preventDefault(); 
-                        openViewer(c.id, c.name, c.url, localUrl);
+                        openViewer(id, name, driveUrl, localUrl);
                     }};
                 }} else {{
-                    card.href = c.url;
+                    console.warn('⚠️ Pin missing localUrl, falling back to Drive:', name);
+                    card.href = driveUrl || '#';
                     card.target = '_blank';
                 }}
                 card.innerHTML = `
