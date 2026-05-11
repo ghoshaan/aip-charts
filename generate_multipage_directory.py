@@ -259,17 +259,52 @@ def create_output_dir():
 
 
 def generate_index_page(hierarchy):
-    """Generate main index page with regions"""
+    """Generate main index page with global search"""
     regions = []
+    global_search_index = []
     
     for region_name, airports in hierarchy.items():
-        file_count = sum(len(files) for files in airports.values())
+        region_slug = slugify(region_name)
+        region_icon = REGION_ICONS.get(region_name.lower(), REGION_ICONS['default'])
+        
+        region_file_count = 0
+        region_airports = []
+        
+        for airport_code, files in airports.items():
+            airport_name = AIRPORT_NAMES.get(airport_code, airport_code)
+            airport_display = f"{airport_code} - {airport_name}" if airport_name != airport_code else airport_code
+            airport_slug = slugify(f"{region_slug}-{airport_code}")
+            
+            # Add airport to global index
+            global_search_index.append({
+                'type': 'airport',
+                'name': airport_display,
+                'code': airport_code,
+                'region': region_name,
+                'url': f"{airport_slug}.html",
+                'icon': '✈️'
+            })
+            
+            # Add each chart to global index
+            for f in files:
+                global_search_index.append({
+                    'type': 'chart',
+                    'name': f['name'],
+                    'airport': airport_display,
+                    'region': region_name,
+                    'url': f['url'],
+                    'icon': '📄' if f['type'] == 'pdf' else '🖼️'
+                })
+            
+            region_file_count += len(files)
+            region_airports.append(airport_code)
+            
         regions.append({
             'name': region_name,
-            'icon': REGION_ICONS.get(region_name.lower(), REGION_ICONS['default']),
-            'slug': slugify(region_name),
+            'icon': region_icon,
+            'slug': region_slug,
             'airportCount': len(airports),
-            'fileCount': file_count
+            'fileCount': region_file_count
         })
     
     regions.sort(key=lambda x: x['name'])
@@ -347,13 +382,51 @@ def generate_index_page(hierarchy):
         .card-count strong {{
             color: var(--accent);
         }}
+
+        /* Global Search Styles */
+        .results-section {{
+            margin-top: 2rem;
+        }}
+
+        .search-result-item {{
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+        }}
+
+        .search-result-item:hover {{
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateX(4px);
+        }}
+
+        .result-icon {{ font-size: 1.25rem; }}
+        .result-info {{ flex: 1; }}
+        .result-name {{ font-weight: 600; font-size: 0.95rem; }}
+        .result-meta {{ font-size: 0.75rem; color: var(--text-dim); }}
+        .result-type {{ 
+            font-size: 0.6rem; 
+            text-transform: uppercase; 
+            background: var(--bg); 
+            padding: 0.2rem 0.5rem; 
+            border-radius: 3px;
+            letter-spacing: 0.05em;
+        }}
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>ATC Charts Directory</h1>
-            <div class="subtitle">Select a region to browse charts</div>
+            <div class="subtitle">Search airports, charts, or browse regions</div>
         </header>
         
         <div class="stats">
@@ -375,65 +448,112 @@ def generate_index_page(hierarchy):
             <div class="search-wrapper">
                 <span class="search-icon">🔍</span>
                 <input type="text" id="searchInput" class="search-input" 
-                       placeholder="Search regions..." autocomplete="off">
+                       placeholder="Search global directory (e.g. Dublin, star, EHAM)..." autocomplete="off">
             </div>
         </div>
         
-        <div class="card-grid" id="regionGrid"></div>
+        <div id="searchResults" class="results-section" style="display: none;">
+            <div class="subtitle" style="margin-bottom: 1rem;">Search Results</div>
+            <div id="resultsList"></div>
+        </div>
+
+        <div id="defaultView">
+            <div class="subtitle" style="margin-bottom: 1rem;">Browse Regions</div>
+            <div class="card-grid">
+                {''.join([f'''
+                <a href="{r['slug']}.html" class="region-card">
+                    <span class="card-icon">{r['icon']}</span>
+                    <div class="card-title">{r['name']}</div>
+                    <div class="card-count">
+                        <strong>{r['airportCount']}</strong> airports • 
+                        <strong>{r['fileCount']}</strong> files
+                    </div>
+                </a>
+                ''' for r in regions])}
+            </div>
+        </div>
+
         <div id="emptyState" class="empty-state" style="display: none;">
             <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
-            <p>No regions found.</p>
+            <p>No results found.</p>
         </div>
     </div>
 
     <script>
-        const regions = {json.dumps(regions, indent=8)};
+        const searchIndex = {json.dumps(global_search_index, indent=8)};
         
-        const fuse = new Fuse(regions, {{
-            keys: ['name'],
+        const fuse = new Fuse(searchIndex, {{
+            keys: [
+                {{ name: 'name', weight: 2 }},
+                {{ name: 'code', weight: 2 }},
+                {{ name: 'airport', weight: 1 }},
+                {{ name: 'region', weight: 1 }}
+            ],
             threshold: 0.3,
-            includeMatches: true
+            includeMatches: true,
+            limit: 50
         }});
         
-        function renderRegions(results = null) {{
-            const grid = document.getElementById('regionGrid');
-            const emptyState = document.getElementById('emptyState');
-            grid.innerHTML = '';
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const resultsList = document.getElementById('resultsList');
+        const defaultView = document.getElementById('defaultView');
+        const emptyState = document.getElementById('emptyState');
+
+        searchInput.addEventListener('input', (e) => {{
+            const query = e.target.value.trim();
             
-            const regionsToShow = results ? results.map(r => r.item) : regions;
+            if (query.length < 2) {{
+                searchResults.style.display = 'none';
+                defaultView.style.display = 'block';
+                emptyState.style.display = 'none';
+                return;
+            }}
+
+            const results = fuse.search(query);
+            defaultView.style.display = 'none';
             
-            if (regionsToShow.length === 0) {{
+            if (results.length === 0) {{
+                searchResults.style.display = 'none';
                 emptyState.style.display = 'block';
                 return;
             }}
-            
+
             emptyState.style.display = 'none';
-            
-            regionsToShow.forEach(r => {{
-                const card = document.createElement('a');
-                card.className = 'region-card';
-                card.href = r.slug + '.html';
-                card.innerHTML = `
-                    <span class="card-icon">${{r.icon}}</span>
-                    <div class="card-title">${{r.name}}</div>
-                    <div class="card-count">
-                        <strong>${{r.airportCount}}</strong> airports • 
-                        <strong>${{r.fileCount}}</strong> files
+            searchResults.style.display = 'block';
+            resultsList.innerHTML = '';
+
+            results.forEach(result => {{
+                const item = result.item;
+                const div = document.createElement('a');
+                div.className = 'search-result-item';
+                div.href = item.url;
+                if (item.type === 'chart') div.target = '_blank';
+
+                const meta = item.type === 'airport' 
+                    ? `${{item.region}}` 
+                    : `${{item.airport}} • ${{item.region}}`;
+
+                div.innerHTML = `
+                    <span class="result-icon">${{item.icon}}</span>
+                    <div class="result-info">
+                        <div class="result-name">${{item.name}}</div>
+                        <div class="result-meta">${{meta}}</div>
                     </div>
+                    <span class="result-type">${{item.type}}</span>
                 `;
-                grid.appendChild(card);
+                resultsList.appendChild(div);
             }});
-        }}
-        
-        document.getElementById('searchInput').addEventListener('input', (e) => {{
-            const query = e.target.value.trim();
-            renderRegions(query ? fuse.search(query) : null);
         }});
-        
-        renderRegions();
     </script>
 </body>
 </html>'''
+    
+    with open(f"{OUTPUT_DIR}/index.html", 'w', encoding='utf-8') as f:
+        f.write(html)
+    
+    print(f"✅ Generated: index.html ({len(regions)} regions, {len(global_search_index)} global items)")
+    return regions
     
     with open(f"{OUTPUT_DIR}/index.html", 'w', encoding='utf-8') as f:
         f.write(html)
