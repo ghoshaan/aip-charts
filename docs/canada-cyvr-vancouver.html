@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'canada-cyvr-vancouver',
             name: 'CYVR Vancouver',
@@ -391,376 +557,451 @@
 
         const files = [
         {
+                "id": "16hrNSLJqa7PfIYIPJt9pY4YwcEUCcY5Y",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/16hrNSLJqa7PfIYIPJt9pY4YwcEUCcY5Y/view?usp=drivesdk",
                 "type": "doc"
         },
         {
+                "id": "1TsjsTF2n2NZeFf-VrkhDjCGFu_M30d7y",
                 "name": "CYVR_STANLEY_5_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1TsjsTF2n2NZeFf-VrkhDjCGFu_M30d7y/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Ilb_wNXU1f4vHj-X_ThrY-soSZh2zEFX",
                 "name": "CYVR_STANLEY_5_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1Ilb_wNXU1f4vHj-X_ThrY-soSZh2zEFX/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1zjN-EC_YIfFc_ijUBeVAMNXcnwBFQMuj",
                 "name": "CYVR_GEORGIA_8_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1zjN-EC_YIfFc_ijUBeVAMNXcnwBFQMuj/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1-uSIqgz0I5fx6hjg6oywEeNOsAMkqy28",
                 "name": "CYVR_FRASER_9_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1-uSIqgz0I5fx6hjg6oywEeNOsAMkqy28/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "179LwziVmivTP5oRdYPSGU7Dgr044CynV",
                 "name": "CYVR_RICHMOND_8_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/179LwziVmivTP5oRdYPSGU7Dgr044CynV/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1fv88coLhk0En7ZPJsQuVKracD8GvbY9X",
                 "name": "CYVR_VANCOUVER_4_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1fv88coLhk0En7ZPJsQuVKracD8GvbY9X/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1EQItgiMCYQmT54QKjPMeNnOfi6aJUKkj",
                 "name": "CYVR_FRASER_9_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1EQItgiMCYQmT54QKjPMeNnOfi6aJUKkj/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1E1N89wQbRuMl80VlN3s82b8rySgf8lPp",
                 "name": "CYVR_VANCOUVER_4_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1E1N89wQbRuMl80VlN3s82b8rySgf8lPp/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1BzflPRkHL_kpwrZmkZmFEUPYbJN02gU0",
                 "name": "CYVR_GEORGIA_8_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1BzflPRkHL_kpwrZmkZmFEUPYbJN02gU0/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "18_bCSCspXByFrZzRhpupi-6JiXt22Fo1",
                 "name": "CYVR_TAXI_CHART_PG_05.pdf",
                 "url": "https://drive.google.com/file/d/18_bCSCspXByFrZzRhpupi-6JiXt22Fo1/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ZSxK0Ue-TPyeYh_Xl2nqjzN4q3mCXDWT",
                 "name": "CYVR_TAXI_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1ZSxK0Ue-TPyeYh_Xl2nqjzN4q3mCXDWT/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1tuqjtHbZ0HCHNKUoNR_c7ii2q-bUuilt",
                 "name": "CYVR_RICHMOND_8_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1tuqjtHbZ0HCHNKUoNR_c7ii2q-bUuilt/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1yUET5K0cDJZDTLOYY_rkcgfChnjA7UcK",
                 "name": "CYVR_DE-ICING_GENERAL_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1yUET5K0cDJZDTLOYY_rkcgfChnjA7UcK/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "14YToNwqR8uIeNf-6GzXuFCj3w-3CMxFR",
                 "name": "CYVR_SOUTH_DE-ICING_FACILITY_GRE.pdf",
                 "url": "https://drive.google.com/file/d/14YToNwqR8uIeNf-6GzXuFCj3w-3CMxFR/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1liJdyHHfHm4sWzseKQcS6HYkqj52AMsj",
                 "name": "CYVR_LOW_VISIBILITY_TAXI_CHART_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1liJdyHHfHm4sWzseKQcS6HYkqj52AMsj/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1MFCAF95AMkRxHPpidgzR94rIoAJWADFk",
                 "name": "CYVR_PARKING_AREAS_COMMON_USE_CARGO.pdf",
                 "url": "https://drive.google.com/file/d/1MFCAF95AMkRxHPpidgzR94rIoAJWADFk/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1cGzHpRq0i2tl50PL3Fo2kAVl75KE-JeL",
                 "name": "CYVR_TAXI_CHART_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1cGzHpRq0i2tl50PL3Fo2kAVl75KE-JeL/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Zk6VMJaB2b8QVpaMjzHxsT3Q5siVSfmR",
                 "name": "CYVR_PARKING_AREAS_SOUTH_TERMINAL.pdf",
                 "url": "https://drive.google.com/file/d/1Zk6VMJaB2b8QVpaMjzHxsT3Q5siVSfmR/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "16mb6-dq8jj_Rn3Jar7o_5m_tsJvFrpvr",
                 "name": "CYVR_DE-ICING_GENERAL.pdf",
                 "url": "https://drive.google.com/file/d/16mb6-dq8jj_Rn3Jar7o_5m_tsJvFrpvr/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "13vLkMsNUBTI8DKrwxgW5kHllvxvsgZOX",
                 "name": "CYVR_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/13vLkMsNUBTI8DKrwxgW5kHllvxvsgZOX/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1h_xLpagw31rL8p1g6H8z1HGVtBQnVr6A",
                 "name": "CYVR_LOW_VISIBILITY_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1h_xLpagw31rL8p1g6H8z1HGVtBQnVr6A/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1WCk3O2sg0GreZzuVUqTVtQgwpjPTPqbN",
                 "name": "CYVR_START_BOXES.pdf",
                 "url": "https://drive.google.com/file/d/1WCk3O2sg0GreZzuVUqTVtQgwpjPTPqbN/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "13AupHOD9sbOQKpNr0F5DJhkITeuitSox",
                 "name": "CYVR_TAXI_CHART_PG_04.pdf",
                 "url": "https://drive.google.com/file/d/13AupHOD9sbOQKpNr0F5DJhkITeuitSox/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "17A8EIdMFTuNTYXKIsDQCKMWaxfiRmSCP",
                 "name": "CYVR_CODED_TAXI_ROUTES.pdf",
                 "url": "https://drive.google.com/file/d/17A8EIdMFTuNTYXKIsDQCKMWaxfiRmSCP/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1BcXdfNXPS2Qk1CyY2qj4v7g7QrJtBNkc",
                 "name": "CYVR_LOW_VISIBILITY_TAXI_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1BcXdfNXPS2Qk1CyY2qj4v7g7QrJtBNkc/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1UPsT2nnv9FoWP6Zo5Pw-pyADtKmrKqWR",
                 "name": "CYVR_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1UPsT2nnv9FoWP6Zo5Pw-pyADtKmrKqWR/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1oKAooFffQRa2JamXXScHcriN5wqShUPc",
                 "name": "CYVR_TAXI_CHART_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1oKAooFffQRa2JamXXScHcriN5wqShUPc/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1kXfC5tS9GyVEh9UE8TZefcs9_T3b1Yvz",
                 "name": "CYVR_PARKING_AREAS.pdf",
                 "url": "https://drive.google.com/file/d/1kXfC5tS9GyVEh9UE8TZefcs9_T3b1Yvz/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1IHQvZbNWITudK9kdfc4fs9y5yqQK-KhP",
                 "name": "CYVR_RNAV_RNP_Y_RWY_26L.pdf",
                 "url": "https://drive.google.com/file/d/1IHQvZbNWITudK9kdfc4fs9y5yqQK-KhP/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1D5ntogj6jHyM7x6LP42dkMTWQ1FGivHn",
                 "name": "CYVR_CENTRAL_DE-ICING_FACILITY.pdf",
                 "url": "https://drive.google.com/file/d/1D5ntogj6jHyM7x6LP42dkMTWQ1FGivHn/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1-9rN37qExweQpWUjLlHErt-svRBt9RoL",
                 "name": "CYVR_ATTENTION_ALL_USERS_EOR.pdf",
                 "url": "https://drive.google.com/file/d/1-9rN37qExweQpWUjLlHErt-svRBt9RoL/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1arP-7SIuVb65beij8cCUDx8BHKWjRH7r",
                 "name": "CYVR_RNAV_GNSS_Z_RWY_08R.pdf",
                 "url": "https://drive.google.com/file/d/1arP-7SIuVb65beij8cCUDx8BHKWjRH7r/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1LyXS6aovmxpYmenHzSyMCMxHL2QqUb8z",
                 "name": "CYVR_RNAV_RNP_Y_RWY_08L.pdf",
                 "url": "https://drive.google.com/file/d/1LyXS6aovmxpYmenHzSyMCMxHL2QqUb8z/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1HWb6cNn9MmOM1TXQa-3RRsh-6wfGWPOt",
                 "name": "CYVR_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1HWb6cNn9MmOM1TXQa-3RRsh-6wfGWPOt/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Q7SeUYS0Cz6DYy1ksL-IlWviPaCQ_Gxn",
                 "name": "CYVR_RNAV_GNSS_RWY_13.pdf",
                 "url": "https://drive.google.com/file/d/1Q7SeUYS0Cz6DYy1ksL-IlWviPaCQ_Gxn/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Ci9jDixJ2u4NU1CTppRxqtyCJBWj-cVa",
                 "name": "CYVR_RNAV_RNP_X_RWY_26L.pdf",
                 "url": "https://drive.google.com/file/d/1Ci9jDixJ2u4NU1CTppRxqtyCJBWj-cVa/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1k4PuuR4kAZs088EMQDp7uJVDcJe40xNX",
                 "name": "CYVR_RNAV_GNSS_Z_RWY_26L.pdf",
                 "url": "https://drive.google.com/file/d/1k4PuuR4kAZs088EMQDp7uJVDcJe40xNX/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1GEvL4-Rx37BlduSMzOoX1wGOQrEJzBPU",
                 "name": "CYVR_RNAV_GNSS_Z_RWY_26R.pdf",
                 "url": "https://drive.google.com/file/d/1GEvL4-Rx37BlduSMzOoX1wGOQrEJzBPU/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1QLymL3Mlp_3XuWR_AmZ216V9kyzwnBKq",
                 "name": "CYVR_RNAV_GNSS_Z_RWY_08L.pdf",
                 "url": "https://drive.google.com/file/d/1QLymL3Mlp_3XuWR_AmZ216V9kyzwnBKq/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1G-9dBvivV9DaiZTGTljCZAuF52vhB9Ed",
                 "name": "CYVR_RNAV_RNP_X_RWY_08R.pdf",
                 "url": "https://drive.google.com/file/d/1G-9dBvivV9DaiZTGTljCZAuF52vhB9Ed/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Eg0h1ZJZ8uuzIkbr4-temy2-Qx5zLXhl",
                 "name": "CYVR_RNAV_RNP_Y_RWY_26R.pdf",
                 "url": "https://drive.google.com/file/d/1Eg0h1ZJZ8uuzIkbr4-temy2-Qx5zLXhl/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1UD_zJt9sM6lmWIkCFyVlGIvlWDCdshwi",
                 "name": "CYVR_RNAV_RNP_X_RWY_26R.pdf",
                 "url": "https://drive.google.com/file/d/1UD_zJt9sM6lmWIkCFyVlGIvlWDCdshwi/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1CkwIo4q0nGPGiq3v0_P0c_Ey6sqHot9Y",
                 "name": "CYVR_RNAV_RNP_Y_RWY_08R.pdf",
                 "url": "https://drive.google.com/file/d/1CkwIo4q0nGPGiq3v0_P0c_Ey6sqHot9Y/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1CjHmgqTJiVlTKdoKpsgthYfTzMzYx_HE",
                 "name": "CYVR_ILS_RWY_08R.pdf",
                 "url": "https://drive.google.com/file/d/1CjHmgqTJiVlTKdoKpsgthYfTzMzYx_HE/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Tv-07vnAnGZy45YIkCO-vQSTmmR3UUKR",
                 "name": "CYVR_ILS_CAT_II_OR_III_RWY_08R.pdf",
                 "url": "https://drive.google.com/file/d/1Tv-07vnAnGZy45YIkCO-vQSTmmR3UUKR/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "12no8uLzkUy81eg6UBHJR1Ep3iywTl0Gy",
                 "name": "CYVR_ILS_Y_CAT_II_OR_III_RWY_26L.pdf",
                 "url": "https://drive.google.com/file/d/12no8uLzkUy81eg6UBHJR1Ep3iywTl0Gy/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1fpQOlTlUSAab5MxL6_TgfMxK-ii8HGso",
                 "name": "CYVR_ILS_Z_RWY_26L.pdf",
                 "url": "https://drive.google.com/file/d/1fpQOlTlUSAab5MxL6_TgfMxK-ii8HGso/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "10nn3W2vhjruezsrFI6iocOZhgYK0u8H2",
                 "name": "CYVR_ILS_Z_RWY_08L.pdf",
                 "url": "https://drive.google.com/file/d/10nn3W2vhjruezsrFI6iocOZhgYK0u8H2/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1VZi0ynYF7ZvlzMIOQP54Yi7mFKvSpWjf",
                 "name": "CYVR_ILS_Z_RWY_26R.pdf",
                 "url": "https://drive.google.com/file/d/1VZi0ynYF7ZvlzMIOQP54Yi7mFKvSpWjf/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1gf7rsH4Yg3W0oL6Pux0AwkJljgmaQZqV",
                 "name": "CYVR_ILS_RWY_13.pdf",
                 "url": "https://drive.google.com/file/d/1gf7rsH4Yg3W0oL6Pux0AwkJljgmaQZqV/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1QmzzFC1z9EbHUAXCp-1CPKTAUOKFoT8d",
                 "name": "CYVR_WHISTLER_8_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1QmzzFC1z9EbHUAXCp-1CPKTAUOKFoT8d/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1cKZAbloEheE3Corptgzo6GoO_yCy92Yt",
                 "name": "CYVR_SOUND_6_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1cKZAbloEheE3Corptgzo6GoO_yCy92Yt/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1U9s2kl0ycmBObaMubpsNCy9MCh2WBURb",
                 "name": "CYVR_ILS_Y_CAT_II_OR_III_RWY_26R.pdf",
                 "url": "https://drive.google.com/file/d/1U9s2kl0ycmBObaMubpsNCy9MCh2WBURb/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1tfsX6zkXJn9LyXVxN5jr1-7zXWHnEEui",
                 "name": "CYVR_RNAV_GNSS_RWY_31.pdf",
                 "url": "https://drive.google.com/file/d/1tfsX6zkXJn9LyXVxN5jr1-7zXWHnEEui/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1rZlLo6vmAFf87VWwwq3GxDY2O2nep-BX",
                 "name": "CYVR_WHISTLER_8_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1rZlLo6vmAFf87VWwwq3GxDY2O2nep-BX/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1m92JFPy9NL8HnbRWLUXY-jLVxliwjRX8",
                 "name": "CYVR_ILS_Y_CAT_II_OR_III_RWY_08L.pdf",
                 "url": "https://drive.google.com/file/d/1m92JFPy9NL8HnbRWLUXY-jLVxliwjRX8/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ejgZIcJVP8LkgAyfxMT6Llt3S2EmuQgL",
                 "name": "CYVR_WHISTLER_8_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1ejgZIcJVP8LkgAyfxMT6Llt3S2EmuQgL/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1j5INdAFjZl-jXcIWuZMN7VgIb0cIah7d",
                 "name": "CYVR_SOUND_6_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1j5INdAFjZl-jXcIWuZMN7VgIb0cIah7d/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1TFp_inurdQ_rFCBvYtbzu3qAXyw1gmSY",
                 "name": "CYVR_GRIZZ_9_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1TFp_inurdQ_rFCBvYtbzu3qAXyw1gmSY/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1fO9B5TW5bjtIsW4c3QuxY-Gg0Ni2aIml",
                 "name": "CYVR_DUXUM_6_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1fO9B5TW5bjtIsW4c3QuxY-Gg0Ni2aIml/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "12Cn3OKGfHxg8c2wZSLSvX_pTnWalPhRw",
                 "name": "CYVR_SHARK_4_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/12Cn3OKGfHxg8c2wZSLSvX_pTnWalPhRw/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1mXHfVcsRzIHFDVJiJPKXOqTJ5-R683jw",
                 "name": "CYVR_GRIZZ_9_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1mXHfVcsRzIHFDVJiJPKXOqTJ5-R683jw/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "14p0gEW2aZRsjZwTvFmXCK8mBUFsmma0z",
                 "name": "CYVR_LIONN_4_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/14p0gEW2aZRsjZwTvFmXCK8mBUFsmma0z/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1m207bMN70YL7FCbBI5oQoWsv3OPHXXsx",
                 "name": "CYVR_SHARK_4_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1m207bMN70YL7FCbBI5oQoWsv3OPHXXsx/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Rp5TjFrXwch6h5pIpNK2nIPJZFIQWX0N",
                 "name": "CYVR_GRIZZ_9_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1Rp5TjFrXwch6h5pIpNK2nIPJZFIQWX0N/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1PyJviPR_gvdiW2paK2DAb5ZHXvjMJMDs",
                 "name": "CYVR_LIONN_4_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1PyJviPR_gvdiW2paK2DAb5ZHXvjMJMDs/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1cNaLfbO1bYF1svPRTXCcIf1hTRys4bJF",
                 "name": "CYVR_ISLAND_9_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1cNaLfbO1bYF1svPRTXCcIf1hTRys4bJF/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1BWYtyo_fXfE2EIHV5AgpEAz7qP5GoAoI",
                 "name": "CYVR_CYPRESS_2_ARR_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1BWYtyo_fXfE2EIHV5AgpEAz7qP5GoAoI/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1d-5TuNPOpW_2z6Db2C2eTXcLp6cXpKzl",
                 "name": "CYVR_CYPRESS_2_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1d-5TuNPOpW_2z6Db2C2eTXcLp6cXpKzl/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Eb_0iA7XijEQo_WXrkLE8Ogn2NPH1Lm6",
                 "name": "CYVR_SHARK_4_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1Eb_0iA7XijEQo_WXrkLE8Ogn2NPH1Lm6/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1xHYrDOFw1Bryw35503ODVuuGXAtIRLus",
                 "name": "CYVR_VITEV_5_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1xHYrDOFw1Bryw35503ODVuuGXAtIRLus/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1zFTJPC1znNZy_a85sVvuppGK1DqbxeYB",
                 "name": "CYVR_CYPRESS_2_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1zFTJPC1znNZy_a85sVvuppGK1DqbxeYB/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1miwxwTQeCnriTCObNUIDZrvYpzQccVRb",
                 "name": "CYVR_CANUCK_6_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1miwxwTQeCnriTCObNUIDZrvYpzQccVRb/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1_SgHeMEfn8qhdffV1WyffFi19H5YPXUX",
                 "name": "CYVR_CANUCK_6_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1_SgHeMEfn8qhdffV1WyffFi19H5YPXUX/view?usp=drivesdk",
                 "type": "pdf"

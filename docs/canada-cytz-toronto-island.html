@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'canada-cytz-toronto-island',
             name: 'CYTZ Toronto Island',
@@ -391,176 +557,211 @@
 
         const files = [
         {
+                "id": "1GC3P8a-NZ6hZbTTPOmGDIC4-e7_CeY_M",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/1GC3P8a-NZ6hZbTTPOmGDIC4-e7_CeY_M/view?usp=drivesdk",
                 "type": "doc"
         },
         {
+                "id": "1Eth0G_gN-iZVhMiUqlLMBqzgi3uyTnll",
                 "name": "CYTZ_OAKVL_3_DEP_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1Eth0G_gN-iZVhMiUqlLMBqzgi3uyTnll/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1U9SONGaARPd7HjF8ubpuE7kATA2O46-I",
                 "name": "CYTZ_ISLND_1_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1U9SONGaARPd7HjF8ubpuE7kATA2O46-I/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1_9NNEXSpg8w3Q86rgFjGebZXtwOtIrQ6",
                 "name": "CYTZ_OAKVL_3_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1_9NNEXSpg8w3Q86rgFjGebZXtwOtIrQ6/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1zfOVvu-vYlkKZ9B4ichbFQnXzjkUOeE5",
                 "name": "CYTZ_PERLO_4_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1zfOVvu-vYlkKZ9B4ichbFQnXzjkUOeE5/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "18JReNxjeM_eaT_TpodNZ-b4ZPECJZ69c",
                 "name": "CYTZ_TEVAD_2_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/18JReNxjeM_eaT_TpodNZ-b4ZPECJZ69c/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "100UjaAOuecLuwGhXPNUWVzfvcgIZs6A3",
                 "name": "CYTZ_PERLO_4_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/100UjaAOuecLuwGhXPNUWVzfvcgIZs6A3/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Urzc-8ZbY6dVA7R41hb-0VB40Ir_uv3i",
                 "name": "CYTZ_PERLO_4_DEP_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1Urzc-8ZbY6dVA7R41hb-0VB40Ir_uv3i/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Ud1-Wys_qf1eU8XZpO95RBcGlGGCm2Gh",
                 "name": "CYTZ_MAVAN_2_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1Ud1-Wys_qf1eU8XZpO95RBcGlGGCm2Gh/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1jNT3KUhZcobtBoOvBY2ejLZCiWsF7rOI",
                 "name": "CYTZ_OAKVL_3_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1jNT3KUhZcobtBoOvBY2ejLZCiWsF7rOI/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1tB6bStmiOX5Ut639lylItNmWOFl84WC2",
                 "name": "CYTZ_TEVAD_2_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1tB6bStmiOX5Ut639lylItNmWOFl84WC2/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1XklTb7N9gH-69fpdzYAbr_93FRWx-0mo",
                 "name": "CYTZ_BOMET_7_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1XklTb7N9gH-69fpdzYAbr_93FRWx-0mo/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1uUMwj3QJYSks-RhClzKoZwUuVz7s6cMq",
                 "name": "CYTZ_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1uUMwj3QJYSks-RhClzKoZwUuVz7s6cMq/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1OevAh8LPr3rXYAengCS1TVyqqbY5I6wb",
                 "name": "CYTZ_DUSOM_2_DEP_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1OevAh8LPr3rXYAengCS1TVyqqbY5I6wb/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1FzWeod_-SyB-PhVVS4e_ndFzG-m_Djed",
                 "name": "CYTZ_DUSOM_2_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1FzWeod_-SyB-PhVVS4e_ndFzG-m_Djed/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1jFK5sWe81pU9CnGEwK9VInbOKRB3kNpK",
                 "name": "CYTZ_BOMET_7_DEP_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1jFK5sWe81pU9CnGEwK9VInbOKRB3kNpK/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "10R7ag_pSZ932gdqtust7U1UjzDjt5WKQ",
                 "name": "CYTZ_RNAV_GNSS_Z_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/10R7ag_pSZ932gdqtust7U1UjzDjt5WKQ/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1cCXzTXYDIs1S6AVVDTMleACFOgFjv89_",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_26_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1cCXzTXYDIs1S6AVVDTMleACFOgFjv89_/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1PPwVm5mzf-JbSsnYm8WNS8_3FHiLndz1",
                 "name": "CYTZ_LOC_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/1PPwVm5mzf-JbSsnYm8WNS8_3FHiLndz1/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1uPKRBu6txeJNBvxn1opNpAigPD_WgsX4",
                 "name": "CYTZ_DUSOM_2_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1uPKRBu6txeJNBvxn1opNpAigPD_WgsX4/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1F9i5ztIHdHpKPNFZmbomQJDjjCV6evBK",
                 "name": "CYTZ_ISLND_1_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1F9i5ztIHdHpKPNFZmbomQJDjjCV6evBK/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1n5jR6MQbAAPqeWd3wuZHbP98hppt4R85",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_08_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1n5jR6MQbAAPqeWd3wuZHbP98hppt4R85/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1dCiEgUBvZ8Si2WNC2tTPfSQtNYbwCvJg",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_26.pdf",
                 "url": "https://drive.google.com/file/d/1dCiEgUBvZ8Si2WNC2tTPfSQtNYbwCvJg/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1wZuV0-P-SfdY8nlHHpBS3M_v8a6kVE76",
                 "name": "CYTZ_TAKEOFF_MINIMUMS.pdf",
                 "url": "https://drive.google.com/file/d/1wZuV0-P-SfdY8nlHHpBS3M_v8a6kVE76/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1u0hWcNyf8VLIkQ4q852-KGLEbyQlZAjZ",
                 "name": "CYTZ_BOMET_7_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1u0hWcNyf8VLIkQ4q852-KGLEbyQlZAjZ/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1D5TRbnYEbX1JZ3P7Tletsdl2lLes1xAl",
                 "name": "CYTZ_RNAV_RNP_Y_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/1D5TRbnYEbX1JZ3P7Tletsdl2lLes1xAl/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1HvTocZ8uHG1QMo7W0JCZPLYRtg8uc1ub",
                 "name": "CYTZ_MAVAN_2_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1HvTocZ8uHG1QMo7W0JCZPLYRtg8uc1ub/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1CAlvK7cUcmMLw1V7_2GCJJxiUwhOps-I",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/1CAlvK7cUcmMLw1V7_2GCJJxiUwhOps-I/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1KxaIuGZnH3_CYvRPtF7pt2fo5w0kiK7L",
                 "name": "CYTZ_LOC_RWY_26.pdf",
                 "url": "https://drive.google.com/file/d/1KxaIuGZnH3_CYvRPtF7pt2fo5w0kiK7L/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1nflzHoVg8tcH6Hg7f0R9c89lozvN7hdq",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_W_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/1nflzHoVg8tcH6Hg7f0R9c89lozvN7hdq/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "15BvTRqUpYzuvUc6_BQDm3LTYanK-t1xk",
                 "name": "CYTZ_ILS_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/15BvTRqUpYzuvUc6_BQDm3LTYanK-t1xk/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1jWmefPcayb0lz7XDzVrW6qT-q-j2I5Aa",
                 "name": "CYTZ_ILIXU_1_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1jWmefPcayb0lz7XDzVrW6qT-q-j2I5Aa/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1-yICL4xT0IKIm_oa41wZ0lI8ILXu2YNa",
                 "name": "CYTZ_KAXOL_2_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1-yICL4xT0IKIm_oa41wZ0lI8ILXu2YNa/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1IcAbQyor1AbLhFDpyYtmKcs26UzUP4iP",
                 "name": "CYTZ_ILIXU_1_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1IcAbQyor1AbLhFDpyYtmKcs26UzUP4iP/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1odU69gLG2N-riNGJUT3lPm2X8xsilE-w",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_W_RWY_08_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1odU69gLG2N-riNGJUT3lPm2X8xsilE-w/view?usp=drivesdk",
                 "type": "pdf"

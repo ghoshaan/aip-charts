@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'canada-cykf-kitchener-waterloo',
             name: 'CYKF Kitchener Waterloo',
@@ -391,61 +557,73 @@
 
         const files = [
         {
+                "id": "1K8M9pSJlD02nYGgq1xUpbAG32PUfytTN",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/1K8M9pSJlD02nYGgq1xUpbAG32PUfytTN/view?usp=drivesdk",
                 "type": "doc"
         },
         {
+                "id": "1VbAeNGjTiqCHo4FBs9OiTp70qIyfiMEz",
                 "name": "CYKF_ILS_RWY_26.pdf",
                 "url": "https://drive.google.com/file/d/1VbAeNGjTiqCHo4FBs9OiTp70qIyfiMEz/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1_x7cknM8S46czbh9tVhd1WfHSc9UZ2dE",
                 "name": "CYKF_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1_x7cknM8S46czbh9tVhd1WfHSc9UZ2dE/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1zSiIjOPxrq2gg09kkVkI46ZlNeEpwPRS",
                 "name": "CYKF_WATERLOO_3_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1zSiIjOPxrq2gg09kkVkI46ZlNeEpwPRS/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1hNCtJuZ-IvlcKdL_IpRfqhQWIyJsGSz4",
                 "name": "CYKF_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1hNCtJuZ-IvlcKdL_IpRfqhQWIyJsGSz4/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1xpI89nAEAKxMbGPs87DJEw8Y-KtgB3hM",
                 "name": "CYKF_RNAV_GNSS_RWY_14.pdf",
                 "url": "https://drive.google.com/file/d/1xpI89nAEAKxMbGPs87DJEw8Y-KtgB3hM/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1hJaYE9RmFtM-ecgLs2MGNhlsz_rRQlLQ",
                 "name": "CYKF_RNAV_RNP_Y_RWY_26.pdf",
                 "url": "https://drive.google.com/file/d/1hJaYE9RmFtM-ecgLs2MGNhlsz_rRQlLQ/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1KmlGvcRCxjO7RctX--DUY1hRr7HQWtSH",
                 "name": "CYKF_RNAV_GNSS_Z_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/1KmlGvcRCxjO7RctX--DUY1hRr7HQWtSH/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1b0Od4eiWIXiDBfqwFG4D2X_Wy3eV2snw",
                 "name": "CYKF_RNAV_GNSS_Z_RWY_26.pdf",
                 "url": "https://drive.google.com/file/d/1b0Od4eiWIXiDBfqwFG4D2X_Wy3eV2snw/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "17ca_pO8ICBnEJjUUKLt6owjzmYzdjwfn",
                 "name": "CYKF_RNAV_GNSS_RWY_32.pdf",
                 "url": "https://drive.google.com/file/d/17ca_pO8ICBnEJjUUKLt6owjzmYzdjwfn/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "18yvCq7MhZlI0FYSy4d6-DFnoxRgA1PJ6",
                 "name": "CYKF_WATERLOO_3_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/18yvCq7MhZlI0FYSy4d6-DFnoxRgA1PJ6/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1yK82hhN5-7443xWNGEqdcMDGi1CKd4qW",
                 "name": "CYKF_RNAV_RNP_Y_RWY_08.pdf",
                 "url": "https://drive.google.com/file/d/1yK82hhN5-7443xWNGEqdcMDGi1CKd4qW/view?usp=drivesdk",
                 "type": "pdf"

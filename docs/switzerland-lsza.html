@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'switzerland-lsza',
             name: 'LSZA - Lugano',
@@ -391,61 +557,73 @@
 
         const files = [
         {
+                "id": "13U2LPhXQf8Wejg_j6y5Mk7iDh-uiv-6Z",
                 "name": "STAR_ICAO_RWY_0119_-_LUSIL_7L_LUSIL_7P_ODINA_7L_ORI_7L_ORI_7P_SRN_6L_TOP_6L_VOG_6L.pdf",
                 "url": "https://drive.google.com/file/d/13U2LPhXQf8Wejg_j6y5Mk7iDh-uiv-6Z/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1UMA6Uvd5FIkDWFje4B35V8huJmQeyXMB",
                 "name": "SID_ICAO_HIGH_PERFORMANCE_RWY_19_-_CANNE_2U_CANNE_1Z_OMETO_1F_ORI_1U_ORI_1W_PINIK_1A_SRN_1W_VOG_1W.pdf",
                 "url": "https://drive.google.com/file/d/1UMA6Uvd5FIkDWFje4B35V8huJmQeyXMB/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1tbpuJjkyBCY_Dz7dkbfNw_OgZpNYHuAj",
                 "name": "SID_ICAO_RWY_01_-_CANNE_2U_CANNE_1Z_OMETO_1F_ORI_1U_ORI_1W_PINIK_1A_SRN_1W_VOG_1W.pdf",
                 "url": "https://drive.google.com/file/d/1tbpuJjkyBCY_Dz7dkbfNw_OgZpNYHuAj/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1VhmebVzNyBipdBz_zul2nqo6xdmhZVHx",
                 "name": "SID_ICAO_RNAV_RWY_0119_-_CANNE_1E_OMETO_1E.pdf",
                 "url": "https://drive.google.com/file/d/1VhmebVzNyBipdBz_zul2nqo6xdmhZVHx/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1xr7YwrDfkixzETDVJ6peeyWo0Ay-NW8t",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_19.pdf",
                 "url": "https://drive.google.com/file/d/1xr7YwrDfkixzETDVJ6peeyWo0Ay-NW8t/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "19DK2MrjvlVyHcjbcEtK2J5cV__ktXQJN",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_01.pdf",
                 "url": "https://drive.google.com/file/d/19DK2MrjvlVyHcjbcEtK2J5cV__ktXQJN/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1uvPrXpW92XnNs76UwIhiyrERmgpzz4eq",
                 "name": "AIRCRAFT_PARKING_DOCKING_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1uvPrXpW92XnNs76UwIhiyrERmgpzz4eq/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1WHjT3zmkq1WMOsISbMNozYXDYVC-q4vY",
                 "name": "AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1WHjT3zmkq1WMOsISbMNozYXDYVC-q4vY/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1I0D-fP8-B3Ee8ivi5P8J8ibycDcddPGu",
                 "name": "VISUAL_APPROACH_PROCEDURE_CHARLIE_CIRCLING_RWY_19.pdf",
                 "url": "https://drive.google.com/file/d/1I0D-fP8-B3Ee8ivi5P8J8ibycDcddPGu/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1EBJsKZ-UWH-aX7TnRoL64ZuR2s3U67Aj",
                 "name": "VISUAL_APPROACH_PROCEDURE_FOXTROTT_CIRCLING_RWY_19.pdf",
                 "url": "https://drive.google.com/file/d/1EBJsKZ-UWH-aX7TnRoL64ZuR2s3U67Aj/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1E069QpvRHL5cvdTyNX7bl9sEdxflgE-D",
                 "name": "IAC_ICAO_LOC_RWY_01_CIRCLING_RWY_19.pdf",
                 "url": "https://drive.google.com/file/d/1E069QpvRHL5cvdTyNX7bl9sEdxflgE-D/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1gVckGMheHLaqyrEW3JHAyhX2qWa-Opib",
                 "name": "IAC_IGS_RWY_01.pdf",
                 "url": "https://drive.google.com/file/d/1gVckGMheHLaqyrEW3JHAyhX2qWa-Opib/view?usp=drivesdk",
                 "type": "pdf"

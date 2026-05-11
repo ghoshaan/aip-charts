@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'ireland-eiwf',
             name: 'EIWF - Waterford',
@@ -391,41 +557,49 @@
 
         const files = [
         {
+                "id": "1jbxFZg3ZwSVLIDcuiVySoB9c1g4CNGUy",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_20_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1jbxFZg3ZwSVLIDcuiVySoB9c1g4CNGUy/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1o8Ur_aF_24c3tCsVkm3QtDWPP59VhvQk",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_02_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1o8Ur_aF_24c3tCsVkm3QtDWPP59VhvQk/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1G2YJYHpTeh3ycetNedILagHhzNQbvRtl",
                 "name": "VISUAL_APPROACH_CHART-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1G2YJYHpTeh3ycetNedILagHhzNQbvRtl/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1V3pFNUXBJyrIhldAa3_RayM0OBxQTPl2",
                 "name": "INSTRUMENT_APPROACH_CHART_NDB_RWY_03_(ACFT_CAT_A,_B,C)_-ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1V3pFNUXBJyrIhldAa3_RayM0OBxQTPl2/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1kFeO4OUc03YWZkYYOR8d5Q1qnpEkSI3-",
                 "name": "INSTRUMENT_APPROACH_CHART_NDBDME_RWY_21_(ACFT_CAT_A,_B)_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1kFeO4OUc03YWZkYYOR8d5Q1qnpEkSI3-/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1pUwHM1aS5s-sitGCtulRWKv0RVgzT5SD",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_1_or_LOC_RWY_21_(ACFT_CAT_A,_B,C)_-ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1pUwHM1aS5s-sitGCtulRWKv0RVgzT5SD/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1-__zur5Xc6-GFBgGJUmEorkTsi3SUEPn",
                 "name": "AERODROME_OBSTACLE_CHART_RWY_0321-ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1-__zur5Xc6-GFBgGJUmEorkTsi3SUEPn/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1BDOV7T38iT2AEKC4XR80tTH4rnUyg9Eg",
                 "name": "AERODROME_CHART_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1BDOV7T38iT2AEKC4XR80tTH4rnUyg9Eg/view?usp=drivesdk",
                 "type": "pdf"

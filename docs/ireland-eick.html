@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'ireland-eick',
             name: 'EICK - Cork',
@@ -391,141 +557,169 @@
 
         const files = [
         {
+                "id": "138Aog7-LyUXrMCnkFgnaVjAtraT2HLFE",
                 "name": "RNAV_(GNSS)_STANDARD_DEPARTURE_CHART_RWY_34_CAT_C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/138Aog7-LyUXrMCnkFgnaVjAtraT2HLFE/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ItNgz8JOuTxSTbY4alZ2F4TTOWKMgYgz",
                 "name": "RNAV_(GNSS)_STANDARD_DEPARTURE_CHART_RWY_34_(ACFT_CAT_A,B)_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1ItNgz8JOuTxSTbY4alZ2F4TTOWKMgYgz/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1jbI4h847TyMHHokLKuzyzCPaoTJUcdOe",
                 "name": "RNAV_(GNSS)_STANDARD_DEPARTURE_CHART_RWY_16_CAT_C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1jbI4h847TyMHHokLKuzyzCPaoTJUcdOe/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1JC3bhyvKe2zxrEMAwNc3fNbDApZ8iVg9",
                 "name": "RNAV_(GNSS)_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_16_CAT_A,B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1JC3bhyvKe2zxrEMAwNc3fNbDApZ8iVg9/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1JJWeDBUgdJ6QFLHrFPWJyTI5Im1TpLt4",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_16_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1JJWeDBUgdJ6QFLHrFPWJyTI5Im1TpLt4/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1PrDQsFfOIOIjZ0t-fjF5cZda5Cj_NZi8",
                 "name": "AERODROME_OBSTACLE_CHART-_RWY_1634_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1PrDQsFfOIOIjZ0t-fjF5cZda5Cj_NZi8/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1o4Cgm1t2EQFc85VIKj1tenC8FEvaSZml",
                 "name": "AERODROME_OBSTACLE_CHART_RWY_07-25_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1o4Cgm1t2EQFc85VIKj1tenC8FEvaSZml/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1XYIa-oAFazAJTK37SmT5ZQRKcy1dnkLL",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1XYIa-oAFazAJTK37SmT5ZQRKcy1dnkLL/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Jdw0HPZRL5_GM6_tkbUgr9Zi0MBrnb4_",
                 "name": "VISUAL_APPROACH_CHART_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1Jdw0HPZRL5_GM6_tkbUgr9Zi0MBrnb4_/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "11SOq3eCqqD1UhQFgxYiPLCMnaolU8inA",
                 "name": "INSTRUMENT_APPROACH_CHART_VOR_RWY_25_CAT_A,B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/11SOq3eCqqD1UhQFgxYiPLCMnaolU8inA/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1pbJow5QD0lhrnNPMr8yQ8CvDbBtfwZdI",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_25_(LNAV_ONLY)_CAT_A,B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1pbJow5QD0lhrnNPMr8yQ8CvDbBtfwZdI/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1RF06aBcvDZkv6ADDQS4w8OXtqnOLwULq",
                 "name": "INSTRUMENT_APPROACH_CHART_VOR_RWY_07_CAT_A,B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1RF06aBcvDZkv6ADDQS4w8OXtqnOLwULq/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1MJPD6h2OxshUlqpXNUNBCzBNpeFzs0dV",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_07_CAT_A,B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1MJPD6h2OxshUlqpXNUNBCzBNpeFzs0dV/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1B5UA_EtCjtPqrxAQAjS5xIgqcI0Em3D_",
                 "name": "INSTRUMENT_APPROACH_CHART_VOR_RWY_34_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1B5UA_EtCjtPqrxAQAjS5xIgqcI0Em3D_/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "15VQER5PoWDQgvDqEs-S5uGa4z98W29Ue",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_I_OR_LOC_RWY_34_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/15VQER5PoWDQgvDqEs-S5uGa4z98W29Ue/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ik9qiL4wc8mQgPQZqt1sJslynnsBiXN3",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_34_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1ik9qiL4wc8mQgPQZqt1sJslynnsBiXN3/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1p3VPlnJaVp1lINm4k781Qg-ib_GT3amn",
                 "name": "INSTRUMENT_APPROACH_CHART_VOR_RWY_16_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1p3VPlnJaVp1lINm4k781Qg-ib_GT3amn/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1DMDhxXAmTU7PZ6qfJ4-6w2qOtoU9i1jH",
                 "name": "AERODROME_CHART_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1DMDhxXAmTU7PZ6qfJ4-6w2qOtoU9i1jH/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1cdMCf5mN0dHLvAcXpwRnV9Wu--U9gNHZ",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_I_&_II_OR_LOC_RWY_16_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1cdMCf5mN0dHLvAcXpwRnV9Wu--U9gNHZ/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1wBHK-pEOZWfksbjdRaVBOepiDjqrIN-a",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_16_CAT_A,B,C,D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1wBHK-pEOZWfksbjdRaVBOepiDjqrIN-a/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "19Sx_qCb6Hw7QgIPW9s6b8vILMt19Xh2J",
                 "name": "RNAV_(GNSS)_STANDARD_ARRIVAL_CHART_INSTRUMENT_(STAR)_RWY_25_CAT_A,_B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/19Sx_qCb6Hw7QgIPW9s6b8vILMt19Xh2J/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1l71e_ZbzNQcAPQp7uDo0xcwpsm651f6b",
                 "name": "RNAV_(GNSS)_STANDARD_ARRIVAL_CHART_INSTRUMENT_(STAR)_RWY_07_ACFT_CAT_A,B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1l71e_ZbzNQcAPQp7uDo0xcwpsm651f6b/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Rn3PT7dFH31sa5rOwwTQYmhdgGKb9Vos",
                 "name": "RNAV_(GNSS)_STANDARD_ARRIVAL_CHART_INSTRUMENT_(STAR)_RWY_34_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1Rn3PT7dFH31sa5rOwwTQYmhdgGKb9Vos/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1-tOjtFomvHrp1nxpdgyE9_ZlXab1vYAU",
                 "name": "RNAV_(GNSS)_STANDARD_ARRIVAL_CHART_INSTRUMENT_(STAR)_RWY_16_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1-tOjtFomvHrp1nxpdgyE9_ZlXab1vYAU/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1GOuw5USS7phaLvrucRL1BHU46s-gX_ij",
                 "name": "RNAV_(GNSS)_STANDARD_DEPARTURE_CHART_INSTRUMENT_(SID)_RWY_25_CAT_C,_D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1GOuw5USS7phaLvrucRL1BHU46s-gX_ij/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1mFx-J65-zuGj83skGnPcz9hXWPH8q6Kl",
                 "name": "RNAV_(GNSS)_STANDARD_DEPARTURE_CHART_INSTRUMENT(SID)_RWY_25_ACFT_CAT_A,_B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1mFx-J65-zuGj83skGnPcz9hXWPH8q6Kl/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1tEiu_sZ_BNYVhxQ9T24VT_oprTyzJN9b",
                 "name": "RNAV_(GNSS)_STANDARD_DEPARTURE_CHART_INSTRUMENT(SID)_RWY_07_ACFT_CAT_C,_D_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1tEiu_sZ_BNYVhxQ9T24VT_oprTyzJN9b/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1u7-Wss4myAnZp_29PU0fU3Ee3W3heIq_",
                 "name": "RNAV_(GNSS)_STANDARD_DEPARTURE_CHART_INSTRUMENT(SID)_RWY_07_ACFT_A,_B_-_ICAO.pdf",
                 "url": "https://drive.google.com/file/d/1u7-Wss4myAnZp_29PU0fU3Ee3W3heIq_/view?usp=drivesdk",
                 "type": "pdf"

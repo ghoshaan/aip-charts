@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'canada-cyqm-greater-moncton-romeo-leblanc',
             name: 'CYQM Greater Moncton Romeo LeBlanc',
@@ -391,81 +557,97 @@
 
         const files = [
         {
+                "id": "1BMKEtjmJQutt0dcfOk_9I-A-8e36jDvE",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/1BMKEtjmJQutt0dcfOk_9I-A-8e36jDvE/view?usp=drivesdk",
                 "type": "doc"
         },
         {
+                "id": "1aeky60CjOlZ4rn6ejGiA2epJgwH1ex02",
                 "name": "CYQM_RNAV_GNSS_Z_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1aeky60CjOlZ4rn6ejGiA2epJgwH1ex02/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1AxQJ4R4hSDySyCiw0KMKw-Rtum11Miez",
                 "name": "CYQM_MONCTON_5_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1AxQJ4R4hSDySyCiw0KMKw-Rtum11Miez/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1A6aFK03wLOF7DFMJnwj2y6Bjr2Eg4gzx",
                 "name": "CYQM_RNAV_GNSS_Z_RWY_24.pdf",
                 "url": "https://drive.google.com/file/d/1A6aFK03wLOF7DFMJnwj2y6Bjr2Eg4gzx/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1CeZVnttaRQJdpnVuUidC0U9RAJTErrMI",
                 "name": "CYQM_RNAV_GNSS_Z_RWY_29.pdf",
                 "url": "https://drive.google.com/file/d/1CeZVnttaRQJdpnVuUidC0U9RAJTErrMI/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1REFjbIU0UE5LJPtv2hsvFVPoUWITlUED",
                 "name": "CYQM_RNAV_RNP_Y_RWY_11.pdf",
                 "url": "https://drive.google.com/file/d/1REFjbIU0UE5LJPtv2hsvFVPoUWITlUED/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1iIa0oy1pWlqHzUsZ-d8Wtw2gelaZPIUT",
                 "name": "CYQM_RNAV_RNP_Y_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1iIa0oy1pWlqHzUsZ-d8Wtw2gelaZPIUT/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1G5Ins1FRPTZd4enVSh6rjvImdLxe8sDL",
                 "name": "CYQM_TAKEOFF_MINIMUMS.pdf",
                 "url": "https://drive.google.com/file/d/1G5Ins1FRPTZd4enVSh6rjvImdLxe8sDL/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1pL9udoUaoPmThMcxAJRgR-Iolx39zbj6",
                 "name": "CYQM_RNAV_RNP_Y_RWY_24.pdf",
                 "url": "https://drive.google.com/file/d/1pL9udoUaoPmThMcxAJRgR-Iolx39zbj6/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "10TRyCtJjQs9UhUq58TBozY_uTG1i2Qqx",
                 "name": "CYQM_RNAV_RNP_Y_RWY_29.pdf",
                 "url": "https://drive.google.com/file/d/10TRyCtJjQs9UhUq58TBozY_uTG1i2Qqx/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1d-8ZvwVSsKD8v6C7CIrxxz5bFna0tktQ",
                 "name": "CYQM_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1d-8ZvwVSsKD8v6C7CIrxxz5bFna0tktQ/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ttr6yKihhn6LNU3HZa-RRUNkNuDKyxv9",
                 "name": "CYQM_MONCTON_5_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1ttr6yKihhn6LNU3HZa-RRUNkNuDKyxv9/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1KIevUja4NfOgVy9LTj7s8smNINM_TxyR",
                 "name": "CYQM_PARKING_AREAS_APRON_VIII.pdf",
                 "url": "https://drive.google.com/file/d/1KIevUja4NfOgVy9LTj7s8smNINM_TxyR/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1sY1u50IR5cdJsEpmcHbUGCKkjUDUGTmh",
                 "name": "CYQM_ILS_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1sY1u50IR5cdJsEpmcHbUGCKkjUDUGTmh/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1uZ4FPAaE3QXYE-RtuP9GLtOu1DJ70z_P",
                 "name": "CYQM_RNAV_GNSS_Z_RWY_11.pdf",
                 "url": "https://drive.google.com/file/d/1uZ4FPAaE3QXYE-RtuP9GLtOu1DJ70z_P/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "13nNobTrlDgUomew8BOV3X0XktJf17h3H",
                 "name": "CYQM_ILS_RWY_29.pdf",
                 "url": "https://drive.google.com/file/d/13nNobTrlDgUomew8BOV3X0XktJf17h3H/view?usp=drivesdk",
                 "type": "pdf"

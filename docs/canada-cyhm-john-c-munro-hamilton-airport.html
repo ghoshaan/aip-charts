@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'canada-cyhm-john-c-munro-hamilton-airport',
             name: 'CYHM John C Munro Hamilton Airport',
@@ -391,126 +557,151 @@
 
         const files = [
         {
+                "id": "14DQO521Ri-nuzlktfdh54WATYzlRSl14",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/14DQO521Ri-nuzlktfdh54WATYzlRSl14/view?usp=drivesdk",
                 "type": "doc"
         },
         {
+                "id": "1RGtIil4SPqTDXG6tqeCrM4i7fc7e-QFW",
                 "name": "CYHM_RNAV_GNSS_Z_RWY_30.pdf",
                 "url": "https://drive.google.com/file/d/1RGtIil4SPqTDXG6tqeCrM4i7fc7e-QFW/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Ymcp0ex3p16XGIsyYWFVW_t5pIUq6BAp",
                 "name": "CYHM_RNAV_RNP_Y_RWY_12.pdf",
                 "url": "https://drive.google.com/file/d/1Ymcp0ex3p16XGIsyYWFVW_t5pIUq6BAp/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1_DfkoYpe2dT6o9Ke4MYEN6UtFCA-sUYh",
                 "name": "CYHM_MUNRO_2_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1_DfkoYpe2dT6o9Ke4MYEN6UtFCA-sUYh/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "13rismeb2fsG10wugo2XCa_6pDYzXE19r",
                 "name": "CYHM_RNAV_GNSS_Z_RWY_24.pdf",
                 "url": "https://drive.google.com/file/d/13rismeb2fsG10wugo2XCa_6pDYzXE19r/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "11a32GMwko1PKbvo-lOThzCTXhsYsIP1Z",
                 "name": "CYHM_LOW_VISIBILITY_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/11a32GMwko1PKbvo-lOThzCTXhsYsIP1Z/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "11bCG4k8yM3qcvWa1Ch49ocrGLWsmRV3C",
                 "name": "CYHM_PARKING_AREAS.pdf",
                 "url": "https://drive.google.com/file/d/11bCG4k8yM3qcvWa1Ch49ocrGLWsmRV3C/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1VpQPKa6qZeCM_XwIX73XwXKAFNV5HZdq",
                 "name": "CYHM_RNAV_RNP_Y_RWY_30.pdf",
                 "url": "https://drive.google.com/file/d/1VpQPKa6qZeCM_XwIX73XwXKAFNV5HZdq/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ZaY_YXxkJQoBqJ8qjH0vmoIy2RBonBr8",
                 "name": "CYHM_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1ZaY_YXxkJQoBqJ8qjH0vmoIy2RBonBr8/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "15SJtmIylZ2z1xaoll63xtGjq0kDqPoEP",
                 "name": "CYHM_HAMILTON_1_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/15SJtmIylZ2z1xaoll63xtGjq0kDqPoEP/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1LexpUnHgzmrlPU0Kh5slGmSuQ5w2KGpU",
                 "name": "CYHM_RNAV_GNSS_Z_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1LexpUnHgzmrlPU0Kh5slGmSuQ5w2KGpU/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1f_8JTtGZG2w_9M_yB3UMWc5i3zny09mF",
                 "name": "CYHM_HAMILTON_1_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1f_8JTtGZG2w_9M_yB3UMWc5i3zny09mF/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1oxlJbuFQtNWcObRTQGfMcft-GJVcjwZR",
                 "name": "CYHM_TAXI_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1oxlJbuFQtNWcObRTQGfMcft-GJVcjwZR/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1aZSF4gGnE9Aoy6mM5BEsuGoeIouZEaeG",
                 "name": "CYHM_PARKING_AREAS_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1aZSF4gGnE9Aoy6mM5BEsuGoeIouZEaeG/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1SKbg50foI2od1UswzLpdbI7x46h53sFx",
                 "name": "CYHM_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1SKbg50foI2od1UswzLpdbI7x46h53sFx/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Es8hqZepVirvl6y_AU5EYEnC-QTWZPiH",
                 "name": "CYHM_MUNRO_2_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1Es8hqZepVirvl6y_AU5EYEnC-QTWZPiH/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1pZv-cILYSh5_Osu29ysljRfS2Kjf7lV4",
                 "name": "CYHM_TICAT_1_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1pZv-cILYSh5_Osu29ysljRfS2Kjf7lV4/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1zjdMbEs-gp4Fu9O3IZRvcnRRYcj1efiV",
                 "name": "CYHM_AVSOX_3_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1zjdMbEs-gp4Fu9O3IZRvcnRRYcj1efiV/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1SH9wLI02m_7oB41cwjOvCPnsgFmfN5S8",
                 "name": "CYHM_RNAV_GNSS_Z_RWY_12.pdf",
                 "url": "https://drive.google.com/file/d/1SH9wLI02m_7oB41cwjOvCPnsgFmfN5S8/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1GZ0H0MsfuXPk48is8RI6UATMPDwTAxg3",
                 "name": "CYHM_LOC_RWY_30.pdf",
                 "url": "https://drive.google.com/file/d/1GZ0H0MsfuXPk48is8RI6UATMPDwTAxg3/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1VwwnaATV3qtLsdAcTzeoa13RMpfutv3c",
                 "name": "CYHM_ILS_CAT_II_RWY_12.pdf",
                 "url": "https://drive.google.com/file/d/1VwwnaATV3qtLsdAcTzeoa13RMpfutv3c/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1c733shx4YYcifiwDTygta4sosjymwcvY",
                 "name": "CYHM_COLTS_8_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1c733shx4YYcifiwDTygta4sosjymwcvY/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "19x-CD0mqJ_8tEvKx-DrAqswtm1sVi4Vw",
                 "name": "CYHM_TIKUM_3_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/19x-CD0mqJ_8tEvKx-DrAqswtm1sVi4Vw/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1XbNwntyDLarsr8n9zUJ1n03ZVu262PPP",
                 "name": "CYHM_ILS_RWY_12.pdf",
                 "url": "https://drive.google.com/file/d/1XbNwntyDLarsr8n9zUJ1n03ZVu262PPP/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "14NUMS-ua6hMOZi8vRhAhXKaQhsuGW0j4",
                 "name": "CYHM_TETOS_1_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/14NUMS-ua6hMOZi8vRhAhXKaQhsuGW0j4/view?usp=drivesdk",
                 "type": "pdf"

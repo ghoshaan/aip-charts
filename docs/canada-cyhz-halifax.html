@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'canada-cyhz-halifax',
             name: 'CYHZ Halifax',
@@ -391,156 +557,187 @@
 
         const files = [
         {
+                "id": "1KvM5KiwV78h4Gb_ZOLWCHLOHaBCYL5SJ",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/1KvM5KiwV78h4Gb_ZOLWCHLOHaBCYL5SJ/view?usp=drivesdk",
                 "type": "doc"
         },
         {
+                "id": "1I5v4kUkEn5QGDFATYC_pAsOq3nSX3373",
                 "name": "CYHZ_HALIFAX_4_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1I5v4kUkEn5QGDFATYC_pAsOq3nSX3373/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1gLvGO-JffUFH6dU5xaqoCc4A7a2YO11i",
                 "name": "CYHZ_HALIFAX_4_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1gLvGO-JffUFH6dU5xaqoCc4A7a2YO11i/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1jjiQaRZzzUlYzrpb6kW9PFnvWBdRmuht",
                 "name": "CYHZ_DE-ICING_OPERATIONS.pdf",
                 "url": "https://drive.google.com/file/d/1jjiQaRZzzUlYzrpb6kW9PFnvWBdRmuht/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1f4-G54jMYwpkkozDs-fKuCFSHZ6kKiJN",
                 "name": "CYHZ_PARKING_AREAS_APRON_III.pdf",
                 "url": "https://drive.google.com/file/d/1f4-G54jMYwpkkozDs-fKuCFSHZ6kKiJN/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1mv17jkvg_efQ7XoEqt3CuF7591ky8StX",
                 "name": "CYHZ_RNAV_RNP_Y_RWY_14.pdf",
                 "url": "https://drive.google.com/file/d/1mv17jkvg_efQ7XoEqt3CuF7591ky8StX/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1XbS-CzdhZt7fk72vziBjzk23WG2diPzh",
                 "name": "CYHZ_RNAV_RNP_Y_RWY_05.pdf",
                 "url": "https://drive.google.com/file/d/1XbS-CzdhZt7fk72vziBjzk23WG2diPzh/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1DV4Mbfo3WnNRRtdbUV2_tdpW-c27HCOy",
                 "name": "CYHZ_LOW_VISIBILITY_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1DV4Mbfo3WnNRRtdbUV2_tdpW-c27HCOy/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1azEFw4fLM-7G_AjA8462DUTM6X4dD9Js",
                 "name": "CYHZ_LOW_VISIBILITY_TAXI_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1azEFw4fLM-7G_AjA8462DUTM6X4dD9Js/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1h1oTvns-8YV3UBtncmaG8KlakLN_T1EA",
                 "name": "CYHZ_RNAV_GNSS_Z_RWY_23.pdf",
                 "url": "https://drive.google.com/file/d/1h1oTvns-8YV3UBtncmaG8KlakLN_T1EA/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1GowUxS6ol3NZBho9MJQcCbfh2bYEVMqT",
                 "name": "CYHZ_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1GowUxS6ol3NZBho9MJQcCbfh2bYEVMqT/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1jYDPmAIE62QkHNBLM5-tfFl7lH1HXB-W",
                 "name": "CYHZ_RNAV_GNSS_Z_RWY_32.pdf",
                 "url": "https://drive.google.com/file/d/1jYDPmAIE62QkHNBLM5-tfFl7lH1HXB-W/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "14R7aCzcR1xWgYR2l9gV0EdCQlDS6hIXH",
                 "name": "CYHZ_PARKING_AREAS_APRON_I.pdf",
                 "url": "https://drive.google.com/file/d/14R7aCzcR1xWgYR2l9gV0EdCQlDS6hIXH/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1jHC_4NB8LpKXPydYUNc_NSpICQf-sdw4",
                 "name": "CYHZ_RNAV_RNP_Y_RWY_32.pdf",
                 "url": "https://drive.google.com/file/d/1jHC_4NB8LpKXPydYUNc_NSpICQf-sdw4/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1EQTVdN1YEXYTD04oOCSR3RYfObZuJsUv",
                 "name": "CYHZ_PARKING_AREAS.pdf",
                 "url": "https://drive.google.com/file/d/1EQTVdN1YEXYTD04oOCSR3RYfObZuJsUv/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1KkJdtsNpjoAnEqg-0vrOTbeIgPQBkF7x",
                 "name": "CYHZ_RNAV_RNP_Y_RWY_23.pdf",
                 "url": "https://drive.google.com/file/d/1KkJdtsNpjoAnEqg-0vrOTbeIgPQBkF7x/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1cVT0CzZsXjjMAVD8lBoLWazXZMONa63E",
                 "name": "CYHZ_RNAV_GNSS_Z_RWY_14.pdf",
                 "url": "https://drive.google.com/file/d/1cVT0CzZsXjjMAVD8lBoLWazXZMONa63E/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1NaoL0501ds3IX_gzJKkRyMXXaPsk-xSl",
                 "name": "CYHZ_MINAS_1_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1NaoL0501ds3IX_gzJKkRyMXXaPsk-xSl/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1z23FA_AJeSd2ngtnPSM1TMXSb9ByoRBW",
                 "name": "CYHZ_LOC_RWY_05.pdf",
                 "url": "https://drive.google.com/file/d/1z23FA_AJeSd2ngtnPSM1TMXSb9ByoRBW/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1h4hdq2U4msyUWMCIlGRQ-q8PNeqkVgxm",
                 "name": "CYHZ_MINAS_1_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1h4hdq2U4msyUWMCIlGRQ-q8PNeqkVgxm/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1roKNtJFX02m7wRfocETTuRVHVLIJuueo",
                 "name": "CYHZ_ILS_CAT_II_RWY_23.pdf",
                 "url": "https://drive.google.com/file/d/1roKNtJFX02m7wRfocETTuRVHVLIJuueo/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1mbGp26CF1LFYeZXkCZENpYcA5a3KVw_X",
                 "name": "CYHZ_ILS_RWY_23.pdf",
                 "url": "https://drive.google.com/file/d/1mbGp26CF1LFYeZXkCZENpYcA5a3KVw_X/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1WaP-yjmov4m4sBRIyV1qZe2AK3t0-r8k",
                 "name": "CYHZ_ILS_RWY_14.pdf",
                 "url": "https://drive.google.com/file/d/1WaP-yjmov4m4sBRIyV1qZe2AK3t0-r8k/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1VoDUeTTtq8g6jg3IfoogIyEo3GyPEuSm",
                 "name": "CYHZ_CABOT_5_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1VoDUeTTtq8g6jg3IfoogIyEo3GyPEuSm/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1-FdfQeNANb5kvPuvbHygbAzaYP7CpFKz",
                 "name": "CYHZ_FUNDY_5_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1-FdfQeNANb5kvPuvbHygbAzaYP7CpFKz/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ote4fPAPJaVZncmGfiSc9URJjVL20bKM",
                 "name": "CYHZ_LIRLA_5_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1ote4fPAPJaVZncmGfiSc9URJjVL20bKM/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1qh_QU_czMoICxfd1c9RmYwrsyyWLPKDu",
                 "name": "CYHZ_FUNDY_5_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1qh_QU_czMoICxfd1c9RmYwrsyyWLPKDu/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "10EZNdN8R6ii_FQRumXZKaF0x6odPUJqc",
                 "name": "CYHZ_PEGGY_5_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/10EZNdN8R6ii_FQRumXZKaF0x6odPUJqc/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1exp4PD84fPHpFNobSJvAHQlmT5n8FewE",
                 "name": "CYHZ_RNAV_GNSS_Z_RWY_05.pdf",
                 "url": "https://drive.google.com/file/d/1exp4PD84fPHpFNobSJvAHQlmT5n8FewE/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1lM87VvccBYaCvZ5sjS55aYsAzUcFSlP0",
                 "name": "CYHZ_PEGGY_5_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1lM87VvccBYaCvZ5sjS55aYsAzUcFSlP0/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1DHkgPglEwsLnuo-PsQ_jMsRJJ11fTcKL",
                 "name": "CYHZ_CABOT_5_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1DHkgPglEwsLnuo-PsQ_jMsRJJ11fTcKL/view?usp=drivesdk",
                 "type": "pdf"

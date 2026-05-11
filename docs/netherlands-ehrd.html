@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'netherlands-ehrd',
             name: 'EHRD - Rotterdam The Hague',
@@ -391,111 +557,133 @@
 
         const files = [
         {
+                "id": "1t49zulp1gpJdXHTtxMi5J0khkh0BEpty",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_06_EAST.pdf",
                 "url": "https://drive.google.com/file/d/1t49zulp1gpJdXHTtxMi5J0khkh0BEpty/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "14mDCVFHzj8OwXnV-elOXjqJs5QdRRkuL",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_24_EAST.pdf",
                 "url": "https://drive.google.com/file/d/14mDCVFHzj8OwXnV-elOXjqJs5QdRRkuL/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1NIChnnamlcSoLRm--qkVLGiG8CqF7Sin",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_24_WEST.pdf",
                 "url": "https://drive.google.com/file/d/1NIChnnamlcSoLRm--qkVLGiG8CqF7Sin/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1qoiqSt8iKxi6Qm6VzO2ao1x1fVZaXvfY",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_06_WEST.pdf",
                 "url": "https://drive.google.com/file/d/1qoiqSt8iKxi6Qm6VzO2ao1x1fVZaXvfY/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ZzSTSCbGeU_A7o3c6ObuIS2riI-pmHq2",
                 "name": "VFR_TRAFFIC_CIRCUITS_RADIO_EQUIPPED_LIGHT_ACFT.pdf",
                 "url": "https://drive.google.com/file/d/1ZzSTSCbGeU_A7o3c6ObuIS2riI-pmHq2/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "195-CG4BqV6i4CCOviPx6ekPVBvuccWYT",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_RWY_06-24.pdf",
                 "url": "https://drive.google.com/file/d/195-CG4BqV6i4CCOviPx6ekPVBvuccWYT/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1bH6oiHObSn9yJGyVGsaDacPmWKgpIQtM",
                 "name": "AERODROME_GROUND_MOVEMENT_CHART_RWY_24.pdf",
                 "url": "https://drive.google.com/file/d/1bH6oiHObSn9yJGyVGsaDacPmWKgpIQtM/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1XCw8Ouby5TiV6UkOm37_H20gEGRVzYeR",
                 "name": "STANDARD_DEPARTURE_CHART_-_INSTRUMENT.pdf",
                 "url": "https://drive.google.com/file/d/1XCw8Ouby5TiV6UkOm37_H20gEGRVzYeR/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1NwyYK4U8Yt3r6Oihwx1hQoukCT2uHEFr",
                 "name": "AERODROME_GROUND_MOVEMENT_CHART_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1NwyYK4U8Yt3r6Oihwx1hQoukCT2uHEFr/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1AjY-mx9NggjQd_RkwJTmnE7mpBkEXjaL",
                 "name": "AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1AjY-mx9NggjQd_RkwJTmnE7mpBkEXjaL/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1GMEXjM6rGfcNEZ_EXhhnhN9lyQPaPVai",
                 "name": "AIRCRAFT_PARKING_DOCKING_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1GMEXjM6rGfcNEZ_EXhhnhN9lyQPaPVai/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1oXH2VQxw4Aeti-DYtvfB2B8BTeBRkEDp",
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1oXH2VQxw4Aeti-DYtvfB2B8BTeBRkEDp/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1gPD9mz1jO3m553yP6M4vWiq7u3_lLfI7",
                 "name": "VFR_TRAINING_CIRCUITS.pdf",
                 "url": "https://drive.google.com/file/d/1gPD9mz1jO3m553yP6M4vWiq7u3_lLfI7/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1uVW2iL6DunBt5ZPbRzMg3_nz9ne2PnMw",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1uVW2iL6DunBt5ZPbRzMg3_nz9ne2PnMw/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1icHzh65UG0MwSS4TVx7xGY8eNUbdVFfE",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_OR_LOC_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1icHzh65UG0MwSS4TVx7xGY8eNUbdVFfE/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1cwvN5SC9XVG0Iwa1ErJjAIdr66bsKp5n",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_Z_OR_LOC_Z_RWY_24.pdf",
                 "url": "https://drive.google.com/file/d/1cwvN5SC9XVG0Iwa1ErJjAIdr66bsKp5n/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1EoeHLQswla8nQwsXFkvtAw2_CGuuDzFh",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_Y_OR_LOC_Y_RWY_24.pdf",
                 "url": "https://drive.google.com/file/d/1EoeHLQswla8nQwsXFkvtAw2_CGuuDzFh/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1q35sffNPsVI0ggI2SqDqJQGloURD9Ljo",
                 "name": "INSTRUMENT_APPROACH_CHART_VOR_RWY_24.pdf",
                 "url": "https://drive.google.com/file/d/1q35sffNPsVI0ggI2SqDqJQGloURD9Ljo/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1e-whpY9YDN8vH5jGhdXfDbH0k-vr4Gd0",
                 "name": "INSTRUMENT_APPROACH_CHART_VOR_RWY_06.pdf",
                 "url": "https://drive.google.com/file/d/1e-whpY9YDN8vH5jGhdXfDbH0k-vr4Gd0/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1nm4Q0XlOEt3nkwBG5xCRnbNiLX5zXW3U",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_24.pdf",
                 "url": "https://drive.google.com/file/d/1nm4Q0XlOEt3nkwBG5xCRnbNiLX5zXW3U/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1NH8YVmhE04Et0LNHP4-nAqiHkQSuN4yX",
                 "name": "STANDARD_ARRIVAL_CHART_-_INSTRUMENT.pdf",
                 "url": "https://drive.google.com/file/d/1NH8YVmhE04Et0LNHP4-nAqiHkQSuN4yX/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ASsb8cNFQDjbM0xa4_bVc0HkVt86sp48",
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1ASsb8cNFQDjbM0xa4_bVc0HkVt86sp48/view?usp=drivesdk",
                 "type": "pdf"

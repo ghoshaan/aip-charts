@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'canada-cyqq-cfb-comox-or-19-wing',
             name: 'CYQQ CFB Comox or 19 wing',
@@ -391,106 +557,127 @@
 
         const files = [
         {
+                "id": "112v0EwzarNqES-WRpVrf1GNaKuyHnr95",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/112v0EwzarNqES-WRpVrf1GNaKuyHnr95/view?usp=drivesdk",
                 "type": "doc"
         },
         {
+                "id": "1codvlM8apZZMokXgg7JZmZxoRpJO2m3i",
                 "name": "CYQQ_SARATOGA_1_DEP_DND_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1codvlM8apZZMokXgg7JZmZxoRpJO2m3i/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ZSqVTFz-6lfx_xO_V6s_PW391-CybIg_",
                 "name": "CYQQ_LAZO_3_DEP_DND_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1ZSqVTFz-6lfx_xO_V6s_PW391-CybIg_/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "15ImpaXWFhuEXqTAckfJabeAAfy4cKNTt",
                 "name": "CYQQ_ILS_Z_RWY_30_DND.pdf",
                 "url": "https://drive.google.com/file/d/15ImpaXWFhuEXqTAckfJabeAAfy4cKNTt/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1iYjUrQt4vAtms4GzDaenLF9Y45-iV-LB",
                 "name": "CYQQ_TACAN_Z_RWY_30_DND.pdf",
                 "url": "https://drive.google.com/file/d/1iYjUrQt4vAtms4GzDaenLF9Y45-iV-LB/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1d3vWKcLgduc0rPDS9lEyxo9DjoAjQ9zv",
                 "name": "CYQQ_RNAV_GNSS_Z_RWY_12_DND.pdf",
                 "url": "https://drive.google.com/file/d/1d3vWKcLgduc0rPDS9lEyxo9DjoAjQ9zv/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1pag0rhXTZcKXcq58fpW1F4syQwfDYtOK",
                 "name": "CYQQ_RNAV_GNSS_Z_RWY_30_DND.pdf",
                 "url": "https://drive.google.com/file/d/1pag0rhXTZcKXcq58fpW1F4syQwfDYtOK/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1vyPndFjEbRvUr3kp2vXZBkTpJJOiEms8",
                 "name": "CYQQ_RNAV_RNP_Y_RWY_30.pdf",
                 "url": "https://drive.google.com/file/d/1vyPndFjEbRvUr3kp2vXZBkTpJJOiEms8/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Mtd6Q-x7pf88BRT0TSRBdP8GSYG5CY2E",
                 "name": "CYQQ_LAZO_3_DEP_DND_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1Mtd6Q-x7pf88BRT0TSRBdP8GSYG5CY2E/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1TELIF2ePzWGAhGaNG5IMTXez2Z_Xu8UV",
                 "name": "CYQQ_RNAV_RNP_Y_RWY_18.pdf",
                 "url": "https://drive.google.com/file/d/1TELIF2ePzWGAhGaNG5IMTXez2Z_Xu8UV/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1GlkYdD77r54Ia6n_qByE-sCem9X2CqmF",
                 "name": "CYQQ_RNAV_RNP_Y_RWY_12.pdf",
                 "url": "https://drive.google.com/file/d/1GlkYdD77r54Ia6n_qByE-sCem9X2CqmF/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1oDW_LzGuKrXwPs8AzplwINtHFn-fk63Q",
                 "name": "CYQQ_ILS_Y_RWY_30_DND.pdf",
                 "url": "https://drive.google.com/file/d/1oDW_LzGuKrXwPs8AzplwINtHFn-fk63Q/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1MJj3mFAI69JM4Ng4gWqt0bYZRRuKyxeR",
                 "name": "CYQQ_SARATOGA_1_DEP_DND_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1MJj3mFAI69JM4Ng4gWqt0bYZRRuKyxeR/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1JTSvy9BeHzIm8qnzzevxPYRfCPA71Ks3",
                 "name": "CYQQ_TACAN_Z_RWY_12_DND.pdf",
                 "url": "https://drive.google.com/file/d/1JTSvy9BeHzIm8qnzzevxPYRfCPA71Ks3/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1RA_CHXFwinKqzOQsQnjrogkm9dk3XyaX",
                 "name": "CYQQ_HORNBY_2_DEP_DND_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1RA_CHXFwinKqzOQsQnjrogkm9dk3XyaX/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1fNPizCRkiwAZpipei_jGZlhSXkp5BbWx",
                 "name": "CYQQ_AERODROME_CHART_DND.pdf",
                 "url": "https://drive.google.com/file/d/1fNPizCRkiwAZpipei_jGZlhSXkp5BbWx/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1WSZEeRwU6Mhf79sr3PWfGnb7fzMlzj3z",
                 "name": "CYQQ_HORNBY_2_DEP_DND_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1WSZEeRwU6Mhf79sr3PWfGnb7fzMlzj3z/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ruDTTsQREdzb92rGiVrDCYijB-cLt9Ax",
                 "name": "CYQQ_HI-TACAN_Y_RWY_12_DND.pdf",
                 "url": "https://drive.google.com/file/d/1ruDTTsQREdzb92rGiVrDCYijB-cLt9Ax/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1imzLo6BFkzg44PA233OHY6YxKvG2_dAP",
                 "name": "CYQQ_ILS_Z_RWY_12_DND.pdf",
                 "url": "https://drive.google.com/file/d/1imzLo6BFkzg44PA233OHY6YxKvG2_dAP/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1A0PltVTeui7-0m-kImjudglIz1enBdq8",
                 "name": "CYQQ_ILS_Y_RWY_12_DND.pdf",
                 "url": "https://drive.google.com/file/d/1A0PltVTeui7-0m-kImjudglIz1enBdq8/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1GkKFaMuXs7ynORHgENGHgkaiSz1x7Zf5",
                 "name": "CYQQ_HI-TACAN_Y_RWY_30_DND.pdf",
                 "url": "https://drive.google.com/file/d/1GkKFaMuXs7ynORHgENGHgkaiSz1x7Zf5/view?usp=drivesdk",
                 "type": "pdf"

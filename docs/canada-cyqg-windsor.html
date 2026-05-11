@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'canada-cyqg-windsor',
             name: 'CYQG Windsor',
@@ -391,101 +557,121 @@
 
         const files = [
         {
+                "id": "1uDOdL4miA_1LwgEZ4pHQuAP0cxb9B9JJ",
                 "name": "CYQG_WINDSOR_5_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1uDOdL4miA_1LwgEZ4pHQuAP0cxb9B9JJ/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1aiLsr5zRnAxWXjHbxftONOPCAnN-gpx2",
                 "name": "CYQG_WINDSOR_5_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/1aiLsr5zRnAxWXjHbxftONOPCAnN-gpx2/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1G6StMPbrcF954bx9v8E3fUbHG_lcvY1r",
                 "name": "CYQG_MALTB_1_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1G6StMPbrcF954bx9v8E3fUbHG_lcvY1r/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1enna8vxWaBLh5tKUZBkDDmpv5LfW3dZ-",
                 "name": "CYQG_MALTB_1_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1enna8vxWaBLh5tKUZBkDDmpv5LfW3dZ-/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1UerX5FqJOqd2SEtABhEMq29-EsrGXdoU",
                 "name": "CYQG_FLOKA_1_DEP_RNAV_PG_03.pdf",
                 "url": "https://drive.google.com/file/d/1UerX5FqJOqd2SEtABhEMq29-EsrGXdoU/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1-5-SKDLicrVvWAFKubDxdFpOJVeE6_FX",
                 "name": "CYQG_FLOKA_1_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1-5-SKDLicrVvWAFKubDxdFpOJVeE6_FX/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1yYQECPP9giVWyIbImYgI_5seyJCQsKAr",
                 "name": "CYQG_FLOKA_1_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1yYQECPP9giVWyIbImYgI_5seyJCQsKAr/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1VuhyvrQ8wBm_JmJjaieHJkbbkMIUB_77",
                 "name": "CYQG_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1VuhyvrQ8wBm_JmJjaieHJkbbkMIUB_77/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1iH8s6SPj5w59ky5Oey26wnDZJldUKW5b",
                 "name": "CYQG_RNAV_GNSS_RWY_30.pdf",
                 "url": "https://drive.google.com/file/d/1iH8s6SPj5w59ky5Oey26wnDZJldUKW5b/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1t75f8kiGpoVnaNPCg7arEvZc3QSB8em4",
                 "name": "CYQG_RNAV_GNSS_RWY_25.pdf",
                 "url": "https://drive.google.com/file/d/1t75f8kiGpoVnaNPCg7arEvZc3QSB8em4/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1XdMuweeyRfJx8f-QAsx7w0OYVJQ0HXU8",
                 "name": "CYQG_RNAV_GNSS_RWY_07.pdf",
                 "url": "https://drive.google.com/file/d/1XdMuweeyRfJx8f-QAsx7w0OYVJQ0HXU8/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1AlCokUVtv-3LHjW00Yih25yLdedaphj0",
                 "name": "CYQG_ILS_RWY_25.pdf",
                 "url": "https://drive.google.com/file/d/1AlCokUVtv-3LHjW00Yih25yLdedaphj0/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1R_x-7z0APO12Hdm0OfqiSgByKFkiubAw",
                 "name": "CYQG_RRALF_3_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1R_x-7z0APO12Hdm0OfqiSgByKFkiubAw/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1F507poJFfvrWBqWL8xuibEh52D5dqN64",
                 "name": "CYQG_RRALF_3_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1F507poJFfvrWBqWL8xuibEh52D5dqN64/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1NxaPQ7l19pgrWYPXaVRjQMS4gZdXKnf7",
                 "name": "CYQG_PETTE_2_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1NxaPQ7l19pgrWYPXaVRjQMS4gZdXKnf7/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1-jT6DNKZXJ5vGhg42Cb4wllieqGlqWyD",
                 "name": "CYQG_PETTE_2_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1-jT6DNKZXJ5vGhg42Cb4wllieqGlqWyD/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1KhUk5gtiSFcL_IRMmPAmQ2Up78-Q2jXy",
                 "name": "CYQG_FOREY_2_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1KhUk5gtiSFcL_IRMmPAmQ2Up78-Q2jXy/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1UvM2hweiHBYyXPXQ0TvaYFt7AXSTGQXx",
                 "name": "CYQG_FOREY_2_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1UvM2hweiHBYyXPXQ0TvaYFt7AXSTGQXx/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1wAqefFaViJdrhzjtedP44Wgn7otDlmNW",
                 "name": "CYQG_AUTTO_1_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1wAqefFaViJdrhzjtedP44Wgn7otDlmNW/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1LWLS7-HW9WUkcAzwtLvc9kHgBLSQDCIh",
                 "name": "CYQG_AUTTO_1_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1LWLS7-HW9WUkcAzwtLvc9kHgBLSQDCIh/view?usp=drivesdk",
                 "type": "pdf"

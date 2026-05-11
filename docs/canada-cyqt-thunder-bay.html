@@ -250,6 +250,89 @@
             border-color: var(--accent);
             transform: translateY(-2px);
         }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            padding: 1rem 2rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #viewerFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-slider {
+            width: 100px;
+            accent-color: var(--accent);
+        }
     
         
         .file-count {
@@ -343,6 +426,36 @@
         </div>
     </div>
     
+    
+    <div id="viewerModal" class="viewer-modal">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+            
+            <div class="viewer-controls">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">ZOOM</span>
+                    <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="rotateBtn">
+                    <span>🔄</span> ROTATE
+                </button>
+                
+                <a id="externalLink" class="control-btn" target="_blank">
+                    <span>🔗</span> DRIVE
+                </a>
+                
+                <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <span>✖</span> CLOSE
+                </button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <iframe id="viewerFrame" src=""></iframe>
+        </div>
+    </div>
+    
+
     <script>
         
         const PINS_KEY = 'atc_pins';
@@ -369,6 +482,59 @@
         }
     
         
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        function openViewer(id, name, url) {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            const title = document.getElementById('viewerTitle');
+            const externalLink = document.getElementById('externalLink');
+            
+            currentRotation = 0;
+            currentZoom = 1;
+            updateFrameTransform();
+            document.getElementById('zoomRange').value = 1;
+
+            title.textContent = name;
+            externalLink.href = url;
+            frame.src = `https://drive.google.com/file/d/${id}/preview`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            const frame = document.getElementById('viewerFrame');
+            modal.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateFrameTransform() {
+            const frame = document.getElementById('viewerFrame');
+            frame.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        document.getElementById('closeViewer').onclick = closeViewer;
+        
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateFrameTransform();
+        };
+
+        document.getElementById('zoomRange').oninput = (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateFrameTransform();
+        };
+
+        // Close on Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+    
+        
         const airportCtx = {
             slug: 'canada-cyqt-thunder-bay',
             name: 'CYQT Thunder Bay',
@@ -391,116 +557,139 @@
 
         const files = [
         {
+                "id": "1G0aLpwGLnjO18USlwK3jt1KHliCbTz4g",
                 "name": ".DS_Store",
                 "url": "https://drive.google.com/file/d/1G0aLpwGLnjO18USlwK3jt1KHliCbTz4g/view?usp=drivesdk",
                 "type": "doc"
         },
         {
+                "id": "1T1hdoFCRqrLR0D0xGDq_rOfafJZtiaDO",
                 "name": "CYQT_AERODROME_CHART.pdf",
                 "url": "https://drive.google.com/file/d/1T1hdoFCRqrLR0D0xGDq_rOfafJZtiaDO/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "19R8G67zk4u3QGpYpeAyw_FF1v45czdph",
                 "name": "CYQT_THUNDER_BAY_1_DEP_VECTOR.pdf",
                 "url": "https://drive.google.com/file/d/19R8G67zk4u3QGpYpeAyw_FF1v45czdph/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1TPHzhL-ZA8Zsi1s03gi80Q7XD_OgIecl",
                 "name": "CYQT_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "https://drive.google.com/file/d/1TPHzhL-ZA8Zsi1s03gi80Q7XD_OgIecl/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1cD55ZIvQQ4uzv6Bio-KgoXdJ2c81p3ng",
                 "name": "CYQT_PARKING_AREAS_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1cD55ZIvQQ4uzv6Bio-KgoXdJ2c81p3ng/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1WXmJ8j6OEyL82-uFAJf-zLZKrCKZGfsD",
                 "name": "CYQT_PARKING_AREAS.pdf",
                 "url": "https://drive.google.com/file/d/1WXmJ8j6OEyL82-uFAJf-zLZKrCKZGfsD/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1NMhRAbcNzXxgPuCeiHDsJOq7MzXa6rTF",
                 "name": "CYQT_NUBOM_3_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1NMhRAbcNzXxgPuCeiHDsJOq7MzXa6rTF/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ljf0NJIBE_45_hFDWdWMdwoVuOCyDUB5",
                 "name": "CYQT_RNAV_RNP_Y_RWY_07.pdf",
                 "url": "https://drive.google.com/file/d/1ljf0NJIBE_45_hFDWdWMdwoVuOCyDUB5/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1HNU71PmFY07W1Urz__vPexinm-2x3u3o",
                 "name": "CYQT_NUBOM_3_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1HNU71PmFY07W1Urz__vPexinm-2x3u3o/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1MaCz5S6KNRgRf48mni5-gghE52mL0tBK",
                 "name": "CYQT_LESIS_4_DEP_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1MaCz5S6KNRgRf48mni5-gghE52mL0tBK/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1MyWGZ6lPw7_S1XJXdxeDmPN4DL4Mjn1p",
                 "name": "CYQT_THUNDER_BAY_1_DEP_VECTOR_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/1MyWGZ6lPw7_S1XJXdxeDmPN4DL4Mjn1p/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "11PnbCP0hPTqP5iwIMgwy-aOI1YQADLJd",
                 "name": "CYQT_TAKEOFF_MINIMUMS.pdf",
                 "url": "https://drive.google.com/file/d/11PnbCP0hPTqP5iwIMgwy-aOI1YQADLJd/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1JS8WAnnpj_jeQ4vs_UnYx9GITwEfW3Zb",
                 "name": "CYQT_LESIS_4_DEP_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1JS8WAnnpj_jeQ4vs_UnYx9GITwEfW3Zb/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1ZFB--QHGmDUuSgWItYgrkh5vihudJDpH",
                 "name": "CYQT_RNAV_GNSS_Z_RWY_07.pdf",
                 "url": "https://drive.google.com/file/d/1ZFB--QHGmDUuSgWItYgrkh5vihudJDpH/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1pqoqDJIvctfVl6pwFop8ltbPr1ZIYqRS",
                 "name": "CYQT_RNAV_GNSS_Z_RWY_12.pdf",
                 "url": "https://drive.google.com/file/d/1pqoqDJIvctfVl6pwFop8ltbPr1ZIYqRS/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1gH7MUxlkIvcJCoPzYII3dhhYXKLA5lPs",
                 "name": "CYQT_RNAV_GNSS_X_RWY_12.pdf",
                 "url": "https://drive.google.com/file/d/1gH7MUxlkIvcJCoPzYII3dhhYXKLA5lPs/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1PUXxTbul_I7QxDRLpuCKS1Q09lNmx4ik",
                 "name": "CYQT_RNAV_GNSS_Z_RWY_25.pdf",
                 "url": "https://drive.google.com/file/d/1PUXxTbul_I7QxDRLpuCKS1Q09lNmx4ik/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1EOII9H6YC4GUh9RY7EMnGueX_WVTi3BL",
                 "name": "CYQT_RNAV_RNP_Y_RWY_25.pdf",
                 "url": "https://drive.google.com/file/d/1EOII9H6YC4GUh9RY7EMnGueX_WVTi3BL/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1mqU9jnc5nUBQXqz8ql0X-Tk4N3Q_16Gh",
                 "name": "CYQT_LIBUK_3_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1mqU9jnc5nUBQXqz8ql0X-Tk4N3Q_16Gh/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1Zydph5KUznA_eF9xQYI1dj5po9bm0pxN",
                 "name": "CYQT_TIGAG_3_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/1Zydph5KUznA_eF9xQYI1dj5po9bm0pxN/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "1xMoo0WfnYexoDbJR_WOb4apeBgWbDeLe",
                 "name": "CYQT_ILS_RWY_07.pdf",
                 "url": "https://drive.google.com/file/d/1xMoo0WfnYexoDbJR_WOb4apeBgWbDeLe/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "13mCCfbwjSUVapatVFXJg2N6X6T2deHMX",
                 "name": "CYQT_NOTER_4_ARR_RNAV.pdf",
                 "url": "https://drive.google.com/file/d/13mCCfbwjSUVapatVFXJg2N6X6T2deHMX/view?usp=drivesdk",
                 "type": "pdf"
         },
         {
+                "id": "11taPFzFCIGP2cda_QeFChYZt28OJKk3b",
                 "name": "CYQT_NOTER_4_ARR_RNAV_PG_02.pdf",
                 "url": "https://drive.google.com/file/d/11taPFzFCIGP2cda_QeFChYZt28OJKk3b/view?usp=drivesdk",
                 "type": "pdf"
