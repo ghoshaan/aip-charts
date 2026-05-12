@@ -102,6 +102,7 @@ AIRPORT_NAMES = {
     'LSZC': 'Buochs',
     'LSZG': 'Grenchen',
     'LSZH': 'Zurich',
+    'LSZL': 'Locarno',
     'LSZR': 'St. Gallen-Altenrhein',
     'LSZS': 'Samedan'
 }
