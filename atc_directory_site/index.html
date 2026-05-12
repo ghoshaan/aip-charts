@@ -564,7 +564,7 @@
                 if (localUrl && localUrl !== '#') {
                     const newTabBtn = document.createElement('a');
                     newTabBtn.className = 'new-tab-btn';
-                    newTabBtn.href = localUrl;
+                    newTabBtn.href = `${c.pageUrl}#view=${id}`;
                     newTabBtn.target = '_blank';
                     newTabBtn.title = 'Open in new tab';
                     newTabBtn.innerHTML = '↗️';
@@ -648,7 +648,7 @@
                 if (localUrl && localUrl !== '#') {
                     const newTabBtn = document.createElement('a');
                     newTabBtn.className = 'new-tab-btn';
-                    newTabBtn.href = localUrl;
+                    newTabBtn.href = `${c.pageUrl}#view=${id}`;
                     newTabBtn.target = '_blank';
                     newTabBtn.title = 'Open in new tab';
                     newTabBtn.innerHTML = '↗️';

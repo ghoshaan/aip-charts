@@ -349,7 +349,8 @@ def generate_index_page(hierarchy):
                     'region': region_name,
                     'url': f['url'],
                     'localUrl': f.get('localUrl', '#'),
-                    'icon': '📄' if f['type'] == 'pdf' else '🖼️'
+                    'icon': '📄' if f['type'] == 'pdf' else '🖼️',
+                    'pageUrl': f"{airport_slug}.html"
                 })
             
             region_file_count += len(files)
@@ -660,7 +661,7 @@ def generate_index_page(hierarchy):
                 if (localUrl && localUrl !== '#') {{
                     const newTabBtn = document.createElement('a');
                     newTabBtn.className = 'new-tab-btn';
-                    newTabBtn.href = localUrl;
+                    newTabBtn.href = `${{c.pageUrl}}#view=${{id}}`;
                     newTabBtn.target = '_blank';
                     newTabBtn.title = 'Open in new tab';
                     newTabBtn.innerHTML = '↗️';
@@ -679,7 +680,6 @@ def generate_index_page(hierarchy):
                     renderPins();
                 }};
 
-                wrapper.appendChild(card);
                 wrapper.appendChild(unpinBtn);
                 grid.appendChild(wrapper);
             }});
@@ -773,7 +773,7 @@ def generate_index_page(hierarchy):
                 if (item.type === 'chart') {{
                     const newTabBtn = document.createElement('a');
                     newTabBtn.className = 'new-tab-btn';
-                    newTabBtn.href = item.localUrl;
+                    newTabBtn.href = `${{item.pageUrl}}#view=${{item.id}}`;
                     newTabBtn.target = '_blank';
                     newTabBtn.title = 'Open in new tab';
                     newTabBtn.innerHTML = '↗️';
@@ -807,13 +807,13 @@ def generate_index_page(hierarchy):
                             localUrl: item.localUrl,
                             type: item.icon === '📄' ? 'pdf' : 'image',
                             airport: item.airport,
-                            region: item.region
+                            region: item.region,
+                            pageUrl: item.pageUrl
                         }});
                     }}
                     pinBtn.classList.toggle('pinned');
                 }};
 
-                wrapper.appendChild(div);
                 wrapper.appendChild(pinBtn);
                 resultsList.appendChild(wrapper);
             }});
@@ -1085,7 +1085,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
                 item.href = `#view=${{file.id}}`;
                 item.onclick = (e) => {{
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl);
+                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
                 }};
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
@@ -1111,7 +1111,8 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
                         localUrl: file.localUrl,
                         type: file.type,
                         airport: airportCtx.name,
-                        region: airportCtx.region
+                        region: airportCtx.region,
+                        pageUrl: `${{airportCtx.slug}}.html`
                     }});
                     pinBtn.classList.toggle('pinned');
                     pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
@@ -1121,7 +1122,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
 
                 const newTabBtn = document.createElement('a');
                 newTabBtn.className = 'new-tab-btn';
-                newTabBtn.href = file.localUrl;
+                newTabBtn.href = `#view=${{file.id}}`;
                 newTabBtn.target = '_blank';
                 newTabBtn.title = 'Open in new tab';
                 newTabBtn.innerHTML = '↗️';
@@ -1678,14 +1679,9 @@ def get_viewer_html():
                         <span>🏠</span> RESET
                     </button>
 
-                    <a id="externalLink" class="control-btn" target="_blank" title="Open in Google Drive">
-                        <span>🔗</span> DRIVE
-                    </a>
-
                     <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
                         <span>✖</span> CLOSE
-                    </button>
-                </div>
+                    </button>                </div>
             </div>
             <div class="viewer-content" id="viewerContent">
                 <div id="viewerLoader" class="viewer-loader">
@@ -1719,7 +1715,6 @@ def get_viewer_js():
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
-                const externalLink = document.getElementById('externalLink');
                 const loader = document.getElementById('viewerLoader');
                 const loaderStatus = document.getElementById('loaderStatus');
                 const container = document.getElementById('pdfViewer');
@@ -1746,7 +1741,6 @@ def get_viewer_js():
                 document.getElementById('zoomRange').value = 1.5;
                 document.getElementById('zoomValue').textContent = '1.5x';
                 title.textContent = name;
-                externalLink.href = driveUrl;
                 container.innerHTML = '';
                 container.style.transform = 'scale(1)';
 

@@ -546,9 +546,7 @@
                         <span>🏠</span> RESET
                     </button>
 
-                    <a id="externalLink" class="control-btn" target="_blank" title="Open in Google Drive">
-                        <span>🔗</span> DRIVE
-                    </a>
+                    
 
                     <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
                         <span>✖</span> CLOSE
@@ -610,7 +608,7 @@
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
-                const externalLink = document.getElementById('externalLink');
+                
                 const loader = document.getElementById('viewerLoader');
                 const loaderStatus = document.getElementById('loaderStatus');
                 const container = document.getElementById('pdfViewer');
@@ -638,7 +636,7 @@
                 document.getElementById('zoomRange').value = 1.5;
                 document.getElementById('zoomValue').textContent = '1.5x';
                 title.textContent = name;
-                externalLink.href = driveUrl;
+                
                 container.innerHTML = '';
                 container.style.transform = 'scale(1)';
 
@@ -996,7 +994,7 @@
 
                 const newTabBtn = document.createElement('a');
                 newTabBtn.className = 'new-tab-btn';
-                newTabBtn.href = file.localUrl;
+                newTabBtn.href = `#view=${file.id}`;
                 newTabBtn.target = '_blank';
                 newTabBtn.title = 'Open in new tab';
                 newTabBtn.innerHTML = '↗️';
