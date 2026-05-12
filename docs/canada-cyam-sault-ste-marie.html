@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,72 +825,72 @@
 
         const files = [
         {
-                "id": "1jWAprfZsmGtt_ks78b5cpXRdxmfCFdhB",
+                "id": "cyam_sault_8_dep_vector_pg_02.pdf",
                 "name": "CYAM_SAULT_8_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1jWAprfZsmGtt_ks78b5cpXRdxmfCFdhB/view?usp=drivesdk",
+                "url": "charts_data/canada/cyam-sault-ste-marie/cyam_sault_8_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyam-sault-ste-marie/cyam_sault_8_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1uy9-V9kBhixytrtwc1J-Eg9HhWDgAOh6",
+                "id": "cyam_sault_8_dep_vector.pdf",
                 "name": "CYAM_SAULT_8_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1uy9-V9kBhixytrtwc1J-Eg9HhWDgAOh6/view?usp=drivesdk",
+                "url": "charts_data/canada/cyam-sault-ste-marie/cyam_sault_8_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyam-sault-ste-marie/cyam_sault_8_dep_vector.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1WOLO1lryo2Y2p4Dy5upc2nHcrSr_Ja6S",
+                "id": "cyam_aerodrome_chart.pdf",
                 "name": "CYAM_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1WOLO1lryo2Y2p4Dy5upc2nHcrSr_Ja6S/view?usp=drivesdk",
+                "url": "charts_data/canada/cyam-sault-ste-marie/cyam_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyam-sault-ste-marie/cyam_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "17m9EsZSu54MyyJAUD2uedVuxl4hNdCED",
+                "id": "cyam_vor_dme_rwy_30.pdf",
                 "name": "CYAM_VOR_DME_RWY_30.pdf",
-                "url": "https://drive.google.com/file/d/17m9EsZSu54MyyJAUD2uedVuxl4hNdCED/view?usp=drivesdk",
+                "url": "charts_data/canada/cyam-sault-ste-marie/cyam_vor_dme_rwy_30.pdf",
                 "localUrl": "charts_data/canada/cyam-sault-ste-marie/cyam_vor_dme_rwy_30.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1AubLQ3Su37GAFJpU-PcIeIV22a8DUBkB",
+                "id": "cyam_rnav_rnp_y_rwy_12.pdf",
                 "name": "CYAM_RNAV_RNP_Y_RWY_12.pdf",
-                "url": "https://drive.google.com/file/d/1AubLQ3Su37GAFJpU-PcIeIV22a8DUBkB/view?usp=drivesdk",
+                "url": "charts_data/canada/cyam-sault-ste-marie/cyam_rnav_rnp_y_rwy_12.pdf",
                 "localUrl": "charts_data/canada/cyam-sault-ste-marie/cyam_rnav_rnp_y_rwy_12.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1xvVAIJOh6yQS-71h_hj_bNwih3Blsf2S",
+                "id": "cyam_rnav_gnss_z_rwy_12.pdf",
                 "name": "CYAM_RNAV_GNSS_Z_RWY_12.pdf",
-                "url": "https://drive.google.com/file/d/1xvVAIJOh6yQS-71h_hj_bNwih3Blsf2S/view?usp=drivesdk",
+                "url": "charts_data/canada/cyam-sault-ste-marie/cyam_rnav_gnss_z_rwy_12.pdf",
                 "localUrl": "charts_data/canada/cyam-sault-ste-marie/cyam_rnav_gnss_z_rwy_12.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1fGRe37S2uZD5EUZiyIgKpwpgiJeSFgeP",
+                "id": "cyam_rnav_gnss_rwy_30.pdf",
                 "name": "CYAM_RNAV_GNSS_RWY_30.pdf",
-                "url": "https://drive.google.com/file/d/1fGRe37S2uZD5EUZiyIgKpwpgiJeSFgeP/view?usp=drivesdk",
+                "url": "charts_data/canada/cyam-sault-ste-marie/cyam_rnav_gnss_rwy_30.pdf",
                 "localUrl": "charts_data/canada/cyam-sault-ste-marie/cyam_rnav_gnss_rwy_30.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1gAkpmQCF025hZwt4yHjto_VFnITmtTxH",
+                "id": "cyam_rnav_gnss_rwy_22.pdf",
                 "name": "CYAM_RNAV_GNSS_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/1gAkpmQCF025hZwt4yHjto_VFnITmtTxH/view?usp=drivesdk",
+                "url": "charts_data/canada/cyam-sault-ste-marie/cyam_rnav_gnss_rwy_22.pdf",
                 "localUrl": "charts_data/canada/cyam-sault-ste-marie/cyam_rnav_gnss_rwy_22.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1aLZmhPLaTb9_6SExG4PlAR2H-z_OrPJR",
+                "id": "cyam_rnav_gnss_rwy_04.pdf",
                 "name": "CYAM_RNAV_GNSS_RWY_04.pdf",
-                "url": "https://drive.google.com/file/d/1aLZmhPLaTb9_6SExG4PlAR2H-z_OrPJR/view?usp=drivesdk",
+                "url": "charts_data/canada/cyam-sault-ste-marie/cyam_rnav_gnss_rwy_04.pdf",
                 "localUrl": "charts_data/canada/cyam-sault-ste-marie/cyam_rnav_gnss_rwy_04.pdf",
                 "type": "pdf"
         },
         {
-                "id": "15I4wDtNGYvAcKRD2Ie5b1goIq8gmhHW1",
+                "id": "cyam_ils_rwy_12.pdf",
                 "name": "CYAM_ILS_RWY_12.pdf",
-                "url": "https://drive.google.com/file/d/15I4wDtNGYvAcKRD2Ie5b1goIq8gmhHW1/view?usp=drivesdk",
+                "url": "charts_data/canada/cyam-sault-ste-marie/cyam_ils_rwy_12.pdf",
                 "localUrl": "charts_data/canada/cyam-sault-ste-marie/cyam_ils_rwy_12.pdf",
                 "type": "pdf"
         }
@@ -930,6 +932,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -941,6 +944,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

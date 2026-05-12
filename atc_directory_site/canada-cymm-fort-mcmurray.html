@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>CYMM Fort McMurray</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,83 +345,99 @@
         const files = [
         {
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/1j0G0xbZ5P14gq25ABvO0P4qluT1pgVxc/view?usp=drivesdk",
-                "type": "doc"
+                "url": ".DS_Store",
+                "type": "doc",
+                "id": ".DS_Store"
         },
         {
                 "name": "CYMM_VIKTU_1_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1mxjX-FyXrPea_fszXj9CxuNjuXruLfoV/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_viktu_1_dep_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cymm_viktu_1_dep_rnav_pg_02.pdf"
         },
         {
                 "name": "CYMM_FORT_MAC_2_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1Ev27iwh66QQqxsPcX4vaTKs_QmZGQo8c/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_fort_mac_2_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cymm_fort_mac_2_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYMM_VIKTU_1_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1B-eHSAI_b6utgRZ0pmXjDEf7n7zJn2Qx/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_viktu_1_dep_rnav.pdf",
+                "type": "pdf",
+                "id": "cymm_viktu_1_dep_rnav.pdf"
         },
         {
                 "name": "CYMM_TEXAL_1_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1w29IZ_siSI68rm88UQcxnQ3Ul2XIEg4v/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_texal_1_dep_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cymm_texal_1_dep_rnav_pg_02.pdf"
         },
         {
                 "name": "CYMM_TEXAL_1_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/188ICI3ZfY3RUCwX9A8xQlKqBGfaN6dA-/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_texal_1_dep_rnav.pdf",
+                "type": "pdf",
+                "id": "cymm_texal_1_dep_rnav.pdf"
         },
         {
                 "name": "CYMM_FORT_MAC_2_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/15Cs4V43gbQ3mHLy3rKtyVkMF_FKGj8Vi/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_fort_mac_2_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cymm_fort_mac_2_dep_vector.pdf"
         },
         {
                 "name": "CYMM_RNAV_GNSS_Z_RWY_08.pdf",
-                "url": "https://drive.google.com/file/d/1UbxDoY2HLFCQKdQ_MRco4B43qp-iksyV/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_rnav_gnss_z_rwy_08.pdf",
+                "type": "pdf",
+                "id": "cymm_rnav_gnss_z_rwy_08.pdf"
         },
         {
                 "name": "CYMM_DE-ICING_OPERATIONS.pdf",
-                "url": "https://drive.google.com/file/d/1CunJF0OFcghb0_I-1C6bPpBrk6VkI3JU/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_de-icing_operations.pdf",
+                "type": "pdf",
+                "id": "cymm_de-icing_operations.pdf"
         },
         {
                 "name": "CYMM_ILS_RWY_26.pdf",
-                "url": "https://drive.google.com/file/d/1owY86wbS4vI268sWvcvoRNySlI76H36V/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_ils_rwy_26.pdf",
+                "type": "pdf",
+                "id": "cymm_ils_rwy_26.pdf"
         },
         {
                 "name": "CYMM_DE-ICING_OPERATIONS_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/16ykJeTav7fRYZzCMhHSB0AT5pjT74nj-/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_de-icing_operations_pg_02.pdf",
+                "type": "pdf",
+                "id": "cymm_de-icing_operations_pg_02.pdf"
         },
         {
                 "name": "CYMM_RNAV_RNP_Y_RWY_26.pdf",
-                "url": "https://drive.google.com/file/d/1bUccOtPhk7z5Th77KbqW5-l5xeh30fjk/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_rnav_rnp_y_rwy_26.pdf",
+                "type": "pdf",
+                "id": "cymm_rnav_rnp_y_rwy_26.pdf"
         },
         {
                 "name": "CYMM_RNAV_RNP_Y_RWY_08.pdf",
-                "url": "https://drive.google.com/file/d/1g4h6OZW2eRu0-BozxvULSQiWLFTcsukM/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_rnav_rnp_y_rwy_08.pdf",
+                "type": "pdf",
+                "id": "cymm_rnav_rnp_y_rwy_08.pdf"
         },
         {
                 "name": "CYMM_RNAV_GNSS_Z_RWY_26.pdf",
-                "url": "https://drive.google.com/file/d/1jxcmGhkWiT3OKjScUH9R01k28MhDUjXm/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_rnav_gnss_z_rwy_26.pdf",
+                "type": "pdf",
+                "id": "cymm_rnav_gnss_z_rwy_26.pdf"
         },
         {
                 "name": "CYMM_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1wb_SvtGifXJRJr6XyBaqCc4wBenXsfH0/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "cymm_aerodrome_chart.pdf"
         },
         {
                 "name": "CYMM_LEXON_5_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1F6A1tqFMghCcEjh0r3MS1v-HzkbE21YY/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cymm_lexon_5_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cymm_lexon_5_arr_rnav.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -452,10 +475,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

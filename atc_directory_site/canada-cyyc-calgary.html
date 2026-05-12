@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>CYYC Calgary</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,358 +345,429 @@
         const files = [
         {
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/1tfbcUx6bjYmL0j_FPjaxcQGZoB7eurSU/view?usp=drivesdk",
-                "type": "doc"
+                "url": ".DS_Store",
+                "type": "doc",
+                "id": ".DS_Store"
         },
         {
                 "name": "CYYC_STAMPEDE_2_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1whW0DihILfSAlc8EazEPz_6zQV9y3L9j/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_stampede_2_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_stampede_2_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYYC_COWBOY_2_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1WQyq3iT1e2UcevkZAB6WxwFHfpFZp1gV/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_cowboy_2_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_cowboy_2_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYYC_RODEO_2_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1Y3vm2Y2eDTZ3g4jPDo2HgBikKUcJTjEE/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rodeo_2_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_rodeo_2_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYYC_STAMPEDE_2_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/19SAd5dBWN0JTdYoFxcXyI3t7Zrs6juXF/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_stampede_2_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cyyc_stampede_2_dep_vector.pdf"
         },
         {
                 "name": "CYYC_AERODROME_CHART_PG_02_HIGH_INTENSITY_RUNWAY_OPERATIONS_-_HIRO.pdf",
-                "url": "https://drive.google.com/file/d/14sRr-BYi71nuprjsCn5s4itcj_PIEVi4/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_aerodrome_chart_pg_02_high_intensity_runway_operations_-_hiro.pdf",
+                "type": "pdf",
+                "id": "cyyc_aerodrome_chart_pg_02_high_intensity_runway_operations_-_hiro.pdf"
         },
         {
                 "name": "CYYC_CALGARY_8_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1cEhmGI9vXGi9_wD9NlXb_UkyogfZ01e8/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_calgary_8_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_calgary_8_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYYC_TAXI_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1KIJycrzpKajL4sW6_6PwX7VncG8x5NSU/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_taxi_chart.pdf",
+                "type": "pdf",
+                "id": "cyyc_taxi_chart.pdf"
         },
         {
                 "name": "CYYC_LOW_REDUCED_VISIBILITY_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1egT_fboghYWGuTYqT9F-Dp5E1FQnOWEl/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_low_reduced_visibility_procedures.pdf",
+                "type": "pdf",
+                "id": "cyyc_low_reduced_visibility_procedures.pdf"
         },
         {
                 "name": "CYYC_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/12hgp7yDL-6fVF6nH7ii2qDJAAPQjSQbQ/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_noise_abatement_procedures_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_noise_abatement_procedures_pg_02.pdf"
         },
         {
                 "name": "CYYC_TAKEOFF_MINIMUMS.pdf",
-                "url": "https://drive.google.com/file/d/1CPTNicZ1Dl_Gop1i_Zo--lehGr50D3lc/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_takeoff_minimums.pdf",
+                "type": "pdf",
+                "id": "cyyc_takeoff_minimums.pdf"
         },
         {
                 "name": "CYYC_LOW_VISIBILITY_TAXI_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1nLKyCKifaH2IRzO5i-GPyVuKGkazdxQT/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_low_visibility_taxi_chart.pdf",
+                "type": "pdf",
+                "id": "cyyc_low_visibility_taxi_chart.pdf"
         },
         {
                 "name": "CYYC_TAXI_CHART_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1-aQnphJe-Fdj2w8y-d46zdcJa3DFJg8w/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_taxi_chart_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_taxi_chart_pg_02.pdf"
         },
         {
                 "name": "CYYC_COWBOY_2_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1RnoOFB4T-MqS4o0OqYkBBoPE6rDUkbKK/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_cowboy_2_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cyyc_cowboy_2_dep_vector.pdf"
         },
         {
                 "name": "CYYC_DE-ICING_OPERATIONS_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1--Hl2Npi_5UXOd8bd3oxG-6NWZwLp9AG/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_de-icing_operations_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_de-icing_operations_pg_02.pdf"
         },
         {
                 "name": "CYYC_PARKING_AREAS.pdf",
-                "url": "https://drive.google.com/file/d/1NYn6kkU7_DM9A-IuxhSwYDVJ_Wqlgsgj/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_parking_areas.pdf",
+                "type": "pdf",
+                "id": "cyyc_parking_areas.pdf"
         },
         {
                 "name": "CYYC_LOW_VISIBILITY_TAXI_CHART_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1dlxU0AW_ieNSulSe4pJwuLC92NSEioiC/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_low_visibility_taxi_chart_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_low_visibility_taxi_chart_pg_02.pdf"
         },
         {
                 "name": "CYYC_RODEO_2_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1CMca-sqbVx5JoO6wvFGc9HodXR4dI3yh/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rodeo_2_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cyyc_rodeo_2_dep_vector.pdf"
         },
         {
                 "name": "CYYC_LOW_REDUCED_VISIBILITY_PROCEDURES_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1p-oF2SNtZFkN4nIz8zEsbeXzV8PmLxfA/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_low_reduced_visibility_procedures_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_low_reduced_visibility_procedures_pg_02.pdf"
         },
         {
                 "name": "CYYC_NOISE_ABATEMENT_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1fOemaCPpD0DlTLGW-Ulg6gDDHr8w2gXq/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_noise_abatement_procedures.pdf",
+                "type": "pdf",
+                "id": "cyyc_noise_abatement_procedures.pdf"
         },
         {
                 "name": "CYYC_DE-ICING_OPERATIONS.pdf",
-                "url": "https://drive.google.com/file/d/11uzAChi18jpLmo9Kb8F_M5dV1QOFA09N/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_de-icing_operations.pdf",
+                "type": "pdf",
+                "id": "cyyc_de-icing_operations.pdf"
         },
         {
                 "name": "CYYC_CALGARY_8_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1l4LBXi4CY0n1pOghKDa2bvTyys4B-R6E/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_calgary_8_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cyyc_calgary_8_dep_vector.pdf"
         },
         {
                 "name": "CYYC_RNAV_RNP_Y_RWY_17R.pdf",
-                "url": "https://drive.google.com/file/d/1nLAB_1lp-E7cnhjjMA7CyKgvcXMC2Zmt/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_rnp_y_rwy_17r.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_rnp_y_rwy_17r.pdf"
         },
         {
                 "name": "CYYC_RNAV_RNP_Y_RWY_35L.pdf",
-                "url": "https://drive.google.com/file/d/1jhPvyqfC59r1sebgIwP-w_5kT_E9zewe/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_rnp_y_rwy_35l.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_rnp_y_rwy_35l.pdf"
         },
         {
                 "name": "CYYC_RNAV_GNSS_Z_RWY_35R.pdf",
-                "url": "https://drive.google.com/file/d/1y2MxHtJR49lY90rkpsCoujIHzZZmDqUl/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_gnss_z_rwy_35r.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_gnss_z_rwy_35r.pdf"
         },
         {
                 "name": "CYYC_AERODROME_CHART_PG_03_REDUCED_TAKE_OFF_RUNS.pdf",
-                "url": "https://drive.google.com/file/d/1eMunSOglVuNE4KMvPGd4GotdtpwWGoOn/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_aerodrome_chart_pg_03_reduced_take_off_runs.pdf",
+                "type": "pdf",
+                "id": "cyyc_aerodrome_chart_pg_03_reduced_take_off_runs.pdf"
         },
         {
                 "name": "CYYC_RNAV_RNP_Y_RWY_35R.pdf",
-                "url": "https://drive.google.com/file/d/1dmoDJGxcQ3vuPx88Af56g-g7JB8Aonnm/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_rnp_y_rwy_35r.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_rnp_y_rwy_35r.pdf"
         },
         {
                 "name": "CYYC_RNAV_GNSS_Z_RWY_17R.pdf",
-                "url": "https://drive.google.com/file/d/1tkj6lKBWpVK6qlzw5RzMcb0lqEd4lzvu/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_gnss_z_rwy_17r.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_gnss_z_rwy_17r.pdf"
         },
         {
                 "name": "CYYC_RNAV_RNP_Y_RWY_17L.pdf",
-                "url": "https://drive.google.com/file/d/1jxv5W7Aeltu9zdc6IFjWEtWuoUvHf2Xe/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_rnp_y_rwy_17l.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_rnp_y_rwy_17l.pdf"
         },
         {
                 "name": "CYYC_ATTENTION_ALL_USERS.pdf",
-                "url": "https://drive.google.com/file/d/1NgvFfZ31Og1qrCMfF86H3AfVdD_tGCo9/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_attention_all_users.pdf",
+                "type": "pdf",
+                "id": "cyyc_attention_all_users.pdf"
         },
         {
                 "name": "CYYC_RNAV_RNP_Y_RWY_11.pdf",
-                "url": "https://drive.google.com/file/d/1Uxq0J_wByhMLSsbkuVTFKblMkdVmbWG1/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_rnp_y_rwy_11.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_rnp_y_rwy_11.pdf"
         },
         {
                 "name": "CYYC_RNAV_RNP_Y_RWY_29.pdf",
-                "url": "https://drive.google.com/file/d/1qGg7hz4I8DUeUbCQA6NCynXEPpooT6iJ/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_rnp_y_rwy_29.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_rnp_y_rwy_29.pdf"
         },
         {
                 "name": "CYYC_RNAV_GNSS_Z_RWY_35L.pdf",
-                "url": "https://drive.google.com/file/d/1teN6WrAY6i9P0YPn2z6Z_bLhgBpgEvJg/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_gnss_z_rwy_35l.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_gnss_z_rwy_35l.pdf"
         },
         {
                 "name": "CYYC_RNAV_GNSS_Z_RWY_29.pdf",
-                "url": "https://drive.google.com/file/d/15twWHBPzUOpBS9dKZ-O_JhUb0dXmKUaU/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_gnss_z_rwy_29.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_gnss_z_rwy_29.pdf"
         },
         {
                 "name": "CYYC_RNAV_GNSS_Z_RWY_17L.pdf",
-                "url": "https://drive.google.com/file/d/1kEp9uYS-9MzFZAQQ7e4WehCQ4UkB-qMd/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_gnss_z_rwy_17l.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_gnss_z_rwy_17l.pdf"
         },
         {
                 "name": "CYYC_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1kIS9zj6Yy-IwWChSBTKrOaNXdPOJ8Nux/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "cyyc_aerodrome_chart.pdf"
         },
         {
                 "name": "CYYC_RNAV_GNSS_Z_RWY_11.pdf",
-                "url": "https://drive.google.com/file/d/1pvmy5VFk4UVf-QBN_pGH0ITW2BcLKCT_/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_rnav_gnss_z_rwy_11.pdf",
+                "type": "pdf",
+                "id": "cyyc_rnav_gnss_z_rwy_11.pdf"
         },
         {
                 "name": "CYYC_TOTUB_5_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/17D-MmAf4j-1YAH-KoS7qzhguvqDELQJt/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_totub_5_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyyc_totub_5_arr_rnav.pdf"
         },
         {
                 "name": "CYYC_ILS_RWY_17R.pdf",
-                "url": "https://drive.google.com/file/d/149zuJXd2dm4LtcRgw2foH48Oa8WjdB-v/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ils_rwy_17r.pdf",
+                "type": "pdf",
+                "id": "cyyc_ils_rwy_17r.pdf"
         },
         {
                 "name": "CYYC_ILS_RWY_29.pdf",
-                "url": "https://drive.google.com/file/d/1_y1vDFIrNMTAc59LWMfY8tAWBvgw6uKa/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ils_rwy_29.pdf",
+                "type": "pdf",
+                "id": "cyyc_ils_rwy_29.pdf"
         },
         {
                 "name": "CYYC_TIDUK_7_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1f0b7Yi7NB2VBvLwj421kWpvGL7uttgiq/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_tiduk_7_arr_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_tiduk_7_arr_rnav_pg_02.pdf"
         },
         {
                 "name": "CYYC_VESGA_6_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1mRZOoEkUJ8dMwRdjI0CPBWlu8TZ8AUme/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_vesga_6_arr_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_vesga_6_arr_rnav_pg_02.pdf"
         },
         {
                 "name": "CYYC_VESGA_6_ARR_RNAV_PG_03.pdf",
-                "url": "https://drive.google.com/file/d/1j295fbZQQAqURM86yhT61meGSm3ea-zp/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_vesga_6_arr_rnav_pg_03.pdf",
+                "type": "pdf",
+                "id": "cyyc_vesga_6_arr_rnav_pg_03.pdf"
         },
         {
                 "name": "CYYC_ILS_CAT_II_OR_III_RWY_35R.pdf",
-                "url": "https://drive.google.com/file/d/1NXIBdVZSehdc_CK_ZTKJ-wfelr-aUL5-/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ils_cat_ii_or_iii_rwy_35r.pdf",
+                "type": "pdf",
+                "id": "cyyc_ils_cat_ii_or_iii_rwy_35r.pdf"
         },
         {
                 "name": "CYYC_ILS_CAT_II_RWY_35L.pdf",
-                "url": "https://drive.google.com/file/d/1BAxoSxnmvG72ceKBiQbR2WcKX71W0eap/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ils_cat_ii_rwy_35l.pdf",
+                "type": "pdf",
+                "id": "cyyc_ils_cat_ii_rwy_35l.pdf"
         },
         {
                 "name": "CYYC_ILS_CAT_II_RWY_17R.pdf",
-                "url": "https://drive.google.com/file/d/1DLwldeX2VNXjz38cMkiMSpzRdjjSxd3W/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ils_cat_ii_rwy_17r.pdf",
+                "type": "pdf",
+                "id": "cyyc_ils_cat_ii_rwy_17r.pdf"
         },
         {
                 "name": "CYYC_ILS_RWY_35L.pdf",
-                "url": "https://drive.google.com/file/d/16JH083wlZP0jLoDCB2oDH1y4_yYW_WWa/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ils_rwy_35l.pdf",
+                "type": "pdf",
+                "id": "cyyc_ils_rwy_35l.pdf"
         },
         {
                 "name": "CYYC_TOTUB_5_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1f0GKXJzAK4qcQxpJML1QrrYdwOHqvLwS/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_totub_5_arr_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_totub_5_arr_rnav_pg_02.pdf"
         },
         {
                 "name": "CYYC_ILS_RWY_17L.pdf",
-                "url": "https://drive.google.com/file/d/1wfXu4oWohB3x_N7hTgFAS3GMywlN_WFp/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ils_rwy_17l.pdf",
+                "type": "pdf",
+                "id": "cyyc_ils_rwy_17l.pdf"
         },
         {
                 "name": "CYYC_ILS_RWY_11.pdf",
-                "url": "https://drive.google.com/file/d/1Llhcc9GtZMvxYHcU3DWFdVZBC4vvxPga/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ils_rwy_11.pdf",
+                "type": "pdf",
+                "id": "cyyc_ils_rwy_11.pdf"
         },
         {
                 "name": "CYYC_ILS_RWY_35R.pdf",
-                "url": "https://drive.google.com/file/d/1NEyGMxvrNdwLAAY3HZt1iBL9jHFS9hXq/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ils_rwy_35r.pdf",
+                "type": "pdf",
+                "id": "cyyc_ils_rwy_35r.pdf"
         },
         {
                 "name": "CYYC_ILS_CAT_II_OR_III_RWY_17L.pdf",
-                "url": "https://drive.google.com/file/d/1LEh-ZapWuf23CfKhsCRa6LhvWuZvwh2Y/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ils_cat_ii_or_iii_rwy_17l.pdf",
+                "type": "pdf",
+                "id": "cyyc_ils_cat_ii_or_iii_rwy_17l.pdf"
         },
         {
                 "name": "CYYC_TOTUB_5_ARR_RNAV_PG_03.pdf",
-                "url": "https://drive.google.com/file/d/1uP4aQVield9g8k7sI3lGQK--E2n0S0tZ/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_totub_5_arr_rnav_pg_03.pdf",
+                "type": "pdf",
+                "id": "cyyc_totub_5_arr_rnav_pg_03.pdf"
         },
         {
                 "name": "CYYC_VESGA_6_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1SPz2xHgdCptS6LLNlIOyfUrPvVK62gTt/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_vesga_6_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyyc_vesga_6_arr_rnav.pdf"
         },
         {
                 "name": "CYYC_FLAAM_7_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1m01bmUBOMYftQ0hktLs0ENtWJGPpWAa9/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_flaam_7_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyyc_flaam_7_arr_rnav.pdf"
         },
         {
                 "name": "CYYC_FLAAM_7_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1Xq2nO3XDGeVnmZ4bLJZF3M6EqCb4oKTe/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_flaam_7_arr_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_flaam_7_arr_rnav_pg_02.pdf"
         },
         {
                 "name": "CYYC_BIRKO_6_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/17HrY_B1-DpawKmGwxw4T7qQdfgHiUXnW/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_birko_6_arr_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_birko_6_arr_rnav_pg_02.pdf"
         },
         {
                 "name": "CYYC_BIRKO_6_ARR_RNAV_PG_03.pdf",
-                "url": "https://drive.google.com/file/d/1k5X-7hwpSehl21yiNOV2mxP5Ll05NaB7/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_birko_6_arr_rnav_pg_03.pdf",
+                "type": "pdf",
+                "id": "cyyc_birko_6_arr_rnav_pg_03.pdf"
         },
         {
                 "name": "CYYC_IGVEP_7_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1W8MerU1SIB9u2LWkLSIJTxQWAqsl1_-J/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_igvep_7_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyyc_igvep_7_arr_rnav.pdf"
         },
         {
                 "name": "CYYC_EBGAL_7_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1-kwZlngSNQqO-F8ejhywTlJ0Zpj2M2MC/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ebgal_7_arr_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_ebgal_7_arr_rnav_pg_02.pdf"
         },
         {
                 "name": "CYYC_ADVOX_9_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1ZvJ3oQ2E_8MxEg3b13Sp5GyGhCYKnNsG/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_advox_9_arr_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_advox_9_arr_rnav_pg_02.pdf"
         },
         {
                 "name": "CYYC_EBGAL_7_ARR_RNAV_PG_03.pdf",
-                "url": "https://drive.google.com/file/d/1dM97WVt2uMW7fxPVUY0ZS0u1ISFfI4O9/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ebgal_7_arr_rnav_pg_03.pdf",
+                "type": "pdf",
+                "id": "cyyc_ebgal_7_arr_rnav_pg_03.pdf"
         },
         {
                 "name": "CYYC_EBGAL_7_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1bu4qUZUOw4sYUwDu-VrRBS-HCZMiaW3C/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_ebgal_7_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyyc_ebgal_7_arr_rnav.pdf"
         },
         {
                 "name": "CYYC_BIRKO_6_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1P-zPlmU1CoZB-AT7OTrseF6GTqOSzH4A/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_birko_6_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyyc_birko_6_arr_rnav.pdf"
         },
         {
                 "name": "CYYC_IGVEP_7_ARR_RNAV_PG_03.pdf",
-                "url": "https://drive.google.com/file/d/1wcB1R_z2GHiSzeS2Fq8blUUTACIB3t97/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_igvep_7_arr_rnav_pg_03.pdf",
+                "type": "pdf",
+                "id": "cyyc_igvep_7_arr_rnav_pg_03.pdf"
         },
         {
                 "name": "CYYC_ADVOX_9_ARR_RNAV_PG_03.pdf",
-                "url": "https://drive.google.com/file/d/14VFrRx0aprKtzIZ2U69V0RTVyMJQs6UW/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_advox_9_arr_rnav_pg_03.pdf",
+                "type": "pdf",
+                "id": "cyyc_advox_9_arr_rnav_pg_03.pdf"
         },
         {
                 "name": "CYYC_IGVEP_7_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1QAqPAB0sGKZj_Xp3FtLHKJ6XiPKMfH_h/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_igvep_7_arr_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyc_igvep_7_arr_rnav_pg_02.pdf"
         },
         {
                 "name": "CYYC_TIDUK_7_ARR_RNAV_PG_03.pdf",
-                "url": "https://drive.google.com/file/d/1mv6hya24ogt8cG4fAjHFQcMMkn4hwp26/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_tiduk_7_arr_rnav_pg_03.pdf",
+                "type": "pdf",
+                "id": "cyyc_tiduk_7_arr_rnav_pg_03.pdf"
         },
         {
                 "name": "CYYC_TIDUK_7_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1fAZL63s4UMrwyWBIkiD8CS9V59uoB4XH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_tiduk_7_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyyc_tiduk_7_arr_rnav.pdf"
         },
         {
                 "name": "CYYC_FLAAM_7_ARR_RNAV_PG_03.pdf",
-                "url": "https://drive.google.com/file/d/1gg5YearRBko3iH1Z9bG_7ePTlxqJjepd/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_flaam_7_arr_rnav_pg_03.pdf",
+                "type": "pdf",
+                "id": "cyyc_flaam_7_arr_rnav_pg_03.pdf"
         },
         {
                 "name": "CYYC_ADVOX_9_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1_PheT-S2bDQyngc-ltkjhgLuHV3moOEl/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyc_advox_9_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyyc_advox_9_arr_rnav.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -727,10 +805,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

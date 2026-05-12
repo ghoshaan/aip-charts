@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>EHBK</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,93 +345,111 @@
         const files = [
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_21.pdf",
-                "url": "https://drive.google.com/file/d/17asmMHqc6v_g2lrCrhVG79YdW0WFiMgV/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_21.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_21.pdf"
         },
         {
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_21.pdf",
-                "url": "https://drive.google.com/file/d/1mnjKRoWb1olsjrA-Ay9NojslBGeSGBC9/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "precision_approach_terrain_chart_rwy_21.pdf",
+                "type": "pdf",
+                "id": "precision_approach_terrain_chart_rwy_21.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_03.pdf",
-                "url": "https://drive.google.com/file/d/1K4YpsIVWmtJp4zZBA8TQfMelja6log2Y/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_03.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_03.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT.pdf",
-                "url": "https://drive.google.com/file/d/1E0QVl3ti84jZKMrBdmbXJ40ACYUiHY79/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument.pdf"
         },
         {
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1TW6q_NqupDibmGAuglESDW6dVHDdkjuH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parkingdocking_chart.pdf",
+                "type": "pdf",
+                "id": "aircraft_parkingdocking_chart.pdf"
         },
         {
                 "name": "AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1gQnfNmzA67y_wRn2SujXPzhQ802vPbnh/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "aerodrome_chart.pdf"
         },
         {
                 "name": "VFR_TRAFFIC_CIRCUITS.pdf",
-                "url": "https://drive.google.com/file/d/1eYSltwV6teFUFeIh_J2LRVyIJOWjlp2S/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "vfr_traffic_circuits.pdf",
+                "type": "pdf",
+                "id": "vfr_traffic_circuits.pdf"
         },
         {
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURE.pdf",
-                "url": "https://drive.google.com/file/d/1Yvz9MbO5BIOFHrQOBCEHY-zblS4IeUu-/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "visual_approach_chartvfr_procedure.pdf",
+                "type": "pdf",
+                "id": "visual_approach_chartvfr_procedure.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_03-21.pdf",
-                "url": "https://drive.google.com/file/d/1hLlTKSGaKiuvunPZwTR0DwbB2GqRbWj0/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_type_a_rwy_03-21.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_03-21.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_CDO_APPROACHES_TO_ILS_X_CAT_II_&_III_OR_LOC_X_RWY_21.pdf",
-                "url": "https://drive.google.com/file/d/1jNfaQlrlBq2IzrXPCNsOt8dRZJ0APkEv/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_cdo_approaches_to_ils_x_cat_ii__iii_or_loc_x_rwy_21.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_cdo_approaches_to_ils_x_cat_ii__iii_or_loc_x_rwy_21.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_NDB_RWY_03.pdf",
-                "url": "https://drive.google.com/file/d/1FxYNSq7hQ9pWr5bXstF_jFVhJ41ga1_Y/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_ndb_rwy_03.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_ndb_rwy_03.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_CDO_APPROACHES_TO_ILS_X_OR_LOC_X_RWY_03.pdf",
-                "url": "https://drive.google.com/file/d/1re6i4Zc-P0rV42SQqNM3nuyQxqQnxePp/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_cdo_approaches_to_ils_x_or_loc_x_rwy_03.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_cdo_approaches_to_ils_x_or_loc_x_rwy_03.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_Y_OR_LOC_Y_RWY_03.pdf",
-                "url": "https://drive.google.com/file/d/1_jq0bJje2sFEdyO0304huhEWQZqKgV2H/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_ils_y_or_loc_y_rwy_03.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_ils_y_or_loc_y_rwy_03.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_Z_OR_LOC_Z_RWY_03.pdf",
-                "url": "https://drive.google.com/file/d/1GAe6mEWEWYdP8r3dU147roQxbLpMQMUg/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_ils_z_or_loc_z_rwy_03.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_ils_z_or_loc_z_rwy_03.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_CDO_APPROACHES_TO_RNP_RWY_21.pdf",
-                "url": "https://drive.google.com/file/d/1hMMoVzH8nYK548DNbIMrcFLJA_mBC_x5/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_cdo_approaches_to_rnp_rwy_21.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_cdo_approaches_to_rnp_rwy_21.pdf"
         },
         {
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1yrnDEblR-qEMOxshTnFmB_RAuLv22nSD/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "atc_surveillance_minimum_altitude_chart.pdf",
+                "type": "pdf",
+                "id": "atc_surveillance_minimum_altitude_chart.pdf"
         },
         {
                 "name": "STANDARD_ARRIVAL_CHART-INSTRUMENT_RWY_21.pdf",
-                "url": "https://drive.google.com/file/d/1c_zLJSlnK2lquL1npeBKA6fO1CMxiBvY/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_arrival_chart-instrument_rwy_21.pdf",
+                "type": "pdf",
+                "id": "standard_arrival_chart-instrument_rwy_21.pdf"
         },
         {
                 "name": "STANDARD_ARRIVAL_CHART-INSTRUMENT_RWY_03.pdf",
-                "url": "https://drive.google.com/file/d/1dPpTrcmQcxKH8z_Qg1_Ojr7WFb_PfHae/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_arrival_chart-instrument_rwy_03.pdf",
+                "type": "pdf",
+                "id": "standard_arrival_chart-instrument_rwy_03.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -462,10 +487,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

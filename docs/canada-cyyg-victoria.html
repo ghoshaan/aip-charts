@@ -211,16 +211,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -230,7 +221,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -242,6 +233,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -256,6 +258,7 @@
         
         <header>
             <h1>CYYG Victoria</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -290,68 +293,81 @@
         const files = [
         {
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/1qTRsEzmz_ZOPiIkpcPqGqA4EmbKL9gU8/view?usp=drivesdk",
-                "type": "doc"
+                "url": ".DS_Store",
+                "type": "doc",
+                "id": ".DS_Store"
         },
         {
                 "name": "CYYG_RNAV_RNP_Y_RWY_21.pdf",
-                "url": "https://drive.google.com/file/d/1uf2hoQLv6t5Bjfuao5StIR6G0ZJU-Lml/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_rnav_rnp_y_rwy_21.pdf",
+                "type": "pdf",
+                "id": "cyyg_rnav_rnp_y_rwy_21.pdf"
         },
         {
                 "name": "CYYG_RNAV_GNSS_Z_RWY_03.pdf",
-                "url": "https://drive.google.com/file/d/18wqZQY8kvLk-pRLr3yA_HVstQCTBS6Ta/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_rnav_gnss_z_rwy_03.pdf",
+                "type": "pdf",
+                "id": "cyyg_rnav_gnss_z_rwy_03.pdf"
         },
         {
                 "name": "CYYG_CHARLOTTETOWN_3_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1LPl2jCOmfzgRJ6Z54dqX0mdwJOV82jPH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_charlottetown_3_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyyg_charlottetown_3_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYYG_RNAV_RNP_Y_RWY_28.pdf",
-                "url": "https://drive.google.com/file/d/1xYDZ4DWBzDHNMzItGP32edbT8L3U88AV/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_rnav_rnp_y_rwy_28.pdf",
+                "type": "pdf",
+                "id": "cyyg_rnav_rnp_y_rwy_28.pdf"
         },
         {
                 "name": "CYYG_RNAV_GNSS_Z_RWY_28.pdf",
-                "url": "https://drive.google.com/file/d/1yBP03E6q0gCiILz4jjTf_8RPFQlXh2vl/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_rnav_gnss_z_rwy_28.pdf",
+                "type": "pdf",
+                "id": "cyyg_rnav_gnss_z_rwy_28.pdf"
         },
         {
                 "name": "CYYG_RNAV_RNP_Y_RWY_10.pdf",
-                "url": "https://drive.google.com/file/d/1eI4zyNh1n9qTdgKb9STckYXr-CGsS4Bl/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_rnav_rnp_y_rwy_10.pdf",
+                "type": "pdf",
+                "id": "cyyg_rnav_rnp_y_rwy_10.pdf"
         },
         {
                 "name": "CYYG_RNAV_RNP_Y_RWY_03.pdf",
-                "url": "https://drive.google.com/file/d/1VjZ0oyDDUHmqj2YxYpj8cnbh36WHALRP/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_rnav_rnp_y_rwy_03.pdf",
+                "type": "pdf",
+                "id": "cyyg_rnav_rnp_y_rwy_03.pdf"
         },
         {
                 "name": "CYYG_RNAV_GNSS_Z_RWY_21.pdf",
-                "url": "https://drive.google.com/file/d/1UVpB-iBhkPB7SRt-NuzjwgfspkUmuEU2/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_rnav_gnss_z_rwy_21.pdf",
+                "type": "pdf",
+                "id": "cyyg_rnav_gnss_z_rwy_21.pdf"
         },
         {
                 "name": "CYYG_RNAV_GNSS_Z_RWY_10.pdf",
-                "url": "https://drive.google.com/file/d/14rqpds3aZv4gnTCC1yjW2sJWzXbJqSEM/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_rnav_gnss_z_rwy_10.pdf",
+                "type": "pdf",
+                "id": "cyyg_rnav_gnss_z_rwy_10.pdf"
         },
         {
                 "name": "CYYG_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1bYDnEqyYNsGbJ8xqVm8CamD5BcIHNX7W/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "cyyg_aerodrome_chart.pdf"
         },
         {
                 "name": "CYYG_CHARLOTTETOWN_3_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/17fYTJx6U6_Lyu0Fo4Sx51hBe5D7axnLS/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_charlottetown_3_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cyyg_charlottetown_3_dep_vector.pdf"
         },
         {
                 "name": "CYYG_ILS_RWY_03.pdf",
-                "url": "https://drive.google.com/file/d/1icdi_RQz8e7tJxc7oDHvm7JCF8YaPKGb/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyyg_ils_rwy_03.pdf",
+                "type": "pdf",
+                "id": "cyyg_ils_rwy_03.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -390,6 +406,7 @@
             filesToShow.forEach(file => {
                 const item = document.createElement('a');
                 item.className = 'file-item';
+                item.style.minWidth = '0';
                 item.href = file.url;
                 item.target = '_blank';
                 item.innerHTML = `

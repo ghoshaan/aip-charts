@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,457 +825,457 @@
 
         const files = [
         {
-                "id": "1zXGofESZqhwdh6m19N2DtP3RCeLqG05J",
+                "id": "standard_departure_chart-instrument_rwy_09.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1zXGofESZqhwdh6m19N2DtP3RCeLqG05J/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_09.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_09.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1OnZpLOxpOeZlLFp2GBUGDZNG89nbV_k3",
+                "id": "standard_departure_chart-instrument_rwy_06_supplementary.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_06_(SUPPLEMENTARY).pdf",
-                "url": "https://drive.google.com/file/d/1OnZpLOxpOeZlLFp2GBUGDZNG89nbV_k3/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_06_supplementary.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_06_supplementary.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1wVl3WJ-0gFFQ0ktoCND6a9smKwIBbxas",
+                "id": "standard_departure_chart-instrument_rwy_06.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1wVl3WJ-0gFFQ0ktoCND6a9smKwIBbxas/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_06.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_06.pdf",
                 "type": "pdf"
         },
         {
-                "id": "18_7tscA1-DeZWaeYYycBMBrnnmeZwFTy",
+                "id": "standard_departure_chart-instrument_rwy_04.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_04.pdf",
-                "url": "https://drive.google.com/file/d/18_7tscA1-DeZWaeYYycBMBrnnmeZwFTy/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_04.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_04.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1FLbtsZo_ouXRCtfgre7DxL3szq3SXKMO",
+                "id": "standard_departure_chart-instrument_rwy_36l_supplementary.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36L_(SUPPLEMENTARY).pdf",
-                "url": "https://drive.google.com/file/d/1FLbtsZo_ouXRCtfgre7DxL3szq3SXKMO/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_36l_supplementary.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_36l_supplementary.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1t9fCPx9CEjV2Qik7AgnNJ40yXeoWKBtM",
+                "id": "standard_departure_chart-instrument_rwy_36l.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36L.pdf",
-                "url": "https://drive.google.com/file/d/1t9fCPx9CEjV2Qik7AgnNJ40yXeoWKBtM/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_36l.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_36l.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1AHNbpSbeWzXuaN0iJM9_ofFBRFhQf18c",
+                "id": "standard_departure_chart-instrument_rwy_36c.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36C.pdf",
-                "url": "https://drive.google.com/file/d/1AHNbpSbeWzXuaN0iJM9_ofFBRFhQf18c/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_36c.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_36c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1CzZRfWnGgiva2gYfIQKcO5jKO_nd8DQL",
+                "id": "standard_departure_chart-instrument_rwy_27.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1CzZRfWnGgiva2gYfIQKcO5jKO_nd8DQL/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_27.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1cbgIPR6mf55TcoPO1zXQfZE0nXsceA4N",
+                "id": "standard_departure_chart-instrument_rwy_24_west.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_24_WEST.pdf",
-                "url": "https://drive.google.com/file/d/1cbgIPR6mf55TcoPO1zXQfZE0nXsceA4N/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_24_west.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_24_west.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1SU03axYMK0z_PQoS4iU7B09GeXXFjQR2",
+                "id": "standard_departure_chart_-_instrument.pdf",
                 "name": "STANDARD_DEPARTURE_CHART_-_INSTRUMENT.pdf",
-                "url": "https://drive.google.com/file/d/1SU03axYMK0z_PQoS4iU7B09GeXXFjQR2/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart_-_instrument.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart_-_instrument.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1VbFEYEbHRZnVX6qkbRSa-X7pjn7lTvjT",
+                "id": "standard_departure_chart-instrument_rwy_24_east.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_24_EAST.pdf",
-                "url": "https://drive.google.com/file/d/1VbFEYEbHRZnVX6qkbRSa-X7pjn7lTvjT/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_24_east.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_24_east.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1btWo5ovHXLKfMiKdgg-rtgwYb5hz0Eb9",
+                "id": "standard_departure_chart-instrument_rwy_22.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/1btWo5ovHXLKfMiKdgg-rtgwYb5hz0Eb9/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_22.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_22.pdf",
                 "type": "pdf"
         },
         {
-                "id": "17pDgwPUVxlvNxW8F-B5TvbbVPE5aWgD8",
+                "id": "standard_departure_chart-instrument_rwy_18l_west.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18L_WEST.pdf",
-                "url": "https://drive.google.com/file/d/17pDgwPUVxlvNxW8F-B5TvbbVPE5aWgD8/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_18l_west.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_18l_west.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1rkIsPTumTyhp4h0zMd6cvIYzHP_wmB_O",
+                "id": "standard_departure_chart-instrument_rwy_18l_east.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18L_EAST.pdf",
-                "url": "https://drive.google.com/file/d/1rkIsPTumTyhp4h0zMd6cvIYzHP_wmB_O/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_18l_east.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_18l_east.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1sIKFGkAokO2NRxdaLhcY_6q6k9idu9-q",
+                "id": "standard_departure_chart-instrument_rwy_18c.pdf",
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/1sIKFGkAokO2NRxdaLhcY_6q6k9idu9-q/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_18c.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_departure_chart-instrument_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1xhJccx11sSi5tPgy06t5qpDGFCUJ0iLw",
+                "id": "precision_approach_terrain_chart_rwy_36c.pdf",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_36C.pdf",
-                "url": "https://drive.google.com/file/d/1xhJccx11sSi5tPgy06t5qpDGFCUJ0iLw/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_36c.pdf",
                 "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_36c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1XF9LYtpJcp1sgB2DCKDt416uSMZNt4ST",
+                "id": "precision_approach_terrain_chart_rwy_27.pdf",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1XF9LYtpJcp1sgB2DCKDt416uSMZNt4ST/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_27.pdf",
                 "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1fCOzHzTL2XsLBuhZyzEaSQRZoYEU67w5",
+                "id": "precision_approach_terrain_chart_rwy_18r.pdf",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_18R.pdf",
-                "url": "https://drive.google.com/file/d/1fCOzHzTL2XsLBuhZyzEaSQRZoYEU67w5/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_18r.pdf",
                 "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_18r.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1gtdUNNNaNV_4S_G3cp4My0DjrcOgZpyt",
+                "id": "precision_approach_terrain_chart_rwy_18c.pdf",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/1gtdUNNNaNV_4S_G3cp4My0DjrcOgZpyt/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_18c.pdf",
                 "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1N9ZPJDYAHBR7vMugjVPCwKs2y0941Ktc",
+                "id": "precision_approach_terrain_chart_rwy_06.pdf",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1N9ZPJDYAHBR7vMugjVPCwKs2y0941Ktc/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_06.pdf",
                 "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_06.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1CaxubaT0BZY8WDQ-1ZTWdYpd-1aiz8BX",
+                "id": "precision_approach_terrain_chart_rwy_36r.pdf",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_36R.pdf",
-                "url": "https://drive.google.com/file/d/1CaxubaT0BZY8WDQ-1ZTWdYpd-1aiz8BX/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_36r.pdf",
                 "localUrl": "charts_data/netherlands/eham/precision_approach_terrain_chart_rwy_36r.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1t8Lcphs3GCnrocV-VgW-FI_sKIK0R7Th",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_18l.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_18L.pdf",
-                "url": "https://drive.google.com/file/d/1t8Lcphs3GCnrocV-VgW-FI_sKIK0R7Th/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_18l.pdf",
                 "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_18l.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1zPYdQ42qC_vCYSFDZQew6ta0ql7HPxsD",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_18c-36c.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_18C-36C.pdf",
-                "url": "https://drive.google.com/file/d/1zPYdQ42qC_vCYSFDZQew6ta0ql7HPxsD/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_18c-36c.pdf",
                 "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_18c-36c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "11RUYDY_CkQiGE-cVspW266aSw9ieCqcH",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_09-27.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_09-27.pdf",
-                "url": "https://drive.google.com/file/d/11RUYDY_CkQiGE-cVspW266aSw9ieCqcH/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_09-27.pdf",
                 "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_09-27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1iJKohFOyzQ_4foyRqUs8zFYT7GPaChA0",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_06-24.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_06-24.pdf",
-                "url": "https://drive.google.com/file/d/1iJKohFOyzQ_4foyRqUs8zFYT7GPaChA0/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_06-24.pdf",
                 "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_06-24.pdf",
                 "type": "pdf"
         },
         {
-                "id": "16VFszhbUihPC8_5QoNRPrk4r-LWQM8o7",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_04-22.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_04-22.pdf",
-                "url": "https://drive.google.com/file/d/16VFszhbUihPC8_5QoNRPrk4r-LWQM8o7/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_04-22.pdf",
                 "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_04-22.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1ZwmL_t0aJO2mOQy5lCsN1KCxGmV28d9u",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_36l.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_36L.pdf",
-                "url": "https://drive.google.com/file/d/1ZwmL_t0aJO2mOQy5lCsN1KCxGmV28d9u/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_36l.pdf",
                 "localUrl": "charts_data/netherlands/eham/aerodrome_obstacle_chart_type_a_rwy_36l.pdf",
                 "type": "pdf"
         },
         {
-                "id": "19ubYw0dxT7rqLPLw7Kr1hMWcDfVQ9PmY",
+                "id": "aerodrome_ground_movement_chartcode_letter_f_acft_-_b747-8_restrictions.pdf",
                 "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_B747-8_RESTRICTIONS.pdf",
-                "url": "https://drive.google.com/file/d/19ubYw0dxT7rqLPLw7Kr1hMWcDfVQ9PmY/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aerodrome_ground_movement_chartcode_letter_f_acft_-_b747-8_restrictions.pdf",
                 "localUrl": "charts_data/netherlands/eham/aerodrome_ground_movement_chartcode_letter_f_acft_-_b747-8_restrictions.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1XCYWSLrsoKhIN7czXobCjIsomXFoikLh",
+                "id": "aerodrome_ground_movement_chartcode_letter_f_acft_-_an124_restrictions.pdf",
                 "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_AN124_RESTRICTIONS.pdf",
-                "url": "https://drive.google.com/file/d/1XCYWSLrsoKhIN7czXobCjIsomXFoikLh/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aerodrome_ground_movement_chartcode_letter_f_acft_-_an124_restrictions.pdf",
                 "localUrl": "charts_data/netherlands/eham/aerodrome_ground_movement_chartcode_letter_f_acft_-_an124_restrictions.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1_XvGF2stK1-gRdWEnN057P-3G_3pAzC1",
+                "id": "aerodrome_ground_movement_chartcode_letter_f_acft_-_a380_restrictions.pdf",
                 "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_A380_RESTRICTIONS.pdf",
-                "url": "https://drive.google.com/file/d/1_XvGF2stK1-gRdWEnN057P-3G_3pAzC1/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aerodrome_ground_movement_chartcode_letter_f_acft_-_a380_restrictions.pdf",
                 "localUrl": "charts_data/netherlands/eham/aerodrome_ground_movement_chartcode_letter_f_acft_-_a380_restrictions.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Gqj-K4UIhVi97eAnU06MMwSeFMW1lKwr",
+                "id": "aerodrome_ground_movement_chart.pdf",
                 "name": "AERODROME_GROUND_MOVEMENT_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1Gqj-K4UIhVi97eAnU06MMwSeFMW1lKwr/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aerodrome_ground_movement_chart.pdf",
                 "localUrl": "charts_data/netherlands/eham/aerodrome_ground_movement_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1reI8LjqqhtgtqkXvDZESCc42mgGK-EKt",
+                "id": "aircraft_parkingdocking_chart_schiphol_centre_u-apron.pdf",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_CENTRE_U-APRON.pdf",
-                "url": "https://drive.google.com/file/d/1reI8LjqqhtgtqkXvDZESCc42mgGK-EKt/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_centre_u-apron.pdf",
                 "localUrl": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_centre_u-apron.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1KCLr0fvTgSD04d3s_DtJZjDJ9YUhlvQV",
+                "id": "aircraft_parkingdocking_chart_schiphol_east_m-apron.pdf",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_EAST_M-APRON.pdf",
-                "url": "https://drive.google.com/file/d/1KCLr0fvTgSD04d3s_DtJZjDJ9YUhlvQV/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_east_m-apron.pdf",
                 "localUrl": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_east_m-apron.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1itaty85cqs5HC9a1E_XpDvwHQCYAjBwt",
+                "id": "aircraft_parkingdocking_chart_schiphol_east_k-apron.pdf",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_EAST_K-APRON.pdf",
-                "url": "https://drive.google.com/file/d/1itaty85cqs5HC9a1E_XpDvwHQCYAjBwt/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_east_k-apron.pdf",
                 "localUrl": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_east_k-apron.pdf",
                 "type": "pdf"
         },
         {
-                "id": "10iKR7XvZm451QmQCGwGIpgNW-7y7AAqy",
+                "id": "aircraft_parkingdocking_chart_schiphol_centre.pdf",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_CENTRE.pdf",
-                "url": "https://drive.google.com/file/d/10iKR7XvZm451QmQCGwGIpgNW-7y7AAqy/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_centre.pdf",
                 "localUrl": "charts_data/netherlands/eham/aircraft_parkingdocking_chart_schiphol_centre.pdf",
                 "type": "pdf"
         },
         {
-                "id": "12uevTy5tg42-LOZ4C7q2Qkb-d8PHAVvc",
+                "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/12uevTy5tg42-LOZ4C7q2Qkb-d8PHAVvc/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/aerodrome_chart.pdf",
                 "localUrl": "charts_data/netherlands/eham/aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Y55jkAagfDoHr6wCOc4C65lSkexOONbU",
+                "id": "vfr_traffic_circuits.pdf",
                 "name": "VFR_TRAFFIC_CIRCUITS.pdf",
-                "url": "https://drive.google.com/file/d/1Y55jkAagfDoHr6wCOc4C65lSkexOONbU/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/vfr_traffic_circuits.pdf",
                 "localUrl": "charts_data/netherlands/eham/vfr_traffic_circuits.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1E-bOBkiRidtns82WW6F35euPjLDwepY8",
+                "id": "visual_approach_chartvfr_procedures.pdf",
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1E-bOBkiRidtns82WW6F35euPjLDwepY8/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/visual_approach_chartvfr_procedures.pdf",
                 "localUrl": "charts_data/netherlands/eham/visual_approach_chartvfr_procedures.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1jgYas9bCSUB5s02_Hon_8tBmbeuSneU9",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18c.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/1jgYas9bCSUB5s02_Hon_8tBmbeuSneU9/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18c.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1fCWgDyglLBMLmN_im_nMNorr419mwzCL",
+                "id": "instrument_approach_chart_rwy_09.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1fCWgDyglLBMLmN_im_nMNorr419mwzCL/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_rwy_09.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rwy_09.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1hZJNIIcE7gXMQxmEv04JWbM6TKUoKm0-",
+                "id": "instrument_approach_chart_rnp_rwy_06.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1hZJNIIcE7gXMQxmEv04JWbM6TKUoKm0-/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_06.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_06.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1oX9NT06PxFzZhsdaXZ_PvgNAZ4pI94GA",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_06.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1oX9NT06PxFzZhsdaXZ_PvgNAZ4pI94GA/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_06.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_06.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1DnwJAuHnJUWJIpXel9X-GOAQ7zAfqexO",
+                "id": "instrument_approach_chart_rnp_rwy_36r.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_36R.pdf",
-                "url": "https://drive.google.com/file/d/1DnwJAuHnJUWJIpXel9X-GOAQ7zAfqexO/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_36r.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_36r.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1whdQ17JtDbsSRuQu075KGb_baMqCaP3t",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36r.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_36R.pdf",
-                "url": "https://drive.google.com/file/d/1whdQ17JtDbsSRuQu075KGb_baMqCaP3t/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36r.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36r.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1vf4pmb0C1cqexgy5iNzu6DcWgRLrdocw",
+                "id": "instrument_approach_chart_rnp_rwy_36c.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_36C.pdf",
-                "url": "https://drive.google.com/file/d/1vf4pmb0C1cqexgy5iNzu6DcWgRLrdocw/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_36c.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_36c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1XIL45uwSre5QOEkofJSjafMysw7RWv2B",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_27.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1XIL45uwSre5QOEkofJSjafMysw7RWv2B/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_27.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1JjV1yWtPt2cLsPZ_sPY6X_4BAofj_VXu",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36c.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_36C.pdf",
-                "url": "https://drive.google.com/file/d/1JjV1yWtPt2cLsPZ_sPY6X_4BAofj_VXu/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36c.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1lqi1DDY3oq2QEowrw_1RCnlNKI8A5HPs",
+                "id": "instrument_approach_chart_rnp_rwy_27.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1lqi1DDY3oq2QEowrw_1RCnlNKI8A5HPs/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_27.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1QIFN8ylXZiJhoMaeoE0aMK9aoEc0vtVP",
+                "id": "instrument_approach_chart_rnp_rwy_22.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/1QIFN8ylXZiJhoMaeoE0aMK9aoEc0vtVP/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_22.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_22.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1N7PRHNv1iMLsUH8itaRvMv4rb5XHW8dq",
+                "id": "instrument_approach_chart_rnp_rwy_24.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_24.pdf",
-                "url": "https://drive.google.com/file/d/1N7PRHNv1iMLsUH8itaRvMv4rb5XHW8dq/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_24.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_24.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1DA9RBerUvD1dl-5huTQ4k5gA9HdKfq92",
+                "id": "instrument_approach_chart_rnp_rwy_04.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_04.pdf",
-                "url": "https://drive.google.com/file/d/1DA9RBerUvD1dl-5huTQ4k5gA9HdKfq92/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_04.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_04.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1x8poiL2R4GvFA7vWVAx72q9Mk4du1GqA",
+                "id": "instrument_approach_chart_rnp_rwy_18r.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_18R.pdf",
-                "url": "https://drive.google.com/file/d/1x8poiL2R4GvFA7vWVAx72q9Mk4du1GqA/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_18r.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_18r.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1lN76EjDILr8ov1_SH4fupjAxF1_IGDbM",
+                "id": "instrument_approach_chart_cat_h_ils_or_loc_rwy_22.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_CAT_H_ILS_OR_LOC_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/1lN76EjDILr8ov1_SH4fupjAxF1_IGDbM/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_cat_h_ils_or_loc_rwy_22.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_cat_h_ils_or_loc_rwy_22.pdf",
                 "type": "pdf"
         },
         {
-                "id": "11QA1URA8nKfef8HnYuhkoOfNBPrhIYbE",
+                "id": "instrument_approach_chart_ils_or_loc_rwy_22.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_OR_LOC_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/11QA1URA8nKfef8HnYuhkoOfNBPrhIYbE/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_ils_or_loc_rwy_22.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_or_loc_rwy_22.pdf",
                 "type": "pdf"
         },
         {
-                "id": "12RWWWH0uWsm1wN4W2zRfnSIom-umbcUU",
+                "id": "instrument_approach_chart_rnp_rwy_18c.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/12RWWWH0uWsm1wN4W2zRfnSIom-umbcUU/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_18c.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_rnp_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1KC8Fkb6uKNoQERBhWvQfHHg9Aw0axsXR",
+                "id": "atc_surveillance_minimum_altitude_chart.pdf",
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1KC8Fkb6uKNoQERBhWvQfHHg9Aw0axsXR/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/atc_surveillance_minimum_altitude_chart.pdf",
                 "localUrl": "charts_data/netherlands/eham/atc_surveillance_minimum_altitude_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1uWnDABzJ54ZfpsWSv8BilHu80SdiLBV1",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18r.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_18R.pdf",
-                "url": "https://drive.google.com/file/d/1uWnDABzJ54ZfpsWSv8BilHu80SdiLBV1/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18r.pdf",
                 "localUrl": "charts_data/netherlands/eham/instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18r.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1P1DVl-GKRDkblFa-8D5BsTStp6-dCTsD",
+                "id": "night_transition_ils_rwy_18c.pdf",
                 "name": "NIGHT_TRANSITION_ILS_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/1P1DVl-GKRDkblFa-8D5BsTStp6-dCTsD/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/night_transition_ils_rwy_18c.pdf",
                 "localUrl": "charts_data/netherlands/eham/night_transition_ils_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1j0_VFHuzINlpdlwIvY5cjYKeCF5zKBFH",
+                "id": "night_transition_rnp_rwy_06.pdf",
                 "name": "NIGHT_TRANSITION_RNP_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1j0_VFHuzINlpdlwIvY5cjYKeCF5zKBFH/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/night_transition_rnp_rwy_06.pdf",
                 "localUrl": "charts_data/netherlands/eham/night_transition_rnp_rwy_06.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1vmWp4DB4lllzEX5_sFpMaoDaDEKl1_q4",
+                "id": "night_transition_rnp_rwy_18c.pdf",
                 "name": "NIGHT_TRANSITION_RNP_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/1vmWp4DB4lllzEX5_sFpMaoDaDEKl1_q4/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/night_transition_rnp_rwy_18c.pdf",
                 "localUrl": "charts_data/netherlands/eham/night_transition_rnp_rwy_18c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1qFvsrbt54fl-YdzgjyVJGaKcQjKZkmXz",
+                "id": "standard_arrival_chart-instrument.pdf",
                 "name": "STANDARD_ARRIVAL_CHART-INSTRUMENT.pdf",
-                "url": "https://drive.google.com/file/d/1qFvsrbt54fl-YdzgjyVJGaKcQjKZkmXz/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/standard_arrival_chart-instrument.pdf",
                 "localUrl": "charts_data/netherlands/eham/standard_arrival_chart-instrument.pdf",
                 "type": "pdf"
         },
         {
-                "id": "16dtV4-m4kYRAUvTMX9zb8t0Wf0lP4kAx",
+                "id": "night_transition_ils_rwy_06.pdf",
                 "name": "NIGHT_TRANSITION_ILS_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/16dtV4-m4kYRAUvTMX9zb8t0Wf0lP4kAx/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/night_transition_ils_rwy_06.pdf",
                 "localUrl": "charts_data/netherlands/eham/night_transition_ils_rwy_06.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1oU_KQIL229hvzSz7FPLBzz3RayRoxGyk",
+                "id": "rnav_transition_chart_via_am669_to_rwy_36r.pdf",
                 "name": "RNAV_TRANSITION_CHART_VIA_AM669_TO_RWY_36R.pdf",
-                "url": "https://drive.google.com/file/d/1oU_KQIL229hvzSz7FPLBzz3RayRoxGyk/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/rnav_transition_chart_via_am669_to_rwy_36r.pdf",
                 "localUrl": "charts_data/netherlands/eham/rnav_transition_chart_via_am669_to_rwy_36r.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1yRXQLC4vmBIXlgY_3JBWnAdtoQhW3lyH",
+                "id": "night_transition_rnp_rwy_18r.pdf",
                 "name": "NIGHT_TRANSITION_RNP_RWY_18R.pdf",
-                "url": "https://drive.google.com/file/d/1yRXQLC4vmBIXlgY_3JBWnAdtoQhW3lyH/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/night_transition_rnp_rwy_18r.pdf",
                 "localUrl": "charts_data/netherlands/eham/night_transition_rnp_rwy_18r.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1eYWMk6rYO9zSpgBkOaWw5Y7RU-70_s7M",
+                "id": "night_transition_ils_rwy_18r.pdf",
                 "name": "NIGHT_TRANSITION_ILS_RWY_18R.pdf",
-                "url": "https://drive.google.com/file/d/1eYWMk6rYO9zSpgBkOaWw5Y7RU-70_s7M/view?usp=drivesdk",
+                "url": "charts_data/netherlands/eham/night_transition_ils_rwy_18r.pdf",
                 "localUrl": "charts_data/netherlands/eham/night_transition_ils_rwy_18r.pdf",
                 "type": "pdf"
         }
@@ -1315,6 +1317,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -1326,6 +1329,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

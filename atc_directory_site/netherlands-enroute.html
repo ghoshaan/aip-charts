@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -338,48 +344,57 @@
         const files = [
         {
                 "name": "ENR_6-9_MAASTRICHT_UAC_EN-ROUTE_COMMUNICATION_AT_OR_ABOVE_FL_245.pdf",
-                "url": "https://drive.google.com/file/d/1wrxdnson8wRrRiudFO-1msEfSqV9BAZi/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_6-9_maastricht_uac_en-route_communication_at_or_above_fl_245.pdf",
+                "type": "pdf",
+                "id": "enr_6-9_maastricht_uac_en-route_communication_at_or_above_fl_245.pdf"
         },
         {
                 "name": "ENR_6-5_EN-ROUTE_COMMUNICATION_BELOW_CONTROLLED_AIRSPACE.pdf",
-                "url": "https://drive.google.com/file/d/1Rrnbtav3E7LR-sZv9VkT3T1LFeJuDWOj/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_6-5_en-route_communication_below_controlled_airspace.pdf",
+                "type": "pdf",
+                "id": "enr_6-5_en-route_communication_below_controlled_airspace.pdf"
         },
         {
                 "name": "ENR_6-7_EN-ROUTE_COMMUNICATION_LOWER_CONTROL_AREAS_BELOW_FL_195UPPER_CONTROL_AREA_BTN_FL_195_AND_FL_245.pdf",
-                "url": "https://drive.google.com/file/d/1uC_pQuB34UdXB6r5890Ami852PcxQup6/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_6-7_en-route_communication_lower_control_areas_below_fl_195upper_control_area_btn_fl_195_and_fl_245.pdf",
+                "type": "pdf",
+                "id": "enr_6-7_en-route_communication_lower_control_areas_below_fl_195upper_control_area_btn_fl_195_and_fl_245.pdf"
         },
         {
                 "name": "ENR_6-3_CONTROLLED_AIRSPACE_-_INDEX_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1KDhf1dVhjhCa8zrvVhuQNG80MRvlJn1J/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_6-3_controlled_airspace_-_index_chart.pdf",
+                "type": "pdf",
+                "id": "enr_6-3_controlled_airspace_-_index_chart.pdf"
         },
         {
                 "name": "ENR_6-19_FAUNA_FLIGHT_RESTRICTIONS_-_INDEX_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1POqKah42wU55utjLEwE1VY35mj_yuh8U/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_6-19_fauna_flight_restrictions_-_index_chart.pdf",
+                "type": "pdf",
+                "id": "enr_6-19_fauna_flight_restrictions_-_index_chart.pdf"
         },
         {
                 "name": "ENR_6-15_EN-ROUTE_CHART_-_ICAO.pdf",
-                "url": "https://drive.google.com/file/d/1YAOiBT67QVEjR1zyDtOrRZnA4WrqJgo_/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_6-15_en-route_chart_-_icao.pdf",
+                "type": "pdf",
+                "id": "enr_6-15_en-route_chart_-_icao.pdf"
         },
         {
                 "name": "ENR_6-17_LOW_FLYING_ROUTESAREAS_-_INDEX_CHART.pdf",
-                "url": "https://drive.google.com/file/d/13aNwjAl2hyoOx7D260QkfhP2GtojxfV_/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_6-17_low_flying_routesareas_-_index_chart.pdf",
+                "type": "pdf",
+                "id": "enr_6-17_low_flying_routesareas_-_index_chart.pdf"
         },
         {
                 "name": "ENR_6-13_TRANSPONDER_MANDATORY_ZONES.pdf",
-                "url": "https://drive.google.com/file/d/12GSmUYL7nbWOR_eZSFGSun67l8xoEfmI/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_6-13_transponder_mandatory_zones.pdf",
+                "type": "pdf",
+                "id": "enr_6-13_transponder_mandatory_zones.pdf"
         },
         {
                 "name": "ENR_6-11_MAASTRICHT_UAC_(special_OPS)_EN-ROUTE_COMMUNICATION_AT_OR_ABOVE_FL_245.pdf",
-                "url": "https://drive.google.com/file/d/1XSTseOaqSN13I5EH_RVBq6rtCvcehAs1/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_6-11_maastricht_uac_special_ops_en-route_communication_at_or_above_fl_245.pdf",
+                "type": "pdf",
+                "id": "enr_6-11_maastricht_uac_special_ops_en-route_communication_at_or_above_fl_245.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};

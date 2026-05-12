@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,142 +825,142 @@
 
         const files = [
         {
-                "id": "1uDOdL4miA_1LwgEZ4pHQuAP0cxb9B9JJ",
+                "id": "cyqg_windsor_5_dep_vector_pg_02.pdf",
                 "name": "CYQG_WINDSOR_5_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1uDOdL4miA_1LwgEZ4pHQuAP0cxb9B9JJ/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_windsor_5_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_windsor_5_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1aiLsr5zRnAxWXjHbxftONOPCAnN-gpx2",
+                "id": "cyqg_windsor_5_dep_vector.pdf",
                 "name": "CYQG_WINDSOR_5_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1aiLsr5zRnAxWXjHbxftONOPCAnN-gpx2/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_windsor_5_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_windsor_5_dep_vector.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1G6StMPbrcF954bx9v8E3fUbHG_lcvY1r",
+                "id": "cyqg_maltb_1_dep_rnav_pg_02.pdf",
                 "name": "CYQG_MALTB_1_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1G6StMPbrcF954bx9v8E3fUbHG_lcvY1r/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_maltb_1_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_maltb_1_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1enna8vxWaBLh5tKUZBkDDmpv5LfW3dZ-",
+                "id": "cyqg_maltb_1_dep_rnav.pdf",
                 "name": "CYQG_MALTB_1_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1enna8vxWaBLh5tKUZBkDDmpv5LfW3dZ-/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_maltb_1_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_maltb_1_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1UerX5FqJOqd2SEtABhEMq29-EsrGXdoU",
+                "id": "cyqg_floka_1_dep_rnav_pg_03.pdf",
                 "name": "CYQG_FLOKA_1_DEP_RNAV_PG_03.pdf",
-                "url": "https://drive.google.com/file/d/1UerX5FqJOqd2SEtABhEMq29-EsrGXdoU/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_floka_1_dep_rnav_pg_03.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_floka_1_dep_rnav_pg_03.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1-5-SKDLicrVvWAFKubDxdFpOJVeE6_FX",
+                "id": "cyqg_floka_1_dep_rnav_pg_02.pdf",
                 "name": "CYQG_FLOKA_1_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1-5-SKDLicrVvWAFKubDxdFpOJVeE6_FX/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_floka_1_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_floka_1_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1yYQECPP9giVWyIbImYgI_5seyJCQsKAr",
+                "id": "cyqg_floka_1_dep_rnav.pdf",
                 "name": "CYQG_FLOKA_1_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1yYQECPP9giVWyIbImYgI_5seyJCQsKAr/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_floka_1_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_floka_1_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1VuhyvrQ8wBm_JmJjaieHJkbbkMIUB_77",
+                "id": "cyqg_aerodrome_chart.pdf",
                 "name": "CYQG_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1VuhyvrQ8wBm_JmJjaieHJkbbkMIUB_77/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1iH8s6SPj5w59ky5Oey26wnDZJldUKW5b",
+                "id": "cyqg_rnav_gnss_rwy_30.pdf",
                 "name": "CYQG_RNAV_GNSS_RWY_30.pdf",
-                "url": "https://drive.google.com/file/d/1iH8s6SPj5w59ky5Oey26wnDZJldUKW5b/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_rnav_gnss_rwy_30.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_rnav_gnss_rwy_30.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1t75f8kiGpoVnaNPCg7arEvZc3QSB8em4",
+                "id": "cyqg_rnav_gnss_rwy_25.pdf",
                 "name": "CYQG_RNAV_GNSS_RWY_25.pdf",
-                "url": "https://drive.google.com/file/d/1t75f8kiGpoVnaNPCg7arEvZc3QSB8em4/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_rnav_gnss_rwy_25.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_rnav_gnss_rwy_25.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1XdMuweeyRfJx8f-QAsx7w0OYVJQ0HXU8",
+                "id": "cyqg_rnav_gnss_rwy_07.pdf",
                 "name": "CYQG_RNAV_GNSS_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1XdMuweeyRfJx8f-QAsx7w0OYVJQ0HXU8/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_rnav_gnss_rwy_07.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_rnav_gnss_rwy_07.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1AlCokUVtv-3LHjW00Yih25yLdedaphj0",
+                "id": "cyqg_ils_rwy_25.pdf",
                 "name": "CYQG_ILS_RWY_25.pdf",
-                "url": "https://drive.google.com/file/d/1AlCokUVtv-3LHjW00Yih25yLdedaphj0/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_ils_rwy_25.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_ils_rwy_25.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1R_x-7z0APO12Hdm0OfqiSgByKFkiubAw",
+                "id": "cyqg_rralf_3_arr_rnav_pg_02.pdf",
                 "name": "CYQG_RRALF_3_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1R_x-7z0APO12Hdm0OfqiSgByKFkiubAw/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_rralf_3_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_rralf_3_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1F507poJFfvrWBqWL8xuibEh52D5dqN64",
+                "id": "cyqg_rralf_3_arr_rnav.pdf",
                 "name": "CYQG_RRALF_3_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1F507poJFfvrWBqWL8xuibEh52D5dqN64/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_rralf_3_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_rralf_3_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1NxaPQ7l19pgrWYPXaVRjQMS4gZdXKnf7",
+                "id": "cyqg_pette_2_arr_rnav_pg_02.pdf",
                 "name": "CYQG_PETTE_2_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1NxaPQ7l19pgrWYPXaVRjQMS4gZdXKnf7/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_pette_2_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_pette_2_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1-jT6DNKZXJ5vGhg42Cb4wllieqGlqWyD",
+                "id": "cyqg_pette_2_arr_rnav.pdf",
                 "name": "CYQG_PETTE_2_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1-jT6DNKZXJ5vGhg42Cb4wllieqGlqWyD/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_pette_2_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_pette_2_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1KhUk5gtiSFcL_IRMmPAmQ2Up78-Q2jXy",
+                "id": "cyqg_forey_2_arr_rnav_pg_02.pdf",
                 "name": "CYQG_FOREY_2_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1KhUk5gtiSFcL_IRMmPAmQ2Up78-Q2jXy/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_forey_2_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_forey_2_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1UvM2hweiHBYyXPXQ0TvaYFt7AXSTGQXx",
+                "id": "cyqg_forey_2_arr_rnav.pdf",
                 "name": "CYQG_FOREY_2_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1UvM2hweiHBYyXPXQ0TvaYFt7AXSTGQXx/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_forey_2_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_forey_2_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1wAqefFaViJdrhzjtedP44Wgn7otDlmNW",
+                "id": "cyqg_autto_1_arr_rnav_pg_02.pdf",
                 "name": "CYQG_AUTTO_1_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1wAqefFaViJdrhzjtedP44Wgn7otDlmNW/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_autto_1_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_autto_1_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1LWLS7-HW9WUkcAzwtLvc9kHgBLSQDCIh",
+                "id": "cyqg_autto_1_arr_rnav.pdf",
                 "name": "CYQG_AUTTO_1_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1LWLS7-HW9WUkcAzwtLvc9kHgBLSQDCIh/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqg-windsor/cyqg_autto_1_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqg-windsor/cyqg_autto_1_arr_rnav.pdf",
                 "type": "pdf"
         }
@@ -1000,6 +1002,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -1011,6 +1014,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

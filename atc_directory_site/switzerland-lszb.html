@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>LSZB</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,83 +345,99 @@
         const files = [
         {
                 "name": "STAR_ICAO_RNAV_BIRKI_-_FRIBU_1M_MONIN_4M_ROTOS_4M_TELNO_4M.pdf",
-                "url": "https://drive.google.com/file/d/1L2nVKC9OTORiKUzE2QWnWIyP-pw7xjj8/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "star_icao_rnav_birki_-_fribu_1m_monin_4m_rotos_4m_telno_4m.pdf",
+                "type": "pdf",
+                "id": "star_icao_rnav_birki_-_fribu_1m_monin_4m_rotos_4m_telno_4m.pdf"
         },
         {
                 "name": "SID_ICAO_RNAV_RWY_32_-_AMRID_3B_KONOL_1B_MONIN_3B.pdf",
-                "url": "https://drive.google.com/file/d/1oPXyKrJi4GFgTpeQTpDLCal8KR6pXTlZ/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_rnav_rwy_32_-_amrid_3b_konol_1b_monin_3b.pdf",
+                "type": "pdf",
+                "id": "sid_icao_rnav_rwy_32_-_amrid_3b_konol_1b_monin_3b.pdf"
         },
         {
                 "name": "SID_ICAO_RNAV_RWY_14_-_AMRID_4S_KONOL_1S_MONIN_4S.pdf",
-                "url": "https://drive.google.com/file/d/1GD5RVVRVNsJlGDWaAuJt90bSnjlb7cDq/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_rnav_rwy_14_-_amrid_4s_konol_1s_monin_4s.pdf",
+                "type": "pdf",
+                "id": "sid_icao_rnav_rwy_14_-_amrid_4s_konol_1s_monin_4s.pdf"
         },
         {
                 "name": "AREA_CHART_ICAO_TRANSITION_AFTER_DEPARTURE_ROUTES_AMRID_KONOL_MEBOX_RAMOK.pdf",
-                "url": "https://drive.google.com/file/d/18-k8fKD90zdvGgIeqEkihpvIzDeecmxf/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "area_chart_icao_transition_after_departure_routes_amrid_konol_mebox_ramok.pdf",
+                "type": "pdf",
+                "id": "area_chart_icao_transition_after_departure_routes_amrid_konol_mebox_ramok.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_32.pdf",
-                "url": "https://drive.google.com/file/d/1CdO9rXMLN8O4b7wBCtEFVL6yjjnNE10G/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_-_type_a_-_rwy_32.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_32.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_14.pdf",
-                "url": "https://drive.google.com/file/d/1hflS5xcGoO7RM5qZ8tuWkiAGIpezJSoF/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_-_type_a_-_rwy_14.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_14.pdf"
         },
         {
                 "name": "AIRCRAFT_PARKING_DOCKING_CHART.pdf",
-                "url": "https://drive.google.com/file/d/12lMMSrSQL1H6S6GU3nUEB6b1YxPicw4G/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parking_docking_chart.pdf",
+                "type": "pdf",
+                "id": "aircraft_parking_docking_chart.pdf"
         },
         {
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART_(AD_TEMPERATURES_-4C_AND_ABOVE).pdf",
-                "url": "https://drive.google.com/file/d/1XNEUDszPajKP-tgMUlFpXPJKCWU1bKQ8/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "atc_surveillance_minimum_altitude_chart_ad_temperatures_-4c_and_above.pdf",
+                "type": "pdf",
+                "id": "atc_surveillance_minimum_altitude_chart_ad_temperatures_-4c_and_above.pdf"
         },
         {
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART_(AD_TEMPERATURES_-20_TO_-5C).pdf",
-                "url": "https://drive.google.com/file/d/1-hCLo0mUmpMNfOI04NAuuPu3iXPV9xga/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "atc_surveillance_minimum_altitude_chart_ad_temperatures_-20_to_-5c.pdf",
+                "type": "pdf",
+                "id": "atc_surveillance_minimum_altitude_chart_ad_temperatures_-20_to_-5c.pdf"
         },
         {
                 "name": "IAC_ICAO_RNP_Y_RWY_32.pdf",
-                "url": "https://drive.google.com/file/d/1bHdTojzZqrpxonPOvBkrdPUWQBv_cg9J/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_rnp_y_rwy_32.pdf",
+                "type": "pdf",
+                "id": "iac_icao_rnp_y_rwy_32.pdf"
         },
         {
                 "name": "IAC_ICAO_ILS_RWY_14_HELICOPTER_CAT_H.pdf",
-                "url": "https://drive.google.com/file/d/10xxIrRn0JKHa1yLyXBmQtOh8mZuG1eFH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_ils_rwy_14_helicopter_cat_h.pdf",
+                "type": "pdf",
+                "id": "iac_icao_ils_rwy_14_helicopter_cat_h.pdf"
         },
         {
                 "name": "IAC_ICAO_RNP_RWY_14.pdf",
-                "url": "https://drive.google.com/file/d/1h1yW97qjAfl--2bw4xTVRE-y7gIxFq68/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_rnp_rwy_14.pdf",
+                "type": "pdf",
+                "id": "iac_icao_rnp_rwy_14.pdf"
         },
         {
                 "name": "IAC_ICAO_LOC_RWY_14.pdf",
-                "url": "https://drive.google.com/file/d/1mB2titWh9yedRrj8IJQXxyytOenFPdaw/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_loc_rwy_14.pdf",
+                "type": "pdf",
+                "id": "iac_icao_loc_rwy_14.pdf"
         },
         {
                 "name": "IAC_ICAO_ILS_RWY_14.pdf",
-                "url": "https://drive.google.com/file/d/1mzj3v0voko2cSRnw4QgYKzYzkAYUtewu/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_ils_rwy_14.pdf",
+                "type": "pdf",
+                "id": "iac_icao_ils_rwy_14.pdf"
         },
         {
                 "name": "IAC_ICAO_RNP_Z_RWY_32.pdf",
-                "url": "https://drive.google.com/file/d/1Wx1-ibPj-kxGZ-eGLxPY1Gd_M1N8SyAb/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_rnp_z_rwy_32.pdf",
+                "type": "pdf",
+                "id": "iac_icao_rnp_z_rwy_32.pdf"
         },
         {
                 "name": "AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1N6_ricsk0m7_hivyVvSD6zGc5E6l4HYD/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "aerodrome_chart.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -452,10 +475,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

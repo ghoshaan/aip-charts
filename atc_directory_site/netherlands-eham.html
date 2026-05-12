@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>EHAM</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,328 +345,393 @@
         const files = [
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1zXGofESZqhwdh6m19N2DtP3RCeLqG05J/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_09.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_09.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_06_(SUPPLEMENTARY).pdf",
-                "url": "https://drive.google.com/file/d/1OnZpLOxpOeZlLFp2GBUGDZNG89nbV_k3/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_06_supplementary.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_06_supplementary.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1wVl3WJ-0gFFQ0ktoCND6a9smKwIBbxas/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_06.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_06.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_04.pdf",
-                "url": "https://drive.google.com/file/d/18_7tscA1-DeZWaeYYycBMBrnnmeZwFTy/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_04.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_04.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36L_(SUPPLEMENTARY).pdf",
-                "url": "https://drive.google.com/file/d/1FLbtsZo_ouXRCtfgre7DxL3szq3SXKMO/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_36l_supplementary.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_36l_supplementary.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36L.pdf",
-                "url": "https://drive.google.com/file/d/1t9fCPx9CEjV2Qik7AgnNJ40yXeoWKBtM/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_36l.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_36l.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_36C.pdf",
-                "url": "https://drive.google.com/file/d/1AHNbpSbeWzXuaN0iJM9_ofFBRFhQf18c/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_36c.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_36c.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1CzZRfWnGgiva2gYfIQKcO5jKO_nd8DQL/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_27.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_27.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_24_WEST.pdf",
-                "url": "https://drive.google.com/file/d/1cbgIPR6mf55TcoPO1zXQfZE0nXsceA4N/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_24_west.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_24_west.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART_-_INSTRUMENT.pdf",
-                "url": "https://drive.google.com/file/d/1SU03axYMK0z_PQoS4iU7B09GeXXFjQR2/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart_-_instrument.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart_-_instrument.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_24_EAST.pdf",
-                "url": "https://drive.google.com/file/d/1VbFEYEbHRZnVX6qkbRSa-X7pjn7lTvjT/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_24_east.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_24_east.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/1btWo5ovHXLKfMiKdgg-rtgwYb5hz0Eb9/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_22.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_22.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18L_WEST.pdf",
-                "url": "https://drive.google.com/file/d/17pDgwPUVxlvNxW8F-B5TvbbVPE5aWgD8/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_18l_west.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_18l_west.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18L_EAST.pdf",
-                "url": "https://drive.google.com/file/d/1rkIsPTumTyhp4h0zMd6cvIYzHP_wmB_O/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_18l_east.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_18l_east.pdf"
         },
         {
                 "name": "STANDARD_DEPARTURE_CHART-INSTRUMENT_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/1sIKFGkAokO2NRxdaLhcY_6q6k9idu9-q/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_departure_chart-instrument_rwy_18c.pdf",
+                "type": "pdf",
+                "id": "standard_departure_chart-instrument_rwy_18c.pdf"
         },
         {
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_36C.pdf",
-                "url": "https://drive.google.com/file/d/1xhJccx11sSi5tPgy06t5qpDGFCUJ0iLw/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "precision_approach_terrain_chart_rwy_36c.pdf",
+                "type": "pdf",
+                "id": "precision_approach_terrain_chart_rwy_36c.pdf"
         },
         {
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1XF9LYtpJcp1sgB2DCKDt416uSMZNt4ST/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "precision_approach_terrain_chart_rwy_27.pdf",
+                "type": "pdf",
+                "id": "precision_approach_terrain_chart_rwy_27.pdf"
         },
         {
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_18R.pdf",
-                "url": "https://drive.google.com/file/d/1fCOzHzTL2XsLBuhZyzEaSQRZoYEU67w5/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "precision_approach_terrain_chart_rwy_18r.pdf",
+                "type": "pdf",
+                "id": "precision_approach_terrain_chart_rwy_18r.pdf"
         },
         {
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/1gtdUNNNaNV_4S_G3cp4My0DjrcOgZpyt/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "precision_approach_terrain_chart_rwy_18c.pdf",
+                "type": "pdf",
+                "id": "precision_approach_terrain_chart_rwy_18c.pdf"
         },
         {
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1N9ZPJDYAHBR7vMugjVPCwKs2y0941Ktc/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "precision_approach_terrain_chart_rwy_06.pdf",
+                "type": "pdf",
+                "id": "precision_approach_terrain_chart_rwy_06.pdf"
         },
         {
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_RWY_36R.pdf",
-                "url": "https://drive.google.com/file/d/1CaxubaT0BZY8WDQ-1ZTWdYpd-1aiz8BX/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "precision_approach_terrain_chart_rwy_36r.pdf",
+                "type": "pdf",
+                "id": "precision_approach_terrain_chart_rwy_36r.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_18L.pdf",
-                "url": "https://drive.google.com/file/d/1t8Lcphs3GCnrocV-VgW-FI_sKIK0R7Th/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_type_a_rwy_18l.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_18l.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_18C-36C.pdf",
-                "url": "https://drive.google.com/file/d/1zPYdQ42qC_vCYSFDZQew6ta0ql7HPxsD/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_type_a_rwy_18c-36c.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_18c-36c.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_09-27.pdf",
-                "url": "https://drive.google.com/file/d/11RUYDY_CkQiGE-cVspW266aSw9ieCqcH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_type_a_rwy_09-27.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_09-27.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_06-24.pdf",
-                "url": "https://drive.google.com/file/d/1iJKohFOyzQ_4foyRqUs8zFYT7GPaChA0/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_type_a_rwy_06-24.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_06-24.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_04-22.pdf",
-                "url": "https://drive.google.com/file/d/16VFszhbUihPC8_5QoNRPrk4r-LWQM8o7/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_type_a_rwy_04-22.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_04-22.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_36L.pdf",
-                "url": "https://drive.google.com/file/d/1ZwmL_t0aJO2mOQy5lCsN1KCxGmV28d9u/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_type_a_rwy_36l.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_type_a_rwy_36l.pdf"
         },
         {
                 "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_B747-8_RESTRICTIONS.pdf",
-                "url": "https://drive.google.com/file/d/19ubYw0dxT7rqLPLw7Kr1hMWcDfVQ9PmY/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_ground_movement_chartcode_letter_f_acft_-_b747-8_restrictions.pdf",
+                "type": "pdf",
+                "id": "aerodrome_ground_movement_chartcode_letter_f_acft_-_b747-8_restrictions.pdf"
         },
         {
                 "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_AN124_RESTRICTIONS.pdf",
-                "url": "https://drive.google.com/file/d/1XCYWSLrsoKhIN7czXobCjIsomXFoikLh/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_ground_movement_chartcode_letter_f_acft_-_an124_restrictions.pdf",
+                "type": "pdf",
+                "id": "aerodrome_ground_movement_chartcode_letter_f_acft_-_an124_restrictions.pdf"
         },
         {
                 "name": "AERODROME_GROUND_MOVEMENT_CHARTCODE_LETTER_F_ACFT_-_A380_RESTRICTIONS.pdf",
-                "url": "https://drive.google.com/file/d/1_XvGF2stK1-gRdWEnN057P-3G_3pAzC1/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_ground_movement_chartcode_letter_f_acft_-_a380_restrictions.pdf",
+                "type": "pdf",
+                "id": "aerodrome_ground_movement_chartcode_letter_f_acft_-_a380_restrictions.pdf"
         },
         {
                 "name": "AERODROME_GROUND_MOVEMENT_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1Gqj-K4UIhVi97eAnU06MMwSeFMW1lKwr/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_ground_movement_chart.pdf",
+                "type": "pdf",
+                "id": "aerodrome_ground_movement_chart.pdf"
         },
         {
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_CENTRE_U-APRON.pdf",
-                "url": "https://drive.google.com/file/d/1reI8LjqqhtgtqkXvDZESCc42mgGK-EKt/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parkingdocking_chart_schiphol_centre_u-apron.pdf",
+                "type": "pdf",
+                "id": "aircraft_parkingdocking_chart_schiphol_centre_u-apron.pdf"
         },
         {
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_EAST_M-APRON.pdf",
-                "url": "https://drive.google.com/file/d/1KCLr0fvTgSD04d3s_DtJZjDJ9YUhlvQV/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parkingdocking_chart_schiphol_east_m-apron.pdf",
+                "type": "pdf",
+                "id": "aircraft_parkingdocking_chart_schiphol_east_m-apron.pdf"
         },
         {
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_EAST_K-APRON.pdf",
-                "url": "https://drive.google.com/file/d/1itaty85cqs5HC9a1E_XpDvwHQCYAjBwt/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parkingdocking_chart_schiphol_east_k-apron.pdf",
+                "type": "pdf",
+                "id": "aircraft_parkingdocking_chart_schiphol_east_k-apron.pdf"
         },
         {
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_SCHIPHOL_CENTRE.pdf",
-                "url": "https://drive.google.com/file/d/10iKR7XvZm451QmQCGwGIpgNW-7y7AAqy/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parkingdocking_chart_schiphol_centre.pdf",
+                "type": "pdf",
+                "id": "aircraft_parkingdocking_chart_schiphol_centre.pdf"
         },
         {
                 "name": "AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/12uevTy5tg42-LOZ4C7q2Qkb-d8PHAVvc/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "aerodrome_chart.pdf"
         },
         {
                 "name": "VFR_TRAFFIC_CIRCUITS.pdf",
-                "url": "https://drive.google.com/file/d/1Y55jkAagfDoHr6wCOc4C65lSkexOONbU/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "vfr_traffic_circuits.pdf",
+                "type": "pdf",
+                "id": "vfr_traffic_circuits.pdf"
         },
         {
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1E-bOBkiRidtns82WW6F35euPjLDwepY8/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "visual_approach_chartvfr_procedures.pdf",
+                "type": "pdf",
+                "id": "visual_approach_chartvfr_procedures.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/1jgYas9bCSUB5s02_Hon_8tBmbeuSneU9/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18c.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18c.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1fCWgDyglLBMLmN_im_nMNorr419mwzCL/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_rwy_09.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_rwy_09.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1hZJNIIcE7gXMQxmEv04JWbM6TKUoKm0-/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_rnp_rwy_06.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_rnp_rwy_06.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1oX9NT06PxFzZhsdaXZ_PvgNAZ4pI94GA/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_06.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_06.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_36R.pdf",
-                "url": "https://drive.google.com/file/d/1DnwJAuHnJUWJIpXel9X-GOAQ7zAfqexO/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_rnp_rwy_36r.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_rnp_rwy_36r.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_36R.pdf",
-                "url": "https://drive.google.com/file/d/1whdQ17JtDbsSRuQu075KGb_baMqCaP3t/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36r.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36r.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_36C.pdf",
-                "url": "https://drive.google.com/file/d/1vf4pmb0C1cqexgy5iNzu6DcWgRLrdocw/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_rnp_rwy_36c.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_rnp_rwy_36c.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1XIL45uwSre5QOEkofJSjafMysw7RWv2B/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_27.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_27.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_or_LOC_RWY_36C.pdf",
-                "url": "https://drive.google.com/file/d/1JjV1yWtPt2cLsPZ_sPY6X_4BAofj_VXu/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36c.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_36c.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1lqi1DDY3oq2QEowrw_1RCnlNKI8A5HPs/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_rnp_rwy_27.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_rnp_rwy_27.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/1QIFN8ylXZiJhoMaeoE0aMK9aoEc0vtVP/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_rnp_rwy_22.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_rnp_rwy_22.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_24.pdf",
-                "url": "https://drive.google.com/file/d/1N7PRHNv1iMLsUH8itaRvMv4rb5XHW8dq/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_rnp_rwy_24.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_rnp_rwy_24.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_04.pdf",
-                "url": "https://drive.google.com/file/d/1DA9RBerUvD1dl-5huTQ4k5gA9HdKfq92/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_rnp_rwy_04.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_rnp_rwy_04.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_18R.pdf",
-                "url": "https://drive.google.com/file/d/1x8poiL2R4GvFA7vWVAx72q9Mk4du1GqA/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_rnp_rwy_18r.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_rnp_rwy_18r.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_CAT_H_ILS_OR_LOC_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/1lN76EjDILr8ov1_SH4fupjAxF1_IGDbM/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_cat_h_ils_or_loc_rwy_22.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_cat_h_ils_or_loc_rwy_22.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_OR_LOC_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/11QA1URA8nKfef8HnYuhkoOfNBPrhIYbE/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_ils_or_loc_rwy_22.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_ils_or_loc_rwy_22.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/12RWWWH0uWsm1wN4W2zRfnSIom-umbcUU/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_rnp_rwy_18c.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_rnp_rwy_18c.pdf"
         },
         {
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1KC8Fkb6uKNoQERBhWvQfHHg9Aw0axsXR/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "atc_surveillance_minimum_altitude_chart.pdf",
+                "type": "pdf",
+                "id": "atc_surveillance_minimum_altitude_chart.pdf"
         },
         {
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_CAT_II_&_III_OR_LOC_RWY_18R.pdf",
-                "url": "https://drive.google.com/file/d/1uWnDABzJ54ZfpsWSv8BilHu80SdiLBV1/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18r.pdf",
+                "type": "pdf",
+                "id": "instrument_approach_chart_ils_cat_ii__iii_or_loc_rwy_18r.pdf"
         },
         {
                 "name": "NIGHT_TRANSITION_ILS_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/1P1DVl-GKRDkblFa-8D5BsTStp6-dCTsD/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "night_transition_ils_rwy_18c.pdf",
+                "type": "pdf",
+                "id": "night_transition_ils_rwy_18c.pdf"
         },
         {
                 "name": "NIGHT_TRANSITION_RNP_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1j0_VFHuzINlpdlwIvY5cjYKeCF5zKBFH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "night_transition_rnp_rwy_06.pdf",
+                "type": "pdf",
+                "id": "night_transition_rnp_rwy_06.pdf"
         },
         {
                 "name": "NIGHT_TRANSITION_RNP_RWY_18C.pdf",
-                "url": "https://drive.google.com/file/d/1vmWp4DB4lllzEX5_sFpMaoDaDEKl1_q4/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "night_transition_rnp_rwy_18c.pdf",
+                "type": "pdf",
+                "id": "night_transition_rnp_rwy_18c.pdf"
         },
         {
                 "name": "STANDARD_ARRIVAL_CHART-INSTRUMENT.pdf",
-                "url": "https://drive.google.com/file/d/1qFvsrbt54fl-YdzgjyVJGaKcQjKZkmXz/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "standard_arrival_chart-instrument.pdf",
+                "type": "pdf",
+                "id": "standard_arrival_chart-instrument.pdf"
         },
         {
                 "name": "NIGHT_TRANSITION_ILS_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/16dtV4-m4kYRAUvTMX9zb8t0Wf0lP4kAx/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "night_transition_ils_rwy_06.pdf",
+                "type": "pdf",
+                "id": "night_transition_ils_rwy_06.pdf"
         },
         {
                 "name": "RNAV_TRANSITION_CHART_VIA_AM669_TO_RWY_36R.pdf",
-                "url": "https://drive.google.com/file/d/1oU_KQIL229hvzSz7FPLBzz3RayRoxGyk/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "rnav_transition_chart_via_am669_to_rwy_36r.pdf",
+                "type": "pdf",
+                "id": "rnav_transition_chart_via_am669_to_rwy_36r.pdf"
         },
         {
                 "name": "NIGHT_TRANSITION_RNP_RWY_18R.pdf",
-                "url": "https://drive.google.com/file/d/1yRXQLC4vmBIXlgY_3JBWnAdtoQhW3lyH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "night_transition_rnp_rwy_18r.pdf",
+                "type": "pdf",
+                "id": "night_transition_rnp_rwy_18r.pdf"
         },
         {
                 "name": "NIGHT_TRANSITION_ILS_RWY_18R.pdf",
-                "url": "https://drive.google.com/file/d/1eYWMk6rYO9zSpgBkOaWw5Y7RU-70_s7M/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "night_transition_ils_rwy_18r.pdf",
+                "type": "pdf",
+                "id": "night_transition_ils_rwy_18r.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -697,10 +769,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>LSZG</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,53 +345,63 @@
         const files = [
         {
                 "name": "SID_ICAO_RNAV_RWY_0624_(VISUAL)_-_BIRKI_7V_FRIBU_1V_WIL_3V.pdf",
-                "url": "https://drive.google.com/file/d/1K7n7Ra_OiP05RQgRWmzLmRReKNaKhlMH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_rnav_rwy_0624_visual_-_birki_7v_fribu_1v_wil_3v.pdf",
+                "type": "pdf",
+                "id": "sid_icao_rnav_rwy_0624_visual_-_birki_7v_fribu_1v_wil_3v.pdf"
         },
         {
                 "name": "SID_ICAO_RNAV_RWY_24_-_BIRKI_2W_FRIBU_2W_WIL_2W.pdf",
-                "url": "https://drive.google.com/file/d/1Qf9Km8mO9b56dH8KN2_rsmRIVYjMvwjm/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_rnav_rwy_24_-_birki_2w_fribu_2w_wil_2w.pdf",
+                "type": "pdf",
+                "id": "sid_icao_rnav_rwy_24_-_birki_2w_fribu_2w_wil_2w.pdf"
         },
         {
                 "name": "SID_ICAO_RNAV_RWY_06_-_BIRKI_2K_FRIBU_2K_WIL_2K.pdf",
-                "url": "https://drive.google.com/file/d/1kFvC-9tFOUqCDyoWyFL5jgD46O7qnrRW/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_rnav_rwy_06_-_birki_2k_fribu_2k_wil_2k.pdf",
+                "type": "pdf",
+                "id": "sid_icao_rnav_rwy_06_-_birki_2k_fribu_2k_wil_2k.pdf"
         },
         {
                 "name": "SID_ICAO_RNAV_RWY_0624_-_ARVAN_2K_ARVAN_2W.pdf",
-                "url": "https://drive.google.com/file/d/1elXbh3D2d5uhJEa8noAVA9leFXqQqM00/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_rnav_rwy_0624_-_arvan_2k_arvan_2w.pdf",
+                "type": "pdf",
+                "id": "sid_icao_rnav_rwy_0624_-_arvan_2k_arvan_2w.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_0624_-_DIST_AND_ELEV_IN_M.pdf",
-                "url": "https://drive.google.com/file/d/1l4K41B_q47b3kFaFRcEtDMjuhUnzwkKu/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_-_type_a_-_rwy_0624_-_dist_and_elev_in_m.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_0624_-_dist_and_elev_in_m.pdf"
         },
         {
                 "name": "IAC_ICAO_RNP_RWY_24.pdf",
-                "url": "https://drive.google.com/file/d/1eGoKNtYFdux12ur2prPdFpCXAUhwZySR/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_rnp_rwy_24.pdf",
+                "type": "pdf",
+                "id": "iac_icao_rnp_rwy_24.pdf"
         },
         {
                 "name": "AIRCRAFT_PARKING_CHART_-_CTR.pdf",
-                "url": "https://drive.google.com/file/d/1yOYP3iPhyk-k2uzs-mq6xHXc5LxgHaPJ/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parking_chart_-_ctr.pdf",
+                "type": "pdf",
+                "id": "aircraft_parking_chart_-_ctr.pdf"
         },
         {
                 "name": "AIRCRAFT_PARKING_CHART_-_RMZ.pdf",
-                "url": "https://drive.google.com/file/d/1Pc7c9rOwlwFck2aPTRYgg5dsa2QP4PAC/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parking_chart_-_rmz.pdf",
+                "type": "pdf",
+                "id": "aircraft_parking_chart_-_rmz.pdf"
         },
         {
                 "name": "AERODROME_CHART_-_CTR.pdf",
-                "url": "https://drive.google.com/file/d/13g4MFcsTbkhwzQa-Pm-IBDVF-IAFxlyX/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_chart_-_ctr.pdf",
+                "type": "pdf",
+                "id": "aerodrome_chart_-_ctr.pdf"
         },
         {
                 "name": "AERODROME_CHART_-_RMZ.pdf",
-                "url": "https://drive.google.com/file/d/1OROTPkyMBbG0qtDzNrhWBUcQ5KpQdPKH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_chart_-_rmz.pdf",
+                "type": "pdf",
+                "id": "aerodrome_chart_-_rmz.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -422,10 +439,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

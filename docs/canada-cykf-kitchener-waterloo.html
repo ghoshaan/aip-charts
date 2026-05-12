@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,86 +825,86 @@
 
         const files = [
         {
-                "id": "1K8M9pSJlD02nYGgq1xUpbAG32PUfytTN",
+                "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/1K8M9pSJlD02nYGgq1xUpbAG32PUfytTN/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/.DS_Store",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/.DS_Store",
                 "type": "doc"
         },
         {
-                "id": "1VbAeNGjTiqCHo4FBs9OiTp70qIyfiMEz",
+                "id": "cykf_ils_rwy_26.pdf",
                 "name": "CYKF_ILS_RWY_26.pdf",
-                "url": "https://drive.google.com/file/d/1VbAeNGjTiqCHo4FBs9OiTp70qIyfiMEz/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/cykf_ils_rwy_26.pdf",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/cykf_ils_rwy_26.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1_x7cknM8S46czbh9tVhd1WfHSc9UZ2dE",
+                "id": "cykf_noise_abatement_procedures.pdf",
                 "name": "CYKF_NOISE_ABATEMENT_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1_x7cknM8S46czbh9tVhd1WfHSc9UZ2dE/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/cykf_noise_abatement_procedures.pdf",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/cykf_noise_abatement_procedures.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1zSiIjOPxrq2gg09kkVkI46ZlNeEpwPRS",
+                "id": "cykf_waterloo_3_dep_vector.pdf",
                 "name": "CYKF_WATERLOO_3_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1zSiIjOPxrq2gg09kkVkI46ZlNeEpwPRS/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/cykf_waterloo_3_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/cykf_waterloo_3_dep_vector.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1hNCtJuZ-IvlcKdL_IpRfqhQWIyJsGSz4",
+                "id": "cykf_aerodrome_chart.pdf",
                 "name": "CYKF_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1hNCtJuZ-IvlcKdL_IpRfqhQWIyJsGSz4/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/cykf_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/cykf_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1xpI89nAEAKxMbGPs87DJEw8Y-KtgB3hM",
+                "id": "cykf_rnav_gnss_rwy_14.pdf",
                 "name": "CYKF_RNAV_GNSS_RWY_14.pdf",
-                "url": "https://drive.google.com/file/d/1xpI89nAEAKxMbGPs87DJEw8Y-KtgB3hM/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_gnss_rwy_14.pdf",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_gnss_rwy_14.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1hJaYE9RmFtM-ecgLs2MGNhlsz_rRQlLQ",
+                "id": "cykf_rnav_rnp_y_rwy_26.pdf",
                 "name": "CYKF_RNAV_RNP_Y_RWY_26.pdf",
-                "url": "https://drive.google.com/file/d/1hJaYE9RmFtM-ecgLs2MGNhlsz_rRQlLQ/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_rnp_y_rwy_26.pdf",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_rnp_y_rwy_26.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1KmlGvcRCxjO7RctX--DUY1hRr7HQWtSH",
+                "id": "cykf_rnav_gnss_z_rwy_08.pdf",
                 "name": "CYKF_RNAV_GNSS_Z_RWY_08.pdf",
-                "url": "https://drive.google.com/file/d/1KmlGvcRCxjO7RctX--DUY1hRr7HQWtSH/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_gnss_z_rwy_08.pdf",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_gnss_z_rwy_08.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1b0Od4eiWIXiDBfqwFG4D2X_Wy3eV2snw",
+                "id": "cykf_rnav_gnss_z_rwy_26.pdf",
                 "name": "CYKF_RNAV_GNSS_Z_RWY_26.pdf",
-                "url": "https://drive.google.com/file/d/1b0Od4eiWIXiDBfqwFG4D2X_Wy3eV2snw/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_gnss_z_rwy_26.pdf",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_gnss_z_rwy_26.pdf",
                 "type": "pdf"
         },
         {
-                "id": "17ca_pO8ICBnEJjUUKLt6owjzmYzdjwfn",
+                "id": "cykf_rnav_gnss_rwy_32.pdf",
                 "name": "CYKF_RNAV_GNSS_RWY_32.pdf",
-                "url": "https://drive.google.com/file/d/17ca_pO8ICBnEJjUUKLt6owjzmYzdjwfn/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_gnss_rwy_32.pdf",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_gnss_rwy_32.pdf",
                 "type": "pdf"
         },
         {
-                "id": "18yvCq7MhZlI0FYSy4d6-DFnoxRgA1PJ6",
+                "id": "cykf_waterloo_3_dep_vector_pg_02.pdf",
                 "name": "CYKF_WATERLOO_3_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/18yvCq7MhZlI0FYSy4d6-DFnoxRgA1PJ6/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/cykf_waterloo_3_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/cykf_waterloo_3_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1yK82hhN5-7443xWNGEqdcMDGi1CKd4qW",
+                "id": "cykf_rnav_rnp_y_rwy_08.pdf",
                 "name": "CYKF_RNAV_RNP_Y_RWY_08.pdf",
-                "url": "https://drive.google.com/file/d/1yK82hhN5-7443xWNGEqdcMDGi1CKd4qW/view?usp=drivesdk",
+                "url": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_rnp_y_rwy_08.pdf",
                 "localUrl": "charts_data/canada/cykf-kitchener-waterloo/cykf_rnav_rnp_y_rwy_08.pdf",
                 "type": "pdf"
         }
@@ -944,6 +946,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -955,6 +958,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

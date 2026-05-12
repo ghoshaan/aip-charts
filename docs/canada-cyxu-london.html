@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,107 +825,107 @@
 
         const files = [
         {
-                "id": "1p3iHrdXxar_vNoatqJ37U-2Yyo3ak026",
+                "id": "cyxu_rnav_gnss_rwy_27.pdf",
                 "name": "CYXU_RNAV_GNSS_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1p3iHrdXxar_vNoatqJ37U-2Yyo3ak026/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1dWoPlXCQwgt9DkHzDL4ryO6EiZjiTAfg",
+                "id": "cyxu_rnav_gnss_rwy_09.pdf",
                 "name": "CYXU_RNAV_GNSS_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1dWoPlXCQwgt9DkHzDL4ryO6EiZjiTAfg/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_rwy_09.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1dZf7JqNCbVhZEhc0eFOPq_Xnu8vro6za",
+                "id": "cyxu_aerodrome_chart.pdf",
                 "name": "CYXU_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1dZf7JqNCbVhZEhc0eFOPq_Xnu8vro6za/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1oPmur1x1S7LW6T-v-7osj-ANK7yyCdes",
+                "id": "cyxu_rnav_rnp_y_rwy_33.pdf",
                 "name": "CYXU_RNAV_RNP_Y_RWY_33.pdf",
-                "url": "https://drive.google.com/file/d/1oPmur1x1S7LW6T-v-7osj-ANK7yyCdes/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_rnav_rnp_y_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_rnp_y_rwy_33.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1m-o4scCnaYiWJksnKHarUfCJ_PbLFug_",
+                "id": "cyxu_london_2_dep_vector_pg_02.pdf",
                 "name": "CYXU_LONDON_2_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1m-o4scCnaYiWJksnKHarUfCJ_PbLFug_/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_london_2_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_london_2_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1veMAQnS5MsJJzO22WwHaBebz8OI2OW-o",
+                "id": "cyxu_ils_rwy_15.pdf",
                 "name": "CYXU_ILS_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1veMAQnS5MsJJzO22WwHaBebz8OI2OW-o/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_ils_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_ils_rwy_15.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1t907VglTKWZeC-vy-jPZ7p0Qtl-PEqbH",
+                "id": "cyxu_rnav_gnss_z_rwy_15.pdf",
                 "name": "CYXU_RNAV_GNSS_Z_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1t907VglTKWZeC-vy-jPZ7p0Qtl-PEqbH/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_z_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_z_rwy_15.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1HZJw7lBVe3Q9zfAceDYq485VG_qdQ32a",
+                "id": "cyxu_london_2_dep_vector.pdf",
                 "name": "CYXU_LONDON_2_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1HZJw7lBVe3Q9zfAceDYq485VG_qdQ32a/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_london_2_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_london_2_dep_vector.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1lhDuVhSCNPGE0WfmyKeSE7zEw1jvQ7jy",
+                "id": "cyxu_rnav_gnss_z_rwy_33.pdf",
                 "name": "CYXU_RNAV_GNSS_Z_RWY_33.pdf",
-                "url": "https://drive.google.com/file/d/1lhDuVhSCNPGE0WfmyKeSE7zEw1jvQ7jy/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_z_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_z_rwy_33.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1ZEeyn6lfeeBT639zxYLEvHnm9kX5vSnf",
+                "id": "cyxu_vor_dme_rwy_27.pdf",
                 "name": "CYXU_VOR_DME_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1ZEeyn6lfeeBT639zxYLEvHnm9kX5vSnf/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_vor_dme_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_vor_dme_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1aZumpC9Iyfw7oc_wSokL8EdDZvfBPQ5E",
+                "id": "cyxu_takeoff_minimums.pdf",
                 "name": "CYXU_TAKEOFF_MINIMUMS.pdf",
-                "url": "https://drive.google.com/file/d/1aZumpC9Iyfw7oc_wSokL8EdDZvfBPQ5E/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_takeoff_minimums.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_takeoff_minimums.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1amVQgc6XT42IstTMwZKkIqv2eZ_TY_UC",
+                "id": "cyxu_vor_dme_rwy_09.pdf",
                 "name": "CYXU_VOR_DME_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1amVQgc6XT42IstTMwZKkIqv2eZ_TY_UC/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_vor_dme_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_vor_dme_rwy_09.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1mh9tAWqNONlvmUppXtLQo8L4bySP6nXK",
+                "id": "cyxu_rnav_rnp_y_rwy_15.pdf",
                 "name": "CYXU_RNAV_RNP_Y_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1mh9tAWqNONlvmUppXtLQo8L4bySP6nXK/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_rnav_rnp_y_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_rnp_y_rwy_15.pdf",
                 "type": "pdf"
         },
         {
-                "id": "17re91mMRGht7n1cFScutoDBnspmHhB1s",
+                "id": "cyxu_parking_areas_apron_v.pdf",
                 "name": "CYXU_PARKING_AREAS_APRON_V.pdf",
-                "url": "https://drive.google.com/file/d/17re91mMRGht7n1cFScutoDBnspmHhB1s/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/cyxu_parking_areas_apron_v.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_parking_areas_apron_v.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1aTT9dWYRgkaIOUjC8TvFsiij0B-FbHFo",
+                "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/1aTT9dWYRgkaIOUjC8TvFsiij0B-FbHFo/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxu-london/.DS_Store",
                 "localUrl": "charts_data/canada/cyxu-london/.DS_Store",
                 "type": "doc"
         }
@@ -965,6 +967,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -976,6 +979,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

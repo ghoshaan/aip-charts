@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,205 +825,205 @@
 
         const files = [
         {
-                "id": "19RlTNUU6WhwOqPezuM3umjCby9CESM3-",
+                "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/19RlTNUU6WhwOqPezuM3umjCby9CESM3-/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/.DS_Store",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/.DS_Store",
                 "type": "doc"
         },
         {
-                "id": "1e2Ugdt1HZgY_oDnH9mcqiP2yIXKC_ria",
+                "id": "cyxe_esvox_2_dep_rnav_pg_02.pdf",
                 "name": "CYXE_ESVOX_2_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1e2Ugdt1HZgY_oDnH9mcqiP2yIXKC_ria/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_esvox_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_esvox_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "189X8dhD3B2kkBg2weWSQuMo6pVymyoeb",
+                "id": "cyxe_saskatoon_9_dep_vector.pdf",
                 "name": "CYXE_SASKATOON_9_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/189X8dhD3B2kkBg2weWSQuMo6pVymyoeb/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_saskatoon_9_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_saskatoon_9_dep_vector.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1iLDbNeI-cUNZ71mkmyr2zmHYid9PETlX",
+                "id": "cyxe_noxog_2_dep_rnav.pdf",
                 "name": "CYXE_NOXOG_2_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1iLDbNeI-cUNZ71mkmyr2zmHYid9PETlX/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_noxog_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_noxog_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1bVtNMhoKf-9cOzpIwtavu5hU7L9mw5Vc",
+                "id": "cyxe_udkuv_2_dep_rnav_pg_02.pdf",
                 "name": "CYXE_UDKUV_2_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1bVtNMhoKf-9cOzpIwtavu5hU7L9mw5Vc/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_udkuv_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_udkuv_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1nTqnFKPceVC7TkqS_WugU4vbhhwwJBci",
+                "id": "cyxe_noxog_2_dep_rnav_pg_02.pdf",
                 "name": "CYXE_NOXOG_2_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1nTqnFKPceVC7TkqS_WugU4vbhhwwJBci/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_noxog_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_noxog_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1bL1WqZYaNoA_Uj-pS3wpNOZoZG6LQxIx",
+                "id": "cyxe_udkuv_2_dep_rnav.pdf",
                 "name": "CYXE_UDKUV_2_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1bL1WqZYaNoA_Uj-pS3wpNOZoZG6LQxIx/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_udkuv_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_udkuv_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "179ny6KnrE3FAGQIfxzvf5x0NJe0Yr29z",
+                "id": "cyxe_saskatoon_9_dep_vector_pg_02.pdf",
                 "name": "CYXE_SASKATOON_9_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/179ny6KnrE3FAGQIfxzvf5x0NJe0Yr29z/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_saskatoon_9_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_saskatoon_9_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1dfhTWn-rkvUSlWsz8JT6oQUFjFJywU6Y",
+                "id": "cyxe_esvox_2_dep_rnav.pdf",
                 "name": "CYXE_ESVOX_2_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1dfhTWn-rkvUSlWsz8JT6oQUFjFJywU6Y/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_esvox_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_esvox_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1m5nUE-Y1g7qOhC3n4hjD9tUvBJvqCPyP",
+                "id": "cyxe_erded_2_dep_rnav_pg_02.pdf",
                 "name": "CYXE_ERDED_2_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1m5nUE-Y1g7qOhC3n4hjD9tUvBJvqCPyP/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_erded_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_erded_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1FjLVOrbV6Kvgi9JNWp7hLzzURxojfMGz",
+                "id": "cyxe_rnav_gnss_z_rwy_27.pdf",
                 "name": "CYXE_RNAV_GNSS_Z_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1FjLVOrbV6Kvgi9JNWp7hLzzURxojfMGz/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_gnss_z_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_gnss_z_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1tsh0HHGcCO04dDA-PIVy6IqecbjeirdG",
+                "id": "cyxe_rnav_rnp_y_rwy_15.pdf",
                 "name": "CYXE_RNAV_RNP_Y_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1tsh0HHGcCO04dDA-PIVy6IqecbjeirdG/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_rnp_y_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_rnp_y_rwy_15.pdf",
                 "type": "pdf"
         },
         {
-                "id": "10u11v-3GrrFJ--2B4SmkOKsxyjGn0lq7",
+                "id": "cyxe_kebru_6_arr_rnav.pdf",
                 "name": "CYXE_KEBRU_6_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/10u11v-3GrrFJ--2B4SmkOKsxyjGn0lq7/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_kebru_6_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_kebru_6_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "16-xeru5sokcaEzA5mEjtqBYSISZjEt71",
+                "id": "cyxe_reduced_visibility_procedures.pdf",
                 "name": "CYXE_REDUCED_VISIBILITY_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/16-xeru5sokcaEzA5mEjtqBYSISZjEt71/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_reduced_visibility_procedures.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_reduced_visibility_procedures.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1o5e6RV38470jJTfR7OlYBJZwwurnArfK",
+                "id": "cyxe_aerodrome_chart.pdf",
                 "name": "CYXE_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1o5e6RV38470jJTfR7OlYBJZwwurnArfK/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1272JeliDfnC-l26B-ZhgH0l9xEQcpKLD",
+                "id": "cyxe_takeoff_minimums.pdf",
                 "name": "CYXE_TAKEOFF_MINIMUMS.pdf",
-                "url": "https://drive.google.com/file/d/1272JeliDfnC-l26B-ZhgH0l9xEQcpKLD/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_takeoff_minimums.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_takeoff_minimums.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1X-59BTMeRU9HCgrJBuU71P5aRbSPA8V9",
+                "id": "cyxe_rnav_gnss_z_rwy_15.pdf",
                 "name": "CYXE_RNAV_GNSS_Z_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1X-59BTMeRU9HCgrJBuU71P5aRbSPA8V9/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_gnss_z_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_gnss_z_rwy_15.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1P8Egu0_9AAiMmGSmeY9zqjx_RVk7RMXI",
+                "id": "cyxe_rnav_rnp_y_rwy_27.pdf",
                 "name": "CYXE_RNAV_RNP_Y_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1P8Egu0_9AAiMmGSmeY9zqjx_RVk7RMXI/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_rnp_y_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_rnp_y_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "16nrgsmgSJ2RTQ7uQQnOlcjJYEhebHaH8",
+                "id": "cyxe_rnav_gnss_z_rwy_33.pdf",
                 "name": "CYXE_RNAV_GNSS_Z_RWY_33.pdf",
-                "url": "https://drive.google.com/file/d/16nrgsmgSJ2RTQ7uQQnOlcjJYEhebHaH8/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_gnss_z_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_gnss_z_rwy_33.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Jwt0-7JEto4MeBXxHFJgBdhzqeuDJKeU",
+                "id": "cyxe_rnav_rnp_y_rwy_33.pdf",
                 "name": "CYXE_RNAV_RNP_Y_RWY_33.pdf",
-                "url": "https://drive.google.com/file/d/1Jwt0-7JEto4MeBXxHFJgBdhzqeuDJKeU/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_rnp_y_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_rnp_y_rwy_33.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1MxQCUWdLtBxPWqz1HOKQSpik7t0RLPw1",
+                "id": "cyxe_movot_2_dep_rnav_pg_02.pdf",
                 "name": "CYXE_MOVOT_2_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1MxQCUWdLtBxPWqz1HOKQSpik7t0RLPw1/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_movot_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_movot_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1YbofPpIg_-_pis1G9X1m2FUOwdtzPlnq",
+                "id": "cyxe_rnav_rnp_y_rwy_09.pdf",
                 "name": "CYXE_RNAV_RNP_Y_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1YbofPpIg_-_pis1G9X1m2FUOwdtzPlnq/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_rnp_y_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_rnp_y_rwy_09.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1gYCyUHDwNvKOY2hwMngP7APL6B9CHzzu",
+                "id": "cyxe_movot_2_dep_rnav.pdf",
                 "name": "CYXE_MOVOT_2_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1gYCyUHDwNvKOY2hwMngP7APL6B9CHzzu/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_movot_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_movot_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1SD5dLtQQGHZBI3mqFNKmhCWXhqLvy1Nk",
+                "id": "cyxe_erded_2_dep_rnav.pdf",
                 "name": "CYXE_ERDED_2_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1SD5dLtQQGHZBI3mqFNKmhCWXhqLvy1Nk/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_erded_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_erded_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1KNjAyDylE9zV9mUzNNAFP5FR0OzmMxr5",
+                "id": "cyxe_dunem_7_arr_rnav.pdf",
                 "name": "CYXE_DUNEM_7_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1KNjAyDylE9zV9mUzNNAFP5FR0OzmMxr5/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_dunem_7_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_dunem_7_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1qRuAa7RsWmYmWKZARm7H-oxrHflPWMXz",
+                "id": "cyxe_rnav_gnss_z_rwy_09.pdf",
                 "name": "CYXE_RNAV_GNSS_Z_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1qRuAa7RsWmYmWKZARm7H-oxrHflPWMXz/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_gnss_z_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_rnav_gnss_z_rwy_09.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1aRMJkM1-Xrhr5KrXAUAHIouVuKg1WO-O",
+                "id": "cyxe_caren_4_arr_rnav.pdf",
                 "name": "CYXE_CAREN_4_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1aRMJkM1-Xrhr5KrXAUAHIouVuKg1WO-O/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_caren_4_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_caren_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1eg5-Mv5-w94-t2R9cePI5KzL0SB11RT_",
+                "id": "cyxe_mavob_7_arr_rnav.pdf",
                 "name": "CYXE_MAVOB_7_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1eg5-Mv5-w94-t2R9cePI5KzL0SB11RT_/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_mavob_7_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_mavob_7_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1LQXpY3lOAGUfI7F7zQcxfUNHRQOqtnkP",
+                "id": "cyxe_ils_rwy_09.pdf",
                 "name": "CYXE_ILS_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1LQXpY3lOAGUfI7F7zQcxfUNHRQOqtnkP/view?usp=drivesdk",
+                "url": "charts_data/canada/cyxe-saskatoon/cyxe_ils_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyxe-saskatoon/cyxe_ils_rwy_09.pdf",
                 "type": "pdf"
         }
@@ -1063,6 +1065,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -1074,6 +1077,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

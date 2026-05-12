@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,121 +825,121 @@
 
         const files = [
         {
-                "id": "1LHvOAtwb6C7kN8vkiq4M3j6oGaBvnmmY",
+                "id": "cybw_springbank_4_dep_vector_pg_02.pdf",
                 "name": "CYBW_SPRINGBANK_4_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1LHvOAtwb6C7kN8vkiq4M3j6oGaBvnmmY/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_springbank_4_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_springbank_4_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Um7Q2oGo35RK06BW5f2jmiZ5XJS9WSId",
+                "id": "cybw_springbank_4_dep_vector.pdf",
                 "name": "CYBW_SPRINGBANK_4_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1Um7Q2oGo35RK06BW5f2jmiZ5XJS9WSId/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_springbank_4_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_springbank_4_dep_vector.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1QijtjNiCHkjOmL1o7o35EeB6tArV6wkf",
+                "id": "cybw_takeoff_minimums.pdf",
                 "name": "CYBW_TAKEOFF_MINIMUMS.pdf",
-                "url": "https://drive.google.com/file/d/1QijtjNiCHkjOmL1o7o35EeB6tArV6wkf/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_takeoff_minimums.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_takeoff_minimums.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1oxkurcKW7pvmlCvYVHCVgZGDmkH4Efs5",
+                "id": "cybw_reduced_visibility_taxi_chart.pdf",
                 "name": "CYBW_REDUCED_VISIBILITY_TAXI_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1oxkurcKW7pvmlCvYVHCVgZGDmkH4Efs5/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_reduced_visibility_taxi_chart.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_reduced_visibility_taxi_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1KgWyXwzeSaM8hXo9qrslUwufTuy3mCXd",
+                "id": "cybw_reduced_visibility_procedures.pdf",
                 "name": "CYBW_REDUCED_VISIBILITY_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1KgWyXwzeSaM8hXo9qrslUwufTuy3mCXd/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_reduced_visibility_procedures.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_reduced_visibility_procedures.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1biQnrASNRnWSLkfFuYKWlThMx2Mt-U9r",
+                "id": "cybw_noise_abatement_procedures.pdf",
                 "name": "CYBW_NOISE_ABATEMENT_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1biQnrASNRnWSLkfFuYKWlThMx2Mt-U9r/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_noise_abatement_procedures.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_noise_abatement_procedures.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1r8mraMHegzu7m0KeeIHPrrkX8SRvXlma",
+                "id": "cybw_aerodrome_chart.pdf",
                 "name": "CYBW_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1r8mraMHegzu7m0KeeIHPrrkX8SRvXlma/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1GmGPCThVXBgnuxOKJdzOlJ3eL6xpD_5q",
+                "id": "cybw_rnav_gnss_rwy_35.pdf",
                 "name": "CYBW_RNAV_GNSS_RWY_35.pdf",
-                "url": "https://drive.google.com/file/d/1GmGPCThVXBgnuxOKJdzOlJ3eL6xpD_5q/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_rnav_gnss_rwy_35.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_rnav_gnss_rwy_35.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1LVdONyN6-aUnCv86zHBTjP0qnPEiuFZJ",
+                "id": "cybw_rnav_gnss_rwy_17.pdf",
                 "name": "CYBW_RNAV_GNSS_RWY_17.pdf",
-                "url": "https://drive.google.com/file/d/1LVdONyN6-aUnCv86zHBTjP0qnPEiuFZJ/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_rnav_gnss_rwy_17.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_rnav_gnss_rwy_17.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1SDXzxAecL12BPvXjS0QtMEL8flrLnkz3",
+                "id": "cybw_ils_rwy_35.pdf",
                 "name": "CYBW_ILS_RWY_35.pdf",
-                "url": "https://drive.google.com/file/d/1SDXzxAecL12BPvXjS0QtMEL8flrLnkz3/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_ils_rwy_35.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_ils_rwy_35.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1jWii02LUMGB4okWCDmrCq_J9y4uxzDKs",
+                "id": "cybw_madyn_3_arr_rnav_pg_02.pdf",
                 "name": "CYBW_MADYN_3_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1jWii02LUMGB4okWCDmrCq_J9y4uxzDKs/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_madyn_3_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_madyn_3_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1SNcXimja0keAlaECKdAZzIoxYujD12N2",
+                "id": "cybw_madyn_3_arr_rnav.pdf",
                 "name": "CYBW_MADYN_3_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1SNcXimja0keAlaECKdAZzIoxYujD12N2/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_madyn_3_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_madyn_3_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1nJf2Kdo40tZx5gO0tHe2HJoKilO5NRxL",
+                "id": "cybw_kipev_4_arr_rnav_pg_02.pdf",
                 "name": "CYBW_KIPEV_4_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1nJf2Kdo40tZx5gO0tHe2HJoKilO5NRxL/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_kipev_4_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_kipev_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "17spPZf5srTPqIaCOUTObCMWSzOgUaxTC",
+                "id": "cybw_kipev_4_arr_rnav.pdf",
                 "name": "CYBW_KIPEV_4_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/17spPZf5srTPqIaCOUTObCMWSzOgUaxTC/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_kipev_4_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_kipev_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1HdWsHxkSFG2Ut-_X2IpwmOcGKRNe_ZZr",
+                "id": "cybw_elbow_4_arr_rnav_pg_02.pdf",
                 "name": "CYBW_ELBOW_4_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1HdWsHxkSFG2Ut-_X2IpwmOcGKRNe_ZZr/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_elbow_4_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_elbow_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1bs-1gVbRRCDnEFvy21hlx26Age_xIGfD",
+                "id": "cybw_elbow_4_arr_rnav.pdf",
                 "name": "CYBW_ELBOW_4_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1bs-1gVbRRCDnEFvy21hlx26Age_xIGfD/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_elbow_4_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_elbow_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1ZK4GnScfi_lA3mDgLI7RQqH-RlJyqz1M",
+                "id": "cybw_bragg_5_arr_rnav.pdf",
                 "name": "CYBW_BRAGG_5_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1ZK4GnScfi_lA3mDgLI7RQqH-RlJyqz1M/view?usp=drivesdk",
+                "url": "charts_data/canada/cybw-calgary-springbank/cybw_bragg_5_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cybw-calgary-springbank/cybw_bragg_5_arr_rnav.pdf",
                 "type": "pdf"
         }
@@ -979,6 +981,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -990,6 +993,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

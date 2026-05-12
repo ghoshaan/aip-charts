@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>EHKD</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,73 +345,87 @@
         const files = [
         {
                 "name": "SID_RWY_21_CAT_H (1).pdf",
-                "url": "https://drive.google.com/file/d/1OXBs2rIUtIFqQginVSJXIG0LmrVhr4Gf/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_rwy_21_cat_h-1.pdf",
+                "type": "pdf",
+                "id": "sid_rwy_21_cat_h-1.pdf"
         },
         {
                 "name": "SID_RWY_03_CAT_H.pdf",
-                "url": "https://drive.google.com/file/d/1KEnrrdPxOhpD2X9UZvAmRb64TJS3i1L4/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_rwy_03_cat_h.pdf",
+                "type": "pdf",
+                "id": "sid_rwy_03_cat_h.pdf"
         },
         {
                 "name": "SID_RWY_21_CAT_H.pdf",
-                "url": "https://drive.google.com/file/d/1eZWmwtFtcIp35LG-Uzm8qqm8ru7WUGYl/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_rwy_21_cat_h.pdf",
+                "type": "pdf",
+                "id": "sid_rwy_21_cat_h.pdf"
         },
         {
                 "name": "SID_RWY_03_CAT_H (1).pdf",
-                "url": "https://drive.google.com/file/d/1fTgZ9W5SzPABWkocJE3kdJMF59yJzVa4/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_rwy_03_cat_h-1.pdf",
+                "type": "pdf",
+                "id": "sid_rwy_03_cat_h-1.pdf"
         },
         {
                 "name": "VAC_-_VFR_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1nWCkvmsGVUDROLjIa6d5wLch9J3_B0Yb/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "vac_-_vfr_procedures.pdf",
+                "type": "pdf",
+                "id": "vac_-_vfr_procedures.pdf"
         },
         {
                 "name": "ADC.pdf",
-                "url": "https://drive.google.com/file/d/1JwwSHc2xyPI4RnvoPDt8r5i4XljCV7hf/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "adc.pdf",
+                "type": "pdf",
+                "id": "adc.pdf"
         },
         {
                 "name": "APDC.pdf",
-                "url": "https://drive.google.com/file/d/1RgRHcySUuwA7W6cdm1UcxzNvLTN68Gow/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "apdc.pdf",
+                "type": "pdf",
+                "id": "apdc.pdf"
         },
         {
                 "name": "AOC_TYPE_A_RWY_03-21.pdf",
-                "url": "https://drive.google.com/file/d/1x355GyHuBqL6I4Sy2dgYduk1IyAyxYTH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aoc_type_a_rwy_03-21.pdf",
+                "type": "pdf",
+                "id": "aoc_type_a_rwy_03-21.pdf"
         },
         {
                 "name": "IAC_ILS_OR_LOC_RWY_21.pdf",
-                "url": "https://drive.google.com/file/d/1p2zLcQPUgiWqYgNKUkddUqBuHvr_ygvA/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_ils_or_loc_rwy_21.pdf",
+                "type": "pdf",
+                "id": "iac_ils_or_loc_rwy_21.pdf"
         },
         {
                 "name": "IAC_RNP_Z_RWY_21.pdf",
-                "url": "https://drive.google.com/file/d/1yi45pLoEBY2uSTbxfEMWCpzGgSsJwgb7/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_rnp_z_rwy_21.pdf",
+                "type": "pdf",
+                "id": "iac_rnp_z_rwy_21.pdf"
         },
         {
                 "name": "IAC_RNP_Y_RWY_21_CAT_H.pdf",
-                "url": "https://drive.google.com/file/d/1-tGJGtbPEVxFZvEAg0UWDSCd7v9xkpvK/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_rnp_y_rwy_21_cat_h.pdf",
+                "type": "pdf",
+                "id": "iac_rnp_y_rwy_21_cat_h.pdf"
         },
         {
                 "name": "IAC_RNP_Z_RWY_03.pdf",
-                "url": "https://drive.google.com/file/d/1M8J6k2Ao57QRxGhW37LkhgPqXaDMBH8a/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_rnp_z_rwy_03.pdf",
+                "type": "pdf",
+                "id": "iac_rnp_z_rwy_03.pdf"
         },
         {
                 "name": "IAC_RNP_Y_RWY_03_CAT_H.pdf",
-                "url": "https://drive.google.com/file/d/16_jWi5-eTQ6sX7zkXxRgxANnfMZ5fH1i/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_rnp_y_rwy_03_cat_h.pdf",
+                "type": "pdf",
+                "id": "iac_rnp_y_rwy_03_cat_h.pdf"
         },
         {
                 "name": "STAR_CAT_H.pdf",
-                "url": "https://drive.google.com/file/d/1oWoqs6t4R0sslALJgRhPinGSX5KTfG8P/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "star_cat_h.pdf",
+                "type": "pdf",
+                "id": "star_cat_h.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -442,10 +463,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

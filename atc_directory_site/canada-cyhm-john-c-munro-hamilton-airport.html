@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>CYHM John C Munro Hamilton Airport</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,128 +345,153 @@
         const files = [
         {
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/14DQO521Ri-nuzlktfdh54WATYzlRSl14/view?usp=drivesdk",
-                "type": "doc"
+                "url": ".DS_Store",
+                "type": "doc",
+                "id": ".DS_Store"
         },
         {
                 "name": "CYHM_RNAV_GNSS_Z_RWY_30.pdf",
-                "url": "https://drive.google.com/file/d/1RGtIil4SPqTDXG6tqeCrM4i7fc7e-QFW/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_rnav_gnss_z_rwy_30.pdf",
+                "type": "pdf",
+                "id": "cyhm_rnav_gnss_z_rwy_30.pdf"
         },
         {
                 "name": "CYHM_RNAV_RNP_Y_RWY_12.pdf",
-                "url": "https://drive.google.com/file/d/1Ymcp0ex3p16XGIsyYWFVW_t5pIUq6BAp/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_rnav_rnp_y_rwy_12.pdf",
+                "type": "pdf",
+                "id": "cyhm_rnav_rnp_y_rwy_12.pdf"
         },
         {
                 "name": "CYHM_MUNRO_2_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1_DfkoYpe2dT6o9Ke4MYEN6UtFCA-sUYh/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_munro_2_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyhm_munro_2_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYHM_RNAV_GNSS_Z_RWY_24.pdf",
-                "url": "https://drive.google.com/file/d/13rismeb2fsG10wugo2XCa_6pDYzXE19r/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_rnav_gnss_z_rwy_24.pdf",
+                "type": "pdf",
+                "id": "cyhm_rnav_gnss_z_rwy_24.pdf"
         },
         {
                 "name": "CYHM_LOW_VISIBILITY_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/11a32GMwko1PKbvo-lOThzCTXhsYsIP1Z/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_low_visibility_procedures.pdf",
+                "type": "pdf",
+                "id": "cyhm_low_visibility_procedures.pdf"
         },
         {
                 "name": "CYHM_PARKING_AREAS.pdf",
-                "url": "https://drive.google.com/file/d/11bCG4k8yM3qcvWa1Ch49ocrGLWsmRV3C/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_parking_areas.pdf",
+                "type": "pdf",
+                "id": "cyhm_parking_areas.pdf"
         },
         {
                 "name": "CYHM_RNAV_RNP_Y_RWY_30.pdf",
-                "url": "https://drive.google.com/file/d/1VpQPKa6qZeCM_XwIX73XwXKAFNV5HZdq/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_rnav_rnp_y_rwy_30.pdf",
+                "type": "pdf",
+                "id": "cyhm_rnav_rnp_y_rwy_30.pdf"
         },
         {
                 "name": "CYHM_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1ZaY_YXxkJQoBqJ8qjH0vmoIy2RBonBr8/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "cyhm_aerodrome_chart.pdf"
         },
         {
                 "name": "CYHM_HAMILTON_1_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/15SJtmIylZ2z1xaoll63xtGjq0kDqPoEP/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_hamilton_1_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cyhm_hamilton_1_dep_vector.pdf"
         },
         {
                 "name": "CYHM_RNAV_GNSS_Z_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1LexpUnHgzmrlPU0Kh5slGmSuQ5w2KGpU/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_rnav_gnss_z_rwy_06.pdf",
+                "type": "pdf",
+                "id": "cyhm_rnav_gnss_z_rwy_06.pdf"
         },
         {
                 "name": "CYHM_HAMILTON_1_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1f_8JTtGZG2w_9M_yB3UMWc5i3zny09mF/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_hamilton_1_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyhm_hamilton_1_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYHM_TAXI_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1oxlJbuFQtNWcObRTQGfMcft-GJVcjwZR/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_taxi_chart.pdf",
+                "type": "pdf",
+                "id": "cyhm_taxi_chart.pdf"
         },
         {
                 "name": "CYHM_PARKING_AREAS_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1aZSF4gGnE9Aoy6mM5BEsuGoeIouZEaeG/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_parking_areas_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyhm_parking_areas_pg_02.pdf"
         },
         {
                 "name": "CYHM_NOISE_ABATEMENT_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1SKbg50foI2od1UswzLpdbI7x46h53sFx/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_noise_abatement_procedures.pdf",
+                "type": "pdf",
+                "id": "cyhm_noise_abatement_procedures.pdf"
         },
         {
                 "name": "CYHM_MUNRO_2_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1Es8hqZepVirvl6y_AU5EYEnC-QTWZPiH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_munro_2_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cyhm_munro_2_dep_vector.pdf"
         },
         {
                 "name": "CYHM_TICAT_1_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1pZv-cILYSh5_Osu29ysljRfS2Kjf7lV4/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_ticat_1_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyhm_ticat_1_arr_rnav.pdf"
         },
         {
                 "name": "CYHM_AVSOX_3_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1zjdMbEs-gp4Fu9O3IZRvcnRRYcj1efiV/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_avsox_3_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyhm_avsox_3_arr_rnav.pdf"
         },
         {
                 "name": "CYHM_RNAV_GNSS_Z_RWY_12.pdf",
-                "url": "https://drive.google.com/file/d/1SH9wLI02m_7oB41cwjOvCPnsgFmfN5S8/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_rnav_gnss_z_rwy_12.pdf",
+                "type": "pdf",
+                "id": "cyhm_rnav_gnss_z_rwy_12.pdf"
         },
         {
                 "name": "CYHM_LOC_RWY_30.pdf",
-                "url": "https://drive.google.com/file/d/1GZ0H0MsfuXPk48is8RI6UATMPDwTAxg3/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_loc_rwy_30.pdf",
+                "type": "pdf",
+                "id": "cyhm_loc_rwy_30.pdf"
         },
         {
                 "name": "CYHM_ILS_CAT_II_RWY_12.pdf",
-                "url": "https://drive.google.com/file/d/1VwwnaATV3qtLsdAcTzeoa13RMpfutv3c/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_ils_cat_ii_rwy_12.pdf",
+                "type": "pdf",
+                "id": "cyhm_ils_cat_ii_rwy_12.pdf"
         },
         {
                 "name": "CYHM_COLTS_8_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1c733shx4YYcifiwDTygta4sosjymwcvY/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_colts_8_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyhm_colts_8_arr_rnav.pdf"
         },
         {
                 "name": "CYHM_TIKUM_3_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/19x-CD0mqJ_8tEvKx-DrAqswtm1sVi4Vw/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_tikum_3_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyhm_tikum_3_arr_rnav.pdf"
         },
         {
                 "name": "CYHM_ILS_RWY_12.pdf",
-                "url": "https://drive.google.com/file/d/1XbNwntyDLarsr8n9zUJ1n03ZVu262PPP/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_ils_rwy_12.pdf",
+                "type": "pdf",
+                "id": "cyhm_ils_rwy_12.pdf"
         },
         {
                 "name": "CYHM_TETOS_1_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/14NUMS-ua6hMOZi8vRhAhXKaQhsuGW0j4/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyhm_tetos_1_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyhm_tetos_1_arr_rnav.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -497,10 +529,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

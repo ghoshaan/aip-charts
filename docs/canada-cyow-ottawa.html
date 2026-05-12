@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,233 +825,233 @@
 
         const files = [
         {
-                "id": "1_7SLgFi7BupavNmHiJlQ6UHMklT4I2d6",
+                "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/1_7SLgFi7BupavNmHiJlQ6UHMklT4I2d6/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/.DS_Store",
                 "localUrl": "charts_data/canada/cyow-ottawa/.DS_Store",
                 "type": "doc"
         },
         {
-                "id": "1SbvdJfmi9VN8W7Bweu1YGwMv0lP3nupA",
+                "id": "cyow_ottawa_4_dep_vector.pdf",
                 "name": "CYOW_OTTAWA_4_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1SbvdJfmi9VN8W7Bweu1YGwMv0lP3nupA/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_ottawa_4_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_ottawa_4_dep_vector.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1cLaE3F3zFZ-uTRcoyQhYAtSH7AB1g1kE",
+                "id": "cyow_takeoff_minimums.pdf",
                 "name": "CYOW_TAKEOFF_MINIMUMS.pdf",
-                "url": "https://drive.google.com/file/d/1cLaE3F3zFZ-uTRcoyQhYAtSH7AB1g1kE/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_takeoff_minimums.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_takeoff_minimums.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1sXsazhXsKhyVcB4cxZ_ar-LAiaDL3eRh",
+                "id": "cyow_ottawa_4_dep_vector_pg_02.pdf",
                 "name": "CYOW_OTTAWA_4_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1sXsazhXsKhyVcB4cxZ_ar-LAiaDL3eRh/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_ottawa_4_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_ottawa_4_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1aWIXR8-7pbqdhfxzINn3q7xIGTsXcn6g",
+                "id": "cyow_parking_areas_apron_ii.pdf",
                 "name": "CYOW_PARKING_AREAS_APRON_II.pdf",
-                "url": "https://drive.google.com/file/d/1aWIXR8-7pbqdhfxzINn3q7xIGTsXcn6g/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_parking_areas_apron_ii.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_parking_areas_apron_ii.pdf",
                 "type": "pdf"
         },
         {
-                "id": "17-meOSs0_RNQplXGiE7b8yJKGYJJHj3L",
+                "id": "cyow_taxi_chart.pdf",
                 "name": "CYOW_TAXI_CHART.pdf",
-                "url": "https://drive.google.com/file/d/17-meOSs0_RNQplXGiE7b8yJKGYJJHj3L/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_taxi_chart.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_taxi_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1d_g5D43kNBR2gd8nOJYADQs3U05dEWzx",
+                "id": "cyow_rnav_rnp_y_rwy_32.pdf",
                 "name": "CYOW_RNAV_RNP_Y_RWY_32.pdf",
-                "url": "https://drive.google.com/file/d/1d_g5D43kNBR2gd8nOJYADQs3U05dEWzx/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_rnav_rnp_y_rwy_32.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_rnav_rnp_y_rwy_32.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1gy6lWMBnSutNlmm-l69oEFTyFtIAhT0i",
+                "id": "cyow_parking_areas_apron_i.pdf",
                 "name": "CYOW_PARKING_AREAS_APRON_I.pdf",
-                "url": "https://drive.google.com/file/d/1gy6lWMBnSutNlmm-l69oEFTyFtIAhT0i/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_parking_areas_apron_i.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_parking_areas_apron_i.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1-4SVgKDq554zZgvHtmiU0wWS_Hi-xD_b",
+                "id": "cyow_rnav_rnp_y_rwy_14.pdf",
                 "name": "CYOW_RNAV_RNP_Y_RWY_14.pdf",
-                "url": "https://drive.google.com/file/d/1-4SVgKDq554zZgvHtmiU0wWS_Hi-xD_b/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_rnav_rnp_y_rwy_14.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_rnav_rnp_y_rwy_14.pdf",
                 "type": "pdf"
         },
         {
-                "id": "126WuJWfOs4mZWS_g_HyT9FAl4_2lD0W6",
+                "id": "cyow_rnav_gnss_z_rwy_25.pdf",
                 "name": "CYOW_RNAV_GNSS_Z_RWY_25.pdf",
-                "url": "https://drive.google.com/file/d/126WuJWfOs4mZWS_g_HyT9FAl4_2lD0W6/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_rnav_gnss_z_rwy_25.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_rnav_gnss_z_rwy_25.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1yXWMlslvLVtjX80POgeta0vgK-wlVdEz",
+                "id": "cyow_rnav_rnp_y_rwy_25.pdf",
                 "name": "CYOW_RNAV_RNP_Y_RWY_25.pdf",
-                "url": "https://drive.google.com/file/d/1yXWMlslvLVtjX80POgeta0vgK-wlVdEz/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_rnav_rnp_y_rwy_25.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_rnav_rnp_y_rwy_25.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1inZbfXXBKtcmm4AFyPHqjf1nlJYQUIA2",
+                "id": "cyow_noise_abatement_procedures_pg_02.pdf",
                 "name": "CYOW_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1inZbfXXBKtcmm4AFyPHqjf1nlJYQUIA2/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_noise_abatement_procedures_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_noise_abatement_procedures_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1DRDtpTAf8sdM2sv4Vv0-a3qapYn1Zxeq",
+                "id": "cyow_de-icing_operations_pg_03.pdf",
                 "name": "CYOW_DE-ICING_OPERATIONS_PG_03.pdf",
-                "url": "https://drive.google.com/file/d/1DRDtpTAf8sdM2sv4Vv0-a3qapYn1Zxeq/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_de-icing_operations_pg_03.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_de-icing_operations_pg_03.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Fa9uoFFlQ8ouncJLYBpa3iy7E5-Ty7ZR",
+                "id": "cyow_rnav_gnss_z_rwy_32.pdf",
                 "name": "CYOW_RNAV_GNSS_Z_RWY_32.pdf",
-                "url": "https://drive.google.com/file/d/1Fa9uoFFlQ8ouncJLYBpa3iy7E5-Ty7ZR/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_rnav_gnss_z_rwy_32.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_rnav_gnss_z_rwy_32.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1qICq_WSI3uxtymenWh7cIpuv6eRtQ-l7",
+                "id": "cyow_de-icing_operations.pdf",
                 "name": "CYOW_DE-ICING_OPERATIONS.pdf",
-                "url": "https://drive.google.com/file/d/1qICq_WSI3uxtymenWh7cIpuv6eRtQ-l7/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_de-icing_operations.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_de-icing_operations.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1z4cNw184I436q-C-OTCZfZ3W5d-heMDR",
+                "id": "cyow_rnav_gnss_z_rwy_14.pdf",
                 "name": "CYOW_RNAV_GNSS_Z_RWY_14.pdf",
-                "url": "https://drive.google.com/file/d/1z4cNw184I436q-C-OTCZfZ3W5d-heMDR/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_rnav_gnss_z_rwy_14.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_rnav_gnss_z_rwy_14.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1PNRu8-G7YE-eAN1pJ3Jph8ITxNzpCtFC",
+                "id": "cyow_rnav_rnp_y_rwy_07.pdf",
                 "name": "CYOW_RNAV_RNP_Y_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1PNRu8-G7YE-eAN1pJ3Jph8ITxNzpCtFC/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_rnav_rnp_y_rwy_07.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_rnav_rnp_y_rwy_07.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1ygQk53AXbMgYLe10DwrK-7pz_IjSVUZ1",
+                "id": "cyow_de-icing_operations_pg_02.pdf",
                 "name": "CYOW_DE-ICING_OPERATIONS_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1ygQk53AXbMgYLe10DwrK-7pz_IjSVUZ1/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_de-icing_operations_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_de-icing_operations_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1pPsb4uoo_sUo_8FBVCmose3okv6CcQ5r",
+                "id": "cyow_aerodrome_chart.pdf",
                 "name": "CYOW_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1pPsb4uoo_sUo_8FBVCmose3okv6CcQ5r/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1djkBm6rvojmxQYBkwQYX6hap9UDetOqA",
+                "id": "cyow_noise_abatement_procedures.pdf",
                 "name": "CYOW_NOISE_ABATEMENT_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1djkBm6rvojmxQYBkwQYX6hap9UDetOqA/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_noise_abatement_procedures.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_noise_abatement_procedures.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1REKZ5r5XdEjIhPk4IA04xEmwU7BZCXNs",
+                "id": "cyow_rnav_gnss_z_rwy_07.pdf",
                 "name": "CYOW_RNAV_GNSS_Z_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1REKZ5r5XdEjIhPk4IA04xEmwU7BZCXNs/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_rnav_gnss_z_rwy_07.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_rnav_gnss_z_rwy_07.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1DVlBW1PnovVA8tmA3IuAl1N4EQ4r1FQH",
+                "id": "cyow_meech_4_arr_rnav.pdf",
                 "name": "CYOW_MEECH_4_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1DVlBW1PnovVA8tmA3IuAl1N4EQ4r1FQH/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_meech_4_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_meech_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1iPzCkqV03s7e75PcP3QpigefBzbRO8jc",
+                "id": "cyow_ils_rwy_07.pdf",
                 "name": "CYOW_ILS_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1iPzCkqV03s7e75PcP3QpigefBzbRO8jc/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_ils_rwy_07.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_ils_rwy_07.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1oFoRlJX1cY_075oA3i_vF8IEi3cp7bNB",
+                "id": "cyow_deans_4_arr_rnav.pdf",
                 "name": "CYOW_DEANS_4_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1oFoRlJX1cY_075oA3i_vF8IEi3cp7bNB/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_deans_4_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_deans_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1AoQv76_XkD1QaIckbgdYl0tlphl_w4ia",
+                "id": "cyow_river_4_arr_rnav.pdf",
                 "name": "CYOW_RIVER_4_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1AoQv76_XkD1QaIckbgdYl0tlphl_w4ia/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_river_4_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_river_4_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1TN4YyDOD9Zi37YpI1v39HwMGODFWsZ8R",
+                "id": "cyow_capital_5_arr_rnav.pdf",
                 "name": "CYOW_CAPITAL_5_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1TN4YyDOD9Zi37YpI1v39HwMGODFWsZ8R/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_capital_5_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_capital_5_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1axg3ShlAlir1Ngs0MEdLFHHJTrqgKlys",
+                "id": "cyow_river_4_arr_rnav_pg_02.pdf",
                 "name": "CYOW_RIVER_4_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1axg3ShlAlir1Ngs0MEdLFHHJTrqgKlys/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_river_4_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_river_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1BL8CCHHpCTj8JJuJ_YwhqYnurAr3lsG4",
+                "id": "cyow_meech_4_arr_rnav_pg_02.pdf",
                 "name": "CYOW_MEECH_4_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1BL8CCHHpCTj8JJuJ_YwhqYnurAr3lsG4/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_meech_4_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_meech_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "18kGg4G_3qraDyw56y7jFL7kVhpXsFLWg",
+                "id": "cyow_deans_4_arr_rnav_pg_02.pdf",
                 "name": "CYOW_DEANS_4_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/18kGg4G_3qraDyw56y7jFL7kVhpXsFLWg/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_deans_4_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_deans_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "126acCXbLyG0AMXx6Mwof3JV7vfiG4cAO",
+                "id": "cyow_leamy_5_arr_rnav.pdf",
                 "name": "CYOW_LEAMY_5_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/126acCXbLyG0AMXx6Mwof3JV7vfiG4cAO/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_leamy_5_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_leamy_5_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1uBUl1FSXG14L9PbpWqAKCRpyElkGK7yh",
+                "id": "cyow_ils_sa_cat_ii_rwy_07.pdf",
                 "name": "CYOW_ILS_SA_CAT_II_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1uBUl1FSXG14L9PbpWqAKCRpyElkGK7yh/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_ils_sa_cat_ii_rwy_07.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_ils_sa_cat_ii_rwy_07.pdf",
                 "type": "pdf"
         },
         {
-                "id": "19-g3zIPWiTGTdaeX7eQW7wBryy__ytdb",
+                "id": "cyow_capital_5_arr_rnav_pg_02.pdf",
                 "name": "CYOW_CAPITAL_5_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/19-g3zIPWiTGTdaeX7eQW7wBryy__ytdb/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_capital_5_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_capital_5_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1HQBS0BpziCUwyDhybJRModpcKa8KrOD6",
+                "id": "cyow_ils_rwy_32.pdf",
                 "name": "CYOW_ILS_RWY_32.pdf",
-                "url": "https://drive.google.com/file/d/1HQBS0BpziCUwyDhybJRModpcKa8KrOD6/view?usp=drivesdk",
+                "url": "charts_data/canada/cyow-ottawa/cyow_ils_rwy_32.pdf",
                 "localUrl": "charts_data/canada/cyow-ottawa/cyow_ils_rwy_32.pdf",
                 "type": "pdf"
         }
@@ -1091,6 +1093,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -1102,6 +1105,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

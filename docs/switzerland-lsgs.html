@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,79 +825,79 @@
 
         const files = [
         {
-                "id": "1S60VOU3LIkStdcEhacqY1Dhdq57t0QX8",
+                "id": "star_icao_rnav_grana_-_vadar_2n_valor_1w.pdf",
                 "name": "STAR_ICAO_RNAV_GRANA_-_VADAR_2N_VALOR_1W.pdf",
-                "url": "https://drive.google.com/file/d/1S60VOU3LIkStdcEhacqY1Dhdq57t0QX8/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lsgs/star_icao_rnav_grana_-_vadar_2n_valor_1w.pdf",
                 "localUrl": "charts_data/switzerland/lsgs/star_icao_rnav_grana_-_vadar_2n_valor_1w.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1TAMms_w5ypXK8yqQCPX6yNEvIV_g7gRY",
+                "id": "sid_icao_rnav_high_performance_rwy_25_-_goleb_1d_rocca_1d_sapre_1d.pdf",
                 "name": "SID_ICAO_RNAV_HIGH_PERFORMANCE_RWY_25_-_GOLEB_1D_ROCCA_1D_SAPRE_1D.pdf",
-                "url": "https://drive.google.com/file/d/1TAMms_w5ypXK8yqQCPX6yNEvIV_g7gRY/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lsgs/sid_icao_rnav_high_performance_rwy_25_-_goleb_1d_rocca_1d_sapre_1d.pdf",
                 "localUrl": "charts_data/switzerland/lsgs/sid_icao_rnav_high_performance_rwy_25_-_goleb_1d_rocca_1d_sapre_1d.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1CQGCzFCbco-H0MV0nvyk0OmVkTDMW9at",
+                "id": "atc_surveillance_minimum_altitude_chart_ad_temperatures_-6c_and_above.pdf",
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART_(AD_TEMPERATURES_-6C_AND_ABOVE).pdf",
-                "url": "https://drive.google.com/file/d/1CQGCzFCbco-H0MV0nvyk0OmVkTDMW9at/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lsgs/atc_surveillance_minimum_altitude_chart_ad_temperatures_-6c_and_above.pdf",
                 "localUrl": "charts_data/switzerland/lsgs/atc_surveillance_minimum_altitude_chart_ad_temperatures_-6c_and_above.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1ZBd2d_rEOPwy_BJzwpPV8PU7VifaMTuX",
+                "id": "atc_surveillance_minimum_altitude_chart_ad_temperatures_from_-15_to_-7c.pdf",
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART_(AD_TEMPERATURES_FROM_-15_TO_-7C).pdf",
-                "url": "https://drive.google.com/file/d/1ZBd2d_rEOPwy_BJzwpPV8PU7VifaMTuX/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lsgs/atc_surveillance_minimum_altitude_chart_ad_temperatures_from_-15_to_-7c.pdf",
                 "localUrl": "charts_data/switzerland/lsgs/atc_surveillance_minimum_altitude_chart_ad_temperatures_from_-15_to_-7c.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Oso3kqbGfGWI5g9aTZqAs6eNecWVSnPV",
+                "id": "iac_icao_rnp_rwy_25_ar.pdf",
                 "name": "IAC_ICAO_RNP_RWY_25_(AR).pdf",
-                "url": "https://drive.google.com/file/d/1Oso3kqbGfGWI5g9aTZqAs6eNecWVSnPV/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lsgs/iac_icao_rnp_rwy_25_ar.pdf",
                 "localUrl": "charts_data/switzerland/lsgs/iac_icao_rnp_rwy_25_ar.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1F54kEOQoHzI7_X1UCSdXbqWF14xU8WM-",
+                "id": "iac_icao_igs_rwy_25.pdf",
                 "name": "IAC_ICAO_IGS_RWY_25.pdf",
-                "url": "https://drive.google.com/file/d/1F54kEOQoHzI7_X1UCSdXbqWF14xU8WM-/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lsgs/iac_icao_igs_rwy_25.pdf",
                 "localUrl": "charts_data/switzerland/lsgs/iac_icao_igs_rwy_25.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1AaYdHyyrg1iHRKW76w85c-DORgdWUM_j",
+                "id": "sid_icao_rnav_low_performance_rwy_0725_-_goleb_1v_rocca_1v_sapre_1v.pdf",
                 "name": "SID_ICAO_RNAV_LOW_PERFORMANCE_RWY_0725_-_GOLEB_1V_ROCCA_1V_SAPRE_1V.pdf",
-                "url": "https://drive.google.com/file/d/1AaYdHyyrg1iHRKW76w85c-DORgdWUM_j/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lsgs/sid_icao_rnav_low_performance_rwy_0725_-_goleb_1v_rocca_1v_sapre_1v.pdf",
                 "localUrl": "charts_data/switzerland/lsgs/sid_icao_rnav_low_performance_rwy_0725_-_goleb_1v_rocca_1v_sapre_1v.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1yUQoK5FT-hfcvzMdY0ovVhbjc24te7b6",
+                "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_0725.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_0725.pdf",
-                "url": "https://drive.google.com/file/d/1yUQoK5FT-hfcvzMdY0ovVhbjc24te7b6/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lsgs/aerodrome_obstacle_chart_-_type_a_-_rwy_0725.pdf",
                 "localUrl": "charts_data/switzerland/lsgs/aerodrome_obstacle_chart_-_type_a_-_rwy_0725.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Gxdf5FPDKnDlwhcwkvcuxvlUPk8uH71x",
+                "id": "aircraft_parking_docking_chart.pdf",
                 "name": "AIRCRAFT_PARKING_DOCKING_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1Gxdf5FPDKnDlwhcwkvcuxvlUPk8uH71x/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lsgs/aircraft_parking_docking_chart.pdf",
                 "localUrl": "charts_data/switzerland/lsgs/aircraft_parking_docking_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1tTlNxSdpeEmbhQQWlFTYrLNf_altEIDj",
+                "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1tTlNxSdpeEmbhQQWlFTYrLNf_altEIDj/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lsgs/aerodrome_chart.pdf",
                 "localUrl": "charts_data/switzerland/lsgs/aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1ho54cWADpuhQsG-eg4SiyOR0FFztz6AH",
+                "id": "visual_approach_procedure_igs_rwy_25.pdf",
                 "name": "VISUAL_APPROACH_PROCEDURE_IGS_RWY_25.pdf",
-                "url": "https://drive.google.com/file/d/1ho54cWADpuhQsG-eg4SiyOR0FFztz6AH/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lsgs/visual_approach_procedure_igs_rwy_25.pdf",
                 "localUrl": "charts_data/switzerland/lsgs/visual_approach_procedure_igs_rwy_25.pdf",
                 "type": "pdf"
         }
@@ -937,6 +939,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -948,6 +951,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

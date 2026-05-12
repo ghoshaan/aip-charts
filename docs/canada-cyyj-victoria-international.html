@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,149 +825,149 @@
 
         const files = [
         {
-                "id": "1oCztJptZa_XjYvJRL8WRuIcJDbQbhqrq",
+                "id": "cyyj_victoria_6_dep_vector_pg_02.pdf",
                 "name": "CYYJ_VICTORIA_6_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1oCztJptZa_XjYvJRL8WRuIcJDbQbhqrq/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_victoria_6_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_victoria_6_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1aj8AUTL6PpelWFdrxnXrGptgbBkqSYVt",
+                "id": "cyyj_victoria_6_dep_vector.pdf",
                 "name": "CYYJ_VICTORIA_6_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1aj8AUTL6PpelWFdrxnXrGptgbBkqSYVt/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_victoria_6_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_victoria_6_dep_vector.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1gaAH2D5_N38ryxX5CTTfb6P24rY6l90k",
+                "id": "cyyj_mill_bay_1_dep_rnav_pg_02.pdf",
                 "name": "CYYJ_MILL_BAY_1_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1gaAH2D5_N38ryxX5CTTfb6P24rY6l90k/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_mill_bay_1_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_mill_bay_1_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1mAckvxGtBeA8E9ujWkzDaHxftknUZm7n",
+                "id": "cyyj_mill_bay_1_dep_rnav.pdf",
                 "name": "CYYJ_MILL_BAY_1_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1mAckvxGtBeA8E9ujWkzDaHxftknUZm7n/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_mill_bay_1_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_mill_bay_1_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "15BKJ_7ezNU0iI7lKMyhpqHAHE0w5Yx8r",
+                "id": "cyyj_cloake_7_dep_rnav_pg_02.pdf",
                 "name": "CYYJ_CLOAKE_7_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/15BKJ_7ezNU0iI7lKMyhpqHAHE0w5Yx8r/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_cloake_7_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_cloake_7_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "19VqPlSfCIqFNLnba0s490Zt4XafA2jFv",
+                "id": "cyyj_cloake_7_dep_rnav.pdf",
                 "name": "CYYJ_CLOAKE_7_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/19VqPlSfCIqFNLnba0s490Zt4XafA2jFv/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_cloake_7_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_cloake_7_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "18cnl4BNmhJnYRJrIjFgSWaqQOdKEi20z",
+                "id": "cyyj_taxi_chart_pg_02.pdf",
                 "name": "CYYJ_TAXI_CHART_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/18cnl4BNmhJnYRJrIjFgSWaqQOdKEi20z/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_taxi_chart_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_taxi_chart_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1SVu_S6fdx2uCLxipWtd_bTTUcQFdxjb9",
+                "id": "cyyj_taxi_chart.pdf",
                 "name": "CYYJ_TAXI_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1SVu_S6fdx2uCLxipWtd_bTTUcQFdxjb9/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_taxi_chart.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_taxi_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1OLkrSNY7nh8V-KVL_WgKS-ZSpoM17UxN",
+                "id": "cyyj_parking_areas.pdf",
                 "name": "CYYJ_PARKING_AREAS.pdf",
-                "url": "https://drive.google.com/file/d/1OLkrSNY7nh8V-KVL_WgKS-ZSpoM17UxN/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_parking_areas.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_parking_areas.pdf",
                 "type": "pdf"
         },
         {
-                "id": "11pN1u0DIn1l_ohzw_OND0JtpvvaYzyEo",
+                "id": "cyyj_noise_abatement_procedures.pdf",
                 "name": "CYYJ_NOISE_ABATEMENT_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/11pN1u0DIn1l_ohzw_OND0JtpvvaYzyEo/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_noise_abatement_procedures.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_noise_abatement_procedures.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1NVAKmcmdE_2xdTwV13F5jhhF3Ju2QgsO",
+                "id": "cyyj_de-icing_operations.pdf",
                 "name": "CYYJ_DE-ICING_OPERATIONS.pdf",
-                "url": "https://drive.google.com/file/d/1NVAKmcmdE_2xdTwV13F5jhhF3Ju2QgsO/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_de-icing_operations.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_de-icing_operations.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1rb8EPQMIRcMtKQ3VbmU2UZ48A7ONcXA-",
+                "id": "cyyj_aerodrome_chart.pdf",
                 "name": "CYYJ_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1rb8EPQMIRcMtKQ3VbmU2UZ48A7ONcXA-/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1MVdWff81RVx6MPQQuCPBHw7KkURllWSA",
+                "id": "cyyj_rnav_gnss_z_rwy_27.pdf",
                 "name": "CYYJ_RNAV_GNSS_Z_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1MVdWff81RVx6MPQQuCPBHw7KkURllWSA/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_rnav_gnss_z_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_rnav_gnss_z_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1LFLOJbjCcVEMcvW2gIW9AjGU7-58wiWq",
+                "id": "cyyj_rnav_gnss_z_rwy_09.pdf",
                 "name": "CYYJ_RNAV_GNSS_Z_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1LFLOJbjCcVEMcvW2gIW9AjGU7-58wiWq/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_rnav_gnss_z_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_rnav_gnss_z_rwy_09.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1xy06Y9CxJamw-_C1QV5SGnvXe1PLbyHy",
+                "id": "cyyj_rnav_gnss_x_rwy_09.pdf",
                 "name": "CYYJ_RNAV_GNSS_X_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1xy06Y9CxJamw-_C1QV5SGnvXe1PLbyHy/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_rnav_gnss_x_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_rnav_gnss_x_rwy_09.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1jXMycl7R2Szj0L3PGMO3c6axKwU23RAu",
+                "id": "cyyj_loc_rwy_27.pdf",
                 "name": "CYYJ_LOC_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1jXMycl7R2Szj0L3PGMO3c6axKwU23RAu/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_loc_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_loc_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1B6EOaLMiDusZ_2Au66k7uVC63NNjc3Bn",
+                "id": "cyyj_ils_rwy_27.pdf",
                 "name": "CYYJ_ILS_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1B6EOaLMiDusZ_2Au66k7uVC63NNjc3Bn/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_ils_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_ils_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1KeAUcysKHE2vB5sGLbqRkOYvRYrSFGlX",
+                "id": "cyyj_ils_rwy_09.pdf",
                 "name": "CYYJ_ILS_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1KeAUcysKHE2vB5sGLbqRkOYvRYrSFGlX/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_ils_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_ils_rwy_09.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1w58aZkoXcXO_WwElUBERYV9XIaYwQHde",
+                "id": "cyyj_disco_5_arr_rnav.pdf",
                 "name": "CYYJ_DISCO_5_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1w58aZkoXcXO_WwElUBERYV9XIaYwQHde/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_disco_5_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_disco_5_arr_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Ye-QoOTzkJ94GOucrbQwKKf50s5oZMy9",
+                "id": "cyyj_apass_8_arr_rnav_pg_02.pdf",
                 "name": "CYYJ_APASS_8_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1Ye-QoOTzkJ94GOucrbQwKKf50s5oZMy9/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_apass_8_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_apass_8_arr_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "10CHDdci_Kj-Vr_8bGwJBB3ini5jyHiDV",
+                "id": "cyyj_apass_8_arr_rnav.pdf",
                 "name": "CYYJ_APASS_8_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/10CHDdci_Kj-Vr_8bGwJBB3ini5jyHiDV/view?usp=drivesdk",
+                "url": "charts_data/canada/cyyj-victoria-international/cyyj_apass_8_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyj-victoria-international/cyyj_apass_8_arr_rnav.pdf",
                 "type": "pdf"
         }
@@ -1007,6 +1009,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -1018,6 +1021,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

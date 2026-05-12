@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>CYXX Abbotsford</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,108 +345,129 @@
         const files = [
         {
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/1Xbl6YOxyTpVS8WtTFkHaXClRJjWIlTA2/view?usp=drivesdk",
-                "type": "doc"
+                "url": ".DS_Store",
+                "type": "doc",
+                "id": ".DS_Store"
         },
         {
                 "name": "CYXX_NOISE_ABATEMENT_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/15XXmR2aLUdTrOhDSFDdwRSZiVt4D0cV0/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_noise_abatement_procedures.pdf",
+                "type": "pdf",
+                "id": "cyxx_noise_abatement_procedures.pdf"
         },
         {
                 "name": "CYXX_RESTRICTED_WESTJET_ABBOTSFORD_WESTJET_1_DEP_PG_03.pdf",
-                "url": "https://drive.google.com/file/d/1D_tFjNNseI-D2_uRt1DctgH8h-jboqJP/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_03.pdf",
+                "type": "pdf",
+                "id": "cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_03.pdf"
         },
         {
                 "name": "CYXX_GABVO_5_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1sm7CFXw63oOr49Nsaa44zRs2b3JAcmOg/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_gabvo_5_dep_rnav.pdf",
+                "type": "pdf",
+                "id": "cyxx_gabvo_5_dep_rnav.pdf"
         },
         {
                 "name": "CYXX_RNAV_RNP_Y_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1aPlmKs9M9T2SCro_mtcYoWzycI07AR7i/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_rnav_rnp_y_rwy_07.pdf",
+                "type": "pdf",
+                "id": "cyxx_rnav_rnp_y_rwy_07.pdf"
         },
         {
                 "name": "CYXX_ABBOTSFORD_1_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1NrHDsTc7zeBi3ixTa9laDJGMfDXPKsvr/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_abbotsford_1_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyxx_abbotsford_1_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYXX_CLEARBROOK_3_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/13wSLaNwMZ0kHSjqR4cuy4mBzxKztxsye/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_clearbrook_3_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cyxx_clearbrook_3_dep_vector.pdf"
         },
         {
                 "name": "CYXX_ABBOTSFORD_1_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1Ki-sLfI-G3R40_EBmQh4nWPLktB9RoX_/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_abbotsford_1_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cyxx_abbotsford_1_dep_vector.pdf"
         },
         {
                 "name": "CYXX_RESTRICTED_WESTJET_ABBOTSFORD_WESTJET_1_DEP.pdf",
-                "url": "https://drive.google.com/file/d/1YtueX6qcDuVCxSwcSzkhPIgvqbjZ8bok/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_restricted_westjet_abbotsford_westjet_1_dep.pdf",
+                "type": "pdf",
+                "id": "cyxx_restricted_westjet_abbotsford_westjet_1_dep.pdf"
         },
         {
                 "name": "CYXX_RESTRICTED_WESTJET_ABBOTSFORD_WESTJET_1_DEP_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1643vduJQ7RRy0TIQmj2cb7WsnwA05KX5/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_02.pdf"
         },
         {
                 "name": "CYXX_GABVO_5_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1UqMxSP3_HP4TYes1b4axMnEEs_HpxZ07/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_gabvo_5_dep_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyxx_gabvo_5_dep_rnav_pg_02.pdf"
         },
         {
                 "name": "CYXX_CLEARBROOK_3_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1TPO4yqY60Q6haH1M_aTlYs5mrF_N3kzg/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_clearbrook_3_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyxx_clearbrook_3_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYXX_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1cwlV4LywAPaogTOl5yGQdtdfcWjHpLow/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "cyxx_aerodrome_chart.pdf"
         },
         {
                 "name": "CYXX_ILS_Z_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1IhNcmXgE2JReXfP38bErqQeKFFsnTkmE/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_ils_z_rwy_07.pdf",
+                "type": "pdf",
+                "id": "cyxx_ils_z_rwy_07.pdf"
         },
         {
                 "name": "CYXX_ILS_Y_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1KZyBVeFbX3wfTSmXZf2dmkDbziPHyHPj/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_ils_y_rwy_07.pdf",
+                "type": "pdf",
+                "id": "cyxx_ils_y_rwy_07.pdf"
         },
         {
                 "name": "CYXX_RNAV_RNP_Y_RWY_25.pdf",
-                "url": "https://drive.google.com/file/d/1h4hKhi9NxiSgLUaBZ37wV2QNRPJPF01h/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_rnav_rnp_y_rwy_25.pdf",
+                "type": "pdf",
+                "id": "cyxx_rnav_rnp_y_rwy_25.pdf"
         },
         {
                 "name": "CYXX_RESTRICTED_RNAV_RNP_X_RWY_25.pdf",
-                "url": "https://drive.google.com/file/d/11VIgzKiTvq2XFDj4cJPFx8J-K3RpncIT/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_restricted_rnav_rnp_x_rwy_25.pdf",
+                "type": "pdf",
+                "id": "cyxx_restricted_rnav_rnp_x_rwy_25.pdf"
         },
         {
                 "name": "CYXX_RESTRICTED_RNAV_RNP_X_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1ja0_aFy08s2QsrkrgBlBYMyCkjiXOV0K/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_restricted_rnav_rnp_x_rwy_07.pdf",
+                "type": "pdf",
+                "id": "cyxx_restricted_rnav_rnp_x_rwy_07.pdf"
         },
         {
                 "name": "CYXX_RNAV_GNSS_Z_RWY_25.pdf",
-                "url": "https://drive.google.com/file/d/1pmeERHQ_2cqj7atgSB1o16IDqNw4b9pd/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_rnav_gnss_z_rwy_25.pdf",
+                "type": "pdf",
+                "id": "cyxx_rnav_gnss_z_rwy_25.pdf"
         },
         {
                 "name": "CYXX_RNAV_GNSS_Z_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/17xZKb51Kn3f5b-HAH-bMW_si2VVSjaNW/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_rnav_gnss_z_rwy_07.pdf",
+                "type": "pdf",
+                "id": "cyxx_rnav_gnss_z_rwy_07.pdf"
         },
         {
                 "name": "CYXX_HOPE_5_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1w46Qcuh7NpbG7UV6K3_fsBgJRu3tvceo/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyxx_hope_5_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyxx_hope_5_arr_rnav.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -477,10 +505,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

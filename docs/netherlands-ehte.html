@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,37 +825,37 @@
 
         const files = [
         {
-                "id": "1evlo0kvILDnjNN7HzOPNxgnEkprgzbAt",
+                "id": "visual_approach_chartvfr_procedures.pdf",
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1evlo0kvILDnjNN7HzOPNxgnEkprgzbAt/view?usp=drivesdk",
+                "url": "charts_data/netherlands/ehte/visual_approach_chartvfr_procedures.pdf",
                 "localUrl": "charts_data/netherlands/ehte/visual_approach_chartvfr_procedures.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Ahhjbr35wIFiBIe5Eah0hiBEmuEr4_Ku",
+                "id": "aerodrome_obstacle_chart_-_type_a_rwy_08-26.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_RWY_08-26.pdf",
-                "url": "https://drive.google.com/file/d/1Ahhjbr35wIFiBIe5Eah0hiBEmuEr4_Ku/view?usp=drivesdk",
+                "url": "charts_data/netherlands/ehte/aerodrome_obstacle_chart_-_type_a_rwy_08-26.pdf",
                 "localUrl": "charts_data/netherlands/ehte/aerodrome_obstacle_chart_-_type_a_rwy_08-26.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1d6nJXZf0iMVF6yg9RyXmlVb6eGxJVUY2",
+                "id": "aerodrome_ground_movement_chart.pdf",
                 "name": "AERODROME_GROUND_MOVEMENT_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1d6nJXZf0iMVF6yg9RyXmlVb6eGxJVUY2/view?usp=drivesdk",
+                "url": "charts_data/netherlands/ehte/aerodrome_ground_movement_chart.pdf",
                 "localUrl": "charts_data/netherlands/ehte/aerodrome_ground_movement_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1_M9d0aK_3dMI-btzHZgiBEE25AEkBkKX",
+                "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1_M9d0aK_3dMI-btzHZgiBEE25AEkBkKX/view?usp=drivesdk",
+                "url": "charts_data/netherlands/ehte/aerodrome_chart.pdf",
                 "localUrl": "charts_data/netherlands/ehte/aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "14ArWfV-Pp70E35ABUeDHwxsQAwPE9xmn",
+                "id": "instrument_approach_chart_rnp_rwy_26.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_26.pdf",
-                "url": "https://drive.google.com/file/d/14ArWfV-Pp70E35ABUeDHwxsQAwPE9xmn/view?usp=drivesdk",
+                "url": "charts_data/netherlands/ehte/instrument_approach_chart_rnp_rwy_26.pdf",
                 "localUrl": "charts_data/netherlands/ehte/instrument_approach_chart_rnp_rwy_26.pdf",
                 "type": "pdf"
         }
@@ -895,6 +897,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -906,6 +909,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

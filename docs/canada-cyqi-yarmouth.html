@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,65 +825,65 @@
 
         const files = [
         {
-                "id": "18j9pNsFwT1bcQd4Vy5SjrgZF90M83hne",
+                "id": "cyqi_aerodrome_chart.pdf",
                 "name": "CYQI_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/18j9pNsFwT1bcQd4Vy5SjrgZF90M83hne/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqi-yarmouth/cyqi_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyqi-yarmouth/cyqi_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Oek4s_qc_P_rTYyX3hz0blDjOQx7zzc-",
+                "id": "cyqi_rnav_gnss_z_rwy_33.pdf",
                 "name": "CYQI_RNAV_GNSS_Z_RWY_33.pdf",
-                "url": "https://drive.google.com/file/d/1Oek4s_qc_P_rTYyX3hz0blDjOQx7zzc-/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_z_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_z_rwy_33.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1cGOzPcLb6lMpC7maScFlbt_m-miEBtIg",
+                "id": "cyqi_rnav_gnss_z_rwy_24.pdf",
                 "name": "CYQI_RNAV_GNSS_Z_RWY_24.pdf",
-                "url": "https://drive.google.com/file/d/1cGOzPcLb6lMpC7maScFlbt_m-miEBtIg/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_z_rwy_24.pdf",
                 "localUrl": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_z_rwy_24.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1ozuB4CcSj4dSOz9_H-X1grUCjrEM0_Jz",
+                "id": "cyqi_rnav_gnss_z_rwy_15.pdf",
                 "name": "CYQI_RNAV_GNSS_Z_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1ozuB4CcSj4dSOz9_H-X1grUCjrEM0_Jz/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_z_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_z_rwy_15.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1o9ftCW1GfnhB8lgJxHc2Ky9cciijfrC2",
+                "id": "cyqi_rnav_gnss_z_rwy_06.pdf",
                 "name": "CYQI_RNAV_GNSS_Z_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1o9ftCW1GfnhB8lgJxHc2Ky9cciijfrC2/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_z_rwy_06.pdf",
                 "localUrl": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_z_rwy_06.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1d94P-hJAY-jBuqHQJTvCuiCfootC3g2L",
+                "id": "cyqi_rnav_gnss_y_rwy_33.pdf",
                 "name": "CYQI_RNAV_GNSS_Y_RWY_33.pdf",
-                "url": "https://drive.google.com/file/d/1d94P-hJAY-jBuqHQJTvCuiCfootC3g2L/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_y_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_y_rwy_33.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1APVb_zG65SC3VM3oZ9xmY11xlIMtn2Xd",
+                "id": "cyqi_rnav_gnss_y_rwy_24.pdf",
                 "name": "CYQI_RNAV_GNSS_Y_RWY_24.pdf",
-                "url": "https://drive.google.com/file/d/1APVb_zG65SC3VM3oZ9xmY11xlIMtn2Xd/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_y_rwy_24.pdf",
                 "localUrl": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_y_rwy_24.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1fxmj7QXSLhzjQZ0wIHZf2OopJv54lf99",
+                "id": "cyqi_rnav_gnss_y_rwy_15.pdf",
                 "name": "CYQI_RNAV_GNSS_Y_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1fxmj7QXSLhzjQZ0wIHZf2OopJv54lf99/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_y_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_y_rwy_15.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1yHDThqC3-d96aEyx_uxeCOcVnnaFoQ4j",
+                "id": "cyqi_rnav_gnss_y_rwy_06.pdf",
                 "name": "CYQI_RNAV_GNSS_Y_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1yHDThqC3-d96aEyx_uxeCOcVnnaFoQ4j/view?usp=drivesdk",
+                "url": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_y_rwy_06.pdf",
                 "localUrl": "charts_data/canada/cyqi-yarmouth/cyqi_rnav_gnss_y_rwy_06.pdf",
                 "type": "pdf"
         }
@@ -923,6 +925,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -934,6 +937,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

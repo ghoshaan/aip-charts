@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -338,28 +344,33 @@
         const files = [
         {
                 "name": "ENR_6.7_-_1_ENROUTE_CHART_ICAO,_UPPER_AIRSPACE.pdf",
-                "url": "https://drive.google.com/file/d/1a7MroWA7ZcFElFk-rFtTJ0-rWtVL8Rkd/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_67_-_1_enroute_chart_icao_upper_airspace.pdf",
+                "type": "pdf",
+                "id": "enr_67_-_1_enroute_chart_icao_upper_airspace.pdf"
         },
         {
                 "name": "ENR_6.5_-_1_ENROUTE_CHART_ICAO,_LOWER_AIRSPACE.pdf",
-                "url": "https://drive.google.com/file/d/1aKTWRAK_YIoh03ggUvqcvx6E4sWce8Nn/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_65_-_1_enroute_chart_icao_lower_airspace.pdf",
+                "type": "pdf",
+                "id": "enr_65_-_1_enroute_chart_icao_lower_airspace.pdf"
         },
         {
                 "name": "ENR_6.4_-_1_GNSS_LOW_FLIGHT_NETWORK_(LFN)_FOR_HEL.pdf",
-                "url": "https://drive.google.com/file/d/1dlpkvfeFxH-ZgLwxpZESLEhwI7uELsgn/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_64_-_1_gnss_low_flight_network_lfn_for_hel.pdf",
+                "type": "pdf",
+                "id": "enr_64_-_1_gnss_low_flight_network_lfn_for_hel.pdf"
         },
         {
                 "name": "ENR_6.3_-_1_RADIO_FACILITY_INDEX_-_ACCFICNAV.pdf",
-                "url": "https://drive.google.com/file/d/1FYN4jxHB3qRQnxfW3k0BQ7liEaeKog2H/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_63_-_1_radio_facility_index_-_accficnav.pdf",
+                "type": "pdf",
+                "id": "enr_63_-_1_radio_facility_index_-_accficnav.pdf"
         },
         {
                 "name": "ENR_6.1_-_1_RADIO_FACILITY_INDEX_-_AD_COMAFIS.pdf",
-                "url": "https://drive.google.com/file/d/1S8r4GKE-FvNYH0z6iM66lLT1B7OEZbc4/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "enr_61_-_1_radio_facility_index_-_ad_comafis.pdf",
+                "type": "pdf",
+                "id": "enr_61_-_1_radio_facility_index_-_ad_comafis.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};

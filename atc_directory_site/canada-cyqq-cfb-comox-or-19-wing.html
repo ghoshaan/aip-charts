@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>CYQQ CFB Comox or 19 wing</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,108 +345,129 @@
         const files = [
         {
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/112v0EwzarNqES-WRpVrf1GNaKuyHnr95/view?usp=drivesdk",
-                "type": "doc"
+                "url": ".DS_Store",
+                "type": "doc",
+                "id": ".DS_Store"
         },
         {
                 "name": "CYQQ_SARATOGA_1_DEP_DND_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1codvlM8apZZMokXgg7JZmZxoRpJO2m3i/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_saratoga_1_dep_dnd_rnav.pdf",
+                "type": "pdf",
+                "id": "cyqq_saratoga_1_dep_dnd_rnav.pdf"
         },
         {
                 "name": "CYQQ_LAZO_3_DEP_DND_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1ZSqVTFz-6lfx_xO_V6s_PW391-CybIg_/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_lazo_3_dep_dnd_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyqq_lazo_3_dep_dnd_vector_pg_02.pdf"
         },
         {
                 "name": "CYQQ_ILS_Z_RWY_30_DND.pdf",
-                "url": "https://drive.google.com/file/d/15ImpaXWFhuEXqTAckfJabeAAfy4cKNTt/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_ils_z_rwy_30_dnd.pdf",
+                "type": "pdf",
+                "id": "cyqq_ils_z_rwy_30_dnd.pdf"
         },
         {
                 "name": "CYQQ_TACAN_Z_RWY_30_DND.pdf",
-                "url": "https://drive.google.com/file/d/1iYjUrQt4vAtms4GzDaenLF9Y45-iV-LB/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_tacan_z_rwy_30_dnd.pdf",
+                "type": "pdf",
+                "id": "cyqq_tacan_z_rwy_30_dnd.pdf"
         },
         {
                 "name": "CYQQ_RNAV_GNSS_Z_RWY_12_DND.pdf",
-                "url": "https://drive.google.com/file/d/1d3vWKcLgduc0rPDS9lEyxo9DjoAjQ9zv/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_rnav_gnss_z_rwy_12_dnd.pdf",
+                "type": "pdf",
+                "id": "cyqq_rnav_gnss_z_rwy_12_dnd.pdf"
         },
         {
                 "name": "CYQQ_RNAV_GNSS_Z_RWY_30_DND.pdf",
-                "url": "https://drive.google.com/file/d/1pag0rhXTZcKXcq58fpW1F4syQwfDYtOK/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_rnav_gnss_z_rwy_30_dnd.pdf",
+                "type": "pdf",
+                "id": "cyqq_rnav_gnss_z_rwy_30_dnd.pdf"
         },
         {
                 "name": "CYQQ_RNAV_RNP_Y_RWY_30.pdf",
-                "url": "https://drive.google.com/file/d/1vyPndFjEbRvUr3kp2vXZBkTpJJOiEms8/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_rnav_rnp_y_rwy_30.pdf",
+                "type": "pdf",
+                "id": "cyqq_rnav_rnp_y_rwy_30.pdf"
         },
         {
                 "name": "CYQQ_LAZO_3_DEP_DND_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1Mtd6Q-x7pf88BRT0TSRBdP8GSYG5CY2E/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_lazo_3_dep_dnd_vector.pdf",
+                "type": "pdf",
+                "id": "cyqq_lazo_3_dep_dnd_vector.pdf"
         },
         {
                 "name": "CYQQ_RNAV_RNP_Y_RWY_18.pdf",
-                "url": "https://drive.google.com/file/d/1TELIF2ePzWGAhGaNG5IMTXez2Z_Xu8UV/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_rnav_rnp_y_rwy_18.pdf",
+                "type": "pdf",
+                "id": "cyqq_rnav_rnp_y_rwy_18.pdf"
         },
         {
                 "name": "CYQQ_RNAV_RNP_Y_RWY_12.pdf",
-                "url": "https://drive.google.com/file/d/1GlkYdD77r54Ia6n_qByE-sCem9X2CqmF/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_rnav_rnp_y_rwy_12.pdf",
+                "type": "pdf",
+                "id": "cyqq_rnav_rnp_y_rwy_12.pdf"
         },
         {
                 "name": "CYQQ_ILS_Y_RWY_30_DND.pdf",
-                "url": "https://drive.google.com/file/d/1oDW_LzGuKrXwPs8AzplwINtHFn-fk63Q/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_ils_y_rwy_30_dnd.pdf",
+                "type": "pdf",
+                "id": "cyqq_ils_y_rwy_30_dnd.pdf"
         },
         {
                 "name": "CYQQ_SARATOGA_1_DEP_DND_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1MJj3mFAI69JM4Ng4gWqt0bYZRRuKyxeR/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_saratoga_1_dep_dnd_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyqq_saratoga_1_dep_dnd_rnav_pg_02.pdf"
         },
         {
                 "name": "CYQQ_TACAN_Z_RWY_12_DND.pdf",
-                "url": "https://drive.google.com/file/d/1JTSvy9BeHzIm8qnzzevxPYRfCPA71Ks3/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_tacan_z_rwy_12_dnd.pdf",
+                "type": "pdf",
+                "id": "cyqq_tacan_z_rwy_12_dnd.pdf"
         },
         {
                 "name": "CYQQ_HORNBY_2_DEP_DND_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1RA_CHXFwinKqzOQsQnjrogkm9dk3XyaX/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_hornby_2_dep_dnd_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyqq_hornby_2_dep_dnd_rnav_pg_02.pdf"
         },
         {
                 "name": "CYQQ_AERODROME_CHART_DND.pdf",
-                "url": "https://drive.google.com/file/d/1fNPizCRkiwAZpipei_jGZlhSXkp5BbWx/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_aerodrome_chart_dnd.pdf",
+                "type": "pdf",
+                "id": "cyqq_aerodrome_chart_dnd.pdf"
         },
         {
                 "name": "CYQQ_HORNBY_2_DEP_DND_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1WSZEeRwU6Mhf79sr3PWfGnb7fzMlzj3z/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_hornby_2_dep_dnd_rnav.pdf",
+                "type": "pdf",
+                "id": "cyqq_hornby_2_dep_dnd_rnav.pdf"
         },
         {
                 "name": "CYQQ_HI-TACAN_Y_RWY_12_DND.pdf",
-                "url": "https://drive.google.com/file/d/1ruDTTsQREdzb92rGiVrDCYijB-cLt9Ax/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_hi-tacan_y_rwy_12_dnd.pdf",
+                "type": "pdf",
+                "id": "cyqq_hi-tacan_y_rwy_12_dnd.pdf"
         },
         {
                 "name": "CYQQ_ILS_Z_RWY_12_DND.pdf",
-                "url": "https://drive.google.com/file/d/1imzLo6BFkzg44PA233OHY6YxKvG2_dAP/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_ils_z_rwy_12_dnd.pdf",
+                "type": "pdf",
+                "id": "cyqq_ils_z_rwy_12_dnd.pdf"
         },
         {
                 "name": "CYQQ_ILS_Y_RWY_12_DND.pdf",
-                "url": "https://drive.google.com/file/d/1A0PltVTeui7-0m-kImjudglIz1enBdq8/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_ils_y_rwy_12_dnd.pdf",
+                "type": "pdf",
+                "id": "cyqq_ils_y_rwy_12_dnd.pdf"
         },
         {
                 "name": "CYQQ_HI-TACAN_Y_RWY_30_DND.pdf",
-                "url": "https://drive.google.com/file/d/1GkKFaMuXs7ynORHgENGHgkaiSz1x7Zf5/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqq_hi-tacan_y_rwy_30_dnd.pdf",
+                "type": "pdf",
+                "id": "cyqq_hi-tacan_y_rwy_30_dnd.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -477,10 +505,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

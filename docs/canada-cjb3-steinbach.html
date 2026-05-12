@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,30 +825,30 @@
 
         const files = [
         {
-                "id": "1U8h20VZ_ODVmGklqfAs2ndxUXeavoMJ1",
+                "id": "cjb3_restricted_rnav_gnss_rwy_15_pg_02.pdf",
                 "name": "CJB3_RESTRICTED_RNAV_GNSS_RWY_15_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1U8h20VZ_ODVmGklqfAs2ndxUXeavoMJ1/view?usp=drivesdk",
+                "url": "charts_data/canada/cjb3-steinbach/cjb3_restricted_rnav_gnss_rwy_15_pg_02.pdf",
                 "localUrl": "charts_data/canada/cjb3-steinbach/cjb3_restricted_rnav_gnss_rwy_15_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1ut_SGWTcEPTUFogEWC8kTV9eEs6xcX2c",
+                "id": "cjb3_restricted_rnav_gnss_rwy_15.pdf",
                 "name": "CJB3_RESTRICTED_RNAV_GNSS_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1ut_SGWTcEPTUFogEWC8kTV9eEs6xcX2c/view?usp=drivesdk",
+                "url": "charts_data/canada/cjb3-steinbach/cjb3_restricted_rnav_gnss_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cjb3-steinbach/cjb3_restricted_rnav_gnss_rwy_15.pdf",
                 "type": "pdf"
         },
         {
-                "id": "15HmAGPoEy3spoNAMwOGvXIa9uXMwx1iQ",
+                "id": "cjb3_restricted_rnav_gnss_a_pg_02.pdf",
                 "name": "CJB3_RESTRICTED_RNAV_GNSS_A_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/15HmAGPoEy3spoNAMwOGvXIa9uXMwx1iQ/view?usp=drivesdk",
+                "url": "charts_data/canada/cjb3-steinbach/cjb3_restricted_rnav_gnss_a_pg_02.pdf",
                 "localUrl": "charts_data/canada/cjb3-steinbach/cjb3_restricted_rnav_gnss_a_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1mTfYfhN5Z81sdkDSNo1Cd2mRCgozJAq0",
+                "id": "cjb3_restricted_rnav_gnss_a.pdf",
                 "name": "CJB3_RESTRICTED_RNAV_GNSS_A.pdf",
-                "url": "https://drive.google.com/file/d/1mTfYfhN5Z81sdkDSNo1Cd2mRCgozJAq0/view?usp=drivesdk",
+                "url": "charts_data/canada/cjb3-steinbach/cjb3_restricted_rnav_gnss_a.pdf",
                 "localUrl": "charts_data/canada/cjb3-steinbach/cjb3_restricted_rnav_gnss_a.pdf",
                 "type": "pdf"
         }
@@ -888,6 +890,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -899,6 +902,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

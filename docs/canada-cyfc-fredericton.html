@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,100 +825,100 @@
 
         const files = [
         {
-                "id": "1Cxy2LEamdYaxulw-q9V5RBzQjMx2jOC0",
+                "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/1Cxy2LEamdYaxulw-q9V5RBzQjMx2jOC0/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/.DS_Store",
                 "localUrl": "charts_data/canada/cyfc-fredericton/.DS_Store",
                 "type": "doc"
         },
         {
-                "id": "1W1o29-JwNlmrVFq8gZLBccpt2xNadck7",
+                "id": "cyfc_rnav_rnp_y_rwy_33.pdf",
                 "name": "CYFC_RNAV_RNP_Y_RWY_33.pdf",
-                "url": "https://drive.google.com/file/d/1W1o29-JwNlmrVFq8gZLBccpt2xNadck7/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_rnav_rnp_y_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_rnav_rnp_y_rwy_33.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Z2eo3tzWPlRHAPfNIMttG5GVVJxxrJQt",
+                "id": "cyfc_fredericton_2_dep_vector.pdf",
                 "name": "CYFC_FREDERICTON_2_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1Z2eo3tzWPlRHAPfNIMttG5GVVJxxrJQt/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_fredericton_2_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_fredericton_2_dep_vector.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1X3WkgsgdX3uf-01FFSbhKlGTMuYDDAxK",
+                "id": "cyfc_takeoff_minimums.pdf",
                 "name": "CYFC_TAKEOFF_MINIMUMS.pdf",
-                "url": "https://drive.google.com/file/d/1X3WkgsgdX3uf-01FFSbhKlGTMuYDDAxK/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_takeoff_minimums.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_takeoff_minimums.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1BAqMr7jovmO_7U2oOTtGgOJv6clBMebk",
+                "id": "cyfc_aerodrome_chart.pdf",
                 "name": "CYFC_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1BAqMr7jovmO_7U2oOTtGgOJv6clBMebk/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1FgROlaXw9_YazNPAqBQVQxkkZyZyPqRy",
+                "id": "cyfc_fredericton_2_dep_vector_pg_02.pdf",
                 "name": "CYFC_FREDERICTON_2_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1FgROlaXw9_YazNPAqBQVQxkkZyZyPqRy/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_fredericton_2_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_fredericton_2_dep_vector_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1e3C-kIRcq3xElCkKukkNhxm6F53pN-Qg",
+                "id": "cyfc_rnav_gnss_z_rwy_15.pdf",
                 "name": "CYFC_RNAV_GNSS_Z_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1e3C-kIRcq3xElCkKukkNhxm6F53pN-Qg/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_rnav_gnss_z_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_rnav_gnss_z_rwy_15.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1M_-ld8vY-IfWjlSYFXySSf4Z49DVpXn5",
+                "id": "cyfc_rnav_rnp_y_rwy_15.pdf",
                 "name": "CYFC_RNAV_RNP_Y_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/1M_-ld8vY-IfWjlSYFXySSf4Z49DVpXn5/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_rnav_rnp_y_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_rnav_rnp_y_rwy_15.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1AaDPoX5xBeySSfNWOstafo3Zi-XNY8Fi",
+                "id": "cyfc_ils_rwy_09.pdf",
                 "name": "CYFC_ILS_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1AaDPoX5xBeySSfNWOstafo3Zi-XNY8Fi/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_ils_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_ils_rwy_09.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Afux_rGtfh5ZoMnb0U1KVldT8iTzMQ9v",
+                "id": "cyfc_rnav_rnp_y_rwy_09.pdf",
                 "name": "CYFC_RNAV_RNP_Y_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/1Afux_rGtfh5ZoMnb0U1KVldT8iTzMQ9v/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_rnav_rnp_y_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_rnav_rnp_y_rwy_09.pdf",
                 "type": "pdf"
         },
         {
-                "id": "153eZT4pG9N2m0h15Ddwmj0m_Zae_n1eW",
+                "id": "cyfc_rnav_gnss_x_rwy_15.pdf",
                 "name": "CYFC_RNAV_GNSS_X_RWY_15.pdf",
-                "url": "https://drive.google.com/file/d/153eZT4pG9N2m0h15Ddwmj0m_Zae_n1eW/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_rnav_gnss_x_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_rnav_gnss_x_rwy_15.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1qO-PO-8b2kvGI1-O0QoOEargvpLS_ah-",
+                "id": "cyfc_rnav_gnss_z_rwy_27.pdf",
                 "name": "CYFC_RNAV_GNSS_Z_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1qO-PO-8b2kvGI1-O0QoOEargvpLS_ah-/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_rnav_gnss_z_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_rnav_gnss_z_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1JZgenu90OZLScrhjhzBtWsCR8xc41CP6",
+                "id": "cyfc_rnav_rnp_y_rwy_27.pdf",
                 "name": "CYFC_RNAV_RNP_Y_RWY_27.pdf",
-                "url": "https://drive.google.com/file/d/1JZgenu90OZLScrhjhzBtWsCR8xc41CP6/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_rnav_rnp_y_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_rnav_rnp_y_rwy_27.pdf",
                 "type": "pdf"
         },
         {
-                "id": "15Zt8iseIPK5I4aa0qB3J9MdJqu9XZpbE",
+                "id": "cyfc_rnav_gnss_z_rwy_09.pdf",
                 "name": "CYFC_RNAV_GNSS_Z_RWY_09.pdf",
-                "url": "https://drive.google.com/file/d/15Zt8iseIPK5I4aa0qB3J9MdJqu9XZpbE/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfc-fredericton/cyfc_rnav_gnss_z_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyfc-fredericton/cyfc_rnav_gnss_z_rwy_09.pdf",
                 "type": "pdf"
         }
@@ -958,6 +960,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -969,6 +972,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

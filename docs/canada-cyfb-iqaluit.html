@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,65 +825,65 @@
 
         const files = [
         {
-                "id": "17GD8fY5csOdjxfXQTOCsGQ1OqTJWCjgY",
+                "id": "cyfb_itrus_2_dep_rnav_pg_02.pdf",
                 "name": "CYFB_ITRUS_2_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/17GD8fY5csOdjxfXQTOCsGQ1OqTJWCjgY/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfb-iqaluit/cyfb_itrus_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_itrus_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1c1ZUhD40O7X_IyGtrSvYp9RCpmhxSd9o",
+                "id": "cyfb_itrus_2_dep_rnav.pdf",
                 "name": "CYFB_ITRUS_2_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1c1ZUhD40O7X_IyGtrSvYp9RCpmhxSd9o/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfb-iqaluit/cyfb_itrus_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_itrus_2_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1jzBcYUPPT-chdMhFhOi5rUjaEcE5LIZ3",
+                "id": "cyfb_alrex_3_dep_rnav_pg_02.pdf",
                 "name": "CYFB_ALREX_3_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1jzBcYUPPT-chdMhFhOi5rUjaEcE5LIZ3/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfb-iqaluit/cyfb_alrex_3_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_alrex_3_dep_rnav_pg_02.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1fxSgIplbTbVsGZiZCv4VLA0dOYkUpnEt",
+                "id": "cyfb_alrex_3_dep_rnav.pdf",
                 "name": "CYFB_ALREX_3_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1fxSgIplbTbVsGZiZCv4VLA0dOYkUpnEt/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfb-iqaluit/cyfb_alrex_3_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_alrex_3_dep_rnav.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1sKpT9g8x6uIHekQWDbg8ChV8p4ZQ71uh",
+                "id": "cyfb_aerodrome_chart_pg_02_ai.pdf",
                 "name": "CYFB_AERODROME_CHART_PG_02_AI.pdf",
-                "url": "https://drive.google.com/file/d/1sKpT9g8x6uIHekQWDbg8ChV8p4ZQ71uh/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfb-iqaluit/cyfb_aerodrome_chart_pg_02_ai.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_aerodrome_chart_pg_02_ai.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1B9H_T19l3CwqaRG-hUY7YplOz3Efutu6",
+                "id": "cyfb_aerodrome_chart.pdf",
                 "name": "CYFB_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1B9H_T19l3CwqaRG-hUY7YplOz3Efutu6/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfb-iqaluit/cyfb_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "18JzhujiOaKLgLCJVF1WpLB4LupAVmvKw",
+                "id": "cyfb_rnav_gnss_rwy_34.pdf",
                 "name": "CYFB_RNAV_GNSS_RWY_34.pdf",
-                "url": "https://drive.google.com/file/d/18JzhujiOaKLgLCJVF1WpLB4LupAVmvKw/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfb-iqaluit/cyfb_rnav_gnss_rwy_34.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_rnav_gnss_rwy_34.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1ScUc_r8vkMEE5m2voESqTE7gHZ1OSE5u",
+                "id": "cyfb_rnav_gnss_rwy_16.pdf",
                 "name": "CYFB_RNAV_GNSS_RWY_16.pdf",
-                "url": "https://drive.google.com/file/d/1ScUc_r8vkMEE5m2voESqTE7gHZ1OSE5u/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfb-iqaluit/cyfb_rnav_gnss_rwy_16.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_rnav_gnss_rwy_16.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1aQuUwEhe0jwf65j2o82TAltWsnumu8QI",
+                "id": "cyfb_ils_rwy_34.pdf",
                 "name": "CYFB_ILS_RWY_34.pdf",
-                "url": "https://drive.google.com/file/d/1aQuUwEhe0jwf65j2o82TAltWsnumu8QI/view?usp=drivesdk",
+                "url": "charts_data/canada/cyfb-iqaluit/cyfb_ils_rwy_34.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_ils_rwy_34.pdf",
                 "type": "pdf"
         }
@@ -923,6 +925,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -934,6 +937,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

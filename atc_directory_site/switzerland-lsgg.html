@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>LSGG</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,128 +345,153 @@
         const files = [
         {
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_-_AREA_SOUTH_EAST.pdf",
-                "url": "https://drive.google.com/file/d/1hEF3vCKgp9Jp74x_3u_lVLuoo3e5kJRh/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parkingdocking_chart_-_area_south_east.pdf",
+                "type": "pdf",
+                "id": "aircraft_parkingdocking_chart_-_area_south_east.pdf"
         },
         {
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_-_AREA_NORTH.pdf",
-                "url": "https://drive.google.com/file/d/1ZSbQDYLiskrn7XgZS5LwkOkNOQGoG8Sr/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parkingdocking_chart_-_area_north.pdf",
+                "type": "pdf",
+                "id": "aircraft_parkingdocking_chart_-_area_north.pdf"
         },
         {
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_-_AREA_SOUTH.pdf",
-                "url": "https://drive.google.com/file/d/1Oqxpin2KxtxIXhU3bA4J52YNI4x5WV5i/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parkingdocking_chart_-_area_south.pdf",
+                "type": "pdf",
+                "id": "aircraft_parkingdocking_chart_-_area_south.pdf"
         },
         {
                 "name": "AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1xw_7d35X9dAozlYJbv9lbtZO0L_V_0UB/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "aerodrome_chart.pdf"
         },
         {
                 "name": "IAC_ICAO_RNP_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/1ttB35MCGhshXTOZQoePXdIMMq86DNFKg/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_rnp_rwy_22.pdf",
+                "type": "pdf",
+                "id": "iac_icao_rnp_rwy_22.pdf"
         },
         {
                 "name": "IAC_ICAO_ILS_RWY_22_CAT_II_&_CAT_III.pdf",
-                "url": "https://drive.google.com/file/d/1IPSmWn6R24MesGNp7SvZS62niD9sDOXI/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_ils_rwy_22_cat_ii__cat_iii.pdf",
+                "type": "pdf",
+                "id": "iac_icao_ils_rwy_22_cat_ii__cat_iii.pdf"
         },
         {
                 "name": "IAC_ICAO_RNP_RWY_04.pdf",
-                "url": "https://drive.google.com/file/d/1bzLnw_vPmO6MXb3rwNwBQ5Us9CBxUX81/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_rnp_rwy_04.pdf",
+                "type": "pdf",
+                "id": "iac_icao_rnp_rwy_04.pdf"
         },
         {
                 "name": "IAC_ICAO_ILS_RWY_04.pdf",
-                "url": "https://drive.google.com/file/d/1LtF4cUagVcK6CocuNW8cwKKqiAqaIy5_/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_ils_rwy_04.pdf",
+                "type": "pdf",
+                "id": "iac_icao_ils_rwy_04.pdf"
         },
         {
                 "name": "STAR_ICAO_RNAV_RWY_22_-_BENOT_2R_BENOT_2T_FRIBU_1R_ULMES_2R.pdf",
-                "url": "https://drive.google.com/file/d/14Lhy5xk7MYU05KgFl5Q6oNbBAnipEg7O/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "star_icao_rnav_rwy_22_-_benot_2r_benot_2t_fribu_1r_ulmes_2r.pdf",
+                "type": "pdf",
+                "id": "star_icao_rnav_rwy_22_-_benot_2r_benot_2t_fribu_1r_ulmes_2r.pdf"
         },
         {
                 "name": "STAR_ICAO_RNAV_RWY_22_-_AKITO_3R_DJL_2R_LUSAR_2R.pdf",
-                "url": "https://drive.google.com/file/d/1KLVWfi3V8-6KWAlacGF6QhqIroTBv2-g/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "star_icao_rnav_rwy_22_-_akito_3r_djl_2r_lusar_2r.pdf",
+                "type": "pdf",
+                "id": "star_icao_rnav_rwy_22_-_akito_3r_djl_2r_lusar_2r.pdf"
         },
         {
                 "name": "STAR_ICAO_RNAV_RWY_04_-_BANKO_3N_BELUS_4N_KINES_2N.pdf",
-                "url": "https://drive.google.com/file/d/12CZTNkGyXzS1cEU25YA73VlDrGYM45AU/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "star_icao_rnav_rwy_04_-_banko_3n_belus_4n_kines_2n.pdf",
+                "type": "pdf",
+                "id": "star_icao_rnav_rwy_04_-_banko_3n_belus_4n_kines_2n.pdf"
         },
         {
                 "name": "STAR_ICAO_RNAV_RWY_04_-_BENOT_1N_BENOT_1P_FRIBU_1P_ULMES_1N_ULMES_1P.pdf",
-                "url": "https://drive.google.com/file/d/1Ex2ERcTH5xPQ1eogfvVu_-D7fHSm5B5l/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "star_icao_rnav_rwy_04_-_benot_1n_benot_1p_fribu_1p_ulmes_1n_ulmes_1p.pdf",
+                "type": "pdf",
+                "id": "star_icao_rnav_rwy_04_-_benot_1n_benot_1p_fribu_1p_ulmes_1n_ulmes_1p.pdf"
         },
         {
                 "name": "STAR_ICAO_RNAV_RWY_04_-_AKITO_2N_DJL_2N_LUSAR_2N.pdf",
-                "url": "https://drive.google.com/file/d/1EOG5iOdJKRiamVVHetnLESW3t80Ylivf/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "star_icao_rnav_rwy_04_-_akito_2n_djl_2n_lusar_2n.pdf",
+                "type": "pdf",
+                "id": "star_icao_rnav_rwy_04_-_akito_2n_djl_2n_lusar_2n.pdf"
         },
         {
                 "name": "STAR_ICAO_RNAV_RWY_22_-_BANKO_3R_BELUS_3R_KINES_2R.pdf",
-                "url": "https://drive.google.com/file/d/1MvUgUMfPWSouTJm6RiYXBg9z4RtCOz3M/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "star_icao_rnav_rwy_22_-_banko_3r_belus_3r_kines_2r.pdf",
+                "type": "pdf",
+                "id": "star_icao_rnav_rwy_22_-_banko_3r_belus_3r_kines_2r.pdf"
         },
         {
                 "name": "OMNIDIRECTIONAL_DEPARTURE_CHART_RWY_0422.pdf",
-                "url": "https://drive.google.com/file/d/1kf2hGoXuNplav1QmiKMsPYPYcQqj4IEQ/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "omnidirectional_departure_chart_rwy_0422.pdf",
+                "type": "pdf",
+                "id": "omnidirectional_departure_chart_rwy_0422.pdf"
         },
         {
                 "name": "SID_ICAO_RNAV_RWY_22_-_KONIL_1J_SOSAL_1J.pdf",
-                "url": "https://drive.google.com/file/d/1ESNO2LjcoZfz4MnxN1Dad93iYaw6aQWm/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_rnav_rwy_22_-_konil_1j_sosal_1j.pdf",
+                "type": "pdf",
+                "id": "sid_icao_rnav_rwy_22_-_konil_1j_sosal_1j.pdf"
         },
         {
                 "name": "SID_ICAO_RNAV_RWY_22_-_BALSI_1A_CBY_2A_DEPUL_1A_DIPIR_1A_KONIL_1R_MEDAM_1A_ROCCA_1A1B_SOSAL_1L1R.pdf",
-                "url": "https://drive.google.com/file/d/1MWuH6Hyw7lljxiiBIX9hPvVd36klX44b/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_rnav_rwy_22_-_balsi_1a_cby_2a_depul_1a_dipir_1a_konil_1r_medam_1a_rocca_1a1b_sosal_1l1r.pdf",
+                "type": "pdf",
+                "id": "sid_icao_rnav_rwy_22_-_balsi_1a_cby_2a_depul_1a_dipir_1a_konil_1r_medam_1a_rocca_1a1b_sosal_1l1r.pdf"
         },
         {
                 "name": "SID_ICAO_RNAV_RWY_04_-_ARBOS_1N_BALSI_1N_CBY_2N2P_DEPUL_1P1T_MEDAM_1N_ROCCA_1N1P_SAPRE_1N_SIROD_1N_SOSAL_1N.pdf",
-                "url": "https://drive.google.com/file/d/1y01KGbduLz-hjLuH892zRGmBrqwf-pnc/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_rnav_rwy_04_-_arbos_1n_balsi_1n_cby_2n2p_depul_1p1t_medam_1n_rocca_1n1p_sapre_1n_sirod_1n_sosal_1n.pdf",
+                "type": "pdf",
+                "id": "sid_icao_rnav_rwy_04_-_arbos_1n_balsi_1n_cby_2n2p_depul_1p1t_medam_1n_rocca_1n1p_sapre_1n_sirod_1n_sosal_1n.pdf"
         },
         {
                 "name": "AREA_CHART_ICAO_ROUTING_AFTER_SID_SIROD_DIPIR_DEPARTURES.pdf",
-                "url": "https://drive.google.com/file/d/1MgPHBVG1pftielrx_Q0pO4-iLkIo2XIa/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "area_chart_icao_routing_after_sid_sirod_dipir_departures.pdf",
+                "type": "pdf",
+                "id": "area_chart_icao_routing_after_sid_sirod_dipir_departures.pdf"
         },
         {
                 "name": "AREA_CHART_ICAO_TRANSIT_ROUTES_THROUGH_GENEVA_TMA,_DESTINATION_LFLB_AND_LFLP.pdf",
-                "url": "https://drive.google.com/file/d/13ZbnK13Bmd6UH3FDrwinHy4_eqS8Mtgu/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "area_chart_icao_transit_routes_through_geneva_tma_destination_lflb_and_lflp.pdf",
+                "type": "pdf",
+                "id": "area_chart_icao_transit_routes_through_geneva_tma_destination_lflb_and_lflp.pdf"
         },
         {
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_-_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/1YI2Bq-xNiXHEL-XmuF6BZ39SgyIwYVHL/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "precision_approach_terrain_chart_-_rwy_22.pdf",
+                "type": "pdf",
+                "id": "precision_approach_terrain_chart_-_rwy_22.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_22.pdf",
-                "url": "https://drive.google.com/file/d/1c2wRghaJWFGDomFRMlqy0vyawy_l9aJq/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_-_type_a_-_rwy_22.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_22.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_04.pdf",
-                "url": "https://drive.google.com/file/d/1suqsysURq3sCnNAIWNLDizZO_ISpDvDr/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_-_type_a_-_rwy_04.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_04.pdf"
         },
         {
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART_(AD_TEMPERATURES_FROM_-8_TO_1C).pdf",
-                "url": "https://drive.google.com/file/d/18KMRxwtUcHP4_T2-uACHZrts639sskgw/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "atc_surveillance_minimum_altitude_chart_ad_temperatures_from_-8_to_1c.pdf",
+                "type": "pdf",
+                "id": "atc_surveillance_minimum_altitude_chart_ad_temperatures_from_-8_to_1c.pdf"
         },
         {
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART_(AD_TEMPERATURES_FROM_2C_AND_ABOVE).pdf",
-                "url": "https://drive.google.com/file/d/1QvgaTGwYE0BVQxJatCXhsfbdCh0SAQFq/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "atc_surveillance_minimum_altitude_chart_ad_temperatures_from_2c_and_above.pdf",
+                "type": "pdf",
+                "id": "atc_surveillance_minimum_altitude_chart_ad_temperatures_from_2c_and_above.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -497,10 +529,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

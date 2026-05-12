@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>LSZA</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,63 +345,75 @@
         const files = [
         {
                 "name": "STAR_ICAO_RWY_0119_-_LUSIL_7L_LUSIL_7P_ODINA_7L_ORI_7L_ORI_7P_SRN_6L_TOP_6L_VOG_6L.pdf",
-                "url": "https://drive.google.com/file/d/13U2LPhXQf8Wejg_j6y5Mk7iDh-uiv-6Z/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "star_icao_rwy_0119_-_lusil_7l_lusil_7p_odina_7l_ori_7l_ori_7p_srn_6l_top_6l_vog_6l.pdf",
+                "type": "pdf",
+                "id": "star_icao_rwy_0119_-_lusil_7l_lusil_7p_odina_7l_ori_7l_ori_7p_srn_6l_top_6l_vog_6l.pdf"
         },
         {
                 "name": "SID_ICAO_HIGH_PERFORMANCE_RWY_19_-_CANNE_2U_CANNE_1Z_OMETO_1F_ORI_1U_ORI_1W_PINIK_1A_SRN_1W_VOG_1W.pdf",
-                "url": "https://drive.google.com/file/d/1UMA6Uvd5FIkDWFje4B35V8huJmQeyXMB/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_high_performance_rwy_19_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
+                "type": "pdf",
+                "id": "sid_icao_high_performance_rwy_19_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf"
         },
         {
                 "name": "SID_ICAO_RWY_01_-_CANNE_2U_CANNE_1Z_OMETO_1F_ORI_1U_ORI_1W_PINIK_1A_SRN_1W_VOG_1W.pdf",
-                "url": "https://drive.google.com/file/d/1tbpuJjkyBCY_Dz7dkbfNw_OgZpNYHuAj/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_rwy_01_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
+                "type": "pdf",
+                "id": "sid_icao_rwy_01_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf"
         },
         {
                 "name": "SID_ICAO_RNAV_RWY_0119_-_CANNE_1E_OMETO_1E.pdf",
-                "url": "https://drive.google.com/file/d/1VhmebVzNyBipdBz_zul2nqo6xdmhZVHx/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "sid_icao_rnav_rwy_0119_-_canne_1e_ometo_1e.pdf",
+                "type": "pdf",
+                "id": "sid_icao_rnav_rwy_0119_-_canne_1e_ometo_1e.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_19.pdf",
-                "url": "https://drive.google.com/file/d/1xr7YwrDfkixzETDVJ6peeyWo0Ay-NW8t/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_-_type_a_-_rwy_19.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_19.pdf"
         },
         {
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_01.pdf",
-                "url": "https://drive.google.com/file/d/19DK2MrjvlVyHcjbcEtK2J5cV__ktXQJN/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_obstacle_chart_-_type_a_-_rwy_01.pdf",
+                "type": "pdf",
+                "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_01.pdf"
         },
         {
                 "name": "AIRCRAFT_PARKING_DOCKING_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1uvPrXpW92XnNs76UwIhiyrERmgpzz4eq/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aircraft_parking_docking_chart.pdf",
+                "type": "pdf",
+                "id": "aircraft_parking_docking_chart.pdf"
         },
         {
                 "name": "AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1WHjT3zmkq1WMOsISbMNozYXDYVC-q4vY/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "aerodrome_chart.pdf"
         },
         {
                 "name": "VISUAL_APPROACH_PROCEDURE_CHARLIE_CIRCLING_RWY_19.pdf",
-                "url": "https://drive.google.com/file/d/1I0D-fP8-B3Ee8ivi5P8J8ibycDcddPGu/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "visual_approach_procedure_charlie_circling_rwy_19.pdf",
+                "type": "pdf",
+                "id": "visual_approach_procedure_charlie_circling_rwy_19.pdf"
         },
         {
                 "name": "VISUAL_APPROACH_PROCEDURE_FOXTROTT_CIRCLING_RWY_19.pdf",
-                "url": "https://drive.google.com/file/d/1EBJsKZ-UWH-aX7TnRoL64ZuR2s3U67Aj/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "visual_approach_procedure_foxtrott_circling_rwy_19.pdf",
+                "type": "pdf",
+                "id": "visual_approach_procedure_foxtrott_circling_rwy_19.pdf"
         },
         {
                 "name": "IAC_ICAO_LOC_RWY_01_CIRCLING_RWY_19.pdf",
-                "url": "https://drive.google.com/file/d/1E069QpvRHL5cvdTyNX7bl9sEdxflgE-D/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_icao_loc_rwy_01_circling_rwy_19.pdf",
+                "type": "pdf",
+                "id": "iac_icao_loc_rwy_01_circling_rwy_19.pdf"
         },
         {
                 "name": "IAC_IGS_RWY_01.pdf",
-                "url": "https://drive.google.com/file/d/1gVckGMheHLaqyrEW3JHAyhX2qWa-Opib/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "iac_igs_rwy_01.pdf",
+                "type": "pdf",
+                "id": "iac_igs_rwy_01.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -432,10 +451,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

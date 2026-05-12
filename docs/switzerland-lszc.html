@@ -419,16 +419,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -438,7 +429,7 @@
         }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.65rem;
@@ -450,6 +441,17 @@
             font-weight: 600;
         }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -823,44 +825,44 @@
 
         const files = [
         {
-                "id": "1NO5972YSWMZQ62OHTNsGAHhmaPUNESlH",
+                "id": "iac_icao_rnp-a.pdf",
                 "name": "IAC_ICAO_RNP-A.pdf",
-                "url": "https://drive.google.com/file/d/1NO5972YSWMZQ62OHTNsGAHhmaPUNESlH/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lszc/iac_icao_rnp-a.pdf",
                 "localUrl": "charts_data/switzerland/lszc/iac_icao_rnp-a.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1QrH39iF4p8n937Z-HclUsuhLOZ3kMDRZ",
+                "id": "star_icao_rnav_ronix_-_asged_1f_wil_2f.pdf",
                 "name": "STAR_ICAO_RNAV_RONIX_-_ASGED_1F_WIL_2F.pdf",
-                "url": "https://drive.google.com/file/d/1QrH39iF4p8n937Z-HclUsuhLOZ3kMDRZ/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lszc/star_icao_rnav_ronix_-_asged_1f_wil_2f.pdf",
                 "localUrl": "charts_data/switzerland/lszc/star_icao_rnav_ronix_-_asged_1f_wil_2f.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1Nl0sNa0LgXarine95H7FSAE7LSufBTXP",
+                "id": "sid_icao_rwy_24_-_wil_3a.pdf",
                 "name": "SID_ICAO_RWY_24_-_WIL_3A.pdf",
-                "url": "https://drive.google.com/file/d/1Nl0sNa0LgXarine95H7FSAE7LSufBTXP/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lszc/sid_icao_rwy_24_-_wil_3a.pdf",
                 "localUrl": "charts_data/switzerland/lszc/sid_icao_rwy_24_-_wil_3a.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1QdCBUdwb46SlFzc6a2HnQ9d94I0joEPw",
+                "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_24.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_24.pdf",
-                "url": "https://drive.google.com/file/d/1QdCBUdwb46SlFzc6a2HnQ9d94I0joEPw/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lszc/aerodrome_obstacle_chart_-_type_a_-_rwy_24.pdf",
                 "localUrl": "charts_data/switzerland/lszc/aerodrome_obstacle_chart_-_type_a_-_rwy_24.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1yJpSUYhANEPc0sl6lq--xZ-pVSB8OBR-",
+                "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1yJpSUYhANEPc0sl6lq--xZ-pVSB8OBR-/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lszc/aerodrome_chart.pdf",
                 "localUrl": "charts_data/switzerland/lszc/aerodrome_chart.pdf",
                 "type": "pdf"
         },
         {
-                "id": "1AE_MilRuby6PU_I-xHcObsRCQZOtrIPK",
+                "id": "visual_approach_procedure_rwy_0624.pdf",
                 "name": "VISUAL_APPROACH_PROCEDURE_RWY_0624.pdf",
-                "url": "https://drive.google.com/file/d/1AE_MilRuby6PU_I-xHcObsRCQZOtrIPK/view?usp=drivesdk",
+                "url": "charts_data/switzerland/lszc/visual_approach_procedure_rwy_0624.pdf",
                 "localUrl": "charts_data/switzerland/lszc/visual_approach_procedure_rwy_0624.pdf",
                 "type": "pdf"
         }
@@ -902,6 +904,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const item = document.createElement('a');
@@ -913,6 +916,7 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>

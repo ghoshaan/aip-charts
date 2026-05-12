@@ -399,6 +399,17 @@
             line-height: 1;
         }
         .unpin-btn:hover { opacity: 1; color: var(--accent); }
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -411,7 +422,7 @@
         <div id="pinnedSection" class="pinned-section" style="display:none">
             <div class="pinned-header">
                 <span class="pinned-title">📌 Pinned</span>
-                <button class="clear-pins-btn" onclick="clearAllPins()">Clear all</button>
+                <button class="clear-all-btn" onclick="clearAllPins()">Clear all</button>
             </div>
             <div id="pinnedAirports"></div>
             <div id="pinnedCharts"></div>
@@ -480,13 +491,130 @@
         }
         function savePins(p) { localStorage.setItem(PINS_KEY, JSON.stringify(p)); }
 
-        function renderPinned() {
+                function renderPins() {
             const pins = getPins();
             const section = document.getElementById('pinnedSection');
+            const grid = document.getElementById('pinnedGrid');
+
             if (pins.airports.length === 0 && pins.charts.length === 0) {
                 section.style.display = 'none';
                 return;
             }
+
+            section.style.display = 'block';
+            grid.innerHTML = '';
+
+            pins.airports.forEach(a => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'pin-card-wrapper';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.background = 'var(--surface)';
+                wrapper.style.border = '1px solid var(--border)';
+                wrapper.style.borderRadius = '6px';
+                wrapper.style.transition = 'all 0.2s';
+
+                const card = document.createElement('a');
+                card.className = 'pin-card';
+                card.href = a.slug + '.html';
+                card.style.border = 'none';
+                card.style.flex = '1';
+                card.style.minWidth = '0';
+                card.innerHTML = `
+                    <span style="font-size: 1.25rem;">✈️</span>
+                    <div class="pin-info">
+                        <div class="pin-name">${a.name}</div>
+                        <div class="pin-meta">${a.region}</div>
+                    </div>
+                `;
+
+                const unpinBtn = document.createElement('button');
+                unpinBtn.className = 'unpin-btn';
+                unpinBtn.innerHTML = '✕';
+                unpinBtn.title = 'Unpin';
+                unpinBtn.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleAirportPin(a);
+                    renderPins();
+                };
+
+                wrapper.appendChild(card);
+                wrapper.appendChild(unpinBtn);
+                grid.appendChild(wrapper);
+            });
+
+            pins.charts.forEach(c => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'pin-card-wrapper';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.background = 'var(--surface)';
+                wrapper.style.border = '1px solid var(--border)';
+                wrapper.style.borderRadius = '6px';
+                wrapper.style.transition = 'all 0.2s';
+
+                const card = document.createElement('a');
+                card.className = 'pin-card';
+                card.style.border = 'none';
+                card.style.flex = '1';
+                card.style.minWidth = '0';
+
+                // Robust recovery for old pins
+                let id = c.id;
+                let localUrl = c.localUrl;
+                let driveUrl = c.url;
+                let name = c.name;
+
+                if ((!id || !localUrl) && typeof searchIndex !== 'undefined') {
+                    const found = searchIndex.find(item => 
+                        (c.id && item.id === c.id) || 
+                        (c.url && item.url.split('?')[0] === c.url.split('?')[0]) ||
+                        (item.name === c.name && item.airport === c.airport)
+                    );
+                    if (found) {
+                        id = id || found.id;
+                        localUrl = localUrl || found.localUrl;
+                        driveUrl = driveUrl || found.url;
+                        console.log('🔄 Recovered pin data for:', name);
+                    }
+                }
+
+                if (localUrl && localUrl !== '#') {
+                    card.href = `#view=${id}`;
+                    card.onclick = (e) => { 
+                        e.preventDefault(); 
+                        openViewer(id, name, driveUrl, localUrl);
+                    };
+                } else {
+                    console.warn('⚠️ Pin missing localUrl, falling back to Drive:', name);
+                    card.href = driveUrl || '#';
+                    card.target = '_blank';
+                }
+                card.innerHTML = `
+                    <span style="font-size: 1.25rem;">📄</span>
+                    <div class="pin-info">
+                        <div class="pin-name">${c.name}</div>
+                        <div class="pin-meta">${c.airport} • ${c.region}</div>
+                    </div>
+                `;
+
+                const unpinBtn = document.createElement('button');
+                unpinBtn.className = 'unpin-btn';
+                unpinBtn.innerHTML = '✕';
+                unpinBtn.title = 'Unpin';
+                unpinBtn.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleChartPin(c);
+                    renderPins();
+                };
+
+                wrapper.appendChild(card);
+                wrapper.appendChild(unpinBtn);
+                grid.appendChild(wrapper);
+            });
+        }
             section.style.display = 'block';
 
             const airportsEl = document.getElementById('pinnedAirports');
@@ -597,7 +725,7 @@
             document.getElementById('pinnedSection').style.display = 'none';
         }
 
-        renderPinned();
+        renderPins();
     </script>
 </body>
 </html>

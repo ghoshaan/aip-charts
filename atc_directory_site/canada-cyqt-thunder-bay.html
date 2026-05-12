@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>CYQT Thunder Bay</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,118 +345,141 @@
         const files = [
         {
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/1G0aLpwGLnjO18USlwK3jt1KHliCbTz4g/view?usp=drivesdk",
-                "type": "doc"
+                "url": ".DS_Store",
+                "type": "doc",
+                "id": ".DS_Store"
         },
         {
                 "name": "CYQT_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1T1hdoFCRqrLR0D0xGDq_rOfafJZtiaDO/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "cyqt_aerodrome_chart.pdf"
         },
         {
                 "name": "CYQT_THUNDER_BAY_1_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/19R8G67zk4u3QGpYpeAyw_FF1v45czdph/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_thunder_bay_1_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cyqt_thunder_bay_1_dep_vector.pdf"
         },
         {
                 "name": "CYQT_NOISE_ABATEMENT_PROCEDURES.pdf",
-                "url": "https://drive.google.com/file/d/1TPHzhL-ZA8Zsi1s03gi80Q7XD_OgIecl/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_noise_abatement_procedures.pdf",
+                "type": "pdf",
+                "id": "cyqt_noise_abatement_procedures.pdf"
         },
         {
                 "name": "CYQT_PARKING_AREAS_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1cD55ZIvQQ4uzv6Bio-KgoXdJ2c81p3ng/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_parking_areas_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyqt_parking_areas_pg_02.pdf"
         },
         {
                 "name": "CYQT_PARKING_AREAS.pdf",
-                "url": "https://drive.google.com/file/d/1WXmJ8j6OEyL82-uFAJf-zLZKrCKZGfsD/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_parking_areas.pdf",
+                "type": "pdf",
+                "id": "cyqt_parking_areas.pdf"
         },
         {
                 "name": "CYQT_NUBOM_3_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1NMhRAbcNzXxgPuCeiHDsJOq7MzXa6rTF/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_nubom_3_dep_rnav.pdf",
+                "type": "pdf",
+                "id": "cyqt_nubom_3_dep_rnav.pdf"
         },
         {
                 "name": "CYQT_RNAV_RNP_Y_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1ljf0NJIBE_45_hFDWdWMdwoVuOCyDUB5/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_rnav_rnp_y_rwy_07.pdf",
+                "type": "pdf",
+                "id": "cyqt_rnav_rnp_y_rwy_07.pdf"
         },
         {
                 "name": "CYQT_NUBOM_3_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1HNU71PmFY07W1Urz__vPexinm-2x3u3o/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_nubom_3_dep_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyqt_nubom_3_dep_rnav_pg_02.pdf"
         },
         {
                 "name": "CYQT_LESIS_4_DEP_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1MaCz5S6KNRgRf48mni5-gghE52mL0tBK/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_lesis_4_dep_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyqt_lesis_4_dep_rnav_pg_02.pdf"
         },
         {
                 "name": "CYQT_THUNDER_BAY_1_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1MyWGZ6lPw7_S1XJXdxeDmPN4DL4Mjn1p/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_thunder_bay_1_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyqt_thunder_bay_1_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYQT_TAKEOFF_MINIMUMS.pdf",
-                "url": "https://drive.google.com/file/d/11PnbCP0hPTqP5iwIMgwy-aOI1YQADLJd/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_takeoff_minimums.pdf",
+                "type": "pdf",
+                "id": "cyqt_takeoff_minimums.pdf"
         },
         {
                 "name": "CYQT_LESIS_4_DEP_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1JS8WAnnpj_jeQ4vs_UnYx9GITwEfW3Zb/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_lesis_4_dep_rnav.pdf",
+                "type": "pdf",
+                "id": "cyqt_lesis_4_dep_rnav.pdf"
         },
         {
                 "name": "CYQT_RNAV_GNSS_Z_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1ZFB--QHGmDUuSgWItYgrkh5vihudJDpH/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_rnav_gnss_z_rwy_07.pdf",
+                "type": "pdf",
+                "id": "cyqt_rnav_gnss_z_rwy_07.pdf"
         },
         {
                 "name": "CYQT_RNAV_GNSS_Z_RWY_12.pdf",
-                "url": "https://drive.google.com/file/d/1pqoqDJIvctfVl6pwFop8ltbPr1ZIYqRS/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_rnav_gnss_z_rwy_12.pdf",
+                "type": "pdf",
+                "id": "cyqt_rnav_gnss_z_rwy_12.pdf"
         },
         {
                 "name": "CYQT_RNAV_GNSS_X_RWY_12.pdf",
-                "url": "https://drive.google.com/file/d/1gH7MUxlkIvcJCoPzYII3dhhYXKLA5lPs/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_rnav_gnss_x_rwy_12.pdf",
+                "type": "pdf",
+                "id": "cyqt_rnav_gnss_x_rwy_12.pdf"
         },
         {
                 "name": "CYQT_RNAV_GNSS_Z_RWY_25.pdf",
-                "url": "https://drive.google.com/file/d/1PUXxTbul_I7QxDRLpuCKS1Q09lNmx4ik/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_rnav_gnss_z_rwy_25.pdf",
+                "type": "pdf",
+                "id": "cyqt_rnav_gnss_z_rwy_25.pdf"
         },
         {
                 "name": "CYQT_RNAV_RNP_Y_RWY_25.pdf",
-                "url": "https://drive.google.com/file/d/1EOII9H6YC4GUh9RY7EMnGueX_WVTi3BL/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_rnav_rnp_y_rwy_25.pdf",
+                "type": "pdf",
+                "id": "cyqt_rnav_rnp_y_rwy_25.pdf"
         },
         {
                 "name": "CYQT_LIBUK_3_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1mqU9jnc5nUBQXqz8ql0X-Tk4N3Q_16Gh/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_libuk_3_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyqt_libuk_3_arr_rnav.pdf"
         },
         {
                 "name": "CYQT_TIGAG_3_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/1Zydph5KUznA_eF9xQYI1dj5po9bm0pxN/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_tigag_3_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyqt_tigag_3_arr_rnav.pdf"
         },
         {
                 "name": "CYQT_ILS_RWY_07.pdf",
-                "url": "https://drive.google.com/file/d/1xMoo0WfnYexoDbJR_WOb4apeBgWbDeLe/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_ils_rwy_07.pdf",
+                "type": "pdf",
+                "id": "cyqt_ils_rwy_07.pdf"
         },
         {
                 "name": "CYQT_NOTER_4_ARR_RNAV.pdf",
-                "url": "https://drive.google.com/file/d/13mCCfbwjSUVapatVFXJg2N6X6T2deHMX/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_noter_4_arr_rnav.pdf",
+                "type": "pdf",
+                "id": "cyqt_noter_4_arr_rnav.pdf"
         },
         {
                 "name": "CYQT_NOTER_4_ARR_RNAV_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/11taPFzFCIGP2cda_QeFChYZt28OJKk3b/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqt_noter_4_arr_rnav_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyqt_noter_4_arr_rnav_pg_02.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -487,10 +517,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `

@@ -290,9 +290,9 @@ def organize_by_hierarchy(service, items):
                 print(f"   ✅ Processed {downloaded_count}/{total_files}...")
 
             hierarchy[region][airport].append({
-                'id': item['id'],
+                'id': safe_filename,
                 'name': item['name'],
-                'url': item['viewUrl'],
+                'url': local_rel_path,
                 'localUrl': local_rel_path,
                 'type': get_file_type(item['mimeType'], item.get('ext', ''))
             })
@@ -428,11 +428,17 @@ def generate_index_page(hierarchy):
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }}
         
         .card-count {{
             font-size: 0.875rem;
             color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }}
         
         .card-count strong {{
@@ -444,19 +450,7 @@ def generate_index_page(hierarchy):
             margin-top: 2rem;
         }}
 
-        .search-result-item {{
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.2s;
-        }}
+        .search-result-item {{ display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text); border-bottom: 1px solid var(--border); transition: all 0.2s; min-width: 0; flex: 1; }}
 
         .search-result-item:hover {{
             border-color: var(--accent);
@@ -464,10 +458,10 @@ def generate_index_page(hierarchy):
             transform: translateX(4px);
         }}
 
-        .result-icon {{ font-size: 1.25rem; }}
-        .result-info {{ flex: 1; }}
-        .result-name {{ font-weight: 600; font-size: 0.95rem; }}
-        .result-meta {{ font-size: 0.75rem; color: var(--text-dim); }}
+        .result-icon {{ font-size: 1.25rem; flex-shrink: 0; }}
+        .result-info {{ flex: 1; min-width: 0; }}
+        .result-name {{ font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+        .result-meta {{ font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
         .result-type {{ 
             font-size: 0.6rem; 
             text-transform: uppercase; 
@@ -475,6 +469,7 @@ def generate_index_page(hierarchy):
             padding: 0.2rem 0.5rem; 
             border-radius: 3px;
             letter-spacing: 0.05em;
+            flex-shrink: 0;
         }}
     </style>
 </head>
@@ -488,7 +483,10 @@ def generate_index_page(hierarchy):
         </header>
         
         <div id="pinnedSection" class="pinned-section" style="display: none;">
-            <div class="subtitle" style="color: var(--accent); margin-bottom: 0.5rem;">📌 Pinned Items</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <div class="subtitle" style="color: var(--accent); margin-bottom: 0;">📌 Pinned Items</div>
+                <button onclick="clearAllPins()" class="clear-all-btn">Clear all</button>
+            </div>
             <div id="pinnedGrid" class="pinned-grid"></div>
         </div>
 
@@ -563,22 +561,60 @@ def generate_index_page(hierarchy):
             grid.innerHTML = '';
 
             pins.airports.forEach(a => {{
+                const wrapper = document.createElement('div');
+                wrapper.className = 'pin-card-wrapper';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.background = 'var(--surface)';
+                wrapper.style.border = '1px solid var(--border)';
+                wrapper.style.borderRadius = '6px';
+                wrapper.style.transition = 'all 0.2s';
+
                 const card = document.createElement('a');
                 card.className = 'pin-card';
                 card.href = a.slug + '.html';
+                card.style.border = 'none';
+                card.style.flex = '1';
+                card.style.minWidth = '0';
                 card.innerHTML = `
                     <span style="font-size: 1.25rem;">✈️</span>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 600; font-size: 0.9rem;">${{a.name}}</div>
-                        <div style="font-size: 0.7rem; color: var(--text-dim);">${{a.region}}</div>
+                    <div class="pin-info">
+                        <div class="pin-name">${{a.name}}</div>
+                        <div class="pin-meta">${{a.region}}</div>
                     </div>
                 `;
-                grid.appendChild(card);
+
+                const unpinBtn = document.createElement('button');
+                unpinBtn.className = 'unpin-btn';
+                unpinBtn.innerHTML = '✕';
+                unpinBtn.title = 'Unpin';
+                unpinBtn.onclick = (e) => {{
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleAirportPin(a);
+                    renderPins();
+                }};
+
+                wrapper.appendChild(card);
+                wrapper.appendChild(unpinBtn);
+                grid.appendChild(wrapper);
             }});
 
             pins.charts.forEach(c => {{
+                const wrapper = document.createElement('div');
+                wrapper.className = 'pin-card-wrapper';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.background = 'var(--surface)';
+                wrapper.style.border = '1px solid var(--border)';
+                wrapper.style.borderRadius = '6px';
+                wrapper.style.transition = 'all 0.2s';
+
                 const card = document.createElement('a');
                 card.className = 'pin-card';
+                card.style.border = 'none';
+                card.style.flex = '1';
+                card.style.minWidth = '0';
 
                 // Robust recovery for old pins
                 let id = c.id;
@@ -612,14 +648,27 @@ def generate_index_page(hierarchy):
                     card.target = '_blank';
                 }}
                 card.innerHTML = `
-
                     <span style="font-size: 1.25rem;">📄</span>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 600; font-size: 0.9rem;">${{c.name}}</div>
-                        <div style="font-size: 0.7rem; color: var(--text-dim);">${{c.airport}} • ${{c.region}}</div>
+                    <div class="pin-info">
+                        <div class="pin-name">${{c.name}}</div>
+                        <div class="pin-meta">${{c.airport}} • ${{c.region}}</div>
                     </div>
                 `;
-                grid.appendChild(card);
+
+                const unpinBtn = document.createElement('button');
+                unpinBtn.className = 'unpin-btn';
+                unpinBtn.innerHTML = '✕';
+                unpinBtn.title = 'Unpin';
+                unpinBtn.onclick = (e) => {{
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleChartPin(c);
+                    renderPins();
+                }};
+
+                wrapper.appendChild(card);
+                wrapper.appendChild(unpinBtn);
+                grid.appendChild(wrapper);
             }});
         }}
 
@@ -672,8 +721,16 @@ def generate_index_page(hierarchy):
 
             results.forEach(result => {{
                 const item = result.item;
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.gap = '0.5rem';
+
                 const div = document.createElement('a');
                 div.className = 'search-result-item';
+                div.style.flex = '1';
+                div.style.marginBottom = '0';
+                div.style.minWidth = '0';
 
                 if (item.type === 'chart') {{
                     div.href = `#view=${{item.id}}`;
@@ -697,7 +754,42 @@ def generate_index_page(hierarchy):
                     </div>
                     <span class="result-type">${{item.type}}</span>
                 `;
-                resultsList.appendChild(div);
+
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'pin-btn';
+                const pins = getPins();
+                const isPinned = item.type === 'airport' 
+                    ? pins.airports.some(a => a.slug === item.url.replace('.html', ''))
+                    : pins.charts.some(c => c.url === item.url);
+                
+                if (isPinned) pinBtn.classList.add('pinned');
+                pinBtn.innerHTML = '📌';
+                pinBtn.onclick = (e) => {{
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (item.type === 'airport') {{
+                        toggleAirportPin({{
+                            slug: item.url.replace('.html', ''),
+                            name: item.name,
+                            region: item.region
+                        }});
+                    }} else {{
+                        toggleChartPin({{
+                            id: item.id,
+                            name: item.name,
+                            url: item.url,
+                            localUrl: item.localUrl,
+                            type: item.icon === '📄' ? 'pdf' : 'image',
+                            airport: item.airport,
+                            region: item.region
+                        }});
+                    }}
+                    pinBtn.classList.toggle('pinned');
+                }};
+
+                wrapper.appendChild(div);
+                wrapper.appendChild(pinBtn);
+                resultsList.appendChild(wrapper);
             }});
         }});
     </script>
@@ -958,9 +1050,11 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
                 wrapper.style.borderBottom = '1px solid var(--border)';
+                wrapper.style.minWidth = '0';
 
                 const item = document.createElement('a');
                 item.className = 'file-item';
+                item.style.minWidth = '0';
                 item.href = `#view=${{file.id}}`;
                 item.onclick = (e) => {{
                     e.preventDefault();
@@ -1099,7 +1193,7 @@ def get_common_styles():
             align-items: flex-start;
         }
         
-        .header-content { flex: 1; }
+        .header-content { flex: 1; min-width: 0; }
 
         h1 {
             font-family: 'Rajdhani', sans-serif;
@@ -1109,11 +1203,17 @@ def get_common_styles():
             letter-spacing: 0.02em;
             margin-bottom: 0.25rem;
             text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .subtitle {
             font-size: 0.875rem;
             color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .search-section {
@@ -1246,6 +1346,29 @@ def get_common_styles():
         .pin-btn:hover { opacity: 0.8; background: var(--accent-glow); }
         .pin-btn.pinned { opacity: 1; color: var(--accent); }
 
+        .unpin-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            padding: 0.4rem;
+            opacity: 0.6;
+            transition: all 0.2s;
+            line-height: 1;
+            margin-left: auto;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .unpin-btn:hover { 
+            opacity: 1; 
+            color: var(--warning); 
+            background: rgba(210, 153, 34, 0.1);
+        }
+
         .pinned-section {
             margin-bottom: 3rem;
             padding: 1.5rem;
@@ -1261,6 +1384,10 @@ def get_common_styles():
             margin-top: 1rem;
         }
 
+        .pin-card-wrapper {
+            min-width: 0;
+        }
+
         .pin-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -1272,11 +1399,43 @@ def get_common_styles():
             text-decoration: none;
             color: var(--text);
             transition: all 0.2s;
+            min-width: 0;
         }
 
         .pin-card:hover {
             border-color: var(--accent);
             transform: translateY(-2px);
+        }
+
+        .pin-info { flex: 1; min-width: 0; }
+        .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .clear-all-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 0.65rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .clear-all-btn:hover {
+            border-color: var(--warning);
+            color: var(--warning);
+            background: rgba(210, 153, 34, 0.1);
+            transform: translateY(-1px);
+        }
+        .clear-all-btn::before {
+            content: '🗑️';
+            font-size: 0.8rem;
         }
 
         /* Pro Viewer Modal */
@@ -1741,6 +1900,12 @@ def get_pinning_js():
             else pins.charts.push({...chart, pinnedAt: Date.now()});
             savePins(pins);
         }
+
+        function clearAllPins() {
+            savePins({airports: [], charts: []});
+            if (typeof renderPins === 'function') renderPins();
+            else if (typeof renderPinned === 'function') renderPinned();
+        }
     '''
 
 
@@ -1790,11 +1955,17 @@ def get_airport_card_styles():
             font-weight: 700;
             color: var(--accent);
             margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .airport-name {
             font-size: 0.9rem;
             margin-bottom: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .airport-stats {
@@ -1822,26 +1993,17 @@ def get_file_list_styles():
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.15s;
-        }
+        .file-item {{ display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }}
         
-        .file-item:last-child { border-bottom: none; }
+        .file-item:last-child {{ border-bottom: none; }}
         
-        .file-item:hover {
+        .file-item:hover {{
             background: var(--surface-hover);
             padding-left: 1.5rem;
-        }
+        }}
         
-        .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-icon {{ font-size: 1.2rem; flex-shrink: 0; }}
+        .file-name {{ flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }}
         
         .file-type {
             font-size: 0.65rem;
@@ -1851,6 +2013,7 @@ def get_file_list_styles():
             border-radius: 3px;
             text-transform: uppercase;
             font-weight: 600;
+            flex-shrink: 0;
         }
     '''
 

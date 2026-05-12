@@ -206,12 +206,7 @@
             overflow: hidden;
         }
         
-        .file-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
         
         .file-item:last-child { border-bottom: none; }
         
@@ -231,7 +226,7 @@
         .file-item:hover .file-link { padding-left: 1.5rem; }
         
         .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; word-break: break-word; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
         
         .file-type {
             font-size: 0.75rem;
@@ -257,6 +252,17 @@
         .pin-btn:hover { opacity: 0.8; }
         .pin-btn.pinned { opacity: 1; }
     
+    
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
     </style>
 </head>
 <body>
@@ -271,6 +277,7 @@
         
         <header>
             <h1>CYQM Greater Moncton Romeo LeBlanc</h1>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
             <div class="subtitle">Charts and procedures</div>
         </header>
         
@@ -338,83 +345,99 @@
         const files = [
         {
                 "name": ".DS_Store",
-                "url": "https://drive.google.com/file/d/1BMKEtjmJQutt0dcfOk_9I-A-8e36jDvE/view?usp=drivesdk",
-                "type": "doc"
+                "url": ".DS_Store",
+                "type": "doc",
+                "id": ".DS_Store"
         },
         {
                 "name": "CYQM_RNAV_GNSS_Z_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1aeky60CjOlZ4rn6ejGiA2epJgwH1ex02/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_rnav_gnss_z_rwy_06.pdf",
+                "type": "pdf",
+                "id": "cyqm_rnav_gnss_z_rwy_06.pdf"
         },
         {
                 "name": "CYQM_MONCTON_5_DEP_VECTOR.pdf",
-                "url": "https://drive.google.com/file/d/1AxQJ4R4hSDySyCiw0KMKw-Rtum11Miez/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_moncton_5_dep_vector.pdf",
+                "type": "pdf",
+                "id": "cyqm_moncton_5_dep_vector.pdf"
         },
         {
                 "name": "CYQM_RNAV_GNSS_Z_RWY_24.pdf",
-                "url": "https://drive.google.com/file/d/1A6aFK03wLOF7DFMJnwj2y6Bjr2Eg4gzx/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_rnav_gnss_z_rwy_24.pdf",
+                "type": "pdf",
+                "id": "cyqm_rnav_gnss_z_rwy_24.pdf"
         },
         {
                 "name": "CYQM_RNAV_GNSS_Z_RWY_29.pdf",
-                "url": "https://drive.google.com/file/d/1CeZVnttaRQJdpnVuUidC0U9RAJTErrMI/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_rnav_gnss_z_rwy_29.pdf",
+                "type": "pdf",
+                "id": "cyqm_rnav_gnss_z_rwy_29.pdf"
         },
         {
                 "name": "CYQM_RNAV_RNP_Y_RWY_11.pdf",
-                "url": "https://drive.google.com/file/d/1REFjbIU0UE5LJPtv2hsvFVPoUWITlUED/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_rnav_rnp_y_rwy_11.pdf",
+                "type": "pdf",
+                "id": "cyqm_rnav_rnp_y_rwy_11.pdf"
         },
         {
                 "name": "CYQM_RNAV_RNP_Y_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1iIa0oy1pWlqHzUsZ-d8Wtw2gelaZPIUT/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_rnav_rnp_y_rwy_06.pdf",
+                "type": "pdf",
+                "id": "cyqm_rnav_rnp_y_rwy_06.pdf"
         },
         {
                 "name": "CYQM_TAKEOFF_MINIMUMS.pdf",
-                "url": "https://drive.google.com/file/d/1G5Ins1FRPTZd4enVSh6rjvImdLxe8sDL/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_takeoff_minimums.pdf",
+                "type": "pdf",
+                "id": "cyqm_takeoff_minimums.pdf"
         },
         {
                 "name": "CYQM_RNAV_RNP_Y_RWY_24.pdf",
-                "url": "https://drive.google.com/file/d/1pL9udoUaoPmThMcxAJRgR-Iolx39zbj6/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_rnav_rnp_y_rwy_24.pdf",
+                "type": "pdf",
+                "id": "cyqm_rnav_rnp_y_rwy_24.pdf"
         },
         {
                 "name": "CYQM_RNAV_RNP_Y_RWY_29.pdf",
-                "url": "https://drive.google.com/file/d/10TRyCtJjQs9UhUq58TBozY_uTG1i2Qqx/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_rnav_rnp_y_rwy_29.pdf",
+                "type": "pdf",
+                "id": "cyqm_rnav_rnp_y_rwy_29.pdf"
         },
         {
                 "name": "CYQM_AERODROME_CHART.pdf",
-                "url": "https://drive.google.com/file/d/1d-8ZvwVSsKD8v6C7CIrxxz5bFna0tktQ/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_aerodrome_chart.pdf",
+                "type": "pdf",
+                "id": "cyqm_aerodrome_chart.pdf"
         },
         {
                 "name": "CYQM_MONCTON_5_DEP_VECTOR_PG_02.pdf",
-                "url": "https://drive.google.com/file/d/1ttr6yKihhn6LNU3HZa-RRUNkNuDKyxv9/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_moncton_5_dep_vector_pg_02.pdf",
+                "type": "pdf",
+                "id": "cyqm_moncton_5_dep_vector_pg_02.pdf"
         },
         {
                 "name": "CYQM_PARKING_AREAS_APRON_VIII.pdf",
-                "url": "https://drive.google.com/file/d/1KIevUja4NfOgVy9LTj7s8smNINM_TxyR/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_parking_areas_apron_viii.pdf",
+                "type": "pdf",
+                "id": "cyqm_parking_areas_apron_viii.pdf"
         },
         {
                 "name": "CYQM_ILS_RWY_06.pdf",
-                "url": "https://drive.google.com/file/d/1sY1u50IR5cdJsEpmcHbUGCKkjUDUGTmh/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_ils_rwy_06.pdf",
+                "type": "pdf",
+                "id": "cyqm_ils_rwy_06.pdf"
         },
         {
                 "name": "CYQM_RNAV_GNSS_Z_RWY_11.pdf",
-                "url": "https://drive.google.com/file/d/1uZ4FPAaE3QXYE-RtuP9GLtOu1DJ70z_P/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_rnav_gnss_z_rwy_11.pdf",
+                "type": "pdf",
+                "id": "cyqm_rnav_gnss_z_rwy_11.pdf"
         },
         {
                 "name": "CYQM_ILS_RWY_29.pdf",
-                "url": "https://drive.google.com/file/d/13nNobTrlDgUomew8BOV3X0XktJf17h3H/view?usp=drivesdk",
-                "type": "pdf"
+                "url": "cyqm_ils_rwy_29.pdf",
+                "type": "pdf",
+                "id": "cyqm_ils_rwy_29.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -452,10 +475,16 @@
             
             filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'file-item';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.minWidth = '0';
+                wrapper.style.borderBottom = '1px solid var(--border)';
 
                 const link = document.createElement('a');
-                link.className = 'file-link';
+                link.className = 'file-item';
+                link.style.flex = '1';
+                link.style.minWidth = '0';
+                link.style.borderBottom = 'none';
                 link.href = file.url;
                 link.target = '_blank';
                 link.innerHTML = `
