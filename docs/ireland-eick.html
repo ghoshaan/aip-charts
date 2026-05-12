@@ -452,6 +452,25 @@
     .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
 
+    
+        .new-tab-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            opacity: 0.4;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 4px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .new-tab-btn:hover { opacity: 1; background: var(--accent-glow); color: var(--accent); }
+
     </style>
 </head>
 <body>
@@ -586,14 +605,24 @@
             let currentZoom = 1.5;
             let visualScale = 1.0;
             let isOpeningFromHash = false;
+            let originalPageTitle = document.title;
 
-            async function openViewer(id, name, driveUrl, localUrl, skipHash = false) {
+            async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
                 const externalLink = document.getElementById('externalLink');
                 const loader = document.getElementById('viewerLoader');
                 const loaderStatus = document.getElementById('loaderStatus');
                 const container = document.getElementById('pdfViewer');
+
+                
+                // Update page title
+                const displayIcao = icao || (typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
+                if (displayIcao) {
+                    document.title = `${displayIcao} - ${name}`;
+                } else {
+                    document.title = name;
+                }
 
                 // Update hash for deep linking - now much shorter!
                 if (!skipHash) {
@@ -729,6 +758,9 @@
                 modal.style.display = 'none';
                 document.body.style.overflow = 'auto';
                 currentPdf = null;
+                
+                // Restore original title
+                document.title = originalPageTitle;
                 if (!skipHash && window.location.hash.startsWith('#view=')) {
                     history.pushState("", document.title, window.location.pathname + window.location.search);
                 }
@@ -805,6 +837,7 @@
         
         const airportCtx = {
             slug: 'ireland-eick',
+            icao: 'EICK',
             name: 'EICK - Cork',
             region: 'Ireland'
         };
@@ -1100,6 +1133,15 @@
                 };
 
                 wrapper.appendChild(item);
+
+                const newTabBtn = document.createElement('a');
+                newTabBtn.className = 'new-tab-btn';
+                newTabBtn.href = file.localUrl;
+                newTabBtn.target = '_blank';
+                newTabBtn.title = 'Open in new tab';
+                newTabBtn.innerHTML = '↗️';
+                newTabBtn.style.marginRight = '0.5rem';
+                wrapper.appendChild(newTabBtn);
                 wrapper.appendChild(pinBtn);
                 listEl.appendChild(wrapper);
             });

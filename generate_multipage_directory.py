@@ -640,7 +640,7 @@ def generate_index_page(hierarchy):
                     card.href = `#view=${{id}}`;
                     card.onclick = (e) => {{ 
                         e.preventDefault(); 
-                        openViewer(id, name, driveUrl, localUrl);
+                        openViewer(id, name, driveUrl, localUrl, false, c.airport);
                     }};
                 }} else {{
                     console.warn('⚠️ Pin missing localUrl, falling back to Drive:', name);
@@ -654,6 +654,19 @@ def generate_index_page(hierarchy):
                         <div class="pin-meta">${{c.airport}} • ${{c.region}}</div>
                     </div>
                 `;
+
+                wrapper.appendChild(card);
+
+                if (localUrl && localUrl !== '#') {{
+                    const newTabBtn = document.createElement('a');
+                    newTabBtn.className = 'new-tab-btn';
+                    newTabBtn.href = localUrl;
+                    newTabBtn.target = '_blank';
+                    newTabBtn.title = 'Open in new tab';
+                    newTabBtn.innerHTML = '↗️';
+                    newTabBtn.style.marginRight = '0.5rem';
+                    wrapper.appendChild(newTabBtn);
+                }}
 
                 const unpinBtn = document.createElement('button');
                 unpinBtn.className = 'unpin-btn';
@@ -736,7 +749,7 @@ def generate_index_page(hierarchy):
                     div.href = `#view=${{item.id}}`;
                     div.onclick = (e) => {{
                         e.preventDefault();
-                        openViewer(item.id, item.name, item.url, item.localUrl);
+                        openViewer(item.id, item.name, item.url, item.localUrl, false, item.airport);
                     }};
                 }} else {{
                     div.href = item.url;
@@ -754,6 +767,19 @@ def generate_index_page(hierarchy):
                     </div>
                     <span class="result-type">${{item.type}}</span>
                 `;
+
+                wrapper.appendChild(div);
+
+                if (item.type === 'chart') {{
+                    const newTabBtn = document.createElement('a');
+                    newTabBtn.className = 'new-tab-btn';
+                    newTabBtn.href = item.localUrl;
+                    newTabBtn.target = '_blank';
+                    newTabBtn.title = 'Open in new tab';
+                    newTabBtn.innerHTML = '↗️';
+                    newTabBtn.style.marginRight = '0.5rem';
+                    wrapper.appendChild(newTabBtn);
+                }}
 
                 const pinBtn = document.createElement('button');
                 pinBtn.className = 'pin-btn';
@@ -994,6 +1020,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
         const airportCtx = {{
             slug: '{airport_slug}',
             name: '{display_title}',
+            icao: '{airport_code}',
             region: '{region_name}'
         }};
 
@@ -1091,6 +1118,16 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
                 }};
 
                 wrapper.appendChild(item);
+
+                const newTabBtn = document.createElement('a');
+                newTabBtn.className = 'new-tab-btn';
+                newTabBtn.href = file.localUrl;
+                newTabBtn.target = '_blank';
+                newTabBtn.title = 'Open in new tab';
+                newTabBtn.innerHTML = '↗️';
+                newTabBtn.style.marginRight = '0.5rem';
+                wrapper.appendChild(newTabBtn);
+
                 wrapper.appendChild(pinBtn);
                 listEl.appendChild(wrapper);
             }});
@@ -1206,11 +1243,29 @@ def get_common_styles():
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-        
         .subtitle {
             font-size: 0.875rem;
             color: var(--text-dim);
+        }
+
+        .new-tab-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            opacity: 0.4;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 4px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .new-tab-btn:hover { opacity: 1; background: var(--accent-glow); color: var(--accent); }
+        '''
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1659,14 +1714,23 @@ def get_viewer_js():
             let currentZoom = 1.5;
             let visualScale = 1.0;
             let isOpeningFromHash = false;
+            let originalPageTitle = document.title;
 
-            async function openViewer(id, name, driveUrl, localUrl, skipHash = false) {
+            async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
                 const externalLink = document.getElementById('externalLink');
                 const loader = document.getElementById('viewerLoader');
                 const loaderStatus = document.getElementById('loaderStatus');
                 const container = document.getElementById('pdfViewer');
+
+                // Update page title
+                const displayIcao = icao || (typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
+                if (displayIcao) {
+                    document.title = `${displayIcao} - ${name}`;
+                } else {
+                    document.title = name;
+                }
 
                 // Update hash for deep linking - now much shorter!
                 if (!skipHash) {
@@ -1802,6 +1866,10 @@ def get_viewer_js():
                 modal.style.display = 'none';
                 document.body.style.overflow = 'auto';
                 currentPdf = null;
+                
+                // Restore original title
+                document.title = originalPageTitle;
+
                 if (!skipHash && window.location.hash.startsWith('#view=')) {
                     history.pushState("", document.title, window.location.pathname + window.location.search);
                 }
@@ -2004,10 +2072,9 @@ def get_file_list_styles():
         
         .file-icon {{ font-size: 1.2rem; flex-shrink: 0; }}
         .file-name {{ flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }}
-        
+
         .file-type {
-            font-size: 0.65rem;
-            color: var(--text-dim);
+            font-size: 0.65rem;            color: var(--text-dim);
             background: var(--bg);
             padding: 0.3rem 0.6rem;
             border-radius: 3px;
