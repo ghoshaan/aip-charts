@@ -452,25 +452,6 @@
     .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
 
-    
-        .new-tab-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.85rem;
-            padding: 0.5rem;
-            opacity: 0.4;
-            transition: all 0.2s;
-            flex-shrink: 0;
-            line-height: 1;
-            border-radius: 4px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .new-tab-btn:hover { opacity: 1; background: var(--accent-glow); color: var(--accent); }
-
     </style>
 </head>
 <body>
@@ -1397,7 +1378,8 @@
                 item.className = 'file-item';
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
-                    e.preventDefault();
+                    if (e.ctrlKey || e.metaKey) return;
+                        e.preventDefault();
                     openViewer(file.id, file.name, file.url, file.localUrl);
                 };
                 item.style.borderBottom = 'none';
@@ -1431,17 +1413,7 @@
                     pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
                 };
 
-                wrapper.appendChild(item);
-
-                const newTabBtn = document.createElement('a');
-                newTabBtn.className = 'new-tab-btn';
-                newTabBtn.href = `#view=${file.id}`;
-                newTabBtn.target = '_blank';
-                newTabBtn.title = 'Open in new tab';
-                newTabBtn.innerHTML = '↗️';
-                newTabBtn.style.marginRight = '0.5rem';
-                wrapper.appendChild(newTabBtn);
-                wrapper.appendChild(pinBtn);
+                wrapper.appendChild(item);wrapper.appendChild(pinBtn);
                 listEl.appendChild(wrapper);
             });
         }

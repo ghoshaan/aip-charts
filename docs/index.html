@@ -566,25 +566,6 @@
     .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
 
-    
-        .new-tab-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.85rem;
-            padding: 0.5rem;
-            opacity: 0.4;
-            transition: all 0.2s;
-            flex-shrink: 0;
-            line-height: 1;
-            border-radius: 4px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .new-tab-btn:hover { opacity: 1; background: var(--accent-glow); color: var(--accent); }
-
     </style>
 </head>
 <body>
@@ -18770,6 +18751,7 @@
                 if (localUrl && localUrl !== '#') {
                     card.href = `#view=${id}`;
                     card.onclick = (e) => { 
+                        if (e.ctrlKey || e.metaKey) return;
                         e.preventDefault(); 
                         openViewer(id, name, driveUrl, localUrl, false, c.airport);
                     };
@@ -18798,17 +18780,6 @@
                 };
 
                 wrapper.appendChild(card);
-
-                if (localUrl && localUrl !== '#') {
-                    const newTabBtn = document.createElement('a');
-                    newTabBtn.className = 'new-tab-btn';
-                    newTabBtn.href = `${c.pageUrl}#view=${id}`;
-                    newTabBtn.target = '_blank';
-                    newTabBtn.title = 'Open in new tab';
-                    newTabBtn.innerHTML = '↗️';
-                    newTabBtn.style.marginRight = '0.5rem';
-                    wrapper.appendChild(newTabBtn);
-                }
                 wrapper.appendChild(unpinBtn);
                 grid.appendChild(wrapper);
             });
@@ -18877,6 +18848,7 @@
                 if (item.type === 'chart') {
                     div.href = `#view=${item.id}`;
                     div.onclick = (e) => {
+                        if (e.ctrlKey || e.metaKey) return;
                         e.preventDefault();
                         openViewer(item.id, item.name, item.url, item.localUrl, false, item.airport);
                     };
@@ -18931,17 +18903,6 @@
 
                 
                 wrapper.appendChild(div);
-
-                if (item.type === 'chart') {
-                    const newTabBtn = document.createElement('a');
-                    newTabBtn.className = 'new-tab-btn';
-                    newTabBtn.href = `${item.pageUrl}#view=${item.id}`;
-                    newTabBtn.target = '_blank';
-                    newTabBtn.title = 'Open in new tab';
-                    newTabBtn.innerHTML = '↗️';
-                    newTabBtn.style.marginRight = '0.5rem';
-                    wrapper.appendChild(newTabBtn);
-                }
 
                 wrapper.appendChild(pinBtn);
                 resultsList.appendChild(wrapper);
