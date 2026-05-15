@@ -18,8 +18,8 @@
             --border: #30363d;
             --text: #e6edf3;
             --text-dim: #7d8590;
-            --accent: #58a6ff;
-            --accent-glow: rgba(88, 166, 255, 0.15);
+            --accent: #79b8ff;
+            --accent-glow: rgba(121, 184, 255, 0.15);
             --warning: #d29922;
         }
         
@@ -522,7 +522,7 @@
         .region-card:hover {
             border-color: var(--accent);
             transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.15);
+            box-shadow: 0 8px 24px rgba(121, 184, 255, 0.15);
         }
         
         .region-card:hover::before {
@@ -582,6 +582,77 @@
             border-radius: 3px;
             letter-spacing: 0.05em;
             flex-shrink: 0;
+        }
+    
+        /* Viewer sidebar */
+        .viewer-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.25s ease;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar.collapsed {
+            width: 0;
+        }
+
+        .sidebar-header {
+            padding: 0.6rem 1rem;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .sidebar-list::-webkit-scrollbar { width: 4px; }
+        .sidebar-list::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .sidebar-item {
+            padding: 0.65rem 1rem 0.65rem 1.1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            transition: all 0.12s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-left: 2px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-left-color: var(--accent);
+            font-weight: 600;
         }
     </style>
 </head>
@@ -707,11 +778,24 @@
                         <span>🏠</span> RESET
                     </button>
 
-                    <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    
+                    <button class="control-btn" id="sidebarToggle" title="Toggle chart list">
+                        <span>&#9776;</span> CHARTS
+                    </button>
+
+<button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
                         <span>✖</span> CLOSE
                     </button>                </div>
             </div>
-            <div class="viewer-content" id="viewerContent">
+            <div class="viewer-body">
+                <div class="viewer-sidebar" id="viewerSidebar">
+                    <div class="sidebar-header">
+                        <span>ALL CHARTS</span>
+                        <span id="sidebarCount" style="opacity: 0.5; font-size: 0.6rem;"></span>
+                    </div>
+                    <div class="sidebar-list" id="sidebarList"></div>
+                </div>
+                <div class="viewer-content" id="viewerContent">
                 <div id="viewerLoader" class="viewer-loader">
                     <div class="spinner"></div>
                     <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
@@ -768,8 +852,72 @@
             let visualScale = 1.0;
             let isOpeningFromHash = false;
             let originalPageTitle = document.title;
+            let currentFileId = null;
+
+            const SIDEBAR_KEY = 'atc_sidebar_open';
+            let sidebarOpen = localStorage.getItem(SIDEBAR_KEY) !== 'false';
+
+            function applySidebarState() {
+                const sidebar = document.getElementById('viewerSidebar');
+                const toggleBtn = document.getElementById('sidebarToggle');
+                if (!sidebar) return;
+                if (sidebarOpen) {
+                    sidebar.classList.remove('collapsed');
+                    if (toggleBtn) toggleBtn.classList.add('active');
+                } else {
+                    sidebar.classList.add('collapsed');
+                    if (toggleBtn) toggleBtn.classList.remove('active');
+                }
+            }
+
+            function populateSidebar(activeId) {
+                const sidebarList = document.getElementById('sidebarList');
+                const sidebarCount = document.getElementById('sidebarCount');
+                const sidebar = document.getElementById('viewerSidebar');
+                if (!sidebarList) return;
+
+                if (typeof files === 'undefined' || files.length === 0) {
+                    if (sidebar) sidebar.style.display = 'none';
+                    const toggleBtn = document.getElementById('sidebarToggle');
+                    if (toggleBtn) toggleBtn.style.display = 'none';
+                    return;
+                }
+
+                if (sidebar) sidebar.style.display = '';
+                const toggleBtn = document.getElementById('sidebarToggle');
+                if (toggleBtn) toggleBtn.style.display = '';
+
+                const chartFiles = files.filter(f => f.type === 'pdf' || f.type === 'image');
+                if (sidebarCount) sidebarCount.textContent = chartFiles.length;
+
+                sidebarList.innerHTML = '';
+                chartFiles.forEach(file => {
+                    const item = document.createElement('div');
+                    item.className = 'sidebar-item' + (file.id === activeId ? ' active' : '');
+                    item.title = file.name;
+                    item.textContent = file.name.replace(/\.[^.]+$/, '');
+                    item.onclick = () => {
+                        if (file.id !== currentFileId) {
+                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                                typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
+                        }
+                    };
+                    sidebarList.appendChild(item);
+                });
+
+                const activeItem = sidebarList.querySelector('.sidebar-item.active');
+                if (activeItem) activeItem.scrollIntoView({ block: 'nearest' });
+            }
+
+            document.getElementById('sidebarToggle').onclick = () => {
+                sidebarOpen = !sidebarOpen;
+                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
+                applySidebarState();
+            };
+
 
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
+                currentFileId = id;
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
                 const loader = document.getElementById('viewerLoader');
@@ -803,6 +951,8 @@
 
                 modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
+                populateSidebar(id);
+                applySidebarState();
                 loader.style.display = 'flex';
                 loaderStatus.textContent = 'LOADING LOCAL PDF...';
 
