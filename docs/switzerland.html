@@ -71,7 +71,7 @@
             align-items: flex-start;
         }
         
-        .header-content { flex: 1; }
+        .header-content { flex: 1; min-width: 0; }
 
         h1 {
             font-family: 'Rajdhani', sans-serif;
@@ -81,12 +81,36 @@
             letter-spacing: 0.02em;
             margin-bottom: 0.25rem;
             text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .subtitle {
             font-size: 0.875rem;
             color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+
+        .new-tab-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            opacity: 0.4;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 4px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .new-tab-btn:hover { opacity: 1; background: var(--accent-glow); color: var(--accent); }
         
         .search-section {
             background: var(--surface);
@@ -218,6 +242,29 @@
         .pin-btn:hover { opacity: 0.8; background: var(--accent-glow); }
         .pin-btn.pinned { opacity: 1; color: var(--accent); }
 
+        .unpin-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            padding: 0.4rem;
+            opacity: 0.6;
+            transition: all 0.2s;
+            line-height: 1;
+            margin-left: auto;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .unpin-btn:hover { 
+            opacity: 1; 
+            color: var(--warning); 
+            background: rgba(210, 153, 34, 0.1);
+        }
+
         .pinned-section {
             margin-bottom: 3rem;
             padding: 1.5rem;
@@ -233,6 +280,10 @@
             margin-top: 1rem;
         }
 
+        .pin-card-wrapper {
+            min-width: 0;
+        }
+
         .pin-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -244,11 +295,43 @@
             text-decoration: none;
             color: var(--text);
             transition: all 0.2s;
+            min-width: 0;
         }
 
         .pin-card:hover {
             border-color: var(--accent);
             transform: translateY(-2px);
+        }
+
+        .pin-info { flex: 1; min-width: 0; }
+        .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .clear-all-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 0.65rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .clear-all-btn:hover {
+            border-color: var(--warning);
+            color: var(--warning);
+            background: rgba(210, 153, 34, 0.1);
+            transform: translateY(-1px);
+        }
+        .clear-all-btn::before {
+            content: '🗑️';
+            font-size: 0.8rem;
         }
 
         /* Pro Viewer Modal */
@@ -449,11 +532,17 @@
             font-weight: 700;
             color: var(--accent);
             margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .airport-name {
             font-size: 0.9rem;
             margin-bottom: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .airport-stats {
@@ -463,17 +552,6 @@
         
         .airport-stats strong { color: var(--accent); }
     
-    
-    .pin-card-wrapper { min-width: 0; }
-    .pin-card { min-width: 0; }
-    .pin-info { flex: 1; min-width: 0; }
-    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
-
     </style>
 </head>
 <body>

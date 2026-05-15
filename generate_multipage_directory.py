@@ -145,11 +145,30 @@ def authenticate_drive():
 
 
 # ============================================================================
+# STATE MANAGEMENT
+# ============================================================================
+
+MANIFEST_FILE = 'manifest.json'
+
+def load_manifest():
+    if os.path.exists(MANIFEST_FILE):
+        try:
+            with open(MANIFEST_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            return {'files': {}, 'airports': {}}
+    return {'files': {}, 'airports': {}}
+
+def save_manifest(manifest):
+    with open(MANIFEST_FILE, 'w') as f:
+        json.dump(manifest, f, indent=4)
+
+# ============================================================================
 # DRIVE SCANNING & DOWNLOADING
 # ============================================================================
 
-def download_file(service, file_id, destination, max_retries=3):
-    """Download a file from Google Drive to a local path with retries"""
+def download_file(service, file_id, destination, drive_md5=None, max_retries=3):
+    """Download a file from Google Drive if it doesn't exist or has changed"""
     if os.path.exists(destination):
         return True
     
@@ -157,6 +176,7 @@ def download_file(service, file_id, destination, max_retries=3):
     
     for attempt in range(max_retries):
         try:
+            print(f"   📥 Downloading: {os.path.basename(destination)}...")
             request = service.files().get_media(fileId=file_id)
             fh = io.FileIO(destination, 'wb')
             downloader = MediaIoBaseDownload(fh, request)
@@ -165,12 +185,12 @@ def download_file(service, file_id, destination, max_retries=3):
                 status, done = downloader.next_chunk()
             return True
         except Exception as e:
-            print(f"⚠️  Error downloading {file_id} (Attempt {attempt + 1}/{max_retries}): {e}")
+            print(f"   ⚠️  Error downloading {file_id} (Attempt {attempt + 1}/{max_retries}): {e}")
             if os.path.exists(destination):
-                os.remove(destination) # clean up partial file
+                os.remove(destination)
             time.sleep(2 ** attempt)
             
-    print(f"❌ Failed to download {file_id} after {max_retries} attempts.")
+    print(f"   ❌ Failed to download {file_id} after {max_retries} attempts.")
     return False
 
 def scan_folder_recursive(service, folder_id, path=''):
@@ -182,8 +202,8 @@ def scan_folder_recursive(service, folder_id, path=''):
         while True:
             results = service.files().list(
                 q=f"'{folder_id}' in parents and trashed=false",
-                pageSize=100,
-                fields="nextPageToken, files(id, name, mimeType, webViewLink, parents, shortcutDetails)",
+                pageSize=1000,
+                fields="nextPageToken, files(id, name, mimeType, webViewLink, parents, shortcutDetails, md5Checksum, size)",
                 pageToken=page_token
             ).execute()
 
@@ -201,7 +221,9 @@ def scan_folder_recursive(service, folder_id, path=''):
                     'mimeType': item['mimeType'],
                     'viewUrl': item.get('webViewLink', '#'),
                     'parentId': folder_id,
-                    'path': path
+                    'path': path,
+                    'md5': item.get('md5Checksum'),
+                    'size': item.get('size')
                 }
 
                 if not is_folder and not is_shortcut_folder:
@@ -248,15 +270,16 @@ def slugify(text):
     return text.strip('-')
 
 
-def organize_by_hierarchy(service, items):
+def organize_by_hierarchy(service, items, manifest):
     """
     Organize files into: Region → Airport → Files
-    And download them locally.
+    And download them locally if needed.
     """
     hierarchy = defaultdict(lambda: defaultdict(list))
     
     total_files = sum(1 for item in items if item['mimeType'] != 'application/vnd.google-apps.folder')
     downloaded_count = 0
+    skipped_count = 0
 
     print(f"📦 Processing {total_files} files...")
 
@@ -268,7 +291,7 @@ def organize_by_hierarchy(service, items):
         path_parts = item['path'].split('/')
         
         if len(path_parts) < 2:
-            print(f"⚠️  Skipping file with unexpected path: {item['path']}")
+            # print(f"⚠️  Skipping file with unexpected path: {item['path']} / {item['name']}")
             continue
         
         region = path_parts[0]
@@ -277,27 +300,42 @@ def organize_by_hierarchy(service, items):
         # Determine local path
         safe_filename = slugify(item['name'])
         if '.' in item['name']:
-            ext = item['name'].split('.')[-1]
-            safe_filename = f"{slugify('.'.join(item['name'].split('.')[:-1]))}.{ext}"
+            parts = item['name'].split('.')
+            ext = parts[-1]
+            safe_filename = f"{slugify('.'.join(parts[:-1]))}.{ext}"
         
         local_rel_path = f"charts_data/{slugify(region)}/{slugify(airport)}/{safe_filename}"
         local_full_path = os.path.join(OUTPUT_DIR, local_rel_path)
         
-        # Download
-        if download_file(service, item['id'], local_full_path):
-            downloaded_count += 1
-            if downloaded_count % 50 == 0:
-                print(f"   ✅ Processed {downloaded_count}/{total_files}...")
+        # Incremental Check
+        needs_download = True
+        if item['id'] in manifest['files']:
+            cached = manifest['files'][item['id']]
+            if cached.get('md5') == item['md5'] and os.path.exists(local_full_path):
+                needs_download = False
+        
+        if needs_download:
+            if download_file(service, item['id'], local_full_path, item['md5']):
+                downloaded_count += 1
+                manifest['files'][item['id']] = {
+                    'md5': item['md5'],
+                    'path': local_rel_path,
+                    'name': item['name']
+                }
+        else:
+            skipped_count += 1
 
-            hierarchy[region][airport].append({
-                'id': safe_filename,
-                'name': item['name'],
-                'url': local_rel_path,
-                'localUrl': local_rel_path,
-                'type': get_file_type(item['mimeType'], item.get('ext', ''))
-            })
+        hierarchy[region][airport].append({
+            'id': safe_filename,
+            'name': item['name'],
+            'url': local_rel_path,
+            'localUrl': local_rel_path,
+            'type': get_file_type(item['mimeType'], item.get('ext', ''))
+        })
     
-    print(f"✨ Successfully processed {downloaded_count} files.\n")
+    print(f"✨ Successfully processed {total_files} files.")
+    print(f"   📥 Downloaded: {downloaded_count}")
+    print(f"   ⏩ Skipped:    {skipped_count} (already on site)\n")
     return hierarchy
 
 
@@ -309,7 +347,10 @@ def create_output_dir():
     """Create output directory"""
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
-    print(f"📁 Output directory: {OUTPUT_DIR}/\n")
+    
+    # Also ensure charts_data exists
+    if not os.path.exists(CHARTS_DOWNLOAD_DIR):
+        os.makedirs(CHARTS_DOWNLOAD_DIR)
 
 
 def generate_index_page(hierarchy):
@@ -366,6 +407,10 @@ def generate_index_page(hierarchy):
     
     regions.sort(key=lambda x: x['name'])
     
+    # Write search index to separate file to keep HTML small
+    with open(f"{OUTPUT_DIR}/search_data.json", 'w', encoding='utf-8') as f:
+        json.dump(global_search_index, f)
+
     html = f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -546,7 +591,27 @@ def generate_index_page(hierarchy):
     <script>
         {get_pinning_js()}
         {get_viewer_js()}
-        const searchIndex = {json.dumps(global_search_index, indent=8)};
+        let searchIndex = [];
+        let fuse = null;
+
+        // Load search index asynchronously
+        fetch('search_data.json')
+            .then(res => res.json())
+            .then(data => {{
+                searchIndex = data;
+                fuse = new Fuse(searchIndex, {{
+                    keys: [
+                        {{ name: 'name', weight: 2 }},
+                        {{ name: 'code', weight: 2 }},
+                        {{ name: 'airport', weight: 1 }},
+                        {{ name: 'region', weight: 1 }}
+                    ],
+                    threshold: 0.3,
+                    includeMatches: true,
+                    limit: 50
+                }});
+                renderPins(); 
+            }});
 
         function renderPins() {{
             const pins = getPins();
@@ -825,7 +890,7 @@ def generate_index_page(hierarchy):
     with open(f"{OUTPUT_DIR}/index.html", 'w', encoding='utf-8') as f:
         f.write(html)
     
-    print(f"✅ Generated: index.html ({len(regions)} regions, {len(global_search_index)} global items)")
+    print(f"✅ Generated: index.html ({len(regions)} regions)")
     return regions
 
 
@@ -945,12 +1010,18 @@ def generate_region_page(region_name, region_slug, airports):
     return airport_list
 
 
-def generate_airport_page(region_name, region_slug, airport_code, files):
-    """Generate airport page with file listings"""
+def generate_airport_page(region_name, region_slug, airport_code, files, manifest):
+    """Generate airport page with file listings if needed"""
     
     name = AIRPORT_NAMES.get(airport_code, airport_code)
     display_title = f"{airport_code} - {name}" if name != airport_code else airport_code
     airport_slug = slugify(f"{region_slug}-{airport_code}")
+
+    # Check if we can skip regeneration
+    # We use a simple hash of the files list
+    airport_data_hash = str(hash(json.dumps(files, sort_keys=True)))
+    if manifest['airports'].get(airport_slug) == airport_data_hash and os.path.exists(f"{OUTPUT_DIR}/{airport_slug}.html"):
+        return airport_slug
 
     html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -1159,6 +1230,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files):
     with open(f"{OUTPUT_DIR}/{slug}.html", 'w', encoding='utf-8') as f:
         f.write(html)
     
+    manifest['airports'][airport_slug] = airport_data_hash
     return slug
 
 
@@ -1244,9 +1316,14 @@ def get_common_styles():
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+        
         .subtitle {
             font-size: 0.875rem;
             color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .new-tab-btn {
@@ -1266,11 +1343,6 @@ def get_common_styles():
             justify-content: center;
         }
         .new-tab-btn:hover { opacity: 1; background: var(--accent-glow); color: var(--accent); }
-        '''
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
         
         .search-section {
             background: var(--surface);
@@ -2085,8 +2157,11 @@ def get_file_list_styles():
 
 def main():
     print("\n" + "="*70)
-    print("  MULTI-PAGE ATC CHARTS DIRECTORY GENERATOR")
+    print("  MULTI-PAGE ATC CHARTS DIRECTORY GENERATOR (INCREMENTAL)")
     print("="*70 + "\n")
+    
+    # Load state
+    manifest = load_manifest()
     
     # Authenticate
     service = authenticate_drive()
@@ -2094,22 +2169,23 @@ def main():
         return
     
     # Scan Drive
-    print(f"📂 Scanning folder: {CHARTS_FOLDER_ID}\n")
+    print(f"📂 Scanning folder: {CHARTS_FOLDER_ID}...\n")
     items = scan_folder_recursive(service, CHARTS_FOLDER_ID)
     
     file_count = sum(1 for item in items if item['mimeType'] != 'application/vnd.google-apps.folder')
-    print(f"\n✅ Found {file_count} files\n")
+    print(f"\n✅ Found {file_count} files on Drive\n")
     
     if file_count == 0:
         print("⚠️  No files found!")
         return
     
-    # Organize
-    print("🔨 Organizing hierarchy and downloading files...\n")
-    hierarchy = organize_by_hierarchy(service, items)
-    
-    # Create output directory
+    # Organize & Download
+    print("🔨 Organizing hierarchy and updating local files...\n")
     create_output_dir()
+    hierarchy = organize_by_hierarchy(service, items, manifest)
+    
+    # Save manifest after downloads
+    save_manifest(manifest)
     
     # Generate pages
     print("🎨 Generating pages...\n")
@@ -2122,20 +2198,20 @@ def main():
         region_slug = slugify(region_name)
         
         # Region page
-        airport_list = generate_region_page(region_name, region_slug, airports)
+        generate_region_page(region_name, region_slug, airports)
         
         # Airport pages
         for airport_code, files in airports.items():
-            generate_airport_page(region_name, region_slug, airport_code, files)
+            generate_airport_page(region_name, region_slug, airport_code, files, manifest)
+    
+    # Final save for airport hashes
+    save_manifest(manifest)
     
     print("\n" + "="*70)
     print("  🎉 SUCCESS!")
     print("="*70)
-    print(f"\n📁 Site generated in: {OUTPUT_DIR}/")
+    print(f"\n📁 Site updated in: {OUTPUT_DIR}/")
     print(f"📄 Open: {OUTPUT_DIR}/index.html")
-    print("\nNext steps:")
-    print("  1. Open index.html in your browser to preview")
-    print("  2. Upload entire folder to GitHub Pages")
     print("\n" + "="*70 + "\n")
 
 

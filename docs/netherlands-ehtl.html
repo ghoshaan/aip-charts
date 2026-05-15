@@ -71,7 +71,7 @@
             align-items: flex-start;
         }
         
-        .header-content { flex: 1; }
+        .header-content { flex: 1; min-width: 0; }
 
         h1 {
             font-family: 'Rajdhani', sans-serif;
@@ -81,12 +81,36 @@
             letter-spacing: 0.02em;
             margin-bottom: 0.25rem;
             text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .subtitle {
             font-size: 0.875rem;
             color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+
+        .new-tab-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            opacity: 0.4;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 4px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .new-tab-btn:hover { opacity: 1; background: var(--accent-glow); color: var(--accent); }
         
         .search-section {
             background: var(--surface);
@@ -218,6 +242,29 @@
         .pin-btn:hover { opacity: 0.8; background: var(--accent-glow); }
         .pin-btn.pinned { opacity: 1; color: var(--accent); }
 
+        .unpin-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            padding: 0.4rem;
+            opacity: 0.6;
+            transition: all 0.2s;
+            line-height: 1;
+            margin-left: auto;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .unpin-btn:hover { 
+            opacity: 1; 
+            color: var(--warning); 
+            background: rgba(210, 153, 34, 0.1);
+        }
+
         .pinned-section {
             margin-bottom: 3rem;
             padding: 1.5rem;
@@ -233,6 +280,10 @@
             margin-top: 1rem;
         }
 
+        .pin-card-wrapper {
+            min-width: 0;
+        }
+
         .pin-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -244,11 +295,43 @@
             text-decoration: none;
             color: var(--text);
             transition: all 0.2s;
+            min-width: 0;
         }
 
         .pin-card:hover {
             border-color: var(--accent);
             transform: translateY(-2px);
+        }
+
+        .pin-info { flex: 1; min-width: 0; }
+        .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .clear-all-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 0.65rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .clear-all-btn:hover {
+            border-color: var(--warning);
+            color: var(--warning);
+            background: rgba(210, 153, 34, 0.1);
+            transform: translateY(-1px);
+        }
+        .clear-all-btn::before {
+            content: '🗑️';
+            font-size: 0.8rem;
         }
 
         /* Pro Viewer Modal */
@@ -419,39 +502,28 @@
             overflow: hidden;
         }
         
-        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+        .file-item {{ display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }}
         
-        .file-item:last-child { border-bottom: none; }
+        .file-item:last-child {{ border-bottom: none; }}
         
-        .file-item:hover {
+        .file-item:hover {{
             background: var(--surface-hover);
             padding-left: 1.5rem;
-        }
+        }}
         
-        .file-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-        
+        .file-icon {{ font-size: 1.2rem; flex-shrink: 0; }}
+        .file-name {{ flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }}
+
         .file-type {
-            font-size: 0.65rem;
-            color: var(--text-dim);
+            font-size: 0.65rem;            color: var(--text-dim);
             background: var(--bg);
             padding: 0.3rem 0.6rem;
             border-radius: 3px;
             text-transform: uppercase;
             font-weight: 600;
+            flex-shrink: 0;
         }
     
-    
-    .pin-card-wrapper { min-width: 0; }
-    .pin-card { min-width: 0; }
-    .pin-info { flex: 1; min-width: 0; }
-    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
-
     </style>
 </head>
 <body>
@@ -527,12 +599,9 @@
                         <span>🏠</span> RESET
                     </button>
 
-                    
-
                     <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
                         <span>✖</span> CLOSE
-                    </button>
-                </div>
+                    </button>                </div>
             </div>
             <div class="viewer-content" id="viewerContent">
                 <div id="viewerLoader" class="viewer-loader">
@@ -575,6 +644,12 @@
             else pins.charts.push({...chart, pinnedAt: Date.now()});
             savePins(pins);
         }
+
+        function clearAllPins() {
+            savePins({airports: [], charts: []});
+            if (typeof renderPins === 'function') renderPins();
+            else if (typeof renderPinned === 'function') renderPinned();
+        }
     
         
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -589,12 +664,10 @@
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
-                
                 const loader = document.getElementById('viewerLoader');
                 const loaderStatus = document.getElementById('loaderStatus');
                 const container = document.getElementById('pdfViewer');
 
-                
                 // Update page title
                 const displayIcao = icao || (typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                 if (displayIcao) {
@@ -617,7 +690,6 @@
                 document.getElementById('zoomRange').value = 1.5;
                 document.getElementById('zoomValue').textContent = '1.5x';
                 title.textContent = name;
-                
                 container.innerHTML = '';
                 container.style.transform = 'scale(1)';
 
@@ -740,6 +812,7 @@
                 
                 // Restore original title
                 document.title = originalPageTitle;
+
                 if (!skipHash && window.location.hash.startsWith('#view=')) {
                     history.pushState("", document.title, window.location.pathname + window.location.search);
                 }
@@ -816,8 +889,8 @@
         
         const airportCtx = {
             slug: 'netherlands-ehtl',
-            icao: 'EHTL',
             name: 'EHTL - Terlet',
+            icao: 'EHTL',
             region: 'Netherlands'
         };
 
@@ -888,20 +961,19 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
-                wrapper.style.minWidth = '0';
                 wrapper.style.borderBottom = '1px solid var(--border)';
+                wrapper.style.minWidth = '0';
 
                 const item = document.createElement('a');
                 item.className = 'file-item';
+                item.style.minWidth = '0';
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
-                    if (e.ctrlKey || e.metaKey) return;
-                        e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl);
+                    e.preventDefault();
+                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
-                item.style.minWidth = '0';
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>
@@ -924,13 +996,25 @@
                         localUrl: file.localUrl,
                         type: file.type,
                         airport: airportCtx.name,
-                        region: airportCtx.region
+                        region: airportCtx.region,
+                        pageUrl: `${airportCtx.slug}.html`
                     });
                     pinBtn.classList.toggle('pinned');
                     pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
                 };
 
-                wrapper.appendChild(item);wrapper.appendChild(pinBtn);
+                wrapper.appendChild(item);
+
+                const newTabBtn = document.createElement('a');
+                newTabBtn.className = 'new-tab-btn';
+                newTabBtn.href = `#view=${file.id}`;
+                newTabBtn.target = '_blank';
+                newTabBtn.title = 'Open in new tab';
+                newTabBtn.innerHTML = '↗️';
+                newTabBtn.style.marginRight = '0.5rem';
+                wrapper.appendChild(newTabBtn);
+
+                wrapper.appendChild(pinBtn);
                 listEl.appendChild(wrapper);
             });
         }
