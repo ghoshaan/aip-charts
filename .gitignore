@@ -3,3 +3,10 @@ token.json
 .claude/
 __pycache__/
 *.pyc
+
+# Chart PDFs are downloaded locally by the generator — not committed
+# Exception: CYVR Vancouver is kept as a sample set for testing the viewer
+docs/charts_data/**
+!docs/charts_data/canada/
+!docs/charts_data/canada/cyvr-vancouver/
+!docs/charts_data/canada/cyvr-vancouver/**
