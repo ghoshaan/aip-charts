@@ -861,7 +861,7 @@ def generate_index_page(hierarchy):
                     <span class="card-icon">{r['icon']}</span>
                     <div class="card-title">{r['name']}</div>
                     <div class="card-count">
-                        <strong>{r['airportCount']}</strong> airports • 
+                        <strong>{r['airportCount']}</strong> airports &bull; 
                         <strong>{r['fileCount']}</strong> files
                     </div>
                 </a>
@@ -1006,7 +1006,7 @@ def generate_index_page(hierarchy):
                     <span style="font-size: 1.25rem;">📄</span>
                     <div class="pin-info">
                         <div class="pin-name">${{c.name}}</div>
-                        <div class="pin-meta">${{c.airport}} • ${{c.region}}</div>
+                        <div class="pin-meta">${{c.airport}} &bull; ${{c.region}}</div>
                     </div>
                 `;
 
@@ -1111,7 +1111,7 @@ def generate_index_page(hierarchy):
 
                 const meta = item.type === 'airport' 
                     ? `${{item.region}}` 
-                    : `${{item.airport}} • ${{item.region}}`;
+                    : `${{item.airport}} &bull; ${{item.region}}`;
 
                 div.innerHTML = `
                     <span class="result-icon">${{item.icon}}</span>
@@ -1354,7 +1354,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
                        placeholder="Search charts..." autocomplete="off">
             </div>
             <div class="search-help">
-                <strong>Examples:</strong> <code>star</code> • <code>RWY 04</code> • <code>ILS</code>
+                <strong>Examples:</strong> <code>star</code> &bull; <code>RWY 04</code> &bull; <code>ILS</code>
             </div>
         </div>
         
