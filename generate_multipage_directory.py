@@ -1025,7 +1025,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
     if manifest['airports'].get(airport_slug) == airport_data_hash and os.path.exists(f"{OUTPUT_DIR}/{airport_slug}/index.html"):
         return airport_slug
 
-    # Adjust file URLs for subdirectory context; rootUrl keeps root-relative path for pin storage
+    # Adjust file URLs for subdirectory context; rootUrl keeps the root-relative path for pin storage
     adjusted_files = [dict(f, url='../' + f['url'], localUrl='../' + f['localUrl'], rootUrl=f['localUrl']) for f in files]
 
     html = f'''<!DOCTYPE html>
