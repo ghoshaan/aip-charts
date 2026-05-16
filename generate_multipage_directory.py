@@ -1303,6 +1303,34 @@ def generate_region_page(region_name, region_slug, airports):
     return airport_list
 
 
+def group_multipage_files(files):
+    """Group _PG_XX continuation files under their base file's 'pages' array."""
+    pg_pattern = re.compile(r'^(.+)_pg_(\d+)(\.pdf)$', re.IGNORECASE)
+    base_to_pages = {}
+    page_file_ids = set()
+
+    for f in files:
+        m = pg_pattern.match(f['id'])
+        if m:
+            base_id = m.group(1) + m.group(3)
+            page_num = int(m.group(2))
+            base_to_pages.setdefault(base_id, []).append((page_num, f))
+            page_file_ids.add(f['id'])
+
+    result = []
+    for f in files:
+        if f['id'] in page_file_ids:
+            continue
+        if f['id'] in base_to_pages:
+            all_pages = sorted([(1, f)] + base_to_pages[f['id']], key=lambda x: x[0])
+            new_f = dict(f, pages=[p for _, p in all_pages])
+            new_f['name'] = re.sub(r'\.pdf$', '', f['name'], flags=re.IGNORECASE)
+            result.append(new_f)
+        else:
+            result.append(f)
+    return result
+
+
 def generate_airport_page(region_name, region_slug, airport_code, files, manifest):
     """Generate airport page with file listings if needed"""
     
@@ -1318,6 +1346,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
 
     # Adjust file URLs for subdirectory context; rootUrl keeps the root-relative path for pin storage
     adjusted_files = [dict(f, url='../' + f['url'], localUrl='../' + f['localUrl'], rootUrl=f['localUrl']) for f in files]
+    adjusted_files = group_multipage_files(adjusted_files)
 
     html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -1370,7 +1399,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
         
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
         
-        <div class="file-count" id="fileCount">Showing {len(files)} files</div>
+        <div class="file-count" id="fileCount">Showing {len(adjusted_files)} files</div>
         <div class="file-list" id="fileList"></div>
         <div id="emptyState" class="empty-state" style="display: none;">
             <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
@@ -1456,10 +1485,13 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
                 }};
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                const pagesBadge = file.pages && file.pages.length > 1
+                    ? `<span class="file-type">${{file.pages.length}} pages</span>`
+                    : `<span class="file-type">${{file.type}}</span>`;
                 item.innerHTML = `
                     <span class="file-icon">${{fileIcons[file.type] || '📄'}}</span>
                     <span class="file-name">${{file.name}}</span>
-                    <span class="file-type">${{file.type}}</span>
+                    ${{pagesBadge}}
                 `;
 
                 const pins = getPins();
@@ -2140,6 +2172,12 @@ def get_viewer_html():
                         <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
                     </div>
 
+                    <div id="pageNav" style="display:none; justify-content:center; align-items:center; gap:1rem; padding:0.5rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
+                        <button class="control-btn" id="prevPageBtn" style="padding:0.25rem 0.75rem;">&#9664; PREV</button>
+                        <span id="pageIndicator" style="font-size:0.75rem; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); min-width:100px; text-align:center;">PAGE 1 OF 2</span>
+                        <button class="control-btn" id="nextPageBtn" style="padding:0.25rem 0.75rem;">NEXT &#9654;</button>
+                    </div>
+
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
                     </div>
@@ -2164,6 +2202,8 @@ def get_viewer_js():
             let isOpeningFromHash = false;
             let originalPageTitle = document.title;
             let currentFileId = null;
+            let currentFilePages = null;
+            let currentFilePageIndex = 0;
 
             const SIDEBAR_KEY = 'atc_sidebar_open';
             let sidebarOpen = localStorage.getItem(SIDEBAR_KEY) !== 'false';
@@ -2222,6 +2262,10 @@ def get_viewer_js():
 
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
+                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
+                currentFilePageIndex = 0;
+                if (currentFilePages) localUrl = currentFilePages[0].localUrl;
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
                 const loader = document.getElementById('viewerLoader');
@@ -2266,6 +2310,7 @@ def get_viewer_js():
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
+                    updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
                     loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
@@ -2274,6 +2319,39 @@ def get_viewer_js():
                         closeViewer();
                     }, 2000);
                 }
+            }
+
+            function updatePageNav() {
+                const nav = document.getElementById('pageNav');
+                if (!nav) return;
+                if (currentFilePages && currentFilePages.length > 1) {
+                    nav.style.display = 'flex';
+                    document.getElementById('prevPageBtn').disabled = currentFilePageIndex === 0;
+                    document.getElementById('nextPageBtn').disabled = currentFilePageIndex === currentFilePages.length - 1;
+                    document.getElementById('pageIndicator').textContent =
+                        `PAGE ${currentFilePageIndex + 1} OF ${currentFilePages.length}`;
+                } else {
+                    nav.style.display = 'none';
+                }
+            }
+
+            async function goToFilePage(delta) {
+                if (!currentFilePages) return;
+                const newIndex = currentFilePageIndex + delta;
+                if (newIndex < 0 || newIndex >= currentFilePages.length) return;
+                currentFilePageIndex = newIndex;
+                const page = currentFilePages[newIndex];
+                const loader = document.getElementById('viewerLoader');
+                const loaderStatus = document.getElementById('loaderStatus');
+                loader.style.display = 'flex';
+                loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentRotation = 0;
+                const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                currentPdf = await loadingTask.promise;
+                await renderAllPages();
+                loader.style.display = 'none';
+                updatePageNav();
             }
 
             async function checkHash() {
@@ -2453,6 +2531,9 @@ def get_viewer_js():
                 localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
                 applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         '''
 def get_pinning_js():
     """Shared JS for pinning logic"""

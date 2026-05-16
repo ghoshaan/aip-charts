@@ -634,7 +634,7 @@
         
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
         
-        <div class="file-count" id="fileCount">Showing 75 files</div>
+        <div class="file-count" id="fileCount">Showing 52 files</div>
         <div class="file-list" id="fileList"></div>
         <div id="emptyState" class="empty-state" style="display: none;">
             <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
@@ -692,6 +692,12 @@
                         <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
                     </div>
 
+                    <div id="pageNav" style="display:none; justify-content:center; align-items:center; gap:1rem; padding:0.5rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
+                        <button class="control-btn" id="prevPageBtn" style="padding:0.25rem 0.75rem;">&#9664; PREV</button>
+                        <span id="pageIndicator" style="font-size:0.75rem; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); min-width:100px; text-align:center;">PAGE 1 OF 2</span>
+                        <button class="control-btn" id="nextPageBtn" style="padding:0.25rem 0.75rem;">NEXT &#9654;</button>
+                    </div>
+
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
                     </div>
@@ -745,6 +751,8 @@
             let isOpeningFromHash = false;
             let originalPageTitle = document.title;
             let currentFileId = null;
+            let currentFilePages = null;
+            let currentFilePageIndex = 0;
 
             const SIDEBAR_KEY = 'atc_sidebar_open';
             let sidebarOpen = localStorage.getItem(SIDEBAR_KEY) !== 'false';
@@ -803,6 +811,10 @@
 
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
+                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
+                currentFilePageIndex = 0;
+                if (currentFilePages) localUrl = currentFilePages[0].localUrl;
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
                 const loader = document.getElementById('viewerLoader');
@@ -847,6 +859,7 @@
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
+                    updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
                     loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
@@ -855,6 +868,39 @@
                         closeViewer();
                     }, 2000);
                 }
+            }
+
+            function updatePageNav() {
+                const nav = document.getElementById('pageNav');
+                if (!nav) return;
+                if (currentFilePages && currentFilePages.length > 1) {
+                    nav.style.display = 'flex';
+                    document.getElementById('prevPageBtn').disabled = currentFilePageIndex === 0;
+                    document.getElementById('nextPageBtn').disabled = currentFilePageIndex === currentFilePages.length - 1;
+                    document.getElementById('pageIndicator').textContent =
+                        `PAGE ${currentFilePageIndex + 1} OF ${currentFilePages.length}`;
+                } else {
+                    nav.style.display = 'none';
+                }
+            }
+
+            async function goToFilePage(delta) {
+                if (!currentFilePages) return;
+                const newIndex = currentFilePageIndex + delta;
+                if (newIndex < 0 || newIndex >= currentFilePages.length) return;
+                currentFilePageIndex = newIndex;
+                const page = currentFilePages[newIndex];
+                const loader = document.getElementById('viewerLoader');
+                const loaderStatus = document.getElementById('loaderStatus');
+                loader.style.display = 'flex';
+                loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentRotation = 0;
+                const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                currentPdf = await loadingTask.promise;
+                await renderAllPages();
+                loader.style.display = 'none';
+                updatePageNav();
             }
 
             async function checkHash() {
@@ -1034,8 +1080,11 @@
                 localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
                 applySidebarState();
             };
-        
-        
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
+
+
         const airportCtx = {
             slug: 'CYVR',
             name: 'CYVR Vancouver',
@@ -1068,107 +1117,183 @@
         },
         {
                 "id": "cyvr_stanley_5_dep_vector.pdf",
-                "name": "CYVR_STANLEY_5_DEP_VECTOR.pdf",
+                "name": "CYVR_STANLEY_5_DEP_VECTOR",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector.pdf"
-        },
-        {
-                "id": "cyvr_stanley_5_dep_vector_pg_02.pdf",
-                "name": "CYVR_STANLEY_5_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector_pg_02.pdf"
-        },
-        {
-                "id": "cyvr_georgia_8_dep_vector_pg_02.pdf",
-                "name": "CYVR_GEORGIA_8_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector_pg_02.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_stanley_5_dep_vector.pdf",
+                                "name": "CYVR_STANLEY_5_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cyvr_stanley_5_dep_vector_pg_02.pdf",
+                                "name": "CYVR_STANLEY_5_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_stanley_5_dep_vector_pg_02.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_fraser_9_dep_vector.pdf",
-                "name": "CYVR_FRASER_9_DEP_VECTOR.pdf",
+                "name": "CYVR_FRASER_9_DEP_VECTOR",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_fraser_9_dep_vector.pdf",
+                                "name": "CYVR_FRASER_9_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cyvr_fraser_9_dep_vector_pg_02.pdf",
+                                "name": "CYVR_FRASER_9_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector_pg_02.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_richmond_8_dep_vector.pdf",
-                "name": "CYVR_RICHMOND_8_DEP_VECTOR.pdf",
+                "name": "CYVR_RICHMOND_8_DEP_VECTOR",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_richmond_8_dep_vector.pdf",
+                                "name": "CYVR_RICHMOND_8_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cyvr_richmond_8_dep_vector_pg_02.pdf",
+                                "name": "CYVR_RICHMOND_8_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector_pg_02.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_vancouver_4_dep_vector.pdf",
-                "name": "CYVR_VANCOUVER_4_DEP_VECTOR.pdf",
+                "name": "CYVR_VANCOUVER_4_DEP_VECTOR",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector.pdf"
-        },
-        {
-                "id": "cyvr_fraser_9_dep_vector_pg_02.pdf",
-                "name": "CYVR_FRASER_9_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_fraser_9_dep_vector_pg_02.pdf"
-        },
-        {
-                "id": "cyvr_vancouver_4_dep_vector_pg_02.pdf",
-                "name": "CYVR_VANCOUVER_4_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector_pg_02.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_vancouver_4_dep_vector.pdf",
+                                "name": "CYVR_VANCOUVER_4_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cyvr_vancouver_4_dep_vector_pg_02.pdf",
+                                "name": "CYVR_VANCOUVER_4_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_vancouver_4_dep_vector_pg_02.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_georgia_8_dep_vector.pdf",
-                "name": "CYVR_GEORGIA_8_DEP_VECTOR.pdf",
+                "name": "CYVR_GEORGIA_8_DEP_VECTOR",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector.pdf"
-        },
-        {
-                "id": "cyvr_taxi_chart_pg_05.pdf",
-                "name": "CYVR_TAXI_CHART_PG_05.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_05.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_05.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_05.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_georgia_8_dep_vector.pdf",
+                                "name": "CYVR_GEORGIA_8_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cyvr_georgia_8_dep_vector_pg_02.pdf",
+                                "name": "CYVR_GEORGIA_8_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_georgia_8_dep_vector_pg_02.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_taxi_chart.pdf",
-                "name": "CYVR_TAXI_CHART.pdf",
+                "name": "CYVR_TAXI_CHART",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart.pdf"
-        },
-        {
-                "id": "cyvr_richmond_8_dep_vector_pg_02.pdf",
-                "name": "CYVR_RICHMOND_8_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_richmond_8_dep_vector_pg_02.pdf"
-        },
-        {
-                "id": "cyvr_de-icing_general_pg_02.pdf",
-                "name": "CYVR_DE-ICING_GENERAL_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_de-icing_general_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_de-icing_general_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_de-icing_general_pg_02.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_taxi_chart.pdf",
+                                "name": "CYVR_TAXI_CHART.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart.pdf"
+                        },
+                        {
+                                "id": "cyvr_taxi_chart_pg_02.pdf",
+                                "name": "CYVR_TAXI_CHART_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyvr_taxi_chart_pg_03.pdf",
+                                "name": "CYVR_TAXI_CHART_PG_03.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_03.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_03.pdf"
+                        },
+                        {
+                                "id": "cyvr_taxi_chart_pg_04.pdf",
+                                "name": "CYVR_TAXI_CHART_PG_04.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_04.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_04.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_04.pdf"
+                        },
+                        {
+                                "id": "cyvr_taxi_chart_pg_05.pdf",
+                                "name": "CYVR_TAXI_CHART_PG_05.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_05.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_05.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_05.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_south_de-icing_facility_gre.pdf",
@@ -1179,28 +1304,12 @@
                 "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_south_de-icing_facility_gre.pdf"
         },
         {
-                "id": "cyvr_low_visibility_taxi_chart_pg_02.pdf",
-                "name": "CYVR_LOW_VISIBILITY_TAXI_CHART_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart_pg_02.pdf"
-        },
-        {
                 "id": "cyvr_parking_areas_common_use_cargo.pdf",
                 "name": "CYVR_PARKING_AREAS_COMMON_USE_CARGO.pdf",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_parking_areas_common_use_cargo.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_parking_areas_common_use_cargo.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_parking_areas_common_use_cargo.pdf"
-        },
-        {
-                "id": "cyvr_taxi_chart_pg_03.pdf",
-                "name": "CYVR_TAXI_CHART_PG_03.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_03.pdf"
         },
         {
                 "id": "cyvr_parking_areas_south_terminal.pdf",
@@ -1212,19 +1321,29 @@
         },
         {
                 "id": "cyvr_de-icing_general.pdf",
-                "name": "CYVR_DE-ICING_GENERAL.pdf",
+                "name": "CYVR_DE-ICING_GENERAL",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_de-icing_general.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_de-icing_general.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_de-icing_general.pdf"
-        },
-        {
-                "id": "cyvr_noise_abatement_procedures_pg_02.pdf",
-                "name": "CYVR_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures_pg_02.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_de-icing_general.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_de-icing_general.pdf",
+                                "name": "CYVR_DE-ICING_GENERAL.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_de-icing_general.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_de-icing_general.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_de-icing_general.pdf"
+                        },
+                        {
+                                "id": "cyvr_de-icing_general_pg_02.pdf",
+                                "name": "CYVR_DE-ICING_GENERAL_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_de-icing_general_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_de-icing_general_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_de-icing_general_pg_02.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_low_visibility_procedures.pdf",
@@ -1243,14 +1362,6 @@
                 "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_start_boxes.pdf"
         },
         {
-                "id": "cyvr_taxi_chart_pg_04.pdf",
-                "name": "CYVR_TAXI_CHART_PG_04.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_04.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_04.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_04.pdf"
-        },
-        {
                 "id": "cyvr_coded_taxi_routes.pdf",
                 "name": "CYVR_CODED_TAXI_ROUTES.pdf",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_coded_taxi_routes.pdf",
@@ -1260,27 +1371,55 @@
         },
         {
                 "id": "cyvr_low_visibility_taxi_chart.pdf",
-                "name": "CYVR_LOW_VISIBILITY_TAXI_CHART.pdf",
+                "name": "CYVR_LOW_VISIBILITY_TAXI_CHART",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_low_visibility_taxi_chart.pdf",
+                                "name": "CYVR_LOW_VISIBILITY_TAXI_CHART.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart.pdf"
+                        },
+                        {
+                                "id": "cyvr_low_visibility_taxi_chart_pg_02.pdf",
+                                "name": "CYVR_LOW_VISIBILITY_TAXI_CHART_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_low_visibility_taxi_chart_pg_02.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_noise_abatement_procedures.pdf",
-                "name": "CYVR_NOISE_ABATEMENT_PROCEDURES.pdf",
+                "name": "CYVR_NOISE_ABATEMENT_PROCEDURES",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures.pdf"
-        },
-        {
-                "id": "cyvr_taxi_chart_pg_02.pdf",
-                "name": "CYVR_TAXI_CHART_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_taxi_chart_pg_02.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_noise_abatement_procedures.pdf",
+                                "name": "CYVR_NOISE_ABATEMENT_PROCEDURES.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures.pdf"
+                        },
+                        {
+                                "id": "cyvr_noise_abatement_procedures_pg_02.pdf",
+                                "name": "CYVR_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_noise_abatement_procedures_pg_02.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_parking_areas.pdf",
@@ -1467,22 +1606,6 @@
                 "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_ils_rwy_13.pdf"
         },
         {
-                "id": "cyvr_whistler_8_arr_rnav_pg_03.pdf",
-                "name": "CYVR_WHISTLER_8_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_03.pdf"
-        },
-        {
-                "id": "cyvr_sound_6_arr_rnav_pg_02.pdf",
-                "name": "CYVR_SOUND_6_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav_pg_02.pdf"
-        },
-        {
                 "id": "cyvr_ils_y_cat_ii_or_iii_rwy_26r.pdf",
                 "name": "CYVR_ILS_Y_CAT_II_OR_III_RWY_26R.pdf",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_ils_y_cat_ii_or_iii_rwy_26r.pdf",
@@ -1499,14 +1622,6 @@
                 "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_rnav_gnss_rwy_31.pdf"
         },
         {
-                "id": "cyvr_whistler_8_arr_rnav_pg_02.pdf",
-                "name": "CYVR_WHISTLER_8_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_02.pdf"
-        },
-        {
                 "id": "cyvr_ils_y_cat_ii_or_iii_rwy_08l.pdf",
                 "name": "CYVR_ILS_Y_CAT_II_OR_III_RWY_08L.pdf",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_ils_y_cat_ii_or_iii_rwy_08l.pdf",
@@ -1516,27 +1631,97 @@
         },
         {
                 "id": "cyvr_whistler_8_arr_rnav.pdf",
-                "name": "CYVR_WHISTLER_8_ARR_RNAV.pdf",
+                "name": "CYVR_WHISTLER_8_ARR_RNAV",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_whistler_8_arr_rnav.pdf",
+                                "name": "CYVR_WHISTLER_8_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyvr_whistler_8_arr_rnav_pg_02.pdf",
+                                "name": "CYVR_WHISTLER_8_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyvr_whistler_8_arr_rnav_pg_03.pdf",
+                                "name": "CYVR_WHISTLER_8_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_03.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_whistler_8_arr_rnav_pg_03.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_sound_6_arr_rnav.pdf",
-                "name": "CYVR_SOUND_6_ARR_RNAV.pdf",
+                "name": "CYVR_SOUND_6_ARR_RNAV",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_sound_6_arr_rnav.pdf",
+                                "name": "CYVR_SOUND_6_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyvr_sound_6_arr_rnav_pg_02.pdf",
+                                "name": "CYVR_SOUND_6_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_sound_6_arr_rnav_pg_02.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_grizz_9_arr_rnav.pdf",
-                "name": "CYVR_GRIZZ_9_ARR_RNAV.pdf",
+                "name": "CYVR_GRIZZ_9_ARR_RNAV",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_grizz_9_arr_rnav.pdf",
+                                "name": "CYVR_GRIZZ_9_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyvr_grizz_9_arr_rnav_pg_02.pdf",
+                                "name": "CYVR_GRIZZ_9_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyvr_grizz_9_arr_rnav_pg_03.pdf",
+                                "name": "CYVR_GRIZZ_9_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_03.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_03.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_duxum_6_arr_rnav.pdf",
@@ -1547,52 +1732,30 @@
                 "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_duxum_6_arr_rnav.pdf"
         },
         {
-                "id": "cyvr_shark_4_arr_rnav_pg_03.pdf",
-                "name": "CYVR_SHARK_4_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_03.pdf"
-        },
-        {
-                "id": "cyvr_grizz_9_arr_rnav_pg_03.pdf",
-                "name": "CYVR_GRIZZ_9_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_03.pdf"
-        },
-        {
-                "id": "cyvr_lionn_4_arr_rnav_pg_02.pdf",
-                "name": "CYVR_LIONN_4_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav_pg_02.pdf"
-        },
-        {
-                "id": "cyvr_shark_4_arr_rnav_pg_02.pdf",
-                "name": "CYVR_SHARK_4_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_02.pdf"
-        },
-        {
-                "id": "cyvr_grizz_9_arr_rnav_pg_02.pdf",
-                "name": "CYVR_GRIZZ_9_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_grizz_9_arr_rnav_pg_02.pdf"
-        },
-        {
                 "id": "cyvr_lionn_4_arr_rnav.pdf",
-                "name": "CYVR_LIONN_4_ARR_RNAV.pdf",
+                "name": "CYVR_LIONN_4_ARR_RNAV",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_lionn_4_arr_rnav.pdf",
+                                "name": "CYVR_LIONN_4_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyvr_lionn_4_arr_rnav_pg_02.pdf",
+                                "name": "CYVR_LIONN_4_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_lionn_4_arr_rnav_pg_02.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_island_9_arr_rnav.pdf",
@@ -1603,28 +1766,38 @@
                 "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_island_9_arr_rnav.pdf"
         },
         {
-                "id": "cyvr_cypress_2_arr_rnav_pg_03.pdf",
-                "name": "CYVR_CYPRESS_2_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_03.pdf"
-        },
-        {
-                "id": "cyvr_cypress_2_arr_rnav_pg_02.pdf",
-                "name": "CYVR_CYPRESS_2_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_02.pdf"
-        },
-        {
                 "id": "cyvr_shark_4_arr_rnav.pdf",
-                "name": "CYVR_SHARK_4_ARR_RNAV.pdf",
+                "name": "CYVR_SHARK_4_ARR_RNAV",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_shark_4_arr_rnav.pdf",
+                                "name": "CYVR_SHARK_4_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyvr_shark_4_arr_rnav_pg_02.pdf",
+                                "name": "CYVR_SHARK_4_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyvr_shark_4_arr_rnav_pg_03.pdf",
+                                "name": "CYVR_SHARK_4_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_03.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_shark_4_arr_rnav_pg_03.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_vitev_5_arr_rnav.pdf",
@@ -1636,27 +1809,63 @@
         },
         {
                 "id": "cyvr_cypress_2_arr_rnav.pdf",
-                "name": "CYVR_CYPRESS_2_ARR_RNAV.pdf",
+                "name": "CYVR_CYPRESS_2_ARR_RNAV",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_cypress_2_arr_rnav.pdf",
+                                "name": "CYVR_CYPRESS_2_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyvr_cypress_2_arr_rnav_pg_02.pdf",
+                                "name": "CYVR_CYPRESS_2_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyvr_cypress_2_arr_rnav_pg_03.pdf",
+                                "name": "CYVR_CYPRESS_2_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_03.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_cypress_2_arr_rnav_pg_03.pdf"
+                        }
+                ]
         },
         {
                 "id": "cyvr_canuck_6_arr_rnav.pdf",
-                "name": "CYVR_CANUCK_6_ARR_RNAV.pdf",
+                "name": "CYVR_CANUCK_6_ARR_RNAV",
                 "url": "../charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav.pdf",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav.pdf"
-        },
-        {
-                "id": "cyvr_canuck_6_arr_rnav_pg_02.pdf",
-                "name": "CYVR_CANUCK_6_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav_pg_02.pdf"
+                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyvr_canuck_6_arr_rnav.pdf",
+                                "name": "CYVR_CANUCK_6_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyvr_canuck_6_arr_rnav_pg_02.pdf",
+                                "name": "CYVR_CANUCK_6_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav_pg_02.pdf",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyvr-vancouver/cyvr_canuck_6_arr_rnav_pg_02.pdf"
+                        }
+                ]
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -1709,10 +1918,13 @@
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                const pagesBadge = file.pages && file.pages.length > 1
+                    ? `<span class="file-type">${file.pages.length} pages</span>`
+                    : `<span class="file-type">${file.type}</span>`;
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>
-                    <span class="file-type">${file.type}</span>
+                    ${pagesBadge}
                 `;
 
                 const pins = getPins();
