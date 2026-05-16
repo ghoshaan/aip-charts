@@ -487,103 +487,7 @@
         }
 
         .viewer-tip b { color: var(--accent); }
-        
-        
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .region-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 2rem;
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.2s;
-            position: relative;
-            display: block;
-        }
-        
-        .region-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--accent);
-            transform: scaleY(0);
-            transition: transform 0.2s;
-        }
-        
-        .region-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(121, 184, 255, 0.15);
-        }
-        
-        .region-card:hover::before {
-            transform: scaleY(1);
-        }
-        
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-        
-        .card-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .card-count {
-            font-size: 0.875rem;
-            color: var(--text-dim);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .card-count strong {
-            color: var(--accent);
-        }
 
-        /* Global Search Styles */
-        .results-section {
-            margin-top: 2rem;
-        }
-
-        .search-result-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text); border-bottom: 1px solid var(--border); transition: all 0.2s; min-width: 0; flex: 1; }
-
-        .search-result-item:hover {
-            border-color: var(--accent);
-            background: var(--surface-hover);
-            transform: translateX(4px);
-        }
-
-        .result-icon { font-size: 1.25rem; flex-shrink: 0; }
-        .result-info { flex: 1; min-width: 0; }
-        .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .result-type { 
-            font-size: 0.6rem; 
-            text-transform: uppercase; 
-            background: var(--bg); 
-            padding: 0.2rem 0.5rem; 
-            border-radius: 3px;
-            letter-spacing: 0.05em;
-            flex-shrink: 0;
-        }
-    
         /* Viewer sidebar */
         .viewer-body {
             flex: 1;
@@ -653,6 +557,102 @@
             color: var(--accent);
             border-left-color: var(--accent);
             font-weight: 600;
+        }
+        
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .region-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+            position: relative;
+            display: block;
+        }
+        
+        .region-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleY(0);
+            transition: transform 0.2s;
+        }
+        
+        .region-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.15);
+        }
+        
+        .region-card:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .card-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .card-count {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .card-count strong {
+            color: var(--accent);
+        }
+
+        /* Global Search Styles */
+        .results-section {
+            margin-top: 2rem;
+        }
+
+        .search-result-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text); border-bottom: 1px solid var(--border); transition: all 0.2s; min-width: 0; flex: 1; }
+
+        .search-result-item:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateX(4px);
+        }
+
+        .result-icon { font-size: 1.25rem; flex-shrink: 0; }
+        .result-info { flex: 1; min-width: 0; }
+        .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .result-type { 
+            font-size: 0.6rem; 
+            text-transform: uppercase; 
+            background: var(--bg); 
+            padding: 0.2rem 0.5rem; 
+            border-radius: 3px;
+            letter-spacing: 0.05em;
+            flex-shrink: 0;
         }
     </style>
 </head>
@@ -778,12 +778,11 @@
                         <span>🏠</span> RESET
                     </button>
 
-                    
                     <button class="control-btn" id="sidebarToggle" title="Toggle chart list">
-                        <span>&#9776;</span> CHARTS
+                        <span>☰</span> CHARTS
                     </button>
 
-<button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                    <button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
                         <span>✖</span> CLOSE
                     </button>                </div>
             </div>
@@ -796,17 +795,18 @@
                     <div class="sidebar-list" id="sidebarList"></div>
                 </div>
                 <div class="viewer-content" id="viewerContent">
-                <div id="viewerLoader" class="viewer-loader">
-                    <div class="spinner"></div>
-                    <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
-                </div>
+                    <div id="viewerLoader" class="viewer-loader">
+                        <div class="spinner"></div>
+                        <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
+                    </div>
 
-                <div id="pdfViewerContainer">
-                    <div id="pdfViewer"></div>
-                </div>
+                    <div id="pdfViewerContainer">
+                        <div id="pdfViewer"></div>
+                    </div>
 
-                <div class="viewer-tip">
-                    <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                    <div class="viewer-tip">
+                        <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -908,13 +908,6 @@
                 const activeItem = sidebarList.querySelector('.sidebar-item.active');
                 if (activeItem) activeItem.scrollIntoView({ block: 'nearest' });
             }
-
-            document.getElementById('sidebarToggle').onclick = () => {
-                sidebarOpen = !sidebarOpen;
-                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
-                applySidebarState();
-            };
-
 
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
@@ -1143,6 +1136,12 @@
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') closeViewer();
             });
+
+            document.getElementById('sidebarToggle').onclick = () => {
+                sidebarOpen = !sidebarOpen;
+                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
+                applySidebarState();
+            };
         
         let searchIndex = [];
         let fuse = null;
@@ -1191,7 +1190,7 @@
 
                 const card = document.createElement('a');
                 card.className = 'pin-card';
-                card.href = a.slug + '.html';
+                card.href = a.slug + '/';
                 card.style.border = 'none';
                 card.style.flex = '1';
                 card.style.minWidth = '0';
@@ -1402,10 +1401,10 @@
                 const pinBtn = document.createElement('button');
                 pinBtn.className = 'pin-btn';
                 const pins = getPins();
-                const isPinned = item.type === 'airport' 
-                    ? pins.airports.some(a => a.slug === item.url.replace('.html', ''))
+                const isPinned = item.type === 'airport'
+                    ? pins.airports.some(a => a.slug === item.code)
                     : pins.charts.some(c => c.url === item.url);
-                
+
                 if (isPinned) pinBtn.classList.add('pinned');
                 pinBtn.innerHTML = '📌';
                 pinBtn.onclick = (e) => {
@@ -1413,7 +1412,7 @@
                     e.stopPropagation();
                     if (item.type === 'airport') {
                         toggleAirportPin({
-                            slug: item.url.replace('.html', ''),
+                            slug: item.code,
                             name: item.name,
                             region: item.region
                         });

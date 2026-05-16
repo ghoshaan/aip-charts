@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 """
 Multi-Page ATC Charts Directory Generator
 
@@ -368,18 +370,18 @@ def generate_index_page(hierarchy):
         for airport_code, files in airports.items():
             airport_name = AIRPORT_NAMES.get(airport_code, airport_code)
             airport_display = f"{airport_code} - {airport_name}" if airport_name != airport_code else airport_code
-            airport_slug = slugify(f"{region_slug}-{airport_code}")
-            
+            airport_slug = airport_code.split()[0]
+
             # Add airport to global index
             global_search_index.append({
                 'type': 'airport',
                 'name': airport_display,
                 'code': airport_code,
                 'region': region_name,
-                'url': f"{airport_slug}.html",
+                'url': f"{airport_slug}/",
                 'icon': '✈️'
             })
-            
+
             # Add each chart to global index
             for f in files:
                 global_search_index.append({
@@ -391,7 +393,7 @@ def generate_index_page(hierarchy):
                     'url': f['url'],
                     'localUrl': f.get('localUrl', '#'),
                     'icon': '📄' if f['type'] == 'pdf' else '🖼️',
-                    'pageUrl': f"{airport_slug}.html"
+                    'pageUrl': f"{airport_slug}/"
                 })
             
             region_file_count += len(files)
@@ -638,7 +640,7 @@ def generate_index_page(hierarchy):
 
                 const card = document.createElement('a');
                 card.className = 'pin-card';
-                card.href = a.slug + '.html';
+                card.href = a.slug + '/';
                 card.style.border = 'none';
                 card.style.flex = '1';
                 card.style.minWidth = '0';
@@ -849,10 +851,10 @@ def generate_index_page(hierarchy):
                 const pinBtn = document.createElement('button');
                 pinBtn.className = 'pin-btn';
                 const pins = getPins();
-                const isPinned = item.type === 'airport' 
-                    ? pins.airports.some(a => a.slug === item.url.replace('.html', ''))
+                const isPinned = item.type === 'airport'
+                    ? pins.airports.some(a => a.slug === item.code)
                     : pins.charts.some(c => c.url === item.url);
-                
+
                 if (isPinned) pinBtn.classList.add('pinned');
                 pinBtn.innerHTML = '📌';
                 pinBtn.onclick = (e) => {{
@@ -860,7 +862,7 @@ def generate_index_page(hierarchy):
                     e.stopPropagation();
                     if (item.type === 'airport') {{
                         toggleAirportPin({{
-                            slug: item.url.replace('.html', ''),
+                            slug: item.code,
                             name: item.name,
                             region: item.region
                         }});
@@ -906,7 +908,7 @@ def generate_region_page(region_name, region_slug, airports):
             'icao': airport_code,
             'name': name,
             'displayName': display_name,
-            'slug': slugify(f"{region_slug}-{airport_code}"),
+            'slug': airport_code.split()[0],
             'fileCount': len(files)
         })
     
@@ -981,7 +983,7 @@ def generate_region_page(region_name, region_slug, airports):
             airportsToShow.forEach(airport => {{
                 const card = document.createElement('a');
                 card.className = 'airport-card';
-                card.href = airport.slug + '.html';
+                card.href = airport.slug + '/';
                 card.innerHTML = `
                     <div class="airport-code">${{airport.displayName}}</div>
                     <div class="airport-stats">
@@ -1015,13 +1017,16 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
     
     name = AIRPORT_NAMES.get(airport_code, airport_code)
     display_title = f"{airport_code} - {name}" if name != airport_code else airport_code
-    airport_slug = slugify(f"{region_slug}-{airport_code}")
+    airport_slug = airport_code.split()[0]
 
     # Check if we can skip regeneration
     # We use a simple hash of the files list
     airport_data_hash = str(hash(json.dumps(files, sort_keys=True)))
-    if manifest['airports'].get(airport_slug) == airport_data_hash and os.path.exists(f"{OUTPUT_DIR}/{airport_slug}.html"):
+    if manifest['airports'].get(airport_slug) == airport_data_hash and os.path.exists(f"{OUTPUT_DIR}/{airport_slug}/index.html"):
         return airport_slug
+
+    # Adjust file URLs for subdirectory context; rootUrl keeps root-relative path for pin storage
+    adjusted_files = [dict(f, url='../' + f['url'], localUrl='../' + f['localUrl'], rootUrl=f['localUrl']) for f in files]
 
     html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -1029,7 +1034,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{display_title} - ATC Charts</title>
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="../favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
     <style>
@@ -1040,9 +1045,9 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
 <body>
     <div class="container">
         <div class="breadcrumb">
-            <a href="index.html">Home</a>
+            <a href="../index.html">Home</a>
             <span class="breadcrumb-separator">›</span>
-            <a href="{region_slug}.html">{region_name}</a>
+            <a href="../{region_slug}.html">{region_name}</a>
             <span class="breadcrumb-separator">›</span>
             <span>{airport_code}</span>
         </div>
@@ -1091,7 +1096,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
         const airportCtx = {{
             slug: '{airport_slug}',
             name: '{display_title}',
-            icao: '{airport_code}',
+            icao: '{airport_slug}',
             region: '{region_name}'
         }};
 
@@ -1109,7 +1114,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
         }};
         updateAirportPinState();
 
-        const files = {json.dumps(files, indent=8)};
+        const files = {json.dumps(adjusted_files, indent=8)};
         const fileIcons = {{pdf: '📄', image: '🖼️', doc: '📝'}};
         let currentFilter = 'all';
         
@@ -1167,7 +1172,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
                 `;
 
                 const pins = getPins();
-                const isPinned = pins.charts.some(c => c.url === file.url);
+                const isPinned = pins.charts.some(c => c.url === file.rootUrl);
                 const pinBtn = document.createElement('button');
                 pinBtn.className = 'pin-btn' + (isPinned ? ' pinned' : '');
                 pinBtn.style.marginRight = '1rem';
@@ -1178,12 +1183,12 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
                     toggleChartPin({{
                         id: file.id,
                         name: file.name,
-                        url: file.url,
-                        localUrl: file.localUrl,
+                        url: file.rootUrl,
+                        localUrl: file.rootUrl,
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region,
-                        pageUrl: `${{airportCtx.slug}}.html`
+                        pageUrl: `${{airportCtx.slug}}/`
                     }});
                     pinBtn.classList.toggle('pinned');
                     pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
@@ -1226,12 +1231,12 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
 </body>
 </html>'''
     
-    slug = slugify(f"{region_slug}-{airport_code}")
-    with open(f"{OUTPUT_DIR}/{slug}.html", 'w', encoding='utf-8') as f:
+    os.makedirs(f"{OUTPUT_DIR}/{airport_slug}", exist_ok=True)
+    with open(f"{OUTPUT_DIR}/{airport_slug}/index.html", 'w', encoding='utf-8') as f:
         f.write(html)
-    
+
     manifest['airports'][airport_slug] = airport_data_hash
-    return slug
+    return airport_slug
 
 
 # ============================================================================

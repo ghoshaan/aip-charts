@@ -487,6 +487,77 @@
         }
 
         .viewer-tip b { color: var(--accent); }
+
+        /* Viewer sidebar */
+        .viewer-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.25s ease;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar.collapsed {
+            width: 0;
+        }
+
+        .sidebar-header {
+            padding: 0.6rem 1rem;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .sidebar-list::-webkit-scrollbar { width: 4px; }
+        .sidebar-list::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .sidebar-item {
+            padding: 0.65rem 1rem 0.65rem 1.1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            transition: all 0.12s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-left: 2px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-left-color: var(--accent);
+            font-weight: 600;
+        }
         
         
         .airport-grid {
@@ -588,70 +659,70 @@
                 "icao": "EICK",
                 "name": "Cork",
                 "displayName": "EICK - Cork",
-                "slug": "ireland-eick",
+                "slug": "EICK",
                 "fileCount": 28
         },
         {
                 "icao": "EIDL",
                 "name": "Donegal",
                 "displayName": "EIDL - Donegal",
-                "slug": "ireland-eidl",
+                "slug": "EIDL",
                 "fileCount": 8
         },
         {
                 "icao": "EIDW",
                 "name": "Dublin",
                 "displayName": "EIDW - Dublin",
-                "slug": "ireland-eidw",
+                "slug": "EIDW",
                 "fileCount": 44
         },
         {
                 "icao": "EIKN",
                 "name": "Ireland West (Knock)",
                 "displayName": "EIKN - Ireland West (Knock)",
-                "slug": "ireland-eikn",
+                "slug": "EIKN",
                 "fileCount": 16
         },
         {
                 "icao": "EIKY",
                 "name": "Kerry",
                 "displayName": "EIKY - Kerry",
-                "slug": "ireland-eiky",
+                "slug": "EIKY",
                 "fileCount": 12
         },
         {
                 "icao": "EINN",
                 "name": "Shannon",
                 "displayName": "EINN - Shannon",
-                "slug": "ireland-einn",
+                "slug": "EINN",
                 "fileCount": 14
         },
         {
                 "icao": "EISG",
                 "name": "Sligo",
                 "displayName": "EISG - Sligo",
-                "slug": "ireland-eisg",
+                "slug": "EISG",
                 "fileCount": 9
         },
         {
                 "icao": "EIWF",
                 "name": "Waterford",
                 "displayName": "EIWF - Waterford",
-                "slug": "ireland-eiwf",
+                "slug": "EIWF",
                 "fileCount": 8
         },
         {
                 "icao": "EIWT",
                 "name": "Weston",
                 "displayName": "EIWT - Weston",
-                "slug": "ireland-eiwt",
+                "slug": "EIWT",
                 "fileCount": 2
         },
         {
                 "icao": "ENROUTE",
                 "name": "ENROUTE",
                 "displayName": "ENROUTE",
-                "slug": "ireland-enroute",
+                "slug": "ENROUTE",
                 "fileCount": 3
         }
 ];
@@ -678,7 +749,7 @@
             airportsToShow.forEach(airport => {
                 const card = document.createElement('a');
                 card.className = 'airport-card';
-                card.href = airport.slug + '.html';
+                card.href = airport.slug + '/';
                 card.innerHTML = `
                     <div class="airport-code">${airport.displayName}</div>
                     <div class="airport-stats">

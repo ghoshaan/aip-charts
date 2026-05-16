@@ -487,6 +487,77 @@
         }
 
         .viewer-tip b { color: var(--accent); }
+
+        /* Viewer sidebar */
+        .viewer-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.25s ease;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar.collapsed {
+            width: 0;
+        }
+
+        .sidebar-header {
+            padding: 0.6rem 1rem;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .sidebar-list::-webkit-scrollbar { width: 4px; }
+        .sidebar-list::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .sidebar-item {
+            padding: 0.65rem 1rem 0.65rem 1.1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            transition: all 0.12s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-left: 2px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-left-color: var(--accent);
+            font-weight: 600;
+        }
         
         
         .airport-grid {
@@ -588,91 +659,91 @@
                 "icao": "ENROUTE",
                 "name": "ENROUTE",
                 "displayName": "ENROUTE",
-                "slug": "switzerland-enroute",
+                "slug": "ENROUTE",
                 "fileCount": 5
         },
         {
                 "icao": "LSGC",
                 "name": "Les Eplatures",
                 "displayName": "LSGC - Les Eplatures",
-                "slug": "switzerland-lsgc",
+                "slug": "LSGC",
                 "fileCount": 9
         },
         {
                 "icao": "LSGG",
                 "name": "Geneva",
                 "displayName": "LSGG - Geneva",
-                "slug": "switzerland-lsgg",
+                "slug": "LSGG",
                 "fileCount": 25
         },
         {
                 "icao": "LSGS",
                 "name": "Sion",
                 "displayName": "LSGS - Sion",
-                "slug": "switzerland-lsgs",
+                "slug": "LSGS",
                 "fileCount": 11
         },
         {
                 "icao": "LSMP",
                 "name": "Payerne",
                 "displayName": "LSMP - Payerne",
-                "slug": "switzerland-lsmp",
+                "slug": "LSMP",
                 "fileCount": 8
         },
         {
                 "icao": "LSZA",
                 "name": "Lugano",
                 "displayName": "LSZA - Lugano",
-                "slug": "switzerland-lsza",
+                "slug": "LSZA",
                 "fileCount": 12
         },
         {
                 "icao": "LSZB",
                 "name": "Bern",
                 "displayName": "LSZB - Bern",
-                "slug": "switzerland-lszb",
+                "slug": "LSZB",
                 "fileCount": 16
         },
         {
                 "icao": "LSZC",
                 "name": "Buochs",
                 "displayName": "LSZC - Buochs",
-                "slug": "switzerland-lszc",
+                "slug": "LSZC",
                 "fileCount": 6
         },
         {
                 "icao": "LSZG",
                 "name": "Grenchen",
                 "displayName": "LSZG - Grenchen",
-                "slug": "switzerland-lszg",
+                "slug": "LSZG",
                 "fileCount": 10
         },
         {
                 "icao": "LSZH",
                 "name": "Zurich",
                 "displayName": "LSZH - Zurich",
-                "slug": "switzerland-lszh",
+                "slug": "LSZH",
                 "fileCount": 55
         },
         {
                 "icao": "LSZL",
                 "name": "Locarno",
                 "displayName": "LSZL - Locarno",
-                "slug": "switzerland-lszl",
+                "slug": "LSZL",
                 "fileCount": 3
         },
         {
                 "icao": "LSZR",
                 "name": "St. Gallen-Altenrhein",
                 "displayName": "LSZR - St. Gallen-Altenrhein",
-                "slug": "switzerland-lszr",
+                "slug": "LSZR",
                 "fileCount": 15
         },
         {
                 "icao": "LSZS",
                 "name": "Samedan",
                 "displayName": "LSZS - Samedan",
-                "slug": "switzerland-lszs",
+                "slug": "LSZS",
                 "fileCount": 11
         }
 ];
@@ -699,7 +770,7 @@
             airportsToShow.forEach(airport => {
                 const card = document.createElement('a');
                 card.className = 'airport-card';
-                card.href = airport.slug + '.html';
+                card.href = airport.slug + '/';
                 card.innerHTML = `
                     <div class="airport-code">${airport.displayName}</div>
                     <div class="airport-stats">

@@ -487,6 +487,77 @@
         }
 
         .viewer-tip b { color: var(--accent); }
+
+        /* Viewer sidebar */
+        .viewer-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.25s ease;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar.collapsed {
+            width: 0;
+        }
+
+        .sidebar-header {
+            padding: 0.6rem 1rem;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .sidebar-list::-webkit-scrollbar { width: 4px; }
+        .sidebar-list::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .sidebar-item {
+            padding: 0.65rem 1rem 0.65rem 1.1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            transition: all 0.12s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-left: 2px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-left-color: var(--accent);
+            font-weight: 600;
+        }
         
         
         .airport-grid {
@@ -588,175 +659,175 @@
                 "icao": "EHAL",
                 "name": "Ameland",
                 "displayName": "EHAL - Ameland",
-                "slug": "netherlands-ehal",
+                "slug": "EHAL",
                 "fileCount": 2
         },
         {
                 "icao": "EHAM",
                 "name": "Amsterdam Schiphol",
                 "displayName": "EHAM - Amsterdam Schiphol",
-                "slug": "netherlands-eham",
+                "slug": "EHAM",
                 "fileCount": 65
         },
         {
                 "icao": "EHBD",
                 "name": "Budel",
                 "displayName": "EHBD - Budel",
-                "slug": "netherlands-ehbd",
+                "slug": "EHBD",
                 "fileCount": 8
         },
         {
                 "icao": "EHBK",
                 "name": "Maastricht Aachen",
                 "displayName": "EHBK - Maastricht Aachen",
-                "slug": "netherlands-ehbk",
+                "slug": "EHBK",
                 "fileCount": 18
         },
         {
                 "icao": "EHDR",
                 "name": "Drachten",
                 "displayName": "EHDR - Drachten",
-                "slug": "netherlands-ehdr",
+                "slug": "EHDR",
                 "fileCount": 2
         },
         {
                 "icao": "EHEH",
                 "name": "Eindhoven",
                 "displayName": "EHEH - Eindhoven",
-                "slug": "netherlands-eheh",
+                "slug": "EHEH",
                 "fileCount": 17
         },
         {
                 "icao": "EHGG",
                 "name": "Groningen Eelde",
                 "displayName": "EHGG - Groningen Eelde",
-                "slug": "netherlands-ehgg",
+                "slug": "EHGG",
                 "fileCount": 16
         },
         {
                 "icao": "EHHA",
                 "name": "Amsterdam FIR",
                 "displayName": "EHHA - Amsterdam FIR",
-                "slug": "netherlands-ehha",
+                "slug": "EHHA",
                 "fileCount": 1
         },
         {
                 "icao": "EHHE",
                 "name": "Heerenveen",
                 "displayName": "EHHE - Heerenveen",
-                "slug": "netherlands-ehhe",
+                "slug": "EHHE",
                 "fileCount": 2
         },
         {
                 "icao": "EHHO",
                 "name": "Hoogeveen",
                 "displayName": "EHHO - Hoogeveen",
-                "slug": "netherlands-ehho",
+                "slug": "EHHO",
                 "fileCount": 2
         },
         {
                 "icao": "EHHV",
                 "name": "Hilversum",
                 "displayName": "EHHV - Hilversum",
-                "slug": "netherlands-ehhv",
+                "slug": "EHHV",
                 "fileCount": 4
         },
         {
                 "icao": "EHJR",
                 "name": "Arnhem",
                 "displayName": "EHJR - Arnhem",
-                "slug": "netherlands-ehjr",
+                "slug": "EHJR",
                 "fileCount": 2
         },
         {
                 "icao": "EHKD",
                 "name": "De Kooy",
                 "displayName": "EHKD - De Kooy",
-                "slug": "netherlands-ehkd",
+                "slug": "EHKD",
                 "fileCount": 14
         },
         {
                 "icao": "EHLE",
                 "name": "Lelystad",
                 "displayName": "EHLE - Lelystad",
-                "slug": "netherlands-ehle",
+                "slug": "EHLE",
                 "fileCount": 11
         },
         {
                 "icao": "EHMM",
                 "name": "Maastricht FIR",
                 "displayName": "EHMM - Maastricht FIR",
-                "slug": "netherlands-ehmm",
+                "slug": "EHMM",
                 "fileCount": 2
         },
         {
                 "icao": "EHMZ",
                 "name": "Midden-Zeeland",
                 "displayName": "EHMZ - Midden-Zeeland",
-                "slug": "netherlands-ehmz",
+                "slug": "EHMZ",
                 "fileCount": 3
         },
         {
                 "icao": "EHOW",
                 "name": "Oostwold",
                 "displayName": "EHOW - Oostwold",
-                "slug": "netherlands-ehow",
+                "slug": "EHOW",
                 "fileCount": 2
         },
         {
                 "icao": "EHRD",
                 "name": "Rotterdam The Hague",
                 "displayName": "EHRD - Rotterdam The Hague",
-                "slug": "netherlands-ehrd",
+                "slug": "EHRD",
                 "fileCount": 22
         },
         {
                 "icao": "EHSE",
                 "name": "Seppe",
                 "displayName": "EHSE - Seppe",
-                "slug": "netherlands-ehse",
+                "slug": "EHSE",
                 "fileCount": 2
         },
         {
                 "icao": "EHST",
                 "name": "Stadskanaal",
                 "displayName": "EHST - Stadskanaal",
-                "slug": "netherlands-ehst",
+                "slug": "EHST",
                 "fileCount": 2
         },
         {
                 "icao": "EHTE",
                 "name": "Teuge",
                 "displayName": "EHTE - Teuge",
-                "slug": "netherlands-ehte",
+                "slug": "EHTE",
                 "fileCount": 5
         },
         {
                 "icao": "EHTL",
                 "name": "Terlet",
                 "displayName": "EHTL - Terlet",
-                "slug": "netherlands-ehtl",
+                "slug": "EHTL",
                 "fileCount": 2
         },
         {
                 "icao": "EHTW",
                 "name": "Twente",
                 "displayName": "EHTW - Twente",
-                "slug": "netherlands-ehtw",
+                "slug": "EHTW",
                 "fileCount": 4
         },
         {
                 "icao": "EHTX",
                 "name": "Texel",
                 "displayName": "EHTX - Texel",
-                "slug": "netherlands-ehtx",
+                "slug": "EHTX",
                 "fileCount": 4
         },
         {
                 "icao": "ENROUTE",
                 "name": "ENROUTE",
                 "displayName": "ENROUTE",
-                "slug": "netherlands-enroute",
+                "slug": "ENROUTE",
                 "fileCount": 9
         }
 ];
@@ -783,7 +854,7 @@
             airportsToShow.forEach(airport => {
                 const card = document.createElement('a');
                 card.className = 'airport-card';
-                card.href = airport.slug + '.html';
+                card.href = airport.slug + '/';
                 card.innerHTML = `
                     <div class="airport-code">${airport.displayName}</div>
                     <div class="airport-stats">

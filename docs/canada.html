@@ -487,6 +487,77 @@
         }
 
         .viewer-tip b { color: var(--accent); }
+
+        /* Viewer sidebar */
+        .viewer-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.25s ease;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar.collapsed {
+            width: 0;
+        }
+
+        .sidebar-header {
+            padding: 0.6rem 1rem;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .sidebar-list::-webkit-scrollbar { width: 4px; }
+        .sidebar-list::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .sidebar-item {
+            padding: 0.65rem 1rem 0.65rem 1.1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            transition: all 0.12s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-left: 2px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-left-color: var(--accent);
+            font-weight: 600;
+        }
         
         
         .airport-grid {
@@ -588,917 +659,917 @@
                 "icao": "CEN4 High River Regional",
                 "name": "CEN4 High River Regional",
                 "displayName": "CEN4 High River Regional",
-                "slug": "canada-cen4-high-river-regional",
+                "slug": "CEN4",
                 "fileCount": 5
         },
         {
                 "icao": "CJB3 Steinbach",
                 "name": "CJB3 Steinbach",
                 "displayName": "CJB3 Steinbach",
-                "slug": "canada-cjb3-steinbach",
+                "slug": "CJB3",
                 "fileCount": 4
         },
         {
                 "icao": "CNF4 Lindsay Kawartha Lakes Municipal",
                 "name": "CNF4 Lindsay Kawartha Lakes Municipal",
                 "displayName": "CNF4 Lindsay Kawartha Lakes Municipal",
-                "slug": "canada-cnf4-lindsay-kawartha-lakes-municipal",
+                "slug": "CNF4",
                 "fileCount": 3
         },
         {
                 "icao": "CNP3 Arnprior",
                 "name": "CNP3 Arnprior",
                 "displayName": "CNP3 Arnprior",
-                "slug": "canada-cnp3-arnprior",
+                "slug": "CNP3",
                 "fileCount": 3
         },
         {
                 "icao": "CYAB Arctic Bay",
                 "name": "CYAB Arctic Bay",
                 "displayName": "CYAB Arctic Bay",
-                "slug": "canada-cyab-arctic-bay",
+                "slug": "CYAB",
                 "fileCount": 7
         },
         {
                 "icao": "CYAD La Grande-3",
                 "name": "CYAD La Grande-3",
                 "displayName": "CYAD La Grande-3",
-                "slug": "canada-cyad-la-grande-3",
+                "slug": "CYAD",
                 "fileCount": 3
         },
         {
                 "icao": "CYAM Sault Ste Marie",
                 "name": "CYAM Sault Ste Marie",
                 "displayName": "CYAM Sault Ste Marie",
-                "slug": "canada-cyam-sault-ste-marie",
+                "slug": "CYAM",
                 "fileCount": 10
         },
         {
                 "icao": "CYAV Winnipeg St Andrews",
                 "name": "CYAV Winnipeg St Andrews",
                 "displayName": "CYAV Winnipeg St Andrews",
-                "slug": "canada-cyav-winnipeg-st-andrews",
+                "slug": "CYAV",
                 "fileCount": 9
         },
         {
                 "icao": "CYAW CFB Shearwater",
                 "name": "CYAW CFB Shearwater",
                 "displayName": "CYAW CFB Shearwater",
-                "slug": "canada-cyaw-cfb-shearwater",
+                "slug": "CYAW",
                 "fileCount": 4
         },
         {
                 "icao": "CYBB Kugaaruk",
                 "name": "CYBB Kugaaruk",
                 "displayName": "CYBB Kugaaruk",
-                "slug": "canada-cybb-kugaaruk",
+                "slug": "CYBB",
                 "fileCount": 3
         },
         {
                 "icao": "CYBK Baker Lake",
                 "name": "CYBK Baker Lake",
                 "displayName": "CYBK Baker Lake",
-                "slug": "canada-cybk-baker-lake",
+                "slug": "CYBK",
                 "fileCount": 5
         },
         {
                 "icao": "CYBL Campbell River",
                 "name": "CYBL Campbell River",
                 "displayName": "CYBL Campbell River",
-                "slug": "canada-cybl-campbell-river",
+                "slug": "CYBL",
                 "fileCount": 9
         },
         {
                 "icao": "CYBR Brandon Municipal",
                 "name": "CYBR Brandon Municipal",
                 "displayName": "CYBR Brandon Municipal",
-                "slug": "canada-cybr-brandon-municipal",
+                "slug": "CYBR",
                 "fileCount": 13
         },
         {
                 "icao": "CYBW Calgary Springbank",
                 "name": "CYBW Calgary Springbank",
                 "displayName": "CYBW Calgary Springbank",
-                "slug": "canada-cybw-calgary-springbank",
+                "slug": "CYBW",
                 "fileCount": 17
         },
         {
                 "icao": "CYCD Nanaimo",
                 "name": "CYCD Nanaimo",
                 "displayName": "CYCD Nanaimo",
-                "slug": "canada-cycd-nanaimo",
+                "slug": "CYCD",
                 "fileCount": 11
         },
         {
                 "icao": "CYCG West Kootenay Regional",
                 "name": "CYCG West Kootenay Regional",
                 "displayName": "CYCG West Kootenay Regional",
-                "slug": "canada-cycg-west-kootenay-regional",
+                "slug": "CYCG",
                 "fileCount": 2
         },
         {
                 "icao": "CYCO Kugluktuk",
                 "name": "CYCO Kugluktuk",
                 "displayName": "CYCO Kugluktuk",
-                "slug": "canada-cyco-kugluktuk",
+                "slug": "CYCO",
                 "fileCount": 4
         },
         {
                 "icao": "CYCS Chesterfield Inlet",
                 "name": "CYCS Chesterfield Inlet",
                 "displayName": "CYCS Chesterfield Inlet",
-                "slug": "canada-cycs-chesterfield-inlet",
+                "slug": "CYCS",
                 "fileCount": 3
         },
         {
                 "icao": "CYDA Dawson City",
                 "name": "CYDA Dawson City",
                 "displayName": "CYDA Dawson City",
-                "slug": "canada-cyda-dawson-city",
+                "slug": "CYDA",
                 "fileCount": 5
         },
         {
                 "icao": "CYDB Burwash",
                 "name": "CYDB Burwash",
                 "displayName": "CYDB Burwash",
-                "slug": "canada-cydb-burwash",
+                "slug": "CYDB",
                 "fileCount": 9
         },
         {
                 "icao": "CYDF Deer Lake Regional",
                 "name": "CYDF Deer Lake Regional",
                 "displayName": "CYDF Deer Lake Regional",
-                "slug": "canada-cydf-deer-lake-regional",
+                "slug": "CYDF",
                 "fileCount": 9
         },
         {
                 "icao": "CYDQ Dawson Creek",
                 "name": "CYDQ Dawson Creek",
                 "displayName": "CYDQ Dawson Creek",
-                "slug": "canada-cydq-dawson-creek",
+                "slug": "CYDQ",
                 "fileCount": 4
         },
         {
                 "icao": "CYED CFB Edmonton",
                 "name": "CYED CFB Edmonton",
                 "displayName": "CYED CFB Edmonton",
-                "slug": "canada-cyed-cfb-edmonton",
+                "slug": "CYED",
                 "fileCount": 10
         },
         {
                 "icao": "CYEE Huronia Midland",
                 "name": "CYEE Huronia Midland",
                 "displayName": "CYEE Huronia Midland",
-                "slug": "canada-cyee-huronia-midland",
+                "slug": "CYEE",
                 "fileCount": 3
         },
         {
                 "icao": "CYEG Edmonton",
                 "name": "CYEG Edmonton",
                 "displayName": "CYEG Edmonton",
-                "slug": "canada-cyeg-edmonton",
+                "slug": "CYEG",
                 "fileCount": 35
         },
         {
                 "icao": "CYEN Estevan Regional",
                 "name": "CYEN Estevan Regional",
                 "displayName": "CYEN Estevan Regional",
-                "slug": "canada-cyen-estevan-regional",
+                "slug": "CYEN",
                 "fileCount": 5
         },
         {
                 "icao": "CYEV Inuvik Mike Zubko",
                 "name": "CYEV Inuvik Mike Zubko",
                 "displayName": "CYEV Inuvik Mike Zubko",
-                "slug": "canada-cyev-inuvik-mike-zubko",
+                "slug": "CYEV",
                 "fileCount": 5
         },
         {
                 "icao": "CYFB Iqaluit",
                 "name": "CYFB Iqaluit",
                 "displayName": "CYFB Iqaluit",
-                "slug": "canada-cyfb-iqaluit",
+                "slug": "CYFB",
                 "fileCount": 9
         },
         {
                 "icao": "CYFC Fredericton",
                 "name": "CYFC Fredericton",
                 "displayName": "CYFC Fredericton",
-                "slug": "canada-cyfc-fredericton",
+                "slug": "CYFC",
                 "fileCount": 14
         },
         {
                 "icao": "CYFD Brantford",
                 "name": "CYFD Brantford",
                 "displayName": "CYFD Brantford",
-                "slug": "canada-cyfd-brantford",
+                "slug": "CYFD",
                 "fileCount": 4
         },
         {
                 "icao": "CYFH Fort Hope",
                 "name": "CYFH Fort Hope",
                 "displayName": "CYFH Fort Hope",
-                "slug": "canada-cyfh-fort-hope",
+                "slug": "CYFH",
                 "fileCount": 3
         },
         {
                 "icao": "CYFJ Mont-Tremblant International",
                 "name": "CYFJ Mont-Tremblant International",
                 "displayName": "CYFJ Mont-Tremblant International",
-                "slug": "canada-cyfj-mont-tremblant-international",
+                "slug": "CYFJ",
                 "fileCount": 3
         },
         {
                 "icao": "CYFO Flin Flon",
                 "name": "CYFO Flin Flon",
                 "displayName": "CYFO Flin Flon",
-                "slug": "canada-cyfo-flin-flon",
+                "slug": "CYFO",
                 "fileCount": 5
         },
         {
                 "icao": "CYFS Fort Simpson",
                 "name": "CYFS Fort Simpson",
                 "displayName": "CYFS Fort Simpson",
-                "slug": "canada-cyfs-fort-simpson",
+                "slug": "CYFS",
                 "fileCount": 5
         },
         {
                 "icao": "CYGE Golden",
                 "name": "CYGE Golden",
                 "displayName": "CYGE Golden",
-                "slug": "canada-cyge-golden",
+                "slug": "CYGE",
                 "fileCount": 4
         },
         {
                 "icao": "CYGL La Grande Riviere",
                 "name": "CYGL La Grande Riviere",
                 "displayName": "CYGL La Grande Riviere",
-                "slug": "canada-cygl-la-grande-riviere",
+                "slug": "CYGL",
                 "fileCount": 5
         },
         {
                 "icao": "CYGP Michel-Pouliot Gaspe",
                 "name": "CYGP Michel-Pouliot Gaspe",
                 "displayName": "CYGP Michel-Pouliot Gaspe",
-                "slug": "canada-cygp-michel-pouliot-gaspe",
+                "slug": "CYGP",
                 "fileCount": 5
         },
         {
                 "icao": "CYGR Iles-de-la-Madeleine",
                 "name": "CYGR Iles-de-la-Madeleine",
                 "displayName": "CYGR Iles-de-la-Madeleine",
-                "slug": "canada-cygr-iles-de-la-madeleine",
+                "slug": "CYGR",
                 "fileCount": 6
         },
         {
                 "icao": "CYGT Igloolik",
                 "name": "CYGT Igloolik",
                 "displayName": "CYGT Igloolik",
-                "slug": "canada-cygt-igloolik",
+                "slug": "CYGT",
                 "fileCount": 3
         },
         {
                 "icao": "CYHA Quaqtaq",
                 "name": "CYHA Quaqtaq",
                 "displayName": "CYHA Quaqtaq",
-                "slug": "canada-cyha-quaqtaq",
+                "slug": "CYHA",
                 "fileCount": 3
         },
         {
                 "icao": "CYHM John C Munro Hamilton Airport",
                 "name": "CYHM John C Munro Hamilton Airport",
                 "displayName": "CYHM John C Munro Hamilton Airport",
-                "slug": "canada-cyhm-john-c-munro-hamilton-airport",
+                "slug": "CYHM",
                 "fileCount": 25
         },
         {
                 "icao": "CYHU Montreal Saint-Hubert",
                 "name": "CYHU Montreal Saint-Hubert",
                 "displayName": "CYHU Montreal Saint-Hubert",
-                "slug": "canada-cyhu-montreal-saint-hubert",
+                "slug": "CYHU",
                 "fileCount": 10
         },
         {
                 "icao": "CYHZ Halifax",
                 "name": "CYHZ Halifax",
                 "displayName": "CYHZ Halifax",
-                "slug": "canada-cyhz-halifax",
+                "slug": "CYHZ",
                 "fileCount": 31
         },
         {
                 "icao": "CYIO Pond Inlet",
                 "name": "CYIO Pond Inlet",
                 "displayName": "CYIO Pond Inlet",
-                "slug": "canada-cyio-pond-inlet",
+                "slug": "CYIO",
                 "fileCount": 6
         },
         {
                 "icao": "CYIV Island Lake",
                 "name": "CYIV Island Lake",
                 "displayName": "CYIV Island Lake",
-                "slug": "canada-cyiv-island-lake",
+                "slug": "CYIV",
                 "fileCount": 4
         },
         {
                 "icao": "CYJN Saint-Jean",
                 "name": "CYJN Saint-Jean",
                 "displayName": "CYJN Saint-Jean",
-                "slug": "canada-cyjn-saint-jean",
+                "slug": "CYJN",
                 "fileCount": 8
         },
         {
                 "icao": "CYJT Stephenville International",
                 "name": "CYJT Stephenville International",
                 "displayName": "CYJT Stephenville International",
-                "slug": "canada-cyjt-stephenville-international",
+                "slug": "CYJT",
                 "fileCount": 4
         },
         {
                 "icao": "CYKD Aklavik Freddie Carmichael",
                 "name": "CYKD Aklavik Freddie Carmichael",
                 "displayName": "CYKD Aklavik Freddie Carmichael",
-                "slug": "canada-cykd-aklavik-freddie-carmichael",
+                "slug": "CYKD",
                 "fileCount": 3
         },
         {
                 "icao": "CYKF Kitchener Waterloo",
                 "name": "CYKF Kitchener Waterloo",
                 "displayName": "CYKF Kitchener Waterloo",
-                "slug": "canada-cykf-kitchener-waterloo",
+                "slug": "CYKF",
                 "fileCount": 12
         },
         {
                 "icao": "CYKY Kindersley Regional",
                 "name": "CYKY Kindersley Regional",
                 "displayName": "CYKY Kindersley Regional",
-                "slug": "canada-cyky-kindersley-regional",
+                "slug": "CYKY",
                 "fileCount": 3
         },
         {
                 "icao": "CYLC Kimmirut",
                 "name": "CYLC Kimmirut",
                 "displayName": "CYLC Kimmirut",
-                "slug": "canada-cylc-kimmirut",
+                "slug": "CYLC",
                 "fileCount": 3
         },
         {
                 "icao": "CYLD Chapleau",
                 "name": "CYLD Chapleau",
                 "displayName": "CYLD Chapleau",
-                "slug": "canada-cyld-chapleau",
+                "slug": "CYLD",
                 "fileCount": 3
         },
         {
                 "icao": "CYLJ Meadow Lake",
                 "name": "CYLJ Meadow Lake",
                 "displayName": "CYLJ Meadow Lake",
-                "slug": "canada-cylj-meadow-lake",
+                "slug": "CYLJ",
                 "fileCount": 5
         },
         {
                 "icao": "CYLK Lutselke",
                 "name": "CYLK Lutselke",
                 "displayName": "CYLK Lutselke",
-                "slug": "canada-cylk-lutselke",
+                "slug": "CYLK",
                 "fileCount": 3
         },
         {
                 "icao": "CYLW Kelowna",
                 "name": "CYLW Kelowna",
                 "displayName": "CYLW Kelowna",
-                "slug": "canada-cylw-kelowna",
+                "slug": "CYLW",
                 "fileCount": 41
         },
         {
                 "icao": "CYMJ CFB Moose Jaw",
                 "name": "CYMJ CFB Moose Jaw",
                 "displayName": "CYMJ CFB Moose Jaw",
-                "slug": "canada-cymj-cfb-moose-jaw",
+                "slug": "CYMJ",
                 "fileCount": 22
         },
         {
                 "icao": "CYMM Fort McMurray",
                 "name": "CYMM Fort McMurray",
                 "displayName": "CYMM Fort McMurray",
-                "slug": "canada-cymm-fort-mcmurray",
+                "slug": "CYMM",
                 "fileCount": 16
         },
         {
                 "icao": "CYMO Moosonee",
                 "name": "CYMO Moosonee",
                 "displayName": "CYMO Moosonee",
-                "slug": "canada-cymo-moosonee",
+                "slug": "CYMO",
                 "fileCount": 6
         },
         {
                 "icao": "CYMT Chibougamau Chapais",
                 "name": "CYMT Chibougamau Chapais",
                 "displayName": "CYMT Chibougamau Chapais",
-                "slug": "canada-cymt-chibougamau-chapais",
+                "slug": "CYMT",
                 "fileCount": 6
         },
         {
                 "icao": "CYMX Montreal-Mirabel International",
                 "name": "CYMX Montreal-Mirabel International",
                 "displayName": "CYMX Montreal-Mirabel International",
-                "slug": "canada-cymx-montreal-mirabel-international",
+                "slug": "CYMX",
                 "fileCount": 14
         },
         {
                 "icao": "CYNJ Langley Regional",
                 "name": "CYNJ Langley Regional",
                 "displayName": "CYNJ Langley Regional",
-                "slug": "canada-cynj-langley-regional",
+                "slug": "CYNJ",
                 "fileCount": 5
         },
         {
                 "icao": "CYNM Matagami",
                 "name": "CYNM Matagami",
                 "displayName": "CYNM Matagami",
-                "slug": "canada-cynm-matagami",
+                "slug": "CYNM",
                 "fileCount": 3
         },
         {
                 "icao": "CYNN Nejanilini Lake",
                 "name": "CYNN Nejanilini Lake",
                 "displayName": "CYNN Nejanilini Lake",
-                "slug": "canada-cynn-nejanilini-lake",
+                "slug": "CYNN",
                 "fileCount": 5
         },
         {
                 "icao": "CYOD CFB Cold Lake",
                 "name": "CYOD CFB Cold Lake",
                 "displayName": "CYOD CFB Cold Lake",
-                "slug": "canada-cyod-cfb-cold-lake",
+                "slug": "CYOD",
                 "fileCount": 32
         },
         {
                 "icao": "CYOO Oshawa Executive",
                 "name": "CYOO Oshawa Executive",
                 "displayName": "CYOO Oshawa Executive",
-                "slug": "canada-cyoo-oshawa-executive",
+                "slug": "CYOO",
                 "fileCount": 8
         },
         {
                 "icao": "CYOW Ottawa",
                 "name": "CYOW Ottawa",
                 "displayName": "CYOW Ottawa",
-                "slug": "canada-cyow-ottawa",
+                "slug": "CYOW",
                 "fileCount": 33
         },
         {
                 "icao": "CYPA Prince Albert Glass Field",
                 "name": "CYPA Prince Albert Glass Field",
                 "displayName": "CYPA Prince Albert Glass Field",
-                "slug": "canada-cypa-prince-albert-glass-field",
+                "slug": "CYPA",
                 "fileCount": 19
         },
         {
                 "icao": "CYPK Pitt Meadows",
                 "name": "CYPK Pitt Meadows",
                 "displayName": "CYPK Pitt Meadows",
-                "slug": "canada-cypk-pitt-meadows",
+                "slug": "CYPK",
                 "fileCount": 5
         },
         {
                 "icao": "CYPQ Peterborough",
                 "name": "CYPQ Peterborough",
                 "displayName": "CYPQ Peterborough",
-                "slug": "canada-cypq-peterborough",
+                "slug": "CYPQ",
                 "fileCount": 4
         },
         {
                 "icao": "CYPR Prince Rupert",
                 "name": "CYPR Prince Rupert",
                 "displayName": "CYPR Prince Rupert",
-                "slug": "canada-cypr-prince-rupert",
+                "slug": "CYPR",
                 "fileCount": 5
         },
         {
                 "icao": "CYQB Quebec Jean Lesage",
                 "name": "CYQB Quebec Jean Lesage",
                 "displayName": "CYQB Quebec Jean Lesage",
-                "slug": "canada-cyqb-quebec-jean-lesage",
+                "slug": "CYQB",
                 "fileCount": 37
         },
         {
                 "icao": "CYQF Red Deer Regional",
                 "name": "CYQF Red Deer Regional",
                 "displayName": "CYQF Red Deer Regional",
-                "slug": "canada-cyqf-red-deer-regional",
+                "slug": "CYQF",
                 "fileCount": 8
         },
         {
                 "icao": "CYQG Windsor",
                 "name": "CYQG Windsor",
                 "displayName": "CYQG Windsor",
-                "slug": "canada-cyqg-windsor",
+                "slug": "CYQG",
                 "fileCount": 20
         },
         {
                 "icao": "CYQI Yarmouth",
                 "name": "CYQI Yarmouth",
                 "displayName": "CYQI Yarmouth",
-                "slug": "canada-cyqi-yarmouth",
+                "slug": "CYQI",
                 "fileCount": 9
         },
         {
                 "icao": "CYQM Greater Moncton Romeo LeBlanc",
                 "name": "CYQM Greater Moncton Romeo LeBlanc",
                 "displayName": "CYQM Greater Moncton Romeo LeBlanc",
-                "slug": "canada-cyqm-greater-moncton-romeo-leblanc",
+                "slug": "CYQM",
                 "fileCount": 16
         },
         {
                 "icao": "CYQQ CFB Comox or 19 wing",
                 "name": "CYQQ CFB Comox or 19 wing",
                 "displayName": "CYQQ CFB Comox or 19 wing",
-                "slug": "canada-cyqq-cfb-comox-or-19-wing",
+                "slug": "CYQQ",
                 "fileCount": 21
         },
         {
                 "icao": "CYQR Regina",
                 "name": "CYQR Regina",
                 "displayName": "CYQR Regina",
-                "slug": "canada-cyqr-regina",
+                "slug": "CYQR",
                 "fileCount": 19
         },
         {
                 "icao": "CYQT Thunder Bay",
                 "name": "CYQT Thunder Bay",
                 "displayName": "CYQT Thunder Bay",
-                "slug": "canada-cyqt-thunder-bay",
+                "slug": "CYQT",
                 "fileCount": 23
         },
         {
                 "icao": "CYQW North Battleford",
                 "name": "CYQW North Battleford",
                 "displayName": "CYQW North Battleford",
-                "slug": "canada-cyqw-north-battleford",
+                "slug": "CYQW",
                 "fileCount": 3
         },
         {
                 "icao": "CYQX Gander International",
                 "name": "CYQX Gander International",
                 "displayName": "CYQX Gander International",
-                "slug": "canada-cyqx-gander-international",
+                "slug": "CYQX",
                 "fileCount": 11
         },
         {
                 "icao": "CYQY JA Douglas McCurdy Sydney",
                 "name": "CYQY JA Douglas McCurdy Sydney",
                 "displayName": "CYQY JA Douglas McCurdy Sydney",
-                "slug": "canada-cyqy-ja-douglas-mccurdy-sydney",
+                "slug": "CYQY",
                 "fileCount": 12
         },
         {
                 "icao": "CYRB Resolute Bay",
                 "name": "CYRB Resolute Bay",
                 "displayName": "CYRB Resolute Bay",
-                "slug": "canada-cyrb-resolute-bay",
+                "slug": "CYRB",
                 "fileCount": 4
         },
         {
                 "icao": "CYRJ Roberval",
                 "name": "CYRJ Roberval",
                 "displayName": "CYRJ Roberval",
-                "slug": "canada-cyrj-roberval",
+                "slug": "CYRJ",
                 "fileCount": 4
         },
         {
                 "icao": "CYRQ Trois-Rivieres",
                 "name": "CYRQ Trois-Rivieres",
                 "displayName": "CYRQ Trois-Rivieres",
-                "slug": "canada-cyrq-trois-rivieres",
+                "slug": "CYRQ",
                 "fileCount": 8
         },
         {
                 "icao": "CYRT Rankin Inlet",
                 "name": "CYRT Rankin Inlet",
                 "displayName": "CYRT Rankin Inlet",
-                "slug": "canada-cyrt-rankin-inlet",
+                "slug": "CYRT",
                 "fileCount": 5
         },
         {
                 "icao": "CYSB Sudbury",
                 "name": "CYSB Sudbury",
                 "displayName": "CYSB Sudbury",
-                "slug": "canada-cysb-sudbury",
+                "slug": "CYSB",
                 "fileCount": 12
         },
         {
                 "icao": "CYSC Sherbrooke",
                 "name": "CYSC Sherbrooke",
                 "displayName": "CYSC Sherbrooke",
-                "slug": "canada-cysc-sherbrooke",
+                "slug": "CYSC",
                 "fileCount": 3
         },
         {
                 "icao": "CYSJ Saint John",
                 "name": "CYSJ Saint John",
                 "displayName": "CYSJ Saint John",
-                "slug": "canada-cysj-saint-john",
+                "slug": "CYSJ",
                 "fileCount": 19
         },
         {
                 "icao": "CYST St Theresa Point",
                 "name": "CYST St Theresa Point",
                 "displayName": "CYST St Theresa Point",
-                "slug": "canada-cyst-st-theresa-point",
+                "slug": "CYST",
                 "fileCount": 4
         },
         {
                 "icao": "CYSU Summerside",
                 "name": "CYSU Summerside",
                 "displayName": "CYSU Summerside",
-                "slug": "canada-cysu-summerside",
+                "slug": "CYSU",
                 "fileCount": 3
         },
         {
                 "icao": "CYTH Thompson",
                 "name": "CYTH Thompson",
                 "displayName": "CYTH Thompson",
-                "slug": "canada-cyth-thompson",
+                "slug": "CYTH",
                 "fileCount": 8
         },
         {
                 "icao": "CYTL Big Trout Lake",
                 "name": "CYTL Big Trout Lake",
                 "displayName": "CYTL Big Trout Lake",
-                "slug": "canada-cytl-big-trout-lake",
+                "slug": "CYTL",
                 "fileCount": 4
         },
         {
                 "icao": "CYTS Timmins Victor M Power",
                 "name": "CYTS Timmins Victor M Power",
                 "displayName": "CYTS Timmins Victor M Power",
-                "slug": "canada-cyts-timmins-victor-m-power",
+                "slug": "CYTS",
                 "fileCount": 14
         },
         {
                 "icao": "CYTZ Toronto Island",
                 "name": "CYTZ Toronto Island",
                 "displayName": "CYTZ Toronto Island",
-                "slug": "canada-cytz-toronto-island",
+                "slug": "CYTZ",
                 "fileCount": 35
         },
         {
                 "icao": "CYUL Montreal",
                 "name": "CYUL Montreal",
                 "displayName": "CYUL Montreal",
-                "slug": "canada-cyul-montreal",
+                "slug": "CYUL",
                 "fileCount": 49
         },
         {
                 "icao": "CYUX Sanirajak",
                 "name": "CYUX Sanirajak",
                 "displayName": "CYUX Sanirajak",
-                "slug": "canada-cyux-sanirajak",
+                "slug": "CYUX",
                 "fileCount": 5
         },
         {
                 "icao": "CYUY Rouyn-Noranda",
                 "name": "CYUY Rouyn-Noranda",
                 "displayName": "CYUY Rouyn-Noranda",
-                "slug": "canada-cyuy-rouyn-noranda",
+                "slug": "CYUY",
                 "fileCount": 11
         },
         {
                 "icao": "CYVC La Ronge Barber Field",
                 "name": "CYVC La Ronge Barber Field",
                 "displayName": "CYVC La Ronge Barber Field",
-                "slug": "canada-cyvc-la-ronge-barber-field",
+                "slug": "CYVC",
                 "fileCount": 6
         },
         {
                 "icao": "CYVM Qikiqtarjuaq",
                 "name": "CYVM Qikiqtarjuaq",
                 "displayName": "CYVM Qikiqtarjuaq",
-                "slug": "canada-cyvm-qikiqtarjuaq",
+                "slug": "CYVM",
                 "fileCount": 4
         },
         {
                 "icao": "CYVP Kuujjuaq",
                 "name": "CYVP Kuujjuaq",
                 "displayName": "CYVP Kuujjuaq",
-                "slug": "canada-cyvp-kuujjuaq",
+                "slug": "CYVP",
                 "fileCount": 9
         },
         {
                 "icao": "CYVQ Norman Wells",
                 "name": "CYVQ Norman Wells",
                 "displayName": "CYVQ Norman Wells",
-                "slug": "canada-cyvq-norman-wells",
+                "slug": "CYVQ",
                 "fileCount": 5
         },
         {
                 "icao": "CYVR Vancouver",
                 "name": "CYVR Vancouver",
                 "displayName": "CYVR Vancouver",
-                "slug": "canada-cyvr-vancouver",
+                "slug": "CYVR",
                 "fileCount": 75
         },
         {
                 "icao": "CYWG Winnipeg",
                 "name": "CYWG Winnipeg",
                 "displayName": "CYWG Winnipeg",
-                "slug": "canada-cywg-winnipeg",
+                "slug": "CYWG",
                 "fileCount": 49
         },
         {
                 "icao": "CYWL Williams Lake",
                 "name": "CYWL Williams Lake",
                 "displayName": "CYWL Williams Lake",
-                "slug": "canada-cywl-williams-lake",
+                "slug": "CYWL",
                 "fileCount": 5
         },
         {
                 "icao": "CYXE Saskatoon",
                 "name": "CYXE Saskatoon",
                 "displayName": "CYXE Saskatoon",
-                "slug": "canada-cyxe-saskatoon",
+                "slug": "CYXE",
                 "fileCount": 29
         },
         {
                 "icao": "CYXH Medicine Hat",
                 "name": "CYXH Medicine Hat",
                 "displayName": "CYXH Medicine Hat",
-                "slug": "canada-cyxh-medicine-hat",
+                "slug": "CYXH",
                 "fileCount": 7
         },
         {
                 "icao": "CYXN Whale Cove",
                 "name": "CYXN Whale Cove",
                 "displayName": "CYXN Whale Cove",
-                "slug": "canada-cyxn-whale-cove",
+                "slug": "CYXN",
                 "fileCount": 3
         },
         {
                 "icao": "CYXR Earlton Timiskaming Regional",
                 "name": "CYXR Earlton Timiskaming Regional",
                 "displayName": "CYXR Earlton Timiskaming Regional",
-                "slug": "canada-cyxr-earlton-timiskaming-regional",
+                "slug": "CYXR",
                 "fileCount": 3
         },
         {
                 "icao": "CYXS Prince George",
                 "name": "CYXS Prince George",
                 "displayName": "CYXS Prince George",
-                "slug": "canada-cyxs-prince-george",
+                "slug": "CYXS",
                 "fileCount": 13
         },
         {
                 "icao": "CYXU London",
                 "name": "CYXU London",
                 "displayName": "CYXU London",
-                "slug": "canada-cyxu-london",
+                "slug": "CYXU",
                 "fileCount": 15
         },
         {
                 "icao": "CYXX Abbotsford",
                 "name": "CYXX Abbotsford",
                 "displayName": "CYXX Abbotsford",
-                "slug": "canada-cyxx-abbotsford",
+                "slug": "CYXX",
                 "fileCount": 21
         },
         {
                 "icao": "CYXY Erik Nielsen Whitehorse International",
                 "name": "CYXY Erik Nielsen Whitehorse International",
                 "displayName": "CYXY Erik Nielsen Whitehorse International",
-                "slug": "canada-cyxy-erik-nielsen-whitehorse-international",
+                "slug": "CYXY",
                 "fileCount": 19
         },
         {
                 "icao": "CYYC Calgary",
                 "name": "CYYC Calgary",
                 "displayName": "CYYC Calgary",
-                "slug": "canada-cyyc-calgary",
+                "slug": "CYYC",
                 "fileCount": 71
         },
         {
                 "icao": "CYYD Smithers",
                 "name": "CYYD Smithers",
                 "displayName": "CYYD Smithers",
-                "slug": "canada-cyyd-smithers",
+                "slug": "CYYD",
                 "fileCount": 12
         },
         {
                 "icao": "CYYF Penticton Regional",
                 "name": "CYYF Penticton Regional",
                 "displayName": "CYYF Penticton Regional",
-                "slug": "canada-cyyf-penticton-regional",
+                "slug": "CYYF",
                 "fileCount": 14
         },
         {
                 "icao": "CYYG Charlottetown",
                 "name": "CYYG Charlottetown",
                 "displayName": "CYYG Charlottetown",
-                "slug": "canada-cyyg-charlottetown",
+                "slug": "CYYG",
                 "fileCount": 13
         },
         {
                 "icao": "CYYH Taloyoak",
                 "name": "CYYH Taloyoak",
                 "displayName": "CYYH Taloyoak",
-                "slug": "canada-cyyh-taloyoak",
+                "slug": "CYYH",
                 "fileCount": 4
         },
         {
                 "icao": "CYYJ Victoria International",
                 "name": "CYYJ Victoria International",
                 "displayName": "CYYJ Victoria International",
-                "slug": "canada-cyyj-victoria-international",
+                "slug": "CYYJ",
                 "fileCount": 21
         },
         {
                 "icao": "CYYN Swift Current",
                 "name": "CYYN Swift Current",
                 "displayName": "CYYN Swift Current",
-                "slug": "canada-cyyn-swift-current",
+                "slug": "CYYN",
                 "fileCount": 3
         },
         {
                 "icao": "CYYR CFB Goose Bay",
                 "name": "CYYR CFB Goose Bay",
                 "displayName": "CYYR CFB Goose Bay",
-                "slug": "canada-cyyr-cfb-goose-bay",
+                "slug": "CYYR",
                 "fileCount": 25
         },
         {
                 "icao": "CYYT St Johns",
                 "name": "CYYT St Johns",
                 "displayName": "CYYT St Johns",
-                "slug": "canada-cyyt-st-johns",
+                "slug": "CYYT",
                 "fileCount": 28
         },
         {
                 "icao": "CYYZ Toronto Pearson",
                 "name": "CYYZ Toronto Pearson",
                 "displayName": "CYYZ Toronto Pearson",
-                "slug": "canada-cyyz-toronto-pearson",
+                "slug": "CYYZ",
                 "fileCount": 216
         },
         {
                 "icao": "CYZF Yellowknife",
                 "name": "CYZF Yellowknife",
                 "displayName": "CYZF Yellowknife",
-                "slug": "canada-cyzf-yellowknife",
+                "slug": "CYZF",
                 "fileCount": 16
         },
         {
                 "icao": "CYZH Slave Lake",
                 "name": "CYZH Slave Lake",
                 "displayName": "CYZH Slave Lake",
-                "slug": "canada-cyzh-slave-lake",
+                "slug": "CYZH",
                 "fileCount": 3
         },
         {
                 "icao": "CYZP Sandspit",
                 "name": "CYZP Sandspit",
                 "displayName": "CYZP Sandspit",
-                "slug": "canada-cyzp-sandspit",
+                "slug": "CYZP",
                 "fileCount": 6
         },
         {
                 "icao": "CYZT Port Hardy",
                 "name": "CYZT Port Hardy",
                 "displayName": "CYZT Port Hardy",
-                "slug": "canada-cyzt-port-hardy",
+                "slug": "CYZT",
                 "fileCount": 9
         },
         {
                 "icao": "CYZV Sept-Iles",
                 "name": "CYZV Sept-Iles",
                 "displayName": "CYZV Sept-Iles",
-                "slug": "canada-cyzv-sept-iles",
+                "slug": "CYZV",
                 "fileCount": 11
         },
         {
                 "icao": "CYZX CFB Greenwood",
                 "name": "CYZX CFB Greenwood",
                 "displayName": "CYZX CFB Greenwood",
-                "slug": "canada-cyzx-cfb-greenwood",
+                "slug": "CYZX",
                 "fileCount": 25
         },
         {
                 "icao": "CZBB Boundary Bay",
                 "name": "CZBB Boundary Bay",
                 "displayName": "CZBB Boundary Bay",
-                "slug": "canada-czbb-boundary-bay",
+                "slug": "CZBB",
                 "fileCount": 5
         },
         {
                 "icao": "CZFM Fort McPherson",
                 "name": "CZFM Fort McPherson",
                 "displayName": "CZFM Fort McPherson",
-                "slug": "canada-czfm-fort-mcpherson",
+                "slug": "CZFM",
                 "fileCount": 3
         },
         {
                 "icao": "CZFN Tulita",
                 "name": "CZFN Tulita",
                 "displayName": "CZFN Tulita",
-                "slug": "canada-czfn-tulita",
+                "slug": "CZFN",
                 "fileCount": 3
         }
 ];
@@ -1525,7 +1596,7 @@
             airportsToShow.forEach(airport => {
                 const card = document.createElement('a');
                 card.className = 'airport-card';
-                card.href = airport.slug + '.html';
+                card.href = airport.slug + '/';
                 card.innerHTML = `
                     <div class="airport-code">${airport.displayName}</div>
                     <div class="airport-stats">
