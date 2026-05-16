@@ -695,10 +695,23 @@ def generate_index_page(hierarchy):
         })
     
     regions.sort(key=lambda x: x['name'])
-    
+
     # Write search index to separate file to keep HTML small
     with open(f"{OUTPUT_DIR}/search_data.json", 'w', encoding='utf-8') as f:
         json.dump(global_search_index, f)
+
+    # Pre-build region cards to avoid nested f-string bracket issues on Python < 3.12
+    region_cards_html = ''
+    for r in regions:
+        region_cards_html += f'''
+                <a href="{r['slug']}.html" class="region-card">
+                    <span class="card-icon">{r['icon']}</span>
+                    <div class="card-title">{r['name']}</div>
+                    <div class="card-count">
+                        <strong>{r['airportCount']}</strong> airports &bull;
+                        <strong>{r['fileCount']}</strong> files
+                    </div>
+                </a>'''
 
     html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -856,16 +869,7 @@ def generate_index_page(hierarchy):
         <div id="defaultView">
             <div class="subtitle" style="margin-bottom: 1rem;">Browse Regions</div>
             <div class="card-grid">
-                {''.join([f'''
-                <a href="{r['slug']}.html" class="region-card">
-                    <span class="card-icon">{r['icon']}</span>
-                    <div class="card-title">{r['name']}</div>
-                    <div class="card-count">
-                        <strong>{r['airportCount']}</strong> airports &bull; 
-                        <strong>{r['fileCount']}</strong> files
-                    </div>
-                </a>
-                ''' for r in regions])}
+                {region_cards_html}
             </div>
         </div>
 
