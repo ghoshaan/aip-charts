@@ -384,13 +384,30 @@ AIRPORT_NAMES = {
 # ============================================================================
 
 def authenticate_drive():
-    """Authenticate with Google Drive API"""
+    """Authenticate with Google Drive API.
+
+    In CI (GitHub Actions): reads GOOGLE_SERVICE_ACCOUNT env var (service account JSON).
+    Locally: uses OAuth2 via credentials.json / token.json.
+    """
     print("🔐 Authenticating...")
+
+    # Service account path — used in CI
+    service_account_json = os.environ.get('GOOGLE_SERVICE_ACCOUNT')
+    if service_account_json:
+        from google.oauth2 import service_account as sa
+        creds = sa.Credentials.from_service_account_info(
+            json.loads(service_account_json),
+            scopes=SCOPES
+        )
+        print("✅ Authenticated via service account!\n")
+        return build('drive', 'v3', credentials=creds)
+
+    # OAuth2 path — used locally
     creds = None
-    
+
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    
+
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             try:
@@ -401,17 +418,17 @@ def authenticate_drive():
                 if os.path.exists('token.json'):
                     os.remove('token.json')
                     print("🗑️  Deleted expired token.json")
-        
+
         if not creds or not creds.valid:
             if not os.path.exists('credentials.json'):
                 print("❌ credentials.json not found!")
                 return None
             flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
-        
+
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
-    
+
     print("✅ Authenticated!\n")
     return build('drive', 'v3', credentials=creds)
 
