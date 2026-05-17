@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,21 +1065,21 @@
                 "url": "charts_data/canada/cyad-la-grande-3/rnav_gnss_rwy_28.pdf",
                 "localUrl": "charts_data/canada/cyad-la-grande-3/rnav_gnss_rwy_28.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1bh4HojCSBn56cG7eAlm-9ttSWiFH1bp6", "driveUrl": "https://drive.google.com/file/d/1bh4HojCSBn56cG7eAlm-9ttSWiFH1bp6/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cyad-la-grande-3/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyad-la-grande-3/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1PkeuKMzs9lR2X14YBZHSIn4DuPzj_Xfp", "driveUrl": "https://drive.google.com/file/d/1PkeuKMzs9lR2X14YBZHSIn4DuPzj_Xfp/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_10.pdf",
                 "name": "RNAV_GNSS_RWY_10.pdf",
                 "url": "charts_data/canada/cyad-la-grande-3/rnav_gnss_rwy_10.pdf",
                 "localUrl": "charts_data/canada/cyad-la-grande-3/rnav_gnss_rwy_10.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1Lf4f9xiB6NiCJ337Y2th8ydF0nuBf99z", "driveUrl": "https://drive.google.com/file/d/1Lf4f9xiB6NiCJ337Y2th8ydF0nuBf99z/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1127,7 +1127,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

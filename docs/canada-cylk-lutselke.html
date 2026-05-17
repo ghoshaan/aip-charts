@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,21 +1065,21 @@
                 "url": "charts_data/canada/cylk-lutselke/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cylk-lutselke/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ht7X2Gq4gK0WPdgPHl6-EsNEIs1seiyQ", "driveUrl": "https://drive.google.com/file/d/1ht7X2Gq4gK0WPdgPHl6-EsNEIs1seiyQ/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_26_true.pdf",
                 "name": "RNAV_GNSS_RWY_26_TRUE.pdf",
                 "url": "charts_data/canada/cylk-lutselke/rnav_gnss_rwy_26_true.pdf",
                 "localUrl": "charts_data/canada/cylk-lutselke/rnav_gnss_rwy_26_true.pdf",
                 "type": "pdf"
-        },
+, "driveId": "10l1Vhqjt8ZuIUwMmTfEEGRoAW6Bp7-yd", "driveUrl": "https://drive.google.com/file/d/10l1Vhqjt8ZuIUwMmTfEEGRoAW6Bp7-yd/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_08_true.pdf",
                 "name": "RNAV_GNSS_RWY_08_TRUE.pdf",
                 "url": "charts_data/canada/cylk-lutselke/rnav_gnss_rwy_08_true.pdf",
                 "localUrl": "charts_data/canada/cylk-lutselke/rnav_gnss_rwy_08_true.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1qjb-fVOj9AvyTnMMcOoy8RN1aFQrE0Jd", "driveUrl": "https://drive.google.com/file/d/1qjb-fVOj9AvyTnMMcOoy8RN1aFQrE0Jd/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1127,7 +1127,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

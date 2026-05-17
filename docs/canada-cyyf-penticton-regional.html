@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,98 +1065,98 @@
                 "url": "charts_data/canada/cyyf-penticton-regional/mobud_1_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/mobud_1_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1XF1GbU3_qrrw98NNnineGx1NYEiVNLXf", "driveUrl": "https://drive.google.com/file/d/1XF1GbU3_qrrw98NNnineGx1NYEiVNLXf/view?usp=drivesdk" },
         {
                 "id": "mobud_1_dep_rnav_pg_02.pdf",
                 "name": "MOBUD_1_DEP_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/mobud_1_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/mobud_1_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Ta_EH8sqfKiYk0mtkPynq8pHaRIIlKyX", "driveUrl": "https://drive.google.com/file/d/1Ta_EH8sqfKiYk0mtkPynq8pHaRIIlKyX/view?usp=drivesdk" },
         {
                 "id": "bexud_1_dep_rnav_pg_02.pdf",
                 "name": "BEXUD_1_DEP_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/bexud_1_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/bexud_1_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ZPmRMlP-WvliEZW3qJ2KSw43tRGhqdag", "driveUrl": "https://drive.google.com/file/d/1ZPmRMlP-WvliEZW3qJ2KSw43tRGhqdag/view?usp=drivesdk" },
         {
                 "id": "bexud_1_dep_rnav.pdf",
                 "name": "BEXUD_1_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/bexud_1_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/bexud_1_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1hlBZr8E6SBDwmxgYNQ0W6mnFuse4FkbO", "driveUrl": "https://drive.google.com/file/d/1hlBZr8E6SBDwmxgYNQ0W6mnFuse4FkbO/view?usp=drivesdk" },
         {
                 "id": "night_circuit_procedures.pdf",
                 "name": "NIGHT_CIRCUIT_PROCEDURES.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/night_circuit_procedures.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/night_circuit_procedures.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1xVyxkCxgNZ1NCAoduxNRkWhcxuR3Q2Y6", "driveUrl": "https://drive.google.com/file/d/1xVyxkCxgNZ1NCAoduxNRkWhcxuR3Q2Y6/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1qvKcyGbVQxVjNKIxzEggFoBqtyu_w5lp", "driveUrl": "https://drive.google.com/file/d/1qvKcyGbVQxVjNKIxzEggFoBqtyu_w5lp/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_b.pdf",
                 "name": "RNAV_GNSS_B.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/rnav_gnss_b.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/rnav_gnss_b.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1oEAXs6SyeA0fX1QyUm-8d7swn5Va1flW", "driveUrl": "https://drive.google.com/file/d/1oEAXs6SyeA0fX1QyUm-8d7swn5Va1flW/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_c.pdf",
                 "name": "RNAV_GNSS_C.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/rnav_gnss_c.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/rnav_gnss_c.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1O-5MUcwKEfUWyGTd0uy9WMjFT0pVlPJH", "driveUrl": "https://drive.google.com/file/d/1O-5MUcwKEfUWyGTd0uy9WMjFT0pVlPJH/view?usp=drivesdk" },
         {
                 "id": "restricted_rnav_rnp_y_rwy_16_pg_02.pdf",
                 "name": "RESTRICTED_RNAV_RNP_Y_RWY_16_PG_02.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/restricted_rnav_rnp_y_rwy_16_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/restricted_rnav_rnp_y_rwy_16_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1WGgGTWrzGh1xo2k18cT8p3_Xd0aCxORN", "driveUrl": "https://drive.google.com/file/d/1WGgGTWrzGh1xo2k18cT8p3_Xd0aCxORN/view?usp=drivesdk" },
         {
                 "id": "restricted_rnav_rnp_y_rwy_16.pdf",
                 "name": "RESTRICTED_RNAV_RNP_Y_RWY_16.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/restricted_rnav_rnp_y_rwy_16.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/restricted_rnav_rnp_y_rwy_16.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1PsAXcfokzCpt-o9p6UaNQ7Y5xtZBefDp", "driveUrl": "https://drive.google.com/file/d/1PsAXcfokzCpt-o9p6UaNQ7Y5xtZBefDp/view?usp=drivesdk" },
         {
                 "id": "restricted_rnav_gnss_z_rwy_16_pg_02.pdf",
                 "name": "RESTRICTED_RNAV_GNSS_Z_RWY_16_PG_02.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/restricted_rnav_gnss_z_rwy_16_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/restricted_rnav_gnss_z_rwy_16_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1jZ1ORiry7yW7DXto42rdvS0IsuON-Xo8", "driveUrl": "https://drive.google.com/file/d/1jZ1ORiry7yW7DXto42rdvS0IsuON-Xo8/view?usp=drivesdk" },
         {
                 "id": "restricted_rnav_gnss_z_rwy_16.pdf",
                 "name": "RESTRICTED_RNAV_GNSS_Z_RWY_16.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/restricted_rnav_gnss_z_rwy_16.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/restricted_rnav_gnss_z_rwy_16.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1gzkt-efD1dXBirEiroO-zk7cE_2R3ld-", "driveUrl": "https://drive.google.com/file/d/1gzkt-efD1dXBirEiroO-zk7cE_2R3ld-/view?usp=drivesdk" },
         {
                 "id": "restricted_loc_a_pg_02.pdf",
                 "name": "RESTRICTED_LOC_A_PG_02.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/restricted_loc_a_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/restricted_loc_a_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1j391_dVHLlZy6zOZjZAb6ZGJ1OjFYnun", "driveUrl": "https://drive.google.com/file/d/1j391_dVHLlZy6zOZjZAb6ZGJ1OjFYnun/view?usp=drivesdk" },
         {
                 "id": "restricted_loc_a.pdf",
                 "name": "RESTRICTED_LOC_A.pdf",
                 "url": "charts_data/canada/cyyf-penticton-regional/restricted_loc_a.pdf",
                 "localUrl": "charts_data/canada/cyyf-penticton-regional/restricted_loc_a.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1WYV_t0Z-SmzI3eoRlqo9ZKjG8zcvP9dw", "driveUrl": "https://drive.google.com/file/d/1WYV_t0Z-SmzI3eoRlqo9ZKjG8zcvP9dw/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1204,7 +1204,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

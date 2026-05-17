@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,343 +1065,343 @@
                 "url": "charts_data/canada/cywg-winnipeg/.DS_Store",
                 "localUrl": "charts_data/canada/cywg-winnipeg/.DS_Store",
                 "type": "doc"
-        },
+, "driveId": "1n6Im8XTpQnL_7RpdLArn2iXT_IVBAM-L", "driveUrl": "https://drive.google.com/file/d/1n6Im8XTpQnL_7RpdLArn2iXT_IVBAM-L/view?usp=drivesdk" },
         {
                 "id": "cywg_stony_4_dep_vector_pg_02.pdf",
                 "name": "CYWG_STONY_4_DEP_VECTOR_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_stony_4_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_stony_4_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1L_j2JXqFodFCR5shXLN1VGUUn4pN7GAJ", "driveUrl": "https://drive.google.com/file/d/1L_j2JXqFodFCR5shXLN1VGUUn4pN7GAJ/view?usp=drivesdk" },
         {
                 "id": "cywg_walleye_3_dep_vector.pdf",
                 "name": "CYWG_WALLEYE_3_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_walleye_3_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_walleye_3_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1YJ1cefUOX5XKd3U_8DvNGu2ZhJCeAaHB", "driveUrl": "https://drive.google.com/file/d/1YJ1cefUOX5XKd3U_8DvNGu2ZhJCeAaHB/view?usp=drivesdk" },
         {
                 "id": "cywg_musib_1_dep_rnav.pdf",
                 "name": "CYWG_MUSIB_1_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_musib_1_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_musib_1_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "13qfnX99Ihoi1O0db6IlmdOA8taOxFEVc", "driveUrl": "https://drive.google.com/file/d/13qfnX99Ihoi1O0db6IlmdOA8taOxFEVc/view?usp=drivesdk" },
         {
                 "id": "cywg_winnipeg_3_dep_vector.pdf",
                 "name": "CYWG_WINNIPEG_3_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_winnipeg_3_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_winnipeg_3_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1-k_9E217eusD7bkWgt9YUQZ2esrLQsCK", "driveUrl": "https://drive.google.com/file/d/1-k_9E217eusD7bkWgt9YUQZ2esrLQsCK/view?usp=drivesdk" },
         {
                 "id": "cywg_vogig_2_dep_rnav_pg_02.pdf",
                 "name": "CYWG_VOGIG_2_DEP_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_vogig_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_vogig_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1VVwkikkqV0AVS6gxqxbCuHMeFksNk_FY", "driveUrl": "https://drive.google.com/file/d/1VVwkikkqV0AVS6gxqxbCuHMeFksNk_FY/view?usp=drivesdk" },
         {
                 "id": "cywg_musib_1_dep_rnav_pg_02.pdf",
                 "name": "CYWG_MUSIB_1_DEP_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_musib_1_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_musib_1_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1HvtDRQFHOjt7TGAzOHZsoyeTlzkbAJFU", "driveUrl": "https://drive.google.com/file/d/1HvtDRQFHOjt7TGAzOHZsoyeTlzkbAJFU/view?usp=drivesdk" },
         {
                 "id": "cywg_walleye_3_dep_vector_pg_02.pdf",
                 "name": "CYWG_WALLEYE_3_DEP_VECTOR_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_walleye_3_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_walleye_3_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "11yblE5qadxsmdPe0i1vEIyA0wK_EmhUU", "driveUrl": "https://drive.google.com/file/d/11yblE5qadxsmdPe0i1vEIyA0wK_EmhUU/view?usp=drivesdk" },
         {
                 "id": "cywg_vogig_2_dep_rnav.pdf",
                 "name": "CYWG_VOGIG_2_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_vogig_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_vogig_2_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1jryGgFkuvHvNISYBxvprdEifbayqj2If", "driveUrl": "https://drive.google.com/file/d/1jryGgFkuvHvNISYBxvprdEifbayqj2If/view?usp=drivesdk" },
         {
                 "id": "cywg_winnipeg_3_dep_vector_pg_02.pdf",
                 "name": "CYWG_WINNIPEG_3_DEP_VECTOR_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_winnipeg_3_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_winnipeg_3_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ELky5U8-EmqF2UTxKF0Vczyyde3R0wSL", "driveUrl": "https://drive.google.com/file/d/1ELky5U8-EmqF2UTxKF0Vczyyde3R0wSL/view?usp=drivesdk" },
         {
                 "id": "cywg_stony_4_dep_vector.pdf",
                 "name": "CYWG_STONY_4_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_stony_4_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_stony_4_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1RQuCSQIFP8p8UGEiYZc6OGWqAnSMJcCP", "driveUrl": "https://drive.google.com/file/d/1RQuCSQIFP8p8UGEiYZc6OGWqAnSMJcCP/view?usp=drivesdk" },
         {
                 "id": "cywg_grizzly_5_dep_vector_pg_02.pdf",
                 "name": "CYWG_GRIZZLY_5_DEP_VECTOR_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_grizzly_5_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_grizzly_5_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1MYOadwL6Ok30Iw59mLeei3uIlGl8JzYE", "driveUrl": "https://drive.google.com/file/d/1MYOadwL6Ok30Iw59mLeei3uIlGl8JzYE/view?usp=drivesdk" },
         {
                 "id": "cywg_duxus_1_dep_rnav_pg_02.pdf",
                 "name": "CYWG_DUXUS_1_DEP_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_duxus_1_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_duxus_1_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "13sgTy-Kkui5P-i-q8q5Hd2tD6MpTyMpU", "driveUrl": "https://drive.google.com/file/d/13sgTy-Kkui5P-i-q8q5Hd2tD6MpTyMpU/view?usp=drivesdk" },
         {
                 "id": "cywg_karis_3_dep_rnav_pg_02.pdf",
                 "name": "CYWG_KARIS_3_DEP_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_karis_3_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_karis_3_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1YHkXP3z4YanZbFWq5C0OncbAiE0xZi_7", "driveUrl": "https://drive.google.com/file/d/1YHkXP3z4YanZbFWq5C0OncbAiE0xZi_7/view?usp=drivesdk" },
         {
                 "id": "cywg_karis_3_dep_rnav.pdf",
                 "name": "CYWG_KARIS_3_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_karis_3_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_karis_3_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1uds0e-Kj22etusHYrojQBeYQvNrX7mEY", "driveUrl": "https://drive.google.com/file/d/1uds0e-Kj22etusHYrojQBeYQvNrX7mEY/view?usp=drivesdk" },
         {
                 "id": "cywg_parking_areas_apron_i.pdf",
                 "name": "CYWG_PARKING_AREAS_APRON_I.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_parking_areas_apron_i.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_parking_areas_apron_i.pdf",
                 "type": "pdf"
-        },
+, "driveId": "13qgVPcj8UQRiuK4Qg1MMqf1Magc13ZV2", "driveUrl": "https://drive.google.com/file/d/13qgVPcj8UQRiuK4Qg1MMqf1Magc13ZV2/view?usp=drivesdk" },
         {
                 "id": "cywg_aerodrome_chart.pdf",
                 "name": "CYWG_AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Lmhp_inDMjIPAJIZi1c2JMxXzVbxk-wI", "driveUrl": "https://drive.google.com/file/d/1Lmhp_inDMjIPAJIZi1c2JMxXzVbxk-wI/view?usp=drivesdk" },
         {
                 "id": "cywg_central_de-icing_facility.pdf",
                 "name": "CYWG_CENTRAL_DE-ICING_FACILITY.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_central_de-icing_facility.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_central_de-icing_facility.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1C_wl-XuIR5scyDaRakf_War0ofxbzFCz", "driveUrl": "https://drive.google.com/file/d/1C_wl-XuIR5scyDaRakf_War0ofxbzFCz/view?usp=drivesdk" },
         {
                 "id": "cywg_parking_areas_dnd.pdf",
                 "name": "CYWG_PARKING_AREAS_DND.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_parking_areas_dnd.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_parking_areas_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Nz1VZX6gvYK0fwf9yN8gOnlDrlPNkCYM", "driveUrl": "https://drive.google.com/file/d/1Nz1VZX6gvYK0fwf9yN8gOnlDrlPNkCYM/view?usp=drivesdk" },
         {
                 "id": "cywg_parking_areas_apron_v.pdf",
                 "name": "CYWG_PARKING_AREAS_APRON_V.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_parking_areas_apron_v.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_parking_areas_apron_v.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1r20pr6pY7kCG3KNL5AQO-0nJruqDPNMf", "driveUrl": "https://drive.google.com/file/d/1r20pr6pY7kCG3KNL5AQO-0nJruqDPNMf/view?usp=drivesdk" },
         {
                 "id": "cywg_rnav_rnp_y_rwy_31.pdf",
                 "name": "CYWG_RNAV_RNP_Y_RWY_31.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_rnav_rnp_y_rwy_31.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_rnav_rnp_y_rwy_31.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1iq_zTkwLXBw7Xg_xDBBZaW9maz3H2XQj", "driveUrl": "https://drive.google.com/file/d/1iq_zTkwLXBw7Xg_xDBBZaW9maz3H2XQj/view?usp=drivesdk" },
         {
                 "id": "cywg_noise_abatement_procedures.pdf",
                 "name": "CYWG_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_noise_abatement_procedures.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_noise_abatement_procedures.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1y2B5OkiJETKqVux0nS04uBqP4nX4o46S", "driveUrl": "https://drive.google.com/file/d/1y2B5OkiJETKqVux0nS04uBqP4nX4o46S/view?usp=drivesdk" },
         {
                 "id": "cywg_low_visibility_procedures.pdf",
                 "name": "CYWG_LOW_VISIBILITY_PROCEDURES.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_low_visibility_procedures.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_low_visibility_procedures.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1EASeS7CN77aORRlqu7OFzPOmgu7jXBrN", "driveUrl": "https://drive.google.com/file/d/1EASeS7CN77aORRlqu7OFzPOmgu7jXBrN/view?usp=drivesdk" },
         {
                 "id": "cywg_grizzly_5_dep_vector.pdf",
                 "name": "CYWG_GRIZZLY_5_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_grizzly_5_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_grizzly_5_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "10qPKKmI1_YUyd-4y5Q8hN5AoN6R_sh5m", "driveUrl": "https://drive.google.com/file/d/10qPKKmI1_YUyd-4y5Q8hN5AoN6R_sh5m/view?usp=drivesdk" },
         {
                 "id": "cywg_parking_areas.pdf",
                 "name": "CYWG_PARKING_AREAS.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_parking_areas.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_parking_areas.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1D0TV0Bpf0fd_EPDqz--SRpGSArb_qpJQ", "driveUrl": "https://drive.google.com/file/d/1D0TV0Bpf0fd_EPDqz--SRpGSArb_qpJQ/view?usp=drivesdk" },
         {
                 "id": "cywg_noise_abatement_procedures_pg_02.pdf",
                 "name": "CYWG_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_noise_abatement_procedures_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_noise_abatement_procedures_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1AVRad8c_-H1ZR8K9VxskxqXqMnGnKdqI", "driveUrl": "https://drive.google.com/file/d/1AVRad8c_-H1ZR8K9VxskxqXqMnGnKdqI/view?usp=drivesdk" },
         {
                 "id": "cywg_rnav_rnp_y_rwy_36.pdf",
                 "name": "CYWG_RNAV_RNP_Y_RWY_36.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_rnav_rnp_y_rwy_36.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_rnav_rnp_y_rwy_36.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1HMdVgN_clzKjAM0NqbGSsmtF871nHeRB", "driveUrl": "https://drive.google.com/file/d/1HMdVgN_clzKjAM0NqbGSsmtF871nHeRB/view?usp=drivesdk" },
         {
                 "id": "cywg_parking_areas_apron_vii.pdf",
                 "name": "CYWG_PARKING_AREAS_APRON_VII.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_parking_areas_apron_vii.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_parking_areas_apron_vii.pdf",
                 "type": "pdf"
-        },
+, "driveId": "14dBglw6xVsb__RVmzcVI-HnrYtoQDD6T", "driveUrl": "https://drive.google.com/file/d/14dBglw6xVsb__RVmzcVI-HnrYtoQDD6T/view?usp=drivesdk" },
         {
                 "id": "cywg_duxus_1_dep_rnav.pdf",
                 "name": "CYWG_DUXUS_1_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_duxus_1_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_duxus_1_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1olv2QTIjrN5yS9JdGsv2U1ILCbd5_tGR", "driveUrl": "https://drive.google.com/file/d/1olv2QTIjrN5yS9JdGsv2U1ILCbd5_tGR/view?usp=drivesdk" },
         {
                 "id": "cywg_kelto_5_arr_rnav_pg_02.pdf",
                 "name": "CYWG_KELTO_5_ARR_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_kelto_5_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_kelto_5_arr_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ZFWJrB4fb3sIloTdadEVr2liVfnTYJpe", "driveUrl": "https://drive.google.com/file/d/1ZFWJrB4fb3sIloTdadEVr2liVfnTYJpe/view?usp=drivesdk" },
         {
                 "id": "cywg_ils_rwy_36.pdf",
                 "name": "CYWG_ILS_RWY_36.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_ils_rwy_36.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_ils_rwy_36.pdf",
                 "type": "pdf"
-        },
+, "driveId": "10Wqpv203BrF_yJWJbdtvgSPx8wC_0rrP", "driveUrl": "https://drive.google.com/file/d/10Wqpv203BrF_yJWJbdtvgSPx8wC_0rrP/view?usp=drivesdk" },
         {
                 "id": "cywg_rnav_gnss_z_rwy_18.pdf",
                 "name": "CYWG_RNAV_GNSS_Z_RWY_18.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_rnav_gnss_z_rwy_18.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_rnav_gnss_z_rwy_18.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1RFhaAmcgD-OpHAe1j_iAjyehGD2Vpvdw", "driveUrl": "https://drive.google.com/file/d/1RFhaAmcgD-OpHAe1j_iAjyehGD2Vpvdw/view?usp=drivesdk" },
         {
                 "id": "cywg_pepno_5_arr_rnav.pdf",
                 "name": "CYWG_PEPNO_5_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_pepno_5_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_pepno_5_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1XQ9cC6v6BYzo4Xg9wpA434FM1aFF5xfC", "driveUrl": "https://drive.google.com/file/d/1XQ9cC6v6BYzo4Xg9wpA434FM1aFF5xfC/view?usp=drivesdk" },
         {
                 "id": "cywg_rnav_gnss_z_rwy_36.pdf",
                 "name": "CYWG_RNAV_GNSS_Z_RWY_36.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_rnav_gnss_z_rwy_36.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_rnav_gnss_z_rwy_36.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1lDRIIda-33Zi-WK5wtKk-BFsiaDssOrH", "driveUrl": "https://drive.google.com/file/d/1lDRIIda-33Zi-WK5wtKk-BFsiaDssOrH/view?usp=drivesdk" },
         {
                 "id": "cywg_ils_cat_ii_rwy_36.pdf",
                 "name": "CYWG_ILS_CAT_II_RWY_36.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_ils_cat_ii_rwy_36.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_ils_cat_ii_rwy_36.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1SaeaENtRvQptq6K-2KzvdI3mIMjAoBYa", "driveUrl": "https://drive.google.com/file/d/1SaeaENtRvQptq6K-2KzvdI3mIMjAoBYa/view?usp=drivesdk" },
         {
                 "id": "cywg_rnav_gnss_z_rwy_31.pdf",
                 "name": "CYWG_RNAV_GNSS_Z_RWY_31.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_rnav_gnss_z_rwy_31.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_rnav_gnss_z_rwy_31.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1iAEwjYxuKD7EbHdQt8v7beKkLgzZ_QRp", "driveUrl": "https://drive.google.com/file/d/1iAEwjYxuKD7EbHdQt8v7beKkLgzZ_QRp/view?usp=drivesdk" },
         {
                 "id": "cywg_pepno_5_arr_rnav_pg_02.pdf",
                 "name": "CYWG_PEPNO_5_ARR_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_pepno_5_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_pepno_5_arr_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "18Q-OoWIKWixOYTIKr-E9ZUyQBOsgDkhp", "driveUrl": "https://drive.google.com/file/d/18Q-OoWIKWixOYTIKr-E9ZUyQBOsgDkhp/view?usp=drivesdk" },
         {
                 "id": "cywg_norak_6_arr_rnav_pg_02.pdf",
                 "name": "CYWG_NORAK_6_ARR_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_norak_6_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_norak_6_arr_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1uj7n4PcgiXjpd4v1IdVVx5Ti4M6qzd2X", "driveUrl": "https://drive.google.com/file/d/1uj7n4PcgiXjpd4v1IdVVx5Ti4M6qzd2X/view?usp=drivesdk" },
         {
                 "id": "cywg_ils_rwy_31.pdf",
                 "name": "CYWG_ILS_RWY_31.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_ils_rwy_31.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_ils_rwy_31.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1jHMtff7JRqO7jJcT2RMFhMALTDxsq1HI", "driveUrl": "https://drive.google.com/file/d/1jHMtff7JRqO7jJcT2RMFhMALTDxsq1HI/view?usp=drivesdk" },
         {
                 "id": "cywg_rnav_rnp_y_rwy_13.pdf",
                 "name": "CYWG_RNAV_RNP_Y_RWY_13.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_rnav_rnp_y_rwy_13.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_rnav_rnp_y_rwy_13.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1SfXvrL5oxa9haVa28DvtIJfdbFwyLTfb", "driveUrl": "https://drive.google.com/file/d/1SfXvrL5oxa9haVa28DvtIJfdbFwyLTfb/view?usp=drivesdk" },
         {
                 "id": "cywg_rnav_rnp_y_rwy_18.pdf",
                 "name": "CYWG_RNAV_RNP_Y_RWY_18.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_rnav_rnp_y_rwy_18.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_rnav_rnp_y_rwy_18.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1pZCIwB-zhOMiMhDRZ3Jk_9WHub0hy_Tt", "driveUrl": "https://drive.google.com/file/d/1pZCIwB-zhOMiMhDRZ3Jk_9WHub0hy_Tt/view?usp=drivesdk" },
         {
                 "id": "cywg_norak_6_arr_rnav.pdf",
                 "name": "CYWG_NORAK_6_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_norak_6_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_norak_6_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "17DAPKgs9bexPVCyK2xPfHpKvBfxwSxKe", "driveUrl": "https://drive.google.com/file/d/17DAPKgs9bexPVCyK2xPfHpKvBfxwSxKe/view?usp=drivesdk" },
         {
                 "id": "cywg_ils_rwy_13.pdf",
                 "name": "CYWG_ILS_RWY_13.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_ils_rwy_13.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_ils_rwy_13.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1IynhbxMZ7zY5SChoBsGWO_lPEjy8OZb3", "driveUrl": "https://drive.google.com/file/d/1IynhbxMZ7zY5SChoBsGWO_lPEjy8OZb3/view?usp=drivesdk" },
         {
                 "id": "cywg_rnav_gnss_z_rwy_13.pdf",
                 "name": "CYWG_RNAV_GNSS_Z_RWY_13.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_rnav_gnss_z_rwy_13.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_rnav_gnss_z_rwy_13.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1BMzULf3dW12uPJOec-KDZ3rW6S6lZclP", "driveUrl": "https://drive.google.com/file/d/1BMzULf3dW12uPJOec-KDZ3rW6S6lZclP/view?usp=drivesdk" },
         {
                 "id": "cywg_ambil_5_arr_rnav.pdf",
                 "name": "CYWG_AMBIL_5_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_ambil_5_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_ambil_5_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1yU_ghKl4s6ny0I0qQWeVxbWB8o5zPYjb", "driveUrl": "https://drive.google.com/file/d/1yU_ghKl4s6ny0I0qQWeVxbWB8o5zPYjb/view?usp=drivesdk" },
         {
                 "id": "cywg_befan_5_arr_rnav.pdf",
                 "name": "CYWG_BEFAN_5_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_befan_5_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_befan_5_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1iXcFUGIx290s1UvrjmtivI8OZIk_XJ96", "driveUrl": "https://drive.google.com/file/d/1iXcFUGIx290s1UvrjmtivI8OZIk_XJ96/view?usp=drivesdk" },
         {
                 "id": "cywg_befan_5_arr_rnav_pg_02.pdf",
                 "name": "CYWG_BEFAN_5_ARR_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_befan_5_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_befan_5_arr_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1L9p_B9pX-aXSrzSy4uiOb0VtXdEMEFP_", "driveUrl": "https://drive.google.com/file/d/1L9p_B9pX-aXSrzSy4uiOb0VtXdEMEFP_/view?usp=drivesdk" },
         {
                 "id": "cywg_ambil_5_arr_rnav_pg_02.pdf",
                 "name": "CYWG_AMBIL_5_ARR_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_ambil_5_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_ambil_5_arr_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "18BPPMHXz9uc9mF2qfS7kcdGDvjG328zN", "driveUrl": "https://drive.google.com/file/d/18BPPMHXz9uc9mF2qfS7kcdGDvjG328zN/view?usp=drivesdk" },
         {
                 "id": "cywg_kelto_5_arr_rnav.pdf",
                 "name": "CYWG_KELTO_5_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cywg-winnipeg/cywg_kelto_5_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cywg-winnipeg/cywg_kelto_5_arr_rnav.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1OkS72MPMcR4neaHmUVNcfDOnWV2qbiqM", "driveUrl": "https://drive.google.com/file/d/1OkS72MPMcR4neaHmUVNcfDOnWV2qbiqM/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1449,7 +1449,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

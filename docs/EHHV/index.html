@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/netherlands/ehhv/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehhv/aerodrome_chart.pdf"
-        },
+, "driveId": "1BXIWRHpauwObRxgehq_WvmP1Gmp8W2Xb", "driveUrl": "https://drive.google.com/file/d/1BXIWRHpauwObRxgehq_WvmP1Gmp8W2Xb/view?usp=drivesdk" },
         {
                 "id": "vac_-_vfr_procedures_rwy_07-25_and_18-36.pdf",
                 "name": "VAC_-_VFR_PROCEDURES_RWY_07-25_AND_18-36.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/netherlands/ehhv/vac_-_vfr_procedures_rwy_07-25_and_18-36.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehhv/vac_-_vfr_procedures_rwy_07-25_and_18-36.pdf"
-        },
+, "driveId": "1N79MCtfhVMjOHYg3cwKdrrb4qV5cX53B", "driveUrl": "https://drive.google.com/file/d/1N79MCtfhVMjOHYg3cwKdrrb4qV5cX53B/view?usp=drivesdk" },
         {
                 "id": "ground_movement_chart_and_landingtake_off_procedures.pdf",
                 "name": "GROUND_MOVEMENT_CHART_(AND_LANDINGTAKE_OFF_PROCEDURES).pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/netherlands/ehhv/ground_movement_chart_and_landingtake_off_procedures.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehhv/ground_movement_chart_and_landingtake_off_procedures.pdf"
-        },
+, "driveId": "134EL3mP0E83L_K8QgOT6V9OncDaPdbbp", "driveUrl": "https://drive.google.com/file/d/134EL3mP0E83L_K8QgOT6V9OncDaPdbbp/view?usp=drivesdk" },
         {
                 "id": "vac_-_vfr_procedures_rwy_12-30.pdf",
                 "name": "VAC_-_VFR_PROCEDURES_RWY_12-30.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/netherlands/ehhv/vac_-_vfr_procedures_rwy_12-30.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehhv/vac_-_vfr_procedures_rwy_12-30.pdf"
-        }
+, "driveId": "1K8-kc5iPghdYS4QNr0tQ-tk9rWBb4pnt", "driveUrl": "https://drive.google.com/file/d/1K8-kc5iPghdYS4QNr0tQ-tk9rWBb4pnt/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1137,7 +1137,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

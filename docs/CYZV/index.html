@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cyzv-sept-iles/sept-iles_4_dep_vector_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyzv-sept-iles/sept-iles_4_dep_vector_pg_02.pdf"
-        },
+, "driveId": "1Yv5oYnJ5m1YIW-PkQKL3xIXFvm-ZtjXv", "driveUrl": "https://drive.google.com/file/d/1Yv5oYnJ5m1YIW-PkQKL3xIXFvm-ZtjXv/view?usp=drivesdk" },
         {
                 "id": "sept-iles_4_dep_vector.pdf",
                 "name": "SEPT-ILES_4_DEP_VECTOR.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cyzv-sept-iles/sept-iles_4_dep_vector.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyzv-sept-iles/sept-iles_4_dep_vector.pdf"
-        },
+, "driveId": "1UqaH-6zh4SCBG5kIOwSaevY0HDWesrST", "driveUrl": "https://drive.google.com/file/d/1UqaH-6zh4SCBG5kIOwSaevY0HDWesrST/view?usp=drivesdk" },
         {
                 "id": "parking_areas_procedures_pg_02.pdf",
                 "name": "PARKING_AREAS_PROCEDURES_PG_02.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cyzv-sept-iles/parking_areas_procedures_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyzv-sept-iles/parking_areas_procedures_pg_02.pdf"
-        },
+, "driveId": "1QSEwWB9BUqS5nDmdp4brBEfAgKwB52vy", "driveUrl": "https://drive.google.com/file/d/1QSEwWB9BUqS5nDmdp4brBEfAgKwB52vy/view?usp=drivesdk" },
         {
                 "id": "parking_areas_procedures.pdf",
                 "name": "PARKING_AREAS_PROCEDURES.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/canada/cyzv-sept-iles/parking_areas_procedures.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyzv-sept-iles/parking_areas_procedures.pdf"
-        },
+, "driveId": "1PbEOP3Qn4LbKMy15dQahb90pl_HmsGwr", "driveUrl": "https://drive.google.com/file/d/1PbEOP3Qn4LbKMy15dQahb90pl_HmsGwr/view?usp=drivesdk" },
         {
                 "id": "parking_areas.pdf",
                 "name": "PARKING_AREAS.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/canada/cyzv-sept-iles/parking_areas.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyzv-sept-iles/parking_areas.pdf"
-        },
+, "driveId": "1JhObvUxLCom4srm30f82fT5U4G45WPCR", "driveUrl": "https://drive.google.com/file/d/1JhObvUxLCom4srm30f82fT5U4G45WPCR/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
@@ -1105,7 +1105,7 @@
                 "localUrl": "../charts_data/canada/cyzv-sept-iles/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyzv-sept-iles/aerodrome_chart.pdf"
-        },
+, "driveId": "1kIf0odCFbjs37Mm3VK9AGg0_nZ7eKesy", "driveUrl": "https://drive.google.com/file/d/1kIf0odCFbjs37Mm3VK9AGg0_nZ7eKesy/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_31.pdf",
                 "name": "RNAV_GNSS_RWY_31.pdf",
@@ -1113,7 +1113,7 @@
                 "localUrl": "../charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_31.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_31.pdf"
-        },
+, "driveId": "1WPl0Znko-rTCqtSJRqm-8ZvabWuEsrg_", "driveUrl": "https://drive.google.com/file/d/1WPl0Znko-rTCqtSJRqm-8ZvabWuEsrg_/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_13.pdf",
                 "name": "RNAV_GNSS_RWY_13.pdf",
@@ -1121,7 +1121,7 @@
                 "localUrl": "../charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_13.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_13.pdf"
-        },
+, "driveId": "1aaiwmEOkU6N5fHB_mqk0Q1nxXntGfaIo", "driveUrl": "https://drive.google.com/file/d/1aaiwmEOkU6N5fHB_mqk0Q1nxXntGfaIo/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_27.pdf",
                 "name": "RNAV_GNSS_RWY_27.pdf",
@@ -1129,7 +1129,7 @@
                 "localUrl": "../charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_27.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_27.pdf"
-        },
+, "driveId": "1h8C7MhaJx9Hv2h2BmnPO1VLv9K6pugI_", "driveUrl": "https://drive.google.com/file/d/1h8C7MhaJx9Hv2h2BmnPO1VLv9K6pugI_/view?usp=drivesdk" },
         {
                 "id": "ils_rwy_09.pdf",
                 "name": "ILS_RWY_09.pdf",
@@ -1137,7 +1137,7 @@
                 "localUrl": "../charts_data/canada/cyzv-sept-iles/ils_rwy_09.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyzv-sept-iles/ils_rwy_09.pdf"
-        },
+, "driveId": "1GTy_rR5qip2TkNk559HWHK8LVwhYzMH-", "driveUrl": "https://drive.google.com/file/d/1GTy_rR5qip2TkNk559HWHK8LVwhYzMH-/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_09.pdf",
                 "name": "RNAV_GNSS_RWY_09.pdf",
@@ -1145,7 +1145,7 @@
                 "localUrl": "../charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_09.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_09.pdf"
-        }
+, "driveId": "1bR6M5Fca2xSa3L_4APnx5ymFRvX3EupO", "driveUrl": "https://drive.google.com/file/d/1bR6M5Fca2xSa3L_4APnx5ymFRvX3EupO/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1193,7 +1193,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

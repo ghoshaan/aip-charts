@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/.DS_Store",
                 "type": "doc",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/.DS_Store"
-        },
+, "driveId": "1G0aLpwGLnjO18USlwK3jt1KHliCbTz4g", "driveUrl": "https://drive.google.com/file/d/1G0aLpwGLnjO18USlwK3jt1KHliCbTz4g/view?usp=drivesdk" },
         {
                 "id": "cyqt_aerodrome_chart.pdf",
                 "name": "CYQT_AERODROME_CHART.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_aerodrome_chart.pdf"
-        },
+, "driveId": "1T1hdoFCRqrLR0D0xGDq_rOfafJZtiaDO", "driveUrl": "https://drive.google.com/file/d/1T1hdoFCRqrLR0D0xGDq_rOfafJZtiaDO/view?usp=drivesdk" },
         {
                 "id": "cyqt_thunder_bay_1_dep_vector.pdf",
                 "name": "CYQT_THUNDER_BAY_1_DEP_VECTOR.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_thunder_bay_1_dep_vector.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_thunder_bay_1_dep_vector.pdf"
-        },
+, "driveId": "19R8G67zk4u3QGpYpeAyw_FF1v45czdph", "driveUrl": "https://drive.google.com/file/d/19R8G67zk4u3QGpYpeAyw_FF1v45czdph/view?usp=drivesdk" },
         {
                 "id": "cyqt_noise_abatement_procedures.pdf",
                 "name": "CYQT_NOISE_ABATEMENT_PROCEDURES.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_noise_abatement_procedures.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_noise_abatement_procedures.pdf"
-        },
+, "driveId": "1TPHzhL-ZA8Zsi1s03gi80Q7XD_OgIecl", "driveUrl": "https://drive.google.com/file/d/1TPHzhL-ZA8Zsi1s03gi80Q7XD_OgIecl/view?usp=drivesdk" },
         {
                 "id": "cyqt_parking_areas_pg_02.pdf",
                 "name": "CYQT_PARKING_AREAS_PG_02.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_parking_areas_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_parking_areas_pg_02.pdf"
-        },
+, "driveId": "1cD55ZIvQQ4uzv6Bio-KgoXdJ2c81p3ng", "driveUrl": "https://drive.google.com/file/d/1cD55ZIvQQ4uzv6Bio-KgoXdJ2c81p3ng/view?usp=drivesdk" },
         {
                 "id": "cyqt_parking_areas.pdf",
                 "name": "CYQT_PARKING_AREAS.pdf",
@@ -1105,7 +1105,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_parking_areas.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_parking_areas.pdf"
-        },
+, "driveId": "1WXmJ8j6OEyL82-uFAJf-zLZKrCKZGfsD", "driveUrl": "https://drive.google.com/file/d/1WXmJ8j6OEyL82-uFAJf-zLZKrCKZGfsD/view?usp=drivesdk" },
         {
                 "id": "cyqt_nubom_3_dep_rnav.pdf",
                 "name": "CYQT_NUBOM_3_DEP_RNAV.pdf",
@@ -1113,7 +1113,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_nubom_3_dep_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_nubom_3_dep_rnav.pdf"
-        },
+, "driveId": "1NMhRAbcNzXxgPuCeiHDsJOq7MzXa6rTF", "driveUrl": "https://drive.google.com/file/d/1NMhRAbcNzXxgPuCeiHDsJOq7MzXa6rTF/view?usp=drivesdk" },
         {
                 "id": "cyqt_rnav_rnp_y_rwy_07.pdf",
                 "name": "CYQT_RNAV_RNP_Y_RWY_07.pdf",
@@ -1121,7 +1121,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_rnav_rnp_y_rwy_07.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_rnav_rnp_y_rwy_07.pdf"
-        },
+, "driveId": "1ljf0NJIBE_45_hFDWdWMdwoVuOCyDUB5", "driveUrl": "https://drive.google.com/file/d/1ljf0NJIBE_45_hFDWdWMdwoVuOCyDUB5/view?usp=drivesdk" },
         {
                 "id": "cyqt_nubom_3_dep_rnav_pg_02.pdf",
                 "name": "CYQT_NUBOM_3_DEP_RNAV_PG_02.pdf",
@@ -1129,7 +1129,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_nubom_3_dep_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_nubom_3_dep_rnav_pg_02.pdf"
-        },
+, "driveId": "1HNU71PmFY07W1Urz__vPexinm-2x3u3o", "driveUrl": "https://drive.google.com/file/d/1HNU71PmFY07W1Urz__vPexinm-2x3u3o/view?usp=drivesdk" },
         {
                 "id": "cyqt_lesis_4_dep_rnav_pg_02.pdf",
                 "name": "CYQT_LESIS_4_DEP_RNAV_PG_02.pdf",
@@ -1137,7 +1137,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_lesis_4_dep_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_lesis_4_dep_rnav_pg_02.pdf"
-        },
+, "driveId": "1MaCz5S6KNRgRf48mni5-gghE52mL0tBK", "driveUrl": "https://drive.google.com/file/d/1MaCz5S6KNRgRf48mni5-gghE52mL0tBK/view?usp=drivesdk" },
         {
                 "id": "cyqt_thunder_bay_1_dep_vector_pg_02.pdf",
                 "name": "CYQT_THUNDER_BAY_1_DEP_VECTOR_PG_02.pdf",
@@ -1145,7 +1145,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_thunder_bay_1_dep_vector_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_thunder_bay_1_dep_vector_pg_02.pdf"
-        },
+, "driveId": "1MyWGZ6lPw7_S1XJXdxeDmPN4DL4Mjn1p", "driveUrl": "https://drive.google.com/file/d/1MyWGZ6lPw7_S1XJXdxeDmPN4DL4Mjn1p/view?usp=drivesdk" },
         {
                 "id": "cyqt_takeoff_minimums.pdf",
                 "name": "CYQT_TAKEOFF_MINIMUMS.pdf",
@@ -1153,7 +1153,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_takeoff_minimums.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_takeoff_minimums.pdf"
-        },
+, "driveId": "11PnbCP0hPTqP5iwIMgwy-aOI1YQADLJd", "driveUrl": "https://drive.google.com/file/d/11PnbCP0hPTqP5iwIMgwy-aOI1YQADLJd/view?usp=drivesdk" },
         {
                 "id": "cyqt_lesis_4_dep_rnav.pdf",
                 "name": "CYQT_LESIS_4_DEP_RNAV.pdf",
@@ -1161,7 +1161,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_lesis_4_dep_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_lesis_4_dep_rnav.pdf"
-        },
+, "driveId": "1JS8WAnnpj_jeQ4vs_UnYx9GITwEfW3Zb", "driveUrl": "https://drive.google.com/file/d/1JS8WAnnpj_jeQ4vs_UnYx9GITwEfW3Zb/view?usp=drivesdk" },
         {
                 "id": "cyqt_rnav_gnss_z_rwy_07.pdf",
                 "name": "CYQT_RNAV_GNSS_Z_RWY_07.pdf",
@@ -1169,7 +1169,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_rnav_gnss_z_rwy_07.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_rnav_gnss_z_rwy_07.pdf"
-        },
+, "driveId": "1ZFB--QHGmDUuSgWItYgrkh5vihudJDpH", "driveUrl": "https://drive.google.com/file/d/1ZFB--QHGmDUuSgWItYgrkh5vihudJDpH/view?usp=drivesdk" },
         {
                 "id": "cyqt_rnav_gnss_z_rwy_12.pdf",
                 "name": "CYQT_RNAV_GNSS_Z_RWY_12.pdf",
@@ -1177,7 +1177,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_rnav_gnss_z_rwy_12.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_rnav_gnss_z_rwy_12.pdf"
-        },
+, "driveId": "1pqoqDJIvctfVl6pwFop8ltbPr1ZIYqRS", "driveUrl": "https://drive.google.com/file/d/1pqoqDJIvctfVl6pwFop8ltbPr1ZIYqRS/view?usp=drivesdk" },
         {
                 "id": "cyqt_rnav_gnss_x_rwy_12.pdf",
                 "name": "CYQT_RNAV_GNSS_X_RWY_12.pdf",
@@ -1185,7 +1185,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_rnav_gnss_x_rwy_12.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_rnav_gnss_x_rwy_12.pdf"
-        },
+, "driveId": "1gH7MUxlkIvcJCoPzYII3dhhYXKLA5lPs", "driveUrl": "https://drive.google.com/file/d/1gH7MUxlkIvcJCoPzYII3dhhYXKLA5lPs/view?usp=drivesdk" },
         {
                 "id": "cyqt_rnav_gnss_z_rwy_25.pdf",
                 "name": "CYQT_RNAV_GNSS_Z_RWY_25.pdf",
@@ -1193,7 +1193,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_rnav_gnss_z_rwy_25.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_rnav_gnss_z_rwy_25.pdf"
-        },
+, "driveId": "1PUXxTbul_I7QxDRLpuCKS1Q09lNmx4ik", "driveUrl": "https://drive.google.com/file/d/1PUXxTbul_I7QxDRLpuCKS1Q09lNmx4ik/view?usp=drivesdk" },
         {
                 "id": "cyqt_rnav_rnp_y_rwy_25.pdf",
                 "name": "CYQT_RNAV_RNP_Y_RWY_25.pdf",
@@ -1201,7 +1201,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_rnav_rnp_y_rwy_25.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_rnav_rnp_y_rwy_25.pdf"
-        },
+, "driveId": "1EOII9H6YC4GUh9RY7EMnGueX_WVTi3BL", "driveUrl": "https://drive.google.com/file/d/1EOII9H6YC4GUh9RY7EMnGueX_WVTi3BL/view?usp=drivesdk" },
         {
                 "id": "cyqt_libuk_3_arr_rnav.pdf",
                 "name": "CYQT_LIBUK_3_ARR_RNAV.pdf",
@@ -1209,7 +1209,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_libuk_3_arr_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_libuk_3_arr_rnav.pdf"
-        },
+, "driveId": "1mqU9jnc5nUBQXqz8ql0X-Tk4N3Q_16Gh", "driveUrl": "https://drive.google.com/file/d/1mqU9jnc5nUBQXqz8ql0X-Tk4N3Q_16Gh/view?usp=drivesdk" },
         {
                 "id": "cyqt_tigag_3_arr_rnav.pdf",
                 "name": "CYQT_TIGAG_3_ARR_RNAV.pdf",
@@ -1217,7 +1217,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_tigag_3_arr_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_tigag_3_arr_rnav.pdf"
-        },
+, "driveId": "1Zydph5KUznA_eF9xQYI1dj5po9bm0pxN", "driveUrl": "https://drive.google.com/file/d/1Zydph5KUznA_eF9xQYI1dj5po9bm0pxN/view?usp=drivesdk" },
         {
                 "id": "cyqt_ils_rwy_07.pdf",
                 "name": "CYQT_ILS_RWY_07.pdf",
@@ -1225,7 +1225,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_ils_rwy_07.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_ils_rwy_07.pdf"
-        },
+, "driveId": "1xMoo0WfnYexoDbJR_WOb4apeBgWbDeLe", "driveUrl": "https://drive.google.com/file/d/1xMoo0WfnYexoDbJR_WOb4apeBgWbDeLe/view?usp=drivesdk" },
         {
                 "id": "cyqt_noter_4_arr_rnav.pdf",
                 "name": "CYQT_NOTER_4_ARR_RNAV.pdf",
@@ -1233,7 +1233,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_noter_4_arr_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_noter_4_arr_rnav.pdf"
-        },
+, "driveId": "13mCCfbwjSUVapatVFXJg2N6X6T2deHMX", "driveUrl": "https://drive.google.com/file/d/13mCCfbwjSUVapatVFXJg2N6X6T2deHMX/view?usp=drivesdk" },
         {
                 "id": "cyqt_noter_4_arr_rnav_pg_02.pdf",
                 "name": "CYQT_NOTER_4_ARR_RNAV_PG_02.pdf",
@@ -1241,7 +1241,7 @@
                 "localUrl": "../charts_data/canada/cyqt-thunder-bay/cyqt_noter_4_arr_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyqt-thunder-bay/cyqt_noter_4_arr_rnav_pg_02.pdf"
-        }
+, "driveId": "11taPFzFCIGP2cda_QeFChYZt28OJKk3b", "driveUrl": "https://drive.google.com/file/d/11taPFzFCIGP2cda_QeFChYZt28OJKk3b/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1289,7 +1289,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

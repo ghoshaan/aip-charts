@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cyeu/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyeu/aerodrome_chart.pdf"
-        },
+, "driveId": "1ZtjAPwpffSLlAIH0oEDXSxF4BfE0Q58R", "driveUrl": "https://drive.google.com/file/d/1ZtjAPwpffSLlAIH0oEDXSxF4BfE0Q58R/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_z_rwy_10_true.pdf",
                 "name": "RNAV_GNSS_Z_RWY_10_TRUE.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cyeu/rnav_gnss_z_rwy_10_true.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyeu/rnav_gnss_z_rwy_10_true.pdf"
-        },
+, "driveId": "1B2IY1mTD1BEUjVFXyUA_esQnoZT53Uxp", "driveUrl": "https://drive.google.com/file/d/1B2IY1mTD1BEUjVFXyUA_esQnoZT53Uxp/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_z_rwy_28_true.pdf",
                 "name": "RNAV_GNSS_Z_RWY_28_TRUE.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cyeu/rnav_gnss_z_rwy_28_true.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyeu/rnav_gnss_z_rwy_28_true.pdf"
-        },
+, "driveId": "1uEZvEp5ATFf3K9rStpq4g5NdWF9-eNZC", "driveUrl": "https://drive.google.com/file/d/1uEZvEp5ATFf3K9rStpq4g5NdWF9-eNZC/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_y_rwy_28_true_dnd.pdf",
                 "name": "RNAV_GNSS_Y_RWY_28_TRUE_DND.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/canada/cyeu/rnav_gnss_y_rwy_28_true_dnd.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyeu/rnav_gnss_y_rwy_28_true_dnd.pdf"
-        },
+, "driveId": "1o38cQV8kSo5JXbeaTNHw5vDgDFYReBTp", "driveUrl": "https://drive.google.com/file/d/1o38cQV8kSo5JXbeaTNHw5vDgDFYReBTp/view?usp=drivesdk" },
         {
                 "id": "ndb_a_true.pdf",
                 "name": "NDB_A_TRUE.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/canada/cyeu/ndb_a_true.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyeu/ndb_a_true.pdf"
-        },
+, "driveId": "1AjIxLq_U6fImQ756_JOyXG-2sNTBmL5N", "driveUrl": "https://drive.google.com/file/d/1AjIxLq_U6fImQ756_JOyXG-2sNTBmL5N/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_y_rwy_10_true.pdf",
                 "name": "RNAV_GNSS_Y_RWY_10_TRUE.pdf",
@@ -1105,7 +1105,7 @@
                 "localUrl": "../charts_data/canada/cyeu/rnav_gnss_y_rwy_10_true.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyeu/rnav_gnss_y_rwy_10_true.pdf"
-        }
+, "driveId": "1zTHYT_tXvUGQ23Ch9RLda6tIjeyR7PRx", "driveUrl": "https://drive.google.com/file/d/1zTHYT_tXvUGQ23Ch9RLda6tIjeyR7PRx/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1153,7 +1153,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

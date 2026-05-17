@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,259 +1065,259 @@
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/.DS_Store",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/.DS_Store",
                 "type": "doc"
-        },
+, "driveId": "1kw60N3UdjjdAzJeJiWZ8ePnosy4xfy7z", "driveUrl": "https://drive.google.com/file/d/1kw60N3UdjjdAzJeJiWZ8ePnosy4xfy7z/view?usp=drivesdk" },
         {
                 "id": "cyqb_nordik_4_dep_vector.pdf",
                 "name": "CYQB_NORDIK_4_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_nordik_4_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_nordik_4_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1xmZ8GbMa1G52OEiE2G_yV0FRrv65VUAL", "driveUrl": "https://drive.google.com/file/d/1xmZ8GbMa1G52OEiE2G_yV0FRrv65VUAL/view?usp=drivesdk" },
         {
                 "id": "cyqb_quebec_6_dep_vector.pdf",
                 "name": "CYQB_QUEBEC_6_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_quebec_6_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_quebec_6_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1dRfmXnlWoBrIXDs8qn8pBcn8yaPtWPX4", "driveUrl": "https://drive.google.com/file/d/1dRfmXnlWoBrIXDs8qn8pBcn8yaPtWPX4/view?usp=drivesdk" },
         {
                 "id": "cyqb_goxev_2_dep_rnav_pg_02.pdf",
                 "name": "CYQB_GOXEV_2_DEP_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_goxev_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_goxev_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1wFSsfhnVNVcqPssr_k4KM8JNM7J2A2QS", "driveUrl": "https://drive.google.com/file/d/1wFSsfhnVNVcqPssr_k4KM8JNM7J2A2QS/view?usp=drivesdk" },
         {
                 "id": "cyqb_sebip_2_dep_rnav.pdf",
                 "name": "CYQB_SEBIP_2_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_sebip_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_sebip_2_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1dW_Oo0mANBdzljepWXAoZH6Y7PRiv9tP", "driveUrl": "https://drive.google.com/file/d/1dW_Oo0mANBdzljepWXAoZH6Y7PRiv9tP/view?usp=drivesdk" },
         {
                 "id": "cyqb_tilac_2_dep_rnav.pdf",
                 "name": "CYQB_TILAC_2_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_tilac_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_tilac_2_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "10J_zYeQbfFNvuHh3SgT99nYaYu_rkRxP", "driveUrl": "https://drive.google.com/file/d/10J_zYeQbfFNvuHh3SgT99nYaYu_rkRxP/view?usp=drivesdk" },
         {
                 "id": "cyqb_sebip_2_dep_rnav_pg_02.pdf",
                 "name": "CYQB_SEBIP_2_DEP_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_sebip_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_sebip_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1xsmnMjoiiHiHavQgwh-JqE0eRwjSAano", "driveUrl": "https://drive.google.com/file/d/1xsmnMjoiiHiHavQgwh-JqE0eRwjSAano/view?usp=drivesdk" },
         {
                 "id": "cyqb_nordik_4_dep_vector_pg_02.pdf",
                 "name": "CYQB_NORDIK_4_DEP_VECTOR_PG_02.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_nordik_4_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_nordik_4_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1GWRt46ilXta1TrQKdxTCrGkZqqzmWFxk", "driveUrl": "https://drive.google.com/file/d/1GWRt46ilXta1TrQKdxTCrGkZqqzmWFxk/view?usp=drivesdk" },
         {
                 "id": "cyqb_tilac_2_dep_rnav_pg_02.pdf",
                 "name": "CYQB_TILAC_2_DEP_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_tilac_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_tilac_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Sv9gufgBGhaKdyYy4GeNwRDdHa3WTwYQ", "driveUrl": "https://drive.google.com/file/d/1Sv9gufgBGhaKdyYy4GeNwRDdHa3WTwYQ/view?usp=drivesdk" },
         {
                 "id": "cyqb_quebec_6_dep_vector_pg_02.pdf",
                 "name": "CYQB_QUEBEC_6_DEP_VECTOR_PG_02.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_quebec_6_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_quebec_6_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1sramSsoLra9BvhpWXDfgjVGjmuzz9V4P", "driveUrl": "https://drive.google.com/file/d/1sramSsoLra9BvhpWXDfgjVGjmuzz9V4P/view?usp=drivesdk" },
         {
                 "id": "cyqb_rnav_gnss_z_rwy_24.pdf",
                 "name": "CYQB_RNAV_GNSS_Z_RWY_24.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_24.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_24.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Bdb9M35fQZ4rTMDTToryh3U1ckRozRh1", "driveUrl": "https://drive.google.com/file/d/1Bdb9M35fQZ4rTMDTToryh3U1ckRozRh1/view?usp=drivesdk" },
         {
                 "id": "cyqb_ils_rwy_06.pdf",
                 "name": "CYQB_ILS_RWY_06.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_ils_rwy_06.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_ils_rwy_06.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1hfSi34Y5yyi7AmJ-6Uqhni7IkHe-zEmD", "driveUrl": "https://drive.google.com/file/d/1hfSi34Y5yyi7AmJ-6Uqhni7IkHe-zEmD/view?usp=drivesdk" },
         {
                 "id": "cyqb_rnav_rnp_y_rwy_29.pdf",
                 "name": "CYQB_RNAV_RNP_Y_RWY_29.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_29.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_29.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1-3i5cGLonGufI13cdi4m7NOLGVLBKPVF", "driveUrl": "https://drive.google.com/file/d/1-3i5cGLonGufI13cdi4m7NOLGVLBKPVF/view?usp=drivesdk" },
         {
                 "id": "cyqb_rnav_gnss_z_rwy_29.pdf",
                 "name": "CYQB_RNAV_GNSS_Z_RWY_29.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_29.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_29.pdf",
                 "type": "pdf"
-        },
+, "driveId": "10qfZswBS9JQLkBxdXxrgifxTUbY0OxlX", "driveUrl": "https://drive.google.com/file/d/10qfZswBS9JQLkBxdXxrgifxTUbY0OxlX/view?usp=drivesdk" },
         {
                 "id": "cyqb_rnav_gnss_z_rwy_11.pdf",
                 "name": "CYQB_RNAV_GNSS_Z_RWY_11.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_11.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_11.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1MZCaIqB7dT6huUcPYVIaXn3Pc_hR-qnJ", "driveUrl": "https://drive.google.com/file/d/1MZCaIqB7dT6huUcPYVIaXn3Pc_hR-qnJ/view?usp=drivesdk" },
         {
                 "id": "cyqb_takeoff_minimums.pdf",
                 "name": "CYQB_TAKEOFF_MINIMUMS.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_takeoff_minimums.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_takeoff_minimums.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1_KgK9t1kC-dQeY0JDmL-I0hN1apZe62f", "driveUrl": "https://drive.google.com/file/d/1_KgK9t1kC-dQeY0JDmL-I0hN1apZe62f/view?usp=drivesdk" },
         {
                 "id": "cyqb_reduced_visibility_procedures.pdf",
                 "name": "CYQB_REDUCED_VISIBILITY_PROCEDURES.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_reduced_visibility_procedures.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_reduced_visibility_procedures.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1PCwB8e3wdDpD4dp-FDV6y7Ul8qGZvQum", "driveUrl": "https://drive.google.com/file/d/1PCwB8e3wdDpD4dp-FDV6y7Ul8qGZvQum/view?usp=drivesdk" },
         {
                 "id": "cyqb_aerodrome_chart.pdf",
                 "name": "CYQB_AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1lnD_wwVG0ZYEAkhgSV0_CFDZo-65xgSg", "driveUrl": "https://drive.google.com/file/d/1lnD_wwVG0ZYEAkhgSV0_CFDZo-65xgSg/view?usp=drivesdk" },
         {
                 "id": "cyqb_rnav_rnp_y_rwy_11.pdf",
                 "name": "CYQB_RNAV_RNP_Y_RWY_11.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_11.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_11.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Umt9ldIfixHHlCan6AkkkLM_NlrI-Bd4", "driveUrl": "https://drive.google.com/file/d/1Umt9ldIfixHHlCan6AkkkLM_NlrI-Bd4/view?usp=drivesdk" },
         {
                 "id": "cyqb_rnav_rnp_y_rwy_24.pdf",
                 "name": "CYQB_RNAV_RNP_Y_RWY_24.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_24.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_24.pdf",
                 "type": "pdf"
-        },
+, "driveId": "13tdQIeHfCub37XtFJAVAWMegoBsHZNTK", "driveUrl": "https://drive.google.com/file/d/13tdQIeHfCub37XtFJAVAWMegoBsHZNTK/view?usp=drivesdk" },
         {
                 "id": "cyqb_noise_abatement_procedures.pdf",
                 "name": "CYQB_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_noise_abatement_procedures.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_noise_abatement_procedures.pdf",
                 "type": "pdf"
-        },
+, "driveId": "16sWpz5OW8z54cDMFwahNDilCSAWXOSCl", "driveUrl": "https://drive.google.com/file/d/16sWpz5OW8z54cDMFwahNDilCSAWXOSCl/view?usp=drivesdk" },
         {
                 "id": "cyqb_simto_4_arr_rnav_pg_02.pdf",
                 "name": "CYQB_SIMTO_4_ARR_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_simto_4_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_simto_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1pRrKVrjtu2h-r4--XYmVtjn1zF4bdCIR", "driveUrl": "https://drive.google.com/file/d/1pRrKVrjtu2h-r4--XYmVtjn1zF4bdCIR/view?usp=drivesdk" },
         {
                 "id": "cyqb_parking_areas.pdf",
                 "name": "CYQB_PARKING_AREAS.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_parking_areas.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_parking_areas.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1n36xtUpodV6sdRYSYdgKTddMIy1Kaabe", "driveUrl": "https://drive.google.com/file/d/1n36xtUpodV6sdRYSYdgKTddMIy1Kaabe/view?usp=drivesdk" },
         {
                 "id": "cyqb_pesac_4_arr_rnav_pg_03.pdf",
                 "name": "CYQB_PESAC_4_ARR_RNAV_PG_03.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_pesac_4_arr_rnav_pg_03.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_pesac_4_arr_rnav_pg_03.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1U7ktoPB-9YE6rvtaVubPmFsI17pRQ5-8", "driveUrl": "https://drive.google.com/file/d/1U7ktoPB-9YE6rvtaVubPmFsI17pRQ5-8/view?usp=drivesdk" },
         {
                 "id": "cyqb_rnav_gnss_z_rwy_06.pdf",
                 "name": "CYQB_RNAV_GNSS_Z_RWY_06.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_06.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_gnss_z_rwy_06.pdf",
                 "type": "pdf"
-        },
+, "driveId": "12dcVQ8USE-x9keBK56dYb9tscOhv9SaY", "driveUrl": "https://drive.google.com/file/d/12dcVQ8USE-x9keBK56dYb9tscOhv9SaY/view?usp=drivesdk" },
         {
                 "id": "cyqb_goxev_2_dep_rnav.pdf",
                 "name": "CYQB_GOXEV_2_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_goxev_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_goxev_2_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1jpNRHjlGbuTj1aoF7nFUDy7tW7Yctv7G", "driveUrl": "https://drive.google.com/file/d/1jpNRHjlGbuTj1aoF7nFUDy7tW7Yctv7G/view?usp=drivesdk" },
         {
                 "id": "cyqb_rnav_rnp_y_rwy_06.pdf",
                 "name": "CYQB_RNAV_RNP_Y_RWY_06.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_06.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_rnav_rnp_y_rwy_06.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1JImJVpc-pz4my49A845pwa57pr99VVtY", "driveUrl": "https://drive.google.com/file/d/1JImJVpc-pz4my49A845pwa57pr99VVtY/view?usp=drivesdk" },
         {
                 "id": "cyqb_omvar_1_arr_rnav_pg_02.pdf",
                 "name": "CYQB_OMVAR_1_ARR_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_omvar_1_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_omvar_1_arr_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1JbhCzyiwBLaiN06AdHOYV-isPMFMf-Qs", "driveUrl": "https://drive.google.com/file/d/1JbhCzyiwBLaiN06AdHOYV-isPMFMf-Qs/view?usp=drivesdk" },
         {
                 "id": "cyqb_omvar_1_arr_rnav_pg_03.pdf",
                 "name": "CYQB_OMVAR_1_ARR_RNAV_PG_03.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_omvar_1_arr_rnav_pg_03.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_omvar_1_arr_rnav_pg_03.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1voDPclrc4thaE-anwuwTwdl0up-9b-7I", "driveUrl": "https://drive.google.com/file/d/1voDPclrc4thaE-anwuwTwdl0up-9b-7I/view?usp=drivesdk" },
         {
                 "id": "cyqb_omvar_1_arr_rnav.pdf",
                 "name": "CYQB_OMVAR_1_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_omvar_1_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_omvar_1_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "116rnNbB01l7QfUvX3JLq1RxRi06qVoft", "driveUrl": "https://drive.google.com/file/d/116rnNbB01l7QfUvX3JLq1RxRi06qVoft/view?usp=drivesdk" },
         {
                 "id": "cyqb_simto_4_arr_rnav.pdf",
                 "name": "CYQB_SIMTO_4_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_simto_4_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_simto_4_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1MllHkxrud8TIBDAxFct7F7RbhrqjAEX2", "driveUrl": "https://drive.google.com/file/d/1MllHkxrud8TIBDAxFct7F7RbhrqjAEX2/view?usp=drivesdk" },
         {
                 "id": "cyqb_olavo_4_arr_rnav.pdf",
                 "name": "CYQB_OLAVO_4_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_olavo_4_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_olavo_4_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1DVaIgYDR-_AcriRd9Kay_OQpVe3cIraA", "driveUrl": "https://drive.google.com/file/d/1DVaIgYDR-_AcriRd9Kay_OQpVe3cIraA/view?usp=drivesdk" },
         {
                 "id": "cyqb_karot_6_arr_rnav_pg_02.pdf",
                 "name": "CYQB_KAROT_6_ARR_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_karot_6_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_karot_6_arr_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1gGEgbMQ_JCKIj_wKAIOuR-0xpabME_gi", "driveUrl": "https://drive.google.com/file/d/1gGEgbMQ_JCKIj_wKAIOuR-0xpabME_gi/view?usp=drivesdk" },
         {
                 "id": "cyqb_olavo_4_arr_rnav_pg_02.pdf",
                 "name": "CYQB_OLAVO_4_ARR_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_olavo_4_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_olavo_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1H4-BejnK6-ELyuXX6tNhNJ-uDzCXF0Ds", "driveUrl": "https://drive.google.com/file/d/1H4-BejnK6-ELyuXX6tNhNJ-uDzCXF0Ds/view?usp=drivesdk" },
         {
                 "id": "cyqb_pesac_4_arr_rnav.pdf",
                 "name": "CYQB_PESAC_4_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_pesac_4_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_pesac_4_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "199lNDLNsdB1tftm3zMSD337psQyxbF9s", "driveUrl": "https://drive.google.com/file/d/199lNDLNsdB1tftm3zMSD337psQyxbF9s/view?usp=drivesdk" },
         {
                 "id": "cyqb_karot_6_arr_rnav.pdf",
                 "name": "CYQB_KAROT_6_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_karot_6_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_karot_6_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Yh6wTs-2n5bVavv1YdnIqT1zWqVcwvMa", "driveUrl": "https://drive.google.com/file/d/1Yh6wTs-2n5bVavv1YdnIqT1zWqVcwvMa/view?usp=drivesdk" },
         {
                 "id": "cyqb_pesac_4_arr_rnav_pg_02.pdf",
                 "name": "CYQB_PESAC_4_ARR_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_pesac_4_arr_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqb-quebec-jean-lesage/cyqb_pesac_4_arr_rnav_pg_02.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1mfeJL6DPftGdvBwOxet4yk6lnCIw6zA3", "driveUrl": "https://drive.google.com/file/d/1mfeJL6DPftGdvBwOxet4yk6lnCIw6zA3/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1365,7 +1365,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

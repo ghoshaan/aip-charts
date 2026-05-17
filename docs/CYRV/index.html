@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cyrv/restricted_aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyrv/restricted_aerodrome_chart.pdf"
-        },
+, "driveId": "119CK9AJGtXTbd4yTKWkcE7UCsk95UoZA", "driveUrl": "https://drive.google.com/file/d/119CK9AJGtXTbd4yTKWkcE7UCsk95UoZA/view?usp=drivesdk" },
         {
                 "id": "restricted_rnav_gnss_a_pg_02.pdf",
                 "name": "RESTRICTED_RNAV_GNSS_A_PG_02.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cyrv/restricted_rnav_gnss_a_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyrv/restricted_rnav_gnss_a_pg_02.pdf"
-        },
+, "driveId": "1NFqsOgNkVT2mXVDyEfOVsj-HLAB-txLI", "driveUrl": "https://drive.google.com/file/d/1NFqsOgNkVT2mXVDyEfOVsj-HLAB-txLI/view?usp=drivesdk" },
         {
                 "id": "restricted_rnav_gnss_a.pdf",
                 "name": "RESTRICTED_RNAV_GNSS_A.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cyrv/restricted_rnav_gnss_a.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyrv/restricted_rnav_gnss_a.pdf"
-        }
+, "driveId": "1xPXmJrmPeLb8R6nJGFcM3xrRnhEURDf0", "driveUrl": "https://drive.google.com/file/d/1xPXmJrmPeLb8R6nJGFcM3xrRnhEURDf0/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1129,7 +1129,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

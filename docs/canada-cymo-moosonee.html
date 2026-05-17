@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,42 +1065,42 @@
                 "url": "charts_data/canada/cymo-moosonee/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cymo-moosonee/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1CtUn0-z80s40_srrvXkXjh8VRRq0OWLe", "driveUrl": "https://drive.google.com/file/d/1CtUn0-z80s40_srrvXkXjh8VRRq0OWLe/view?usp=drivesdk" },
         {
                 "id": "vor_rwy_32.pdf",
                 "name": "VOR_RWY_32.pdf",
                 "url": "charts_data/canada/cymo-moosonee/vor_rwy_32.pdf",
                 "localUrl": "charts_data/canada/cymo-moosonee/vor_rwy_32.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1h8mm0FYJo8-bmHeRrTsStIOZHbTN3mxZ", "driveUrl": "https://drive.google.com/file/d/1h8mm0FYJo8-bmHeRrTsStIOZHbTN3mxZ/view?usp=drivesdk" },
         {
                 "id": "vor_rwy_24.pdf",
                 "name": "VOR_RWY_24.pdf",
                 "url": "charts_data/canada/cymo-moosonee/vor_rwy_24.pdf",
                 "localUrl": "charts_data/canada/cymo-moosonee/vor_rwy_24.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1bCyBgMU_f0VxFwRB9oLiBeTWuDKt_wbT", "driveUrl": "https://drive.google.com/file/d/1bCyBgMU_f0VxFwRB9oLiBeTWuDKt_wbT/view?usp=drivesdk" },
         {
                 "id": "vor_rwy_06.pdf",
                 "name": "VOR_RWY_06.pdf",
                 "url": "charts_data/canada/cymo-moosonee/vor_rwy_06.pdf",
                 "localUrl": "charts_data/canada/cymo-moosonee/vor_rwy_06.pdf",
                 "type": "pdf"
-        },
+, "driveId": "12-IEj9C9XLhJskW9wxmAFivsTU0qfJTA", "driveUrl": "https://drive.google.com/file/d/12-IEj9C9XLhJskW9wxmAFivsTU0qfJTA/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_24.pdf",
                 "name": "RNAV_GNSS_RWY_24.pdf",
                 "url": "charts_data/canada/cymo-moosonee/rnav_gnss_rwy_24.pdf",
                 "localUrl": "charts_data/canada/cymo-moosonee/rnav_gnss_rwy_24.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1dQupCsoz8qgjCInB3dCL_v9PR8ZHug5E", "driveUrl": "https://drive.google.com/file/d/1dQupCsoz8qgjCInB3dCL_v9PR8ZHug5E/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_06.pdf",
                 "name": "RNAV_GNSS_RWY_06.pdf",
                 "url": "charts_data/canada/cymo-moosonee/rnav_gnss_rwy_06.pdf",
                 "localUrl": "charts_data/canada/cymo-moosonee/rnav_gnss_rwy_06.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1Rn8hTn_C0ddzSBC0MW_0W5uSYg5LaTS5", "driveUrl": "https://drive.google.com/file/d/1Rn8hTn_C0ddzSBC0MW_0W5uSYg5LaTS5/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1148,7 +1148,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

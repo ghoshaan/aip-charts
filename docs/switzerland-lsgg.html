@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,175 +1065,175 @@
                 "url": "charts_data/switzerland/lsgg/aircraft_parkingdocking_chart_-_area_south_east.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/aircraft_parkingdocking_chart_-_area_south_east.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1hEF3vCKgp9Jp74x_3u_lVLuoo3e5kJRh", "driveUrl": "https://drive.google.com/file/d/1hEF3vCKgp9Jp74x_3u_lVLuoo3e5kJRh/view?usp=drivesdk" },
         {
                 "id": "aircraft_parkingdocking_chart_-_area_north.pdf",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_-_AREA_NORTH.pdf",
                 "url": "charts_data/switzerland/lsgg/aircraft_parkingdocking_chart_-_area_north.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/aircraft_parkingdocking_chart_-_area_north.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ZSbQDYLiskrn7XgZS5LwkOkNOQGoG8Sr", "driveUrl": "https://drive.google.com/file/d/1ZSbQDYLiskrn7XgZS5LwkOkNOQGoG8Sr/view?usp=drivesdk" },
         {
                 "id": "aircraft_parkingdocking_chart_-_area_south.pdf",
                 "name": "AIRCRAFT_PARKINGDOCKING_CHART_-_AREA_SOUTH.pdf",
                 "url": "charts_data/switzerland/lsgg/aircraft_parkingdocking_chart_-_area_south.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/aircraft_parkingdocking_chart_-_area_south.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Oqxpin2KxtxIXhU3bA4J52YNI4x5WV5i", "driveUrl": "https://drive.google.com/file/d/1Oqxpin2KxtxIXhU3bA4J52YNI4x5WV5i/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
                 "url": "charts_data/switzerland/lsgg/aerodrome_chart.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1xw_7d35X9dAozlYJbv9lbtZO0L_V_0UB", "driveUrl": "https://drive.google.com/file/d/1xw_7d35X9dAozlYJbv9lbtZO0L_V_0UB/view?usp=drivesdk" },
         {
                 "id": "iac_icao_rnp_rwy_22.pdf",
                 "name": "IAC_ICAO_RNP_RWY_22.pdf",
                 "url": "charts_data/switzerland/lsgg/iac_icao_rnp_rwy_22.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/iac_icao_rnp_rwy_22.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ttB35MCGhshXTOZQoePXdIMMq86DNFKg", "driveUrl": "https://drive.google.com/file/d/1ttB35MCGhshXTOZQoePXdIMMq86DNFKg/view?usp=drivesdk" },
         {
                 "id": "iac_icao_ils_rwy_22_cat_ii__cat_iii.pdf",
                 "name": "IAC_ICAO_ILS_RWY_22_CAT_II_&_CAT_III.pdf",
                 "url": "charts_data/switzerland/lsgg/iac_icao_ils_rwy_22_cat_ii__cat_iii.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/iac_icao_ils_rwy_22_cat_ii__cat_iii.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1IPSmWn6R24MesGNp7SvZS62niD9sDOXI", "driveUrl": "https://drive.google.com/file/d/1IPSmWn6R24MesGNp7SvZS62niD9sDOXI/view?usp=drivesdk" },
         {
                 "id": "iac_icao_rnp_rwy_04.pdf",
                 "name": "IAC_ICAO_RNP_RWY_04.pdf",
                 "url": "charts_data/switzerland/lsgg/iac_icao_rnp_rwy_04.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/iac_icao_rnp_rwy_04.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1bzLnw_vPmO6MXb3rwNwBQ5Us9CBxUX81", "driveUrl": "https://drive.google.com/file/d/1bzLnw_vPmO6MXb3rwNwBQ5Us9CBxUX81/view?usp=drivesdk" },
         {
                 "id": "iac_icao_ils_rwy_04.pdf",
                 "name": "IAC_ICAO_ILS_RWY_04.pdf",
                 "url": "charts_data/switzerland/lsgg/iac_icao_ils_rwy_04.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/iac_icao_ils_rwy_04.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1LtF4cUagVcK6CocuNW8cwKKqiAqaIy5_", "driveUrl": "https://drive.google.com/file/d/1LtF4cUagVcK6CocuNW8cwKKqiAqaIy5_/view?usp=drivesdk" },
         {
                 "id": "star_icao_rnav_rwy_22_-_benot_2r_benot_2t_fribu_1r_ulmes_2r.pdf",
                 "name": "STAR_ICAO_RNAV_RWY_22_-_BENOT_2R_BENOT_2T_FRIBU_1R_ULMES_2R.pdf",
                 "url": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_22_-_benot_2r_benot_2t_fribu_1r_ulmes_2r.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_22_-_benot_2r_benot_2t_fribu_1r_ulmes_2r.pdf",
                 "type": "pdf"
-        },
+, "driveId": "14Lhy5xk7MYU05KgFl5Q6oNbBAnipEg7O", "driveUrl": "https://drive.google.com/file/d/14Lhy5xk7MYU05KgFl5Q6oNbBAnipEg7O/view?usp=drivesdk" },
         {
                 "id": "star_icao_rnav_rwy_22_-_akito_3r_djl_2r_lusar_2r.pdf",
                 "name": "STAR_ICAO_RNAV_RWY_22_-_AKITO_3R_DJL_2R_LUSAR_2R.pdf",
                 "url": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_22_-_akito_3r_djl_2r_lusar_2r.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_22_-_akito_3r_djl_2r_lusar_2r.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1KLVWfi3V8-6KWAlacGF6QhqIroTBv2-g", "driveUrl": "https://drive.google.com/file/d/1KLVWfi3V8-6KWAlacGF6QhqIroTBv2-g/view?usp=drivesdk" },
         {
                 "id": "star_icao_rnav_rwy_04_-_banko_3n_belus_4n_kines_2n.pdf",
                 "name": "STAR_ICAO_RNAV_RWY_04_-_BANKO_3N_BELUS_4N_KINES_2N.pdf",
                 "url": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_04_-_banko_3n_belus_4n_kines_2n.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_04_-_banko_3n_belus_4n_kines_2n.pdf",
                 "type": "pdf"
-        },
+, "driveId": "12CZTNkGyXzS1cEU25YA73VlDrGYM45AU", "driveUrl": "https://drive.google.com/file/d/12CZTNkGyXzS1cEU25YA73VlDrGYM45AU/view?usp=drivesdk" },
         {
                 "id": "star_icao_rnav_rwy_04_-_benot_1n_benot_1p_fribu_1p_ulmes_1n_ulmes_1p.pdf",
                 "name": "STAR_ICAO_RNAV_RWY_04_-_BENOT_1N_BENOT_1P_FRIBU_1P_ULMES_1N_ULMES_1P.pdf",
                 "url": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_04_-_benot_1n_benot_1p_fribu_1p_ulmes_1n_ulmes_1p.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_04_-_benot_1n_benot_1p_fribu_1p_ulmes_1n_ulmes_1p.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Ex2ERcTH5xPQ1eogfvVu_-D7fHSm5B5l", "driveUrl": "https://drive.google.com/file/d/1Ex2ERcTH5xPQ1eogfvVu_-D7fHSm5B5l/view?usp=drivesdk" },
         {
                 "id": "star_icao_rnav_rwy_04_-_akito_2n_djl_2n_lusar_2n.pdf",
                 "name": "STAR_ICAO_RNAV_RWY_04_-_AKITO_2N_DJL_2N_LUSAR_2N.pdf",
                 "url": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_04_-_akito_2n_djl_2n_lusar_2n.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_04_-_akito_2n_djl_2n_lusar_2n.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1EOG5iOdJKRiamVVHetnLESW3t80Ylivf", "driveUrl": "https://drive.google.com/file/d/1EOG5iOdJKRiamVVHetnLESW3t80Ylivf/view?usp=drivesdk" },
         {
                 "id": "star_icao_rnav_rwy_22_-_banko_3r_belus_3r_kines_2r.pdf",
                 "name": "STAR_ICAO_RNAV_RWY_22_-_BANKO_3R_BELUS_3R_KINES_2R.pdf",
                 "url": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_22_-_banko_3r_belus_3r_kines_2r.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/star_icao_rnav_rwy_22_-_banko_3r_belus_3r_kines_2r.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1MvUgUMfPWSouTJm6RiYXBg9z4RtCOz3M", "driveUrl": "https://drive.google.com/file/d/1MvUgUMfPWSouTJm6RiYXBg9z4RtCOz3M/view?usp=drivesdk" },
         {
                 "id": "omnidirectional_departure_chart_rwy_0422.pdf",
                 "name": "OMNIDIRECTIONAL_DEPARTURE_CHART_RWY_0422.pdf",
                 "url": "charts_data/switzerland/lsgg/omnidirectional_departure_chart_rwy_0422.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/omnidirectional_departure_chart_rwy_0422.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1kf2hGoXuNplav1QmiKMsPYPYcQqj4IEQ", "driveUrl": "https://drive.google.com/file/d/1kf2hGoXuNplav1QmiKMsPYPYcQqj4IEQ/view?usp=drivesdk" },
         {
                 "id": "sid_icao_rnav_rwy_22_-_konil_1j_sosal_1j.pdf",
                 "name": "SID_ICAO_RNAV_RWY_22_-_KONIL_1J_SOSAL_1J.pdf",
                 "url": "charts_data/switzerland/lsgg/sid_icao_rnav_rwy_22_-_konil_1j_sosal_1j.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/sid_icao_rnav_rwy_22_-_konil_1j_sosal_1j.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ESNO2LjcoZfz4MnxN1Dad93iYaw6aQWm", "driveUrl": "https://drive.google.com/file/d/1ESNO2LjcoZfz4MnxN1Dad93iYaw6aQWm/view?usp=drivesdk" },
         {
                 "id": "sid_icao_rnav_rwy_22_-_balsi_1a_cby_2a_depul_1a_dipir_1a_konil_1r_medam_1a_rocca_1a1b_sosal_1l1r.pdf",
                 "name": "SID_ICAO_RNAV_RWY_22_-_BALSI_1A_CBY_2A_DEPUL_1A_DIPIR_1A_KONIL_1R_MEDAM_1A_ROCCA_1A1B_SOSAL_1L1R.pdf",
                 "url": "charts_data/switzerland/lsgg/sid_icao_rnav_rwy_22_-_balsi_1a_cby_2a_depul_1a_dipir_1a_konil_1r_medam_1a_rocca_1a1b_sosal_1l1r.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/sid_icao_rnav_rwy_22_-_balsi_1a_cby_2a_depul_1a_dipir_1a_konil_1r_medam_1a_rocca_1a1b_sosal_1l1r.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1MWuH6Hyw7lljxiiBIX9hPvVd36klX44b", "driveUrl": "https://drive.google.com/file/d/1MWuH6Hyw7lljxiiBIX9hPvVd36klX44b/view?usp=drivesdk" },
         {
                 "id": "sid_icao_rnav_rwy_04_-_arbos_1n_balsi_1n_cby_2n2p_depul_1p1t_medam_1n_rocca_1n1p_sapre_1n_sirod_1n_sosal_1n.pdf",
                 "name": "SID_ICAO_RNAV_RWY_04_-_ARBOS_1N_BALSI_1N_CBY_2N2P_DEPUL_1P1T_MEDAM_1N_ROCCA_1N1P_SAPRE_1N_SIROD_1N_SOSAL_1N.pdf",
                 "url": "charts_data/switzerland/lsgg/sid_icao_rnav_rwy_04_-_arbos_1n_balsi_1n_cby_2n2p_depul_1p1t_medam_1n_rocca_1n1p_sapre_1n_sirod_1n_sosal_1n.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/sid_icao_rnav_rwy_04_-_arbos_1n_balsi_1n_cby_2n2p_depul_1p1t_medam_1n_rocca_1n1p_sapre_1n_sirod_1n_sosal_1n.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1y01KGbduLz-hjLuH892zRGmBrqwf-pnc", "driveUrl": "https://drive.google.com/file/d/1y01KGbduLz-hjLuH892zRGmBrqwf-pnc/view?usp=drivesdk" },
         {
                 "id": "area_chart_icao_routing_after_sid_sirod_dipir_departures.pdf",
                 "name": "AREA_CHART_ICAO_ROUTING_AFTER_SID_SIROD_DIPIR_DEPARTURES.pdf",
                 "url": "charts_data/switzerland/lsgg/area_chart_icao_routing_after_sid_sirod_dipir_departures.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/area_chart_icao_routing_after_sid_sirod_dipir_departures.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1MgPHBVG1pftielrx_Q0pO4-iLkIo2XIa", "driveUrl": "https://drive.google.com/file/d/1MgPHBVG1pftielrx_Q0pO4-iLkIo2XIa/view?usp=drivesdk" },
         {
                 "id": "area_chart_icao_transit_routes_through_geneva_tma_destination_lflb_and_lflp.pdf",
                 "name": "AREA_CHART_ICAO_TRANSIT_ROUTES_THROUGH_GENEVA_TMA,_DESTINATION_LFLB_AND_LFLP.pdf",
                 "url": "charts_data/switzerland/lsgg/area_chart_icao_transit_routes_through_geneva_tma_destination_lflb_and_lflp.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/area_chart_icao_transit_routes_through_geneva_tma_destination_lflb_and_lflp.pdf",
                 "type": "pdf"
-        },
+, "driveId": "13ZbnK13Bmd6UH3FDrwinHy4_eqS8Mtgu", "driveUrl": "https://drive.google.com/file/d/13ZbnK13Bmd6UH3FDrwinHy4_eqS8Mtgu/view?usp=drivesdk" },
         {
                 "id": "precision_approach_terrain_chart_-_rwy_22.pdf",
                 "name": "PRECISION_APPROACH_TERRAIN_CHART_-_RWY_22.pdf",
                 "url": "charts_data/switzerland/lsgg/precision_approach_terrain_chart_-_rwy_22.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/precision_approach_terrain_chart_-_rwy_22.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1YI2Bq-xNiXHEL-XmuF6BZ39SgyIwYVHL", "driveUrl": "https://drive.google.com/file/d/1YI2Bq-xNiXHEL-XmuF6BZ39SgyIwYVHL/view?usp=drivesdk" },
         {
                 "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_22.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_22.pdf",
                 "url": "charts_data/switzerland/lsgg/aerodrome_obstacle_chart_-_type_a_-_rwy_22.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/aerodrome_obstacle_chart_-_type_a_-_rwy_22.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1c2wRghaJWFGDomFRMlqy0vyawy_l9aJq", "driveUrl": "https://drive.google.com/file/d/1c2wRghaJWFGDomFRMlqy0vyawy_l9aJq/view?usp=drivesdk" },
         {
                 "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_04.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_04.pdf",
                 "url": "charts_data/switzerland/lsgg/aerodrome_obstacle_chart_-_type_a_-_rwy_04.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/aerodrome_obstacle_chart_-_type_a_-_rwy_04.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1suqsysURq3sCnNAIWNLDizZO_ISpDvDr", "driveUrl": "https://drive.google.com/file/d/1suqsysURq3sCnNAIWNLDizZO_ISpDvDr/view?usp=drivesdk" },
         {
                 "id": "atc_surveillance_minimum_altitude_chart_ad_temperatures_from_-8_to_1c.pdf",
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART_(AD_TEMPERATURES_FROM_-8_TO_1C).pdf",
                 "url": "charts_data/switzerland/lsgg/atc_surveillance_minimum_altitude_chart_ad_temperatures_from_-8_to_1c.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/atc_surveillance_minimum_altitude_chart_ad_temperatures_from_-8_to_1c.pdf",
                 "type": "pdf"
-        },
+, "driveId": "18KMRxwtUcHP4_T2-uACHZrts639sskgw", "driveUrl": "https://drive.google.com/file/d/18KMRxwtUcHP4_T2-uACHZrts639sskgw/view?usp=drivesdk" },
         {
                 "id": "atc_surveillance_minimum_altitude_chart_ad_temperatures_from_2c_and_above.pdf",
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART_(AD_TEMPERATURES_FROM_2C_AND_ABOVE).pdf",
                 "url": "charts_data/switzerland/lsgg/atc_surveillance_minimum_altitude_chart_ad_temperatures_from_2c_and_above.pdf",
                 "localUrl": "charts_data/switzerland/lsgg/atc_surveillance_minimum_altitude_chart_ad_temperatures_from_2c_and_above.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1QvgaTGwYE0BVQxJatCXhsfbdCh0SAQFq", "driveUrl": "https://drive.google.com/file/d/1QvgaTGwYE0BVQxJatCXhsfbdCh0SAQFq/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1281,7 +1281,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

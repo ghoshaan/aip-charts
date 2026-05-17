@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,28 +1065,28 @@
                 "url": "charts_data/canada/cyge-golden/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyge-golden/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1YD_qIiRLx2QPSCHN_5Bus1XO7-Qx2UMo", "driveUrl": "https://drive.google.com/file/d/1YD_qIiRLx2QPSCHN_5Bus1XO7-Qx2UMo/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_14.pdf",
                 "name": "RNAV_GNSS_RWY_14.pdf",
                 "url": "charts_data/canada/cyge-golden/rnav_gnss_rwy_14.pdf",
                 "localUrl": "charts_data/canada/cyge-golden/rnav_gnss_rwy_14.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1UZWJJRyGQTap0HTH1lbBromH9rYBPN_X", "driveUrl": "https://drive.google.com/file/d/1UZWJJRyGQTap0HTH1lbBromH9rYBPN_X/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_b.pdf",
                 "name": "RNAV_GNSS_B.pdf",
                 "url": "charts_data/canada/cyge-golden/rnav_gnss_b.pdf",
                 "localUrl": "charts_data/canada/cyge-golden/rnav_gnss_b.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1a5AIHmxrQTA71DZTkEoBi5OGZRIQDsPc", "driveUrl": "https://drive.google.com/file/d/1a5AIHmxrQTA71DZTkEoBi5OGZRIQDsPc/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_a.pdf",
                 "name": "RNAV_GNSS_A.pdf",
                 "url": "charts_data/canada/cyge-golden/rnav_gnss_a.pdf",
                 "localUrl": "charts_data/canada/cyge-golden/rnav_gnss_a.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1bOdWrBxlGTLlcVveY5ps93o8lMu8u9jz", "driveUrl": "https://drive.google.com/file/d/1bOdWrBxlGTLlcVveY5ps93o8lMu8u9jz/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1134,7 +1134,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,21 +1065,21 @@
                 "url": "charts_data/canada/cylc-kimmirut/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cylc-kimmirut/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1BmlPvCXEHhEZbYqP60tQXmlWnk9cJr7R", "driveUrl": "https://drive.google.com/file/d/1BmlPvCXEHhEZbYqP60tQXmlWnk9cJr7R/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_33.pdf",
                 "name": "RNAV_GNSS_RWY_33.pdf",
                 "url": "charts_data/canada/cylc-kimmirut/rnav_gnss_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cylc-kimmirut/rnav_gnss_rwy_33.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1iWj7QIdOj5P9ZOhyKlHvFy1aQr15xKwN", "driveUrl": "https://drive.google.com/file/d/1iWj7QIdOj5P9ZOhyKlHvFy1aQr15xKwN/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_15.pdf",
                 "name": "RNAV_GNSS_RWY_15.pdf",
                 "url": "charts_data/canada/cylc-kimmirut/rnav_gnss_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cylc-kimmirut/rnav_gnss_rwy_15.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1MCgqCH0-a_U1gQu_TUnnbkn-7nnqC_wC", "driveUrl": "https://drive.google.com/file/d/1MCgqCH0-a_U1gQu_TUnnbkn-7nnqC_wC/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1127,7 +1127,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

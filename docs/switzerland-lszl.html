@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,21 +1065,21 @@
                 "url": "charts_data/switzerland/lszl/ls_adinfo_0000_lszl_area.pdf",
                 "localUrl": "charts_data/switzerland/lszl/ls_adinfo_0000_lszl_area.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1gNr2mI0GMrg7YzzUuC9gwiCSsBM2ebWL", "driveUrl": "https://drive.google.com/file/d/1gNr2mI0GMrg7YzzUuC9gwiCSsBM2ebWL/view?usp=drivesdk" },
         {
                 "id": "ls_adinfo_0000_lszl.pdf",
                 "name": "LS_ADINFO_0000_LSZL.pdf",
                 "url": "charts_data/switzerland/lszl/ls_adinfo_0000_lszl.pdf",
                 "localUrl": "charts_data/switzerland/lszl/ls_adinfo_0000_lszl.pdf",
                 "type": "pdf"
-        },
+, "driveId": "10FXfiuNvFomjE2r2BA4aZYt8GFqHQIYk", "driveUrl": "https://drive.google.com/file/d/10FXfiuNvFomjE2r2BA4aZYt8GFqHQIYk/view?usp=drivesdk" },
         {
                 "id": "ls_adinfo_0000_lszl_vac.pdf",
                 "name": "LS_ADINFO_0000_LSZL_VAC.pdf",
                 "url": "charts_data/switzerland/lszl/ls_adinfo_0000_lszl_vac.pdf",
                 "localUrl": "charts_data/switzerland/lszl/ls_adinfo_0000_lszl_vac.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1AS3_fKzf8NAT-6RoAWMlXwWqbnt7FtTB", "driveUrl": "https://drive.google.com/file/d/1AS3_fKzf8NAT-6RoAWMlXwWqbnt7FtTB/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1127,7 +1127,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

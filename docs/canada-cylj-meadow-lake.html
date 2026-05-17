@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,35 +1065,35 @@
                 "url": "charts_data/canada/cylj-meadow-lake/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cylj-meadow-lake/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "15U1Nf2TodtN7Trn3gMTqX15Q5VzQBoVA", "driveUrl": "https://drive.google.com/file/d/15U1Nf2TodtN7Trn3gMTqX15Q5VzQBoVA/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_35.pdf",
                 "name": "RNAV_GNSS_RWY_35.pdf",
                 "url": "charts_data/canada/cylj-meadow-lake/rnav_gnss_rwy_35.pdf",
                 "localUrl": "charts_data/canada/cylj-meadow-lake/rnav_gnss_rwy_35.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1xaYgf0KbatPyFGEX3HdMd7rHagx3LB0V", "driveUrl": "https://drive.google.com/file/d/1xaYgf0KbatPyFGEX3HdMd7rHagx3LB0V/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_17.pdf",
                 "name": "RNAV_GNSS_RWY_17.pdf",
                 "url": "charts_data/canada/cylj-meadow-lake/rnav_gnss_rwy_17.pdf",
                 "localUrl": "charts_data/canada/cylj-meadow-lake/rnav_gnss_rwy_17.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1MDRyKAdz0wi_x2k38Ub1mgzeF0950zu6", "driveUrl": "https://drive.google.com/file/d/1MDRyKAdz0wi_x2k38Ub1mgzeF0950zu6/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_27.pdf",
                 "name": "RNAV_GNSS_RWY_27.pdf",
                 "url": "charts_data/canada/cylj-meadow-lake/rnav_gnss_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cylj-meadow-lake/rnav_gnss_rwy_27.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1xqWVPYqCECmklYeO2QiPX4dcvRAL2ViP", "driveUrl": "https://drive.google.com/file/d/1xqWVPYqCECmklYeO2QiPX4dcvRAL2ViP/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_09.pdf",
                 "name": "RNAV_GNSS_RWY_09.pdf",
                 "url": "charts_data/canada/cylj-meadow-lake/rnav_gnss_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cylj-meadow-lake/rnav_gnss_rwy_09.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1r-CXV4xKIOL9mdSwaanxG-zPSlDjt3jJ", "driveUrl": "https://drive.google.com/file/d/1r-CXV4xKIOL9mdSwaanxG-zPSlDjt3jJ/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1141,7 +1141,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

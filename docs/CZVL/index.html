@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/czvl/vogod_2_dep_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/vogod_2_dep_rnav_pg_02.pdf"
-        },
+, "driveId": "1PHBpLLrJh52OneU2-owUss9D3aZT6e11", "driveUrl": "https://drive.google.com/file/d/1PHBpLLrJh52OneU2-owUss9D3aZT6e11/view?usp=drivesdk" },
         {
                 "id": "tadev_2_dep_rnav_pg_02.pdf",
                 "name": "TADEV_2_DEP_RNAV_PG_02.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/czvl/tadev_2_dep_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/tadev_2_dep_rnav_pg_02.pdf"
-        },
+, "driveId": "1piYgvuMwOmMMsbT9xak4-P9KPONDtkA5", "driveUrl": "https://drive.google.com/file/d/1piYgvuMwOmMMsbT9xak4-P9KPONDtkA5/view?usp=drivesdk" },
         {
                 "id": "vogod_2_dep_rnav.pdf",
                 "name": "VOGOD_2_DEP_RNAV.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/czvl/vogod_2_dep_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/vogod_2_dep_rnav.pdf"
-        },
+, "driveId": "1auLcZyC9mHHoFeK04rhrY4gZinkmeKvT", "driveUrl": "https://drive.google.com/file/d/1auLcZyC9mHHoFeK04rhrY4gZinkmeKvT/view?usp=drivesdk" },
         {
                 "id": "tadev_2_dep_rnav.pdf",
                 "name": "TADEV_2_DEP_RNAV.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/canada/czvl/tadev_2_dep_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/tadev_2_dep_rnav.pdf"
-        },
+, "driveId": "1FzDhzAWxvaeoSze1FPME3YDeViobyxk1", "driveUrl": "https://drive.google.com/file/d/1FzDhzAWxvaeoSze1FPME3YDeViobyxk1/view?usp=drivesdk" },
         {
                 "id": "nopok_2_dep_rnav_pg_02.pdf",
                 "name": "NOPOK_2_DEP_RNAV_PG_02.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/canada/czvl/nopok_2_dep_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/nopok_2_dep_rnav_pg_02.pdf"
-        },
+, "driveId": "1RDg-qpAYy5uGlCtbo-Tkc_nBTWwmcNTv", "driveUrl": "https://drive.google.com/file/d/1RDg-qpAYy5uGlCtbo-Tkc_nBTWwmcNTv/view?usp=drivesdk" },
         {
                 "id": "nopok_2_dep_rnav.pdf",
                 "name": "NOPOK_2_DEP_RNAV.pdf",
@@ -1105,7 +1105,7 @@
                 "localUrl": "../charts_data/canada/czvl/nopok_2_dep_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/nopok_2_dep_rnav.pdf"
-        },
+, "driveId": "13o0H0602eGBV2Pl7GvX_jdvp9QRUUG67", "driveUrl": "https://drive.google.com/file/d/13o0H0602eGBV2Pl7GvX_jdvp9QRUUG67/view?usp=drivesdk" },
         {
                 "id": "fibre_2_dep_rnav_pg_02.pdf",
                 "name": "FIBRE_2_DEP_RNAV_PG_02.pdf",
@@ -1113,7 +1113,7 @@
                 "localUrl": "../charts_data/canada/czvl/fibre_2_dep_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/fibre_2_dep_rnav_pg_02.pdf"
-        },
+, "driveId": "1uvqwbVjRRqexXu9X6aeJxZbZVRVETH2o", "driveUrl": "https://drive.google.com/file/d/1uvqwbVjRRqexXu9X6aeJxZbZVRVETH2o/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
@@ -1121,7 +1121,7 @@
                 "localUrl": "../charts_data/canada/czvl/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/aerodrome_chart.pdf"
-        },
+, "driveId": "1TyN7bvFg5dLQs8QN6zuLyShz4wlOI5lE", "driveUrl": "https://drive.google.com/file/d/1TyN7bvFg5dLQs8QN6zuLyShz4wlOI5lE/view?usp=drivesdk" },
         {
                 "id": "fibre_2_dep_rnav.pdf",
                 "name": "FIBRE_2_DEP_RNAV.pdf",
@@ -1129,7 +1129,7 @@
                 "localUrl": "../charts_data/canada/czvl/fibre_2_dep_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/fibre_2_dep_rnav.pdf"
-        },
+, "driveId": "1aqMH19MsLLflU5UpX-l-gxa9wqseVygK", "driveUrl": "https://drive.google.com/file/d/1aqMH19MsLLflU5UpX-l-gxa9wqseVygK/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_34.pdf",
                 "name": "RNAV_GNSS_RWY_34.pdf",
@@ -1137,7 +1137,7 @@
                 "localUrl": "../charts_data/canada/czvl/rnav_gnss_rwy_34.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/rnav_gnss_rwy_34.pdf"
-        },
+, "driveId": "1AajWTfqsEHi0bXMdaxTf5so2uitPqBU7", "driveUrl": "https://drive.google.com/file/d/1AajWTfqsEHi0bXMdaxTf5so2uitPqBU7/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_26.pdf",
                 "name": "RNAV_GNSS_RWY_26.pdf",
@@ -1145,7 +1145,7 @@
                 "localUrl": "../charts_data/canada/czvl/rnav_gnss_rwy_26.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/rnav_gnss_rwy_26.pdf"
-        },
+, "driveId": "1p3hZZUBp_bprAC-Sc1E3CkE-pvsVRQdS", "driveUrl": "https://drive.google.com/file/d/1p3hZZUBp_bprAC-Sc1E3CkE-pvsVRQdS/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_16.pdf",
                 "name": "RNAV_GNSS_RWY_16.pdf",
@@ -1153,7 +1153,7 @@
                 "localUrl": "../charts_data/canada/czvl/rnav_gnss_rwy_16.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/rnav_gnss_rwy_16.pdf"
-        },
+, "driveId": "1HuKD-90KpMoASmlRw8JZdrnZYkdgXloy", "driveUrl": "https://drive.google.com/file/d/1HuKD-90KpMoASmlRw8JZdrnZYkdgXloy/view?usp=drivesdk" },
         {
                 "id": "ils_rwy_26.pdf",
                 "name": "ILS_RWY_26.pdf",
@@ -1161,7 +1161,7 @@
                 "localUrl": "../charts_data/canada/czvl/ils_rwy_26.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/ils_rwy_26.pdf"
-        },
+, "driveId": "1XxUwhPDuF_dGTT9AeRqtTvePWv71jrr9", "driveUrl": "https://drive.google.com/file/d/1XxUwhPDuF_dGTT9AeRqtTvePWv71jrr9/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_08.pdf",
                 "name": "RNAV_GNSS_RWY_08.pdf",
@@ -1169,7 +1169,7 @@
                 "localUrl": "../charts_data/canada/czvl/rnav_gnss_rwy_08.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/czvl/rnav_gnss_rwy_08.pdf"
-        }
+, "driveId": "157T0O-Yr0mZqq0ylMe2nFHRPp9XLaK8M", "driveUrl": "https://drive.google.com/file/d/157T0O-Yr0mZqq0ylMe2nFHRPp9XLaK8M/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1217,7 +1217,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

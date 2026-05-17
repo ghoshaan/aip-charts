@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,196 +1065,196 @@
                 "url": "charts_data/canada/cyyt-st-johns/.DS_Store",
                 "localUrl": "charts_data/canada/cyyt-st-johns/.DS_Store",
                 "type": "doc"
-        },
+, "driveId": "1I3bUCzMQO15i_dbCMaA-v2A_TRZHmsaX", "driveUrl": "https://drive.google.com/file/d/1I3bUCzMQO15i_dbCMaA-v2A_TRZHmsaX/view?usp=drivesdk" },
         {
                 "id": "cyyt_de-icing_operations.pdf",
                 "name": "CYYT_DE-ICING_OPERATIONS.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_de-icing_operations.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_de-icing_operations.pdf",
                 "type": "pdf"
-        },
+, "driveId": "18oedL9WR2PIq_LJLERxO0Oup4cgMz0QK", "driveUrl": "https://drive.google.com/file/d/18oedL9WR2PIq_LJLERxO0Oup4cgMz0QK/view?usp=drivesdk" },
         {
                 "id": "cyyt_st_johns_8_dep_vector.pdf",
                 "name": "CYYT_ST_JOHNS_8_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "19rkNM6TqmtFUPvc2C0MF81mqxmfPt8AG", "driveUrl": "https://drive.google.com/file/d/19rkNM6TqmtFUPvc2C0MF81mqxmfPt8AG/view?usp=drivesdk" },
         {
                 "id": "cyyt_st_johns_8_dep_vector_pg_02.pdf",
                 "name": "CYYT_ST_JOHNS_8_DEP_VECTOR_PG_02.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1OZee9mwqYKedYDULxUfCWzaVOpUi8-WU", "driveUrl": "https://drive.google.com/file/d/1OZee9mwqYKedYDULxUfCWzaVOpUi8-WU/view?usp=drivesdk" },
         {
                 "id": "cyyt_parking_areas_pg_02.pdf",
                 "name": "CYYT_PARKING_AREAS_PG_02.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_parking_areas_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_parking_areas_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1YDGAw49oIdzYMXiTo9KxSBPNiKW3rM1G", "driveUrl": "https://drive.google.com/file/d/1YDGAw49oIdzYMXiTo9KxSBPNiKW3rM1G/view?usp=drivesdk" },
         {
                 "id": "cyyt_low_visibility_procedures.pdf",
                 "name": "CYYT_LOW_VISIBILITY_PROCEDURES.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_low_visibility_procedures.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_low_visibility_procedures.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1WqJrb0a41dKUp2H6nnlBb_ItWhhbxxay", "driveUrl": "https://drive.google.com/file/d/1WqJrb0a41dKUp2H6nnlBb_ItWhhbxxay/view?usp=drivesdk" },
         {
                 "id": "cyyt_rnav_gnss_z_rwy_28.pdf",
                 "name": "CYYT_RNAV_GNSS_Z_RWY_28.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_28.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_28.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1JBuxRRPw06Za13VpwnQcmCJ8kLBE9q9D", "driveUrl": "https://drive.google.com/file/d/1JBuxRRPw06Za13VpwnQcmCJ8kLBE9q9D/view?usp=drivesdk" },
         {
                 "id": "cyyt_rnav_rnp_y_rwy_34.pdf",
                 "name": "CYYT_RNAV_RNP_Y_RWY_34.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_34.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_34.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1J2cUpaaAHykC2eFU4SqJFrGmDow_G7GL", "driveUrl": "https://drive.google.com/file/d/1J2cUpaaAHykC2eFU4SqJFrGmDow_G7GL/view?usp=drivesdk" },
         {
                 "id": "cyyt_central_de-icing_facility.pdf",
                 "name": "CYYT_CENTRAL_DE-ICING_FACILITY.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_central_de-icing_facility.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_central_de-icing_facility.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1dlfoZHFLQQmt_V6KYHfG-RlrIQu3Ywwl", "driveUrl": "https://drive.google.com/file/d/1dlfoZHFLQQmt_V6KYHfG-RlrIQu3Ywwl/view?usp=drivesdk" },
         {
                 "id": "cyyt_rnav_gnss_x_rwy_10.pdf",
                 "name": "CYYT_RNAV_GNSS_X_RWY_10.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_x_rwy_10.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_x_rwy_10.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1z8cIWU1D9rGNicHDJeJkDDk_WfZP3Cvb", "driveUrl": "https://drive.google.com/file/d/1z8cIWU1D9rGNicHDJeJkDDk_WfZP3Cvb/view?usp=drivesdk" },
         {
                 "id": "cyyt_rnav_gnss_z_rwy_16.pdf",
                 "name": "CYYT_RNAV_GNSS_Z_RWY_16.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_16.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_16.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1rEci2NUIyPxXCFIyNvnDHkqdr8laN_vz", "driveUrl": "https://drive.google.com/file/d/1rEci2NUIyPxXCFIyNvnDHkqdr8laN_vz/view?usp=drivesdk" },
         {
                 "id": "cyyt_rnav_rnp_y_rwy_10.pdf",
                 "name": "CYYT_RNAV_RNP_Y_RWY_10.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_10.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_10.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1MNz9eGqPI1NmTSazTKk4bEu15NQAd5ER", "driveUrl": "https://drive.google.com/file/d/1MNz9eGqPI1NmTSazTKk4bEu15NQAd5ER/view?usp=drivesdk" },
         {
                 "id": "cyyt_parking_areas.pdf",
                 "name": "CYYT_PARKING_AREAS.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_parking_areas.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_parking_areas.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1xiUXAFJ-LzIbMekNKSSvdCsR0tdqirZ6", "driveUrl": "https://drive.google.com/file/d/1xiUXAFJ-LzIbMekNKSSvdCsR0tdqirZ6/view?usp=drivesdk" },
         {
                 "id": "cyyt_ils_rwy_16.pdf",
                 "name": "CYYT_ILS_RWY_16.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_16.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_16.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1TqHiPYuzdIFZWDzkdDPvKmQEDBvAUTpE", "driveUrl": "https://drive.google.com/file/d/1TqHiPYuzdIFZWDzkdDPvKmQEDBvAUTpE/view?usp=drivesdk" },
         {
                 "id": "cyyt_low_visibility_taxi_chart_rwy_10_28.pdf",
                 "name": "CYYT_LOW_VISIBILITY_TAXI_CHART_RWY_10_28.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_low_visibility_taxi_chart_rwy_10_28.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_low_visibility_taxi_chart_rwy_10_28.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1JHj9Xz4vJmND957Ctf1yrJegH7RfagXC", "driveUrl": "https://drive.google.com/file/d/1JHj9Xz4vJmND957Ctf1yrJegH7RfagXC/view?usp=drivesdk" },
         {
                 "id": "cyyt_aerodrome_chart.pdf",
                 "name": "CYYT_AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1XQ8CYHUnqd-I1onLMq1hARJNmSaYzkY2", "driveUrl": "https://drive.google.com/file/d/1XQ8CYHUnqd-I1onLMq1hARJNmSaYzkY2/view?usp=drivesdk" },
         {
                 "id": "cyyt_rnav_gnss_x_rwy_16.pdf",
                 "name": "CYYT_RNAV_GNSS_X_RWY_16.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_x_rwy_16.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_x_rwy_16.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1DO7geuK3CtKmdLJskA14qpLQzbyRmGSx", "driveUrl": "https://drive.google.com/file/d/1DO7geuK3CtKmdLJskA14qpLQzbyRmGSx/view?usp=drivesdk" },
         {
                 "id": "cyyt_rnav_rnp_y_rwy_28.pdf",
                 "name": "CYYT_RNAV_RNP_Y_RWY_28.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_28.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_28.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1HqGOG7eSEloXKybEGIO1Ix1kXihWFI3r", "driveUrl": "https://drive.google.com/file/d/1HqGOG7eSEloXKybEGIO1Ix1kXihWFI3r/view?usp=drivesdk" },
         {
                 "id": "cyyt_rnav_gnss_z_rwy_10.pdf",
                 "name": "CYYT_RNAV_GNSS_Z_RWY_10.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_10.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_10.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1z6OWawclDMw9ksf4nT9VNj2b9IekT5pM", "driveUrl": "https://drive.google.com/file/d/1z6OWawclDMw9ksf4nT9VNj2b9IekT5pM/view?usp=drivesdk" },
         {
                 "id": "cyyt_ils_rwy_28.pdf",
                 "name": "CYYT_ILS_RWY_28.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_28.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_28.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1iL8ruBC6JAJPpBaZRTyDoqk2jP0xNsDM", "driveUrl": "https://drive.google.com/file/d/1iL8ruBC6JAJPpBaZRTyDoqk2jP0xNsDM/view?usp=drivesdk" },
         {
                 "id": "cyyt_rnav_gnss_z_rwy_34.pdf",
                 "name": "CYYT_RNAV_GNSS_Z_RWY_34.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_34.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_34.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1YDgsmrcY-suEmSEYK5mX5X3ZgHqVEape", "driveUrl": "https://drive.google.com/file/d/1YDgsmrcY-suEmSEYK5mX5X3ZgHqVEape/view?usp=drivesdk" },
         {
                 "id": "cyyt_rnav_rnp_y_rwy_16.pdf",
                 "name": "CYYT_RNAV_RNP_Y_RWY_16.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_16.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_16.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1drlO_oKzIkaIwa4CarI0LuqcYVBf2sV6", "driveUrl": "https://drive.google.com/file/d/1drlO_oKzIkaIwa4CarI0LuqcYVBf2sV6/view?usp=drivesdk" },
         {
                 "id": "cyyt_ils_rwy_10.pdf",
                 "name": "CYYT_ILS_RWY_10.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_10.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_10.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1vhuA2obBfLsT1-uyfqQTudMh2nwp8BJB", "driveUrl": "https://drive.google.com/file/d/1vhuA2obBfLsT1-uyfqQTudMh2nwp8BJB/view?usp=drivesdk" },
         {
                 "id": "cyyt_burin_6_arr_rnav.pdf",
                 "name": "CYYT_BURIN_6_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_burin_6_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_burin_6_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1XtgN2jNF04A9wUZnD8WiXoLJrMWG4I5d", "driveUrl": "https://drive.google.com/file/d/1XtgN2jNF04A9wUZnD8WiXoLJrMWG4I5d/view?usp=drivesdk" },
         {
                 "id": "cyyt_avalon_5_arr_rnav.pdf",
                 "name": "CYYT_AVALON_5_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_avalon_5_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_avalon_5_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Wvw779s72vaihCcL4YbwCcEVmQM9wH8h", "driveUrl": "https://drive.google.com/file/d/1Wvw779s72vaihCcL4YbwCcEVmQM9wH8h/view?usp=drivesdk" },
         {
                 "id": "cyyt_ils_cat_ii_or_iii_rwy_28.pdf",
                 "name": "CYYT_ILS_CAT_II_OR_III_RWY_28.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_ils_cat_ii_or_iii_rwy_28.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_ils_cat_ii_or_iii_rwy_28.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1wMjMZgONy3HfEbOThWLPykD6kDbRJw9m", "driveUrl": "https://drive.google.com/file/d/1wMjMZgONy3HfEbOThWLPykD6kDbRJw9m/view?usp=drivesdk" },
         {
                 "id": "cyyt_ils_cat_ii_or_iii_rwy_10.pdf",
                 "name": "CYYT_ILS_CAT_II_OR_III_RWY_10.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_ils_cat_ii_or_iii_rwy_10.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_ils_cat_ii_or_iii_rwy_10.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1_itl4LIyVXmxWjsL1-myfOS5nPjel6T2", "driveUrl": "https://drive.google.com/file/d/1_itl4LIyVXmxWjsL1-myfOS5nPjel6T2/view?usp=drivesdk" },
         {
                 "id": "cyyt_tigor_5_arr_rnav.pdf",
                 "name": "CYYT_TIGOR_5_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyyt-st-johns/cyyt_tigor_5_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyt-st-johns/cyyt_tigor_5_arr_rnav.pdf",
                 "type": "pdf"
-        }
+, "driveId": "10RiLKpRoOP-l9heZczLlg8ddzxsYrck4", "driveUrl": "https://drive.google.com/file/d/10RiLKpRoOP-l9heZczLlg8ddzxsYrck4/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1302,7 +1302,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

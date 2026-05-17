@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cyrq-trois-rivieres/paper_1_dep_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyrq-trois-rivieres/paper_1_dep_rnav_pg_02.pdf"
-        },
+, "driveId": "1x3lELa8OrMb-VMBKo6ZDcij9ioTbZG-1", "driveUrl": "https://drive.google.com/file/d/1x3lELa8OrMb-VMBKo6ZDcij9ioTbZG-1/view?usp=drivesdk" },
         {
                 "id": "novid_1_dep_rnav_pg_02.pdf",
                 "name": "NOVID_1_DEP_RNAV_PG_02.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cyrq-trois-rivieres/novid_1_dep_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyrq-trois-rivieres/novid_1_dep_rnav_pg_02.pdf"
-        },
+, "driveId": "1SL9NKubpdlzZ2BHyY3ulSPnym-ZZpDLa", "driveUrl": "https://drive.google.com/file/d/1SL9NKubpdlzZ2BHyY3ulSPnym-ZZpDLa/view?usp=drivesdk" },
         {
                 "id": "paper_1_dep_rnav.pdf",
                 "name": "PAPER_1_DEP_RNAV.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cyrq-trois-rivieres/paper_1_dep_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyrq-trois-rivieres/paper_1_dep_rnav.pdf"
-        },
+, "driveId": "1z3CR4WozkIsTVhFXum77NLkTJ7nYy2Mq", "driveUrl": "https://drive.google.com/file/d/1z3CR4WozkIsTVhFXum77NLkTJ7nYy2Mq/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/canada/cyrq-trois-rivieres/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyrq-trois-rivieres/aerodrome_chart.pdf"
-        },
+, "driveId": "1hmLUhFGr1j3ejAetpQFJ7_bpnO9-pjEm", "driveUrl": "https://drive.google.com/file/d/1hmLUhFGr1j3ejAetpQFJ7_bpnO9-pjEm/view?usp=drivesdk" },
         {
                 "id": "novid_1_dep_rnav.pdf",
                 "name": "NOVID_1_DEP_RNAV.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/canada/cyrq-trois-rivieres/novid_1_dep_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyrq-trois-rivieres/novid_1_dep_rnav.pdf"
-        },
+, "driveId": "13TfAUqsWnhnktxGnM6Oydk_wgSfThirY", "driveUrl": "https://drive.google.com/file/d/13TfAUqsWnhnktxGnM6Oydk_wgSfThirY/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_23.pdf",
                 "name": "RNAV_GNSS_RWY_23.pdf",
@@ -1105,7 +1105,7 @@
                 "localUrl": "../charts_data/canada/cyrq-trois-rivieres/rnav_gnss_rwy_23.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyrq-trois-rivieres/rnav_gnss_rwy_23.pdf"
-        },
+, "driveId": "1fSDc176oYg-szwFhLyDJbkt0y43tBpU1", "driveUrl": "https://drive.google.com/file/d/1fSDc176oYg-szwFhLyDJbkt0y43tBpU1/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_05.pdf",
                 "name": "RNAV_GNSS_RWY_05.pdf",
@@ -1113,7 +1113,7 @@
                 "localUrl": "../charts_data/canada/cyrq-trois-rivieres/rnav_gnss_rwy_05.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyrq-trois-rivieres/rnav_gnss_rwy_05.pdf"
-        },
+, "driveId": "1onrvCuQDTVsrrMQu5VuqWRjhxv1AOwTv", "driveUrl": "https://drive.google.com/file/d/1onrvCuQDTVsrrMQu5VuqWRjhxv1AOwTv/view?usp=drivesdk" },
         {
                 "id": "ndb_rwy_23.pdf",
                 "name": "NDB_RWY_23.pdf",
@@ -1121,7 +1121,7 @@
                 "localUrl": "../charts_data/canada/cyrq-trois-rivieres/ndb_rwy_23.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyrq-trois-rivieres/ndb_rwy_23.pdf"
-        }
+, "driveId": "12cEh6nAiVCQjblF4x2jeNcp0pRp-CUUf", "driveUrl": "https://drive.google.com/file/d/12cEh6nAiVCQjblF4x2jeNcp0pRp-CUUf/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1169,7 +1169,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

@@ -1215,13 +1215,13 @@ def generate_index_page(hierarchy):
                 div.style.marginBottom = '0';
                 div.style.minWidth = '0';
 
-                if (item.type === 'chart') {{
-                    div.href = `#view=${{item.id}}`;
-                    div.onclick = (e) => {{
+                if (item.type === 'chart') {
+                    div.href = `#view=${item.id}`;
+                    div.onclick = (e) => {
                         e.preventDefault();
-                        openViewer(item.id, item.name, item.url, item.localUrl, false, item.airport);
-                    }};
-                }} else {{
+                        openViewer(item.id, item.name, item.driveUrl || '#', item.localUrl, false, item.airport);
+                    };
+                } else {
                     div.href = item.url;
                 }}
 
@@ -1617,10 +1617,10 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
                 item.className = 'file-item';
                 item.style.minWidth = '0';
                 item.href = `#view=${{file.id}}`;
-                item.onclick = (e) => {{
+                item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
-                }};
+                    openViewer(file.id, file.name, file.driveUrl || '#', file.localUrl, false, airportCtx.icao);
+                };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
                 const pagesBadge = file.pages && file.pages.length > 1
@@ -2517,7 +2517,7 @@ def get_viewer_js():
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -2906,7 +2906,11 @@ def update_legacy_single_page_files(hierarchy):
                 legacy_files.append({
                     "name": f['name'],
                     "url": f['url'],
-                    "type": f['type']
+                    "type": f['type'],
+                    "id": f.get('id', ''),
+                    "localUrl": f.get('localUrl', ''),
+                    "driveId": f.get('driveId', ''),
+                    "driveUrl": f.get('driveUrl', '#')
                 })
             
             directory_data.append({

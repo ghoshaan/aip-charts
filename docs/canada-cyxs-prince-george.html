@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,91 +1065,91 @@
                 "url": "charts_data/canada/cyxs-prince-george/.DS_Store",
                 "localUrl": "charts_data/canada/cyxs-prince-george/.DS_Store",
                 "type": "doc"
-        },
+, "driveId": "1px8Xys9lfOsRuaJiFXdFQnCkxulD4vIW", "driveUrl": "https://drive.google.com/file/d/1px8Xys9lfOsRuaJiFXdFQnCkxulD4vIW/view?usp=drivesdk" },
         {
                 "id": "cyxs_prince_george_5_dep_vector.pdf",
                 "name": "CYXS_PRINCE_GEORGE_5_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_prince_george_5_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_prince_george_5_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1hJQ11ZsSOUJznqzvgAW5xkqyghSQRVsE", "driveUrl": "https://drive.google.com/file/d/1hJQ11ZsSOUJznqzvgAW5xkqyghSQRVsE/view?usp=drivesdk" },
         {
                 "id": "cyxs_rnav_rnp_y_rwy_15.pdf",
                 "name": "CYXS_RNAV_RNP_Y_RWY_15.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_rnav_rnp_y_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_rnav_rnp_y_rwy_15.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1XzIsAt0aBPWHvmwQPEsMVRQ4zc6ZWyjH", "driveUrl": "https://drive.google.com/file/d/1XzIsAt0aBPWHvmwQPEsMVRQ4zc6ZWyjH/view?usp=drivesdk" },
         {
                 "id": "cyxs_prince_george_5_dep_vector_pg_02.pdf",
                 "name": "CYXS_PRINCE_GEORGE_5_DEP_VECTOR_PG_02.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_prince_george_5_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_prince_george_5_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1JbyDGqblwH_sJSKwZKMu4JeFA_yfC-9K", "driveUrl": "https://drive.google.com/file/d/1JbyDGqblwH_sJSKwZKMu4JeFA_yfC-9K/view?usp=drivesdk" },
         {
                 "id": "cyxs_rnav_rnp_y_rwy_33.pdf",
                 "name": "CYXS_RNAV_RNP_Y_RWY_33.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_rnav_rnp_y_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_rnav_rnp_y_rwy_33.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1r1hIB4I5iN9x6CWTeCAFRcQvZJaIxWzO", "driveUrl": "https://drive.google.com/file/d/1r1hIB4I5iN9x6CWTeCAFRcQvZJaIxWzO/view?usp=drivesdk" },
         {
                 "id": "cyxs_rnav_gnss_rwy_24.pdf",
                 "name": "CYXS_RNAV_GNSS_RWY_24.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_rnav_gnss_rwy_24.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_rnav_gnss_rwy_24.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1RoolT9JN3fJE_Ij742mY-X5RdAovYZ_w", "driveUrl": "https://drive.google.com/file/d/1RoolT9JN3fJE_Ij742mY-X5RdAovYZ_w/view?usp=drivesdk" },
         {
                 "id": "cyxs_aerodrome_chart.pdf",
                 "name": "CYXS_AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ivLummLGSKOPy3tU7NBgWirTJJLX8_DL", "driveUrl": "https://drive.google.com/file/d/1ivLummLGSKOPy3tU7NBgWirTJJLX8_DL/view?usp=drivesdk" },
         {
                 "id": "cyxs_loc_z_rwy_15.pdf",
                 "name": "CYXS_LOC_Z_RWY_15.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_loc_z_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_loc_z_rwy_15.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1rVCyPp4c-qUAub_J05lBjQR66FRyciOA", "driveUrl": "https://drive.google.com/file/d/1rVCyPp4c-qUAub_J05lBjQR66FRyciOA/view?usp=drivesdk" },
         {
                 "id": "cyxs_ils_z_rwy_15.pdf",
                 "name": "CYXS_ILS_Z_RWY_15.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_ils_z_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_ils_z_rwy_15.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1UyNEP9kPvAz8ZiGAU78-cJMRxF_YS68M", "driveUrl": "https://drive.google.com/file/d/1UyNEP9kPvAz8ZiGAU78-cJMRxF_YS68M/view?usp=drivesdk" },
         {
                 "id": "cyxs_rnav_gnss_z_rwy_33.pdf",
                 "name": "CYXS_RNAV_GNSS_Z_RWY_33.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_rnav_gnss_z_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_rnav_gnss_z_rwy_33.pdf",
                 "type": "pdf"
-        },
+, "driveId": "19wteH7B7uGJ-nRhwHVNgo5vNNpSNl0Mz", "driveUrl": "https://drive.google.com/file/d/19wteH7B7uGJ-nRhwHVNgo5vNNpSNl0Mz/view?usp=drivesdk" },
         {
                 "id": "cyxs_rnav_gnss_z_rwy_15.pdf",
                 "name": "CYXS_RNAV_GNSS_Z_RWY_15.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_rnav_gnss_z_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_rnav_gnss_z_rwy_15.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1CANCQjF_-RdB544QdQ1A0I76VTKDU1mb", "driveUrl": "https://drive.google.com/file/d/1CANCQjF_-RdB544QdQ1A0I76VTKDU1mb/view?usp=drivesdk" },
         {
                 "id": "cyxs_ils_y_rwy_15.pdf",
                 "name": "CYXS_ILS_Y_RWY_15.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_ils_y_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_ils_y_rwy_15.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1PGrOYl3UAibE6XHdnh0ijoi3ZzSIinV7", "driveUrl": "https://drive.google.com/file/d/1PGrOYl3UAibE6XHdnh0ijoi3ZzSIinV7/view?usp=drivesdk" },
         {
                 "id": "cyxs_rnav_gnss_rwy_06.pdf",
                 "name": "CYXS_RNAV_GNSS_RWY_06.pdf",
                 "url": "charts_data/canada/cyxs-prince-george/cyxs_rnav_gnss_rwy_06.pdf",
                 "localUrl": "charts_data/canada/cyxs-prince-george/cyxs_rnav_gnss_rwy_06.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1JEU3f-ddlKF8aze5CLi10jWUImYmf41F", "driveUrl": "https://drive.google.com/file/d/1JEU3f-ddlKF8aze5CLi10jWUImYmf41F/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1197,7 +1197,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

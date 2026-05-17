@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,105 +1065,105 @@
                 "url": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_rwy_27.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1p3iHrdXxar_vNoatqJ37U-2Yyo3ak026", "driveUrl": "https://drive.google.com/file/d/1p3iHrdXxar_vNoatqJ37U-2Yyo3ak026/view?usp=drivesdk" },
         {
                 "id": "cyxu_rnav_gnss_rwy_09.pdf",
                 "name": "CYXU_RNAV_GNSS_RWY_09.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_rwy_09.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1dWoPlXCQwgt9DkHzDL4ryO6EiZjiTAfg", "driveUrl": "https://drive.google.com/file/d/1dWoPlXCQwgt9DkHzDL4ryO6EiZjiTAfg/view?usp=drivesdk" },
         {
                 "id": "cyxu_aerodrome_chart.pdf",
                 "name": "CYXU_AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1dZf7JqNCbVhZEhc0eFOPq_Xnu8vro6za", "driveUrl": "https://drive.google.com/file/d/1dZf7JqNCbVhZEhc0eFOPq_Xnu8vro6za/view?usp=drivesdk" },
         {
                 "id": "cyxu_rnav_rnp_y_rwy_33.pdf",
                 "name": "CYXU_RNAV_RNP_Y_RWY_33.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_rnav_rnp_y_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_rnp_y_rwy_33.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1oPmur1x1S7LW6T-v-7osj-ANK7yyCdes", "driveUrl": "https://drive.google.com/file/d/1oPmur1x1S7LW6T-v-7osj-ANK7yyCdes/view?usp=drivesdk" },
         {
                 "id": "cyxu_london_2_dep_vector_pg_02.pdf",
                 "name": "CYXU_LONDON_2_DEP_VECTOR_PG_02.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_london_2_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_london_2_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1m-o4scCnaYiWJksnKHarUfCJ_PbLFug_", "driveUrl": "https://drive.google.com/file/d/1m-o4scCnaYiWJksnKHarUfCJ_PbLFug_/view?usp=drivesdk" },
         {
                 "id": "cyxu_ils_rwy_15.pdf",
                 "name": "CYXU_ILS_RWY_15.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_ils_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_ils_rwy_15.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1veMAQnS5MsJJzO22WwHaBebz8OI2OW-o", "driveUrl": "https://drive.google.com/file/d/1veMAQnS5MsJJzO22WwHaBebz8OI2OW-o/view?usp=drivesdk" },
         {
                 "id": "cyxu_rnav_gnss_z_rwy_15.pdf",
                 "name": "CYXU_RNAV_GNSS_Z_RWY_15.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_z_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_z_rwy_15.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1t907VglTKWZeC-vy-jPZ7p0Qtl-PEqbH", "driveUrl": "https://drive.google.com/file/d/1t907VglTKWZeC-vy-jPZ7p0Qtl-PEqbH/view?usp=drivesdk" },
         {
                 "id": "cyxu_london_2_dep_vector.pdf",
                 "name": "CYXU_LONDON_2_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_london_2_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_london_2_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1HZJw7lBVe3Q9zfAceDYq485VG_qdQ32a", "driveUrl": "https://drive.google.com/file/d/1HZJw7lBVe3Q9zfAceDYq485VG_qdQ32a/view?usp=drivesdk" },
         {
                 "id": "cyxu_rnav_gnss_z_rwy_33.pdf",
                 "name": "CYXU_RNAV_GNSS_Z_RWY_33.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_z_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_gnss_z_rwy_33.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1lhDuVhSCNPGE0WfmyKeSE7zEw1jvQ7jy", "driveUrl": "https://drive.google.com/file/d/1lhDuVhSCNPGE0WfmyKeSE7zEw1jvQ7jy/view?usp=drivesdk" },
         {
                 "id": "cyxu_vor_dme_rwy_27.pdf",
                 "name": "CYXU_VOR_DME_RWY_27.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_vor_dme_rwy_27.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_vor_dme_rwy_27.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ZEeyn6lfeeBT639zxYLEvHnm9kX5vSnf", "driveUrl": "https://drive.google.com/file/d/1ZEeyn6lfeeBT639zxYLEvHnm9kX5vSnf/view?usp=drivesdk" },
         {
                 "id": "cyxu_takeoff_minimums.pdf",
                 "name": "CYXU_TAKEOFF_MINIMUMS.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_takeoff_minimums.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_takeoff_minimums.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1aZumpC9Iyfw7oc_wSokL8EdDZvfBPQ5E", "driveUrl": "https://drive.google.com/file/d/1aZumpC9Iyfw7oc_wSokL8EdDZvfBPQ5E/view?usp=drivesdk" },
         {
                 "id": "cyxu_vor_dme_rwy_09.pdf",
                 "name": "CYXU_VOR_DME_RWY_09.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_vor_dme_rwy_09.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_vor_dme_rwy_09.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1amVQgc6XT42IstTMwZKkIqv2eZ_TY_UC", "driveUrl": "https://drive.google.com/file/d/1amVQgc6XT42IstTMwZKkIqv2eZ_TY_UC/view?usp=drivesdk" },
         {
                 "id": "cyxu_rnav_rnp_y_rwy_15.pdf",
                 "name": "CYXU_RNAV_RNP_Y_RWY_15.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_rnav_rnp_y_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_rnav_rnp_y_rwy_15.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1mh9tAWqNONlvmUppXtLQo8L4bySP6nXK", "driveUrl": "https://drive.google.com/file/d/1mh9tAWqNONlvmUppXtLQo8L4bySP6nXK/view?usp=drivesdk" },
         {
                 "id": "cyxu_parking_areas_apron_v.pdf",
                 "name": "CYXU_PARKING_AREAS_APRON_V.pdf",
                 "url": "charts_data/canada/cyxu-london/cyxu_parking_areas_apron_v.pdf",
                 "localUrl": "charts_data/canada/cyxu-london/cyxu_parking_areas_apron_v.pdf",
                 "type": "pdf"
-        },
+, "driveId": "17re91mMRGht7n1cFScutoDBnspmHhB1s", "driveUrl": "https://drive.google.com/file/d/17re91mMRGht7n1cFScutoDBnspmHhB1s/view?usp=drivesdk" },
         {
                 "id": ".DS_Store",
                 "name": ".DS_Store",
                 "url": "charts_data/canada/cyxu-london/.DS_Store",
                 "localUrl": "charts_data/canada/cyxu-london/.DS_Store",
                 "type": "doc"
-        }
+, "driveId": "1aTT9dWYRgkaIOUjC8TvFsiij0B-FbHFo", "driveUrl": "https://drive.google.com/file/d/1aTT9dWYRgkaIOUjC8TvFsiij0B-FbHFo/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1211,7 +1211,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

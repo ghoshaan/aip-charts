@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,63 +1065,63 @@
                 "url": "charts_data/canada/cydf-deer-lake-regional/deer_lake_1_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cydf-deer-lake-regional/deer_lake_1_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1NcgGaWG_-svAHCJTu6t3fN5C7nz92Zzz", "driveUrl": "https://drive.google.com/file/d/1NcgGaWG_-svAHCJTu6t3fN5C7nz92Zzz/view?usp=drivesdk" },
         {
                 "id": "deer_lake_1_dep_vector.pdf",
                 "name": "DEER_LAKE_1_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cydf-deer-lake-regional/deer_lake_1_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cydf-deer-lake-regional/deer_lake_1_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "13KvOKdPRV1eHepg1Ktor0oie-_hXXq8X", "driveUrl": "https://drive.google.com/file/d/13KvOKdPRV1eHepg1Ktor0oie-_hXXq8X/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cydf-deer-lake-regional/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cydf-deer-lake-regional/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1SMBSKiKj_XQnTjwRtCpePOO38AKRf6__", "driveUrl": "https://drive.google.com/file/d/1SMBSKiKj_XQnTjwRtCpePOO38AKRf6__/view?usp=drivesdk" },
         {
                 "id": "rnav_rnp_y_rwy_25.pdf",
                 "name": "RNAV_RNP_Y_RWY_25.pdf",
                 "url": "charts_data/canada/cydf-deer-lake-regional/rnav_rnp_y_rwy_25.pdf",
                 "localUrl": "charts_data/canada/cydf-deer-lake-regional/rnav_rnp_y_rwy_25.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1mRpNKGm9d3opeNNxtQ3enaBl18JOfZxe", "driveUrl": "https://drive.google.com/file/d/1mRpNKGm9d3opeNNxtQ3enaBl18JOfZxe/view?usp=drivesdk" },
         {
                 "id": "rnav_rnp_y_rwy_07.pdf",
                 "name": "RNAV_RNP_Y_RWY_07.pdf",
                 "url": "charts_data/canada/cydf-deer-lake-regional/rnav_rnp_y_rwy_07.pdf",
                 "localUrl": "charts_data/canada/cydf-deer-lake-regional/rnav_rnp_y_rwy_07.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1YKX2BLXUGGiq0khKSAiR3jQGNh9i1t7u", "driveUrl": "https://drive.google.com/file/d/1YKX2BLXUGGiq0khKSAiR3jQGNh9i1t7u/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_z_rwy_25.pdf",
                 "name": "RNAV_GNSS_Z_RWY_25.pdf",
                 "url": "charts_data/canada/cydf-deer-lake-regional/rnav_gnss_z_rwy_25.pdf",
                 "localUrl": "charts_data/canada/cydf-deer-lake-regional/rnav_gnss_z_rwy_25.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1O1RjNSbiBJ61GCPuFPNTyt6gscbSNQVj", "driveUrl": "https://drive.google.com/file/d/1O1RjNSbiBJ61GCPuFPNTyt6gscbSNQVj/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_z_rwy_07.pdf",
                 "name": "RNAV_GNSS_Z_RWY_07.pdf",
                 "url": "charts_data/canada/cydf-deer-lake-regional/rnav_gnss_z_rwy_07.pdf",
                 "localUrl": "charts_data/canada/cydf-deer-lake-regional/rnav_gnss_z_rwy_07.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1O1aKC_sCHmCdDk1upZ1WqBf_eK8dZzlx", "driveUrl": "https://drive.google.com/file/d/1O1aKC_sCHmCdDk1upZ1WqBf_eK8dZzlx/view?usp=drivesdk" },
         {
                 "id": "ils_z_rwy_25.pdf",
                 "name": "ILS_Z_RWY_25.pdf",
                 "url": "charts_data/canada/cydf-deer-lake-regional/ils_z_rwy_25.pdf",
                 "localUrl": "charts_data/canada/cydf-deer-lake-regional/ils_z_rwy_25.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1NvkE9sLyJBDBUeQYIYdAXm5MzmA7qwI0", "driveUrl": "https://drive.google.com/file/d/1NvkE9sLyJBDBUeQYIYdAXm5MzmA7qwI0/view?usp=drivesdk" },
         {
                 "id": "ils_y_rwy_25.pdf",
                 "name": "ILS_Y_RWY_25.pdf",
                 "url": "charts_data/canada/cydf-deer-lake-regional/ils_y_rwy_25.pdf",
                 "localUrl": "charts_data/canada/cydf-deer-lake-regional/ils_y_rwy_25.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1Gz3x4n8hb5CdLj09NLn5bvBKc8smbUls", "driveUrl": "https://drive.google.com/file/d/1Gz3x4n8hb5CdLj09NLn5bvBKc8smbUls/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1169,7 +1169,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

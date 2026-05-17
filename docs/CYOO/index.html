@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cyoo-oshawa-executive/oshawa_6_dep_vector_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyoo-oshawa-executive/oshawa_6_dep_vector_pg_02.pdf"
-        },
+, "driveId": "1hy3JBLsfDUSCPOR1H1RWZ9fwADROE5Wp", "driveUrl": "https://drive.google.com/file/d/1hy3JBLsfDUSCPOR1H1RWZ9fwADROE5Wp/view?usp=drivesdk" },
         {
                 "id": "noise_abatement_procedures.pdf",
                 "name": "NOISE_ABATEMENT_PROCEDURES.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cyoo-oshawa-executive/noise_abatement_procedures.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyoo-oshawa-executive/noise_abatement_procedures.pdf"
-        },
+, "driveId": "1GxWodrECBLB_1LK04DXNixICJMr6rI4j", "driveUrl": "https://drive.google.com/file/d/1GxWodrECBLB_1LK04DXNixICJMr6rI4j/view?usp=drivesdk" },
         {
                 "id": "oshawa_6_dep_vector.pdf",
                 "name": "OSHAWA_6_DEP_VECTOR.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cyoo-oshawa-executive/oshawa_6_dep_vector.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyoo-oshawa-executive/oshawa_6_dep_vector.pdf"
-        },
+, "driveId": "15u1XG5aKyObYt_wbvaJO_xyed0UH2we5", "driveUrl": "https://drive.google.com/file/d/15u1XG5aKyObYt_wbvaJO_xyed0UH2we5/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_30.pdf",
                 "name": "RNAV_GNSS_RWY_30.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/canada/cyoo-oshawa-executive/rnav_gnss_rwy_30.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyoo-oshawa-executive/rnav_gnss_rwy_30.pdf"
-        },
+, "driveId": "1D-Uijn95sH6UJ_3ML08DU8TETWRan3Z1", "driveUrl": "https://drive.google.com/file/d/1D-Uijn95sH6UJ_3ML08DU8TETWRan3Z1/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/canada/cyoo-oshawa-executive/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyoo-oshawa-executive/aerodrome_chart.pdf"
-        },
+, "driveId": "1FstCh6FaV-1fqKRqvMCfCm46UJ-u9CGp", "driveUrl": "https://drive.google.com/file/d/1FstCh6FaV-1fqKRqvMCfCm46UJ-u9CGp/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_23.pdf",
                 "name": "RNAV_GNSS_RWY_23.pdf",
@@ -1105,7 +1105,7 @@
                 "localUrl": "../charts_data/canada/cyoo-oshawa-executive/rnav_gnss_rwy_23.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyoo-oshawa-executive/rnav_gnss_rwy_23.pdf"
-        },
+, "driveId": "1tm5YqxbiAU87jg-I3NgLiaW7MDLCsyAZ", "driveUrl": "https://drive.google.com/file/d/1tm5YqxbiAU87jg-I3NgLiaW7MDLCsyAZ/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_05.pdf",
                 "name": "RNAV_GNSS_RWY_05.pdf",
@@ -1113,7 +1113,7 @@
                 "localUrl": "../charts_data/canada/cyoo-oshawa-executive/rnav_gnss_rwy_05.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyoo-oshawa-executive/rnav_gnss_rwy_05.pdf"
-        },
+, "driveId": "1a6sSzsWgduGzG2u-cMnzIinhBxRgtl6K", "driveUrl": "https://drive.google.com/file/d/1a6sSzsWgduGzG2u-cMnzIinhBxRgtl6K/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_12.pdf",
                 "name": "RNAV_GNSS_RWY_12.pdf",
@@ -1121,7 +1121,7 @@
                 "localUrl": "../charts_data/canada/cyoo-oshawa-executive/rnav_gnss_rwy_12.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyoo-oshawa-executive/rnav_gnss_rwy_12.pdf"
-        }
+, "driveId": "1_oO0192zmrYCGuOPuiMB9lnew3TzZkBh", "driveUrl": "https://drive.google.com/file/d/1_oO0192zmrYCGuOPuiMB9lnew3TzZkBh/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1169,7 +1169,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

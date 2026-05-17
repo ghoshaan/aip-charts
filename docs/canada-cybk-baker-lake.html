@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,35 +1065,35 @@
                 "url": "charts_data/canada/cybk-baker-lake/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cybk-baker-lake/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1tiBMf3XzWYptAa6v3raM2ygfo1VlcyEg", "driveUrl": "https://drive.google.com/file/d/1tiBMf3XzWYptAa6v3raM2ygfo1VlcyEg/view?usp=drivesdk" },
         {
                 "id": "vor_a_true.pdf",
                 "name": "VOR_A_TRUE.pdf",
                 "url": "charts_data/canada/cybk-baker-lake/vor_a_true.pdf",
                 "localUrl": "charts_data/canada/cybk-baker-lake/vor_a_true.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1UNQS3rh-HteXSNtUGDpmTxu7OsVpGOeZ", "driveUrl": "https://drive.google.com/file/d/1UNQS3rh-HteXSNtUGDpmTxu7OsVpGOeZ/view?usp=drivesdk" },
         {
                 "id": "vor_dme_rwy_34_true.pdf",
                 "name": "VOR_DME_RWY_34_TRUE.pdf",
                 "url": "charts_data/canada/cybk-baker-lake/vor_dme_rwy_34_true.pdf",
                 "localUrl": "charts_data/canada/cybk-baker-lake/vor_dme_rwy_34_true.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1RHB0F4GGEXAZB61HWEqRNZv4XU_4DX7K", "driveUrl": "https://drive.google.com/file/d/1RHB0F4GGEXAZB61HWEqRNZv4XU_4DX7K/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_34_true.pdf",
                 "name": "RNAV_GNSS_RWY_34_TRUE.pdf",
                 "url": "charts_data/canada/cybk-baker-lake/rnav_gnss_rwy_34_true.pdf",
                 "localUrl": "charts_data/canada/cybk-baker-lake/rnav_gnss_rwy_34_true.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1tsyfl1wb8zPJYgottCRUtFB2KphOZlow", "driveUrl": "https://drive.google.com/file/d/1tsyfl1wb8zPJYgottCRUtFB2KphOZlow/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_16_true.pdf",
                 "name": "RNAV_GNSS_RWY_16_TRUE.pdf",
                 "url": "charts_data/canada/cybk-baker-lake/rnav_gnss_rwy_16_true.pdf",
                 "localUrl": "charts_data/canada/cybk-baker-lake/rnav_gnss_rwy_16_true.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1IP7B8XKgwZGg77pEFOkMyb-tM-kzjT_F", "driveUrl": "https://drive.google.com/file/d/1IP7B8XKgwZGg77pEFOkMyb-tM-kzjT_F/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1141,7 +1141,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

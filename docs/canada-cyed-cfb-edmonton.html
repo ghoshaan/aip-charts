@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,70 +1065,70 @@
                 "url": "charts_data/canada/cyed-cfb-edmonton/namao_2_dep_dnd_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyed-cfb-edmonton/namao_2_dep_dnd_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "15j0AjjMKdOkRabLZRRn_Gr8d1wO2T7g_", "driveUrl": "https://drive.google.com/file/d/15j0AjjMKdOkRabLZRRn_Gr8d1wO2T7g_/view?usp=drivesdk" },
         {
                 "id": "freedom_2_dep_dnd_pilot_nav_pg_02.pdf",
                 "name": "FREEDOM_2_DEP_DND_PILOT_NAV_PG_02.pdf",
                 "url": "charts_data/canada/cyed-cfb-edmonton/freedom_2_dep_dnd_pilot_nav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyed-cfb-edmonton/freedom_2_dep_dnd_pilot_nav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1s7RGaVfMn6Rq2TYQF1JkmBolXwzoff2w", "driveUrl": "https://drive.google.com/file/d/1s7RGaVfMn6Rq2TYQF1JkmBolXwzoff2w/view?usp=drivesdk" },
         {
                 "id": "namao_2_dep_dnd_vector.pdf",
                 "name": "NAMAO_2_DEP_DND_VECTOR.pdf",
                 "url": "charts_data/canada/cyed-cfb-edmonton/namao_2_dep_dnd_vector.pdf",
                 "localUrl": "charts_data/canada/cyed-cfb-edmonton/namao_2_dep_dnd_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1k10GEndiL6TIpDkRoVyDKxl3pGUnxj4E", "driveUrl": "https://drive.google.com/file/d/1k10GEndiL6TIpDkRoVyDKxl3pGUnxj4E/view?usp=drivesdk" },
         {
                 "id": "freedom_2_dep_dnd_pilot_nav.pdf",
                 "name": "FREEDOM_2_DEP_DND_PILOT_NAV.pdf",
                 "url": "charts_data/canada/cyed-cfb-edmonton/freedom_2_dep_dnd_pilot_nav.pdf",
                 "localUrl": "charts_data/canada/cyed-cfb-edmonton/freedom_2_dep_dnd_pilot_nav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "15WQNuRIhY4C13t6Wif1xJKNXhrDH8N8q", "driveUrl": "https://drive.google.com/file/d/15WQNuRIhY4C13t6Wif1xJKNXhrDH8N8q/view?usp=drivesdk" },
         {
                 "id": "heliport_chart_dnd.pdf",
                 "name": "HELIPORT_CHART_DND.pdf",
                 "url": "charts_data/canada/cyed-cfb-edmonton/heliport_chart_dnd.pdf",
                 "localUrl": "charts_data/canada/cyed-cfb-edmonton/heliport_chart_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1GqgZlVQhluqtiNyHGQXNpDyPec2pbd2A", "driveUrl": "https://drive.google.com/file/d/1GqgZlVQhluqtiNyHGQXNpDyPec2pbd2A/view?usp=drivesdk" },
         {
                 "id": "visual_apch_dnd.pdf",
                 "name": "VISUAL_APCH_DND.pdf",
                 "url": "charts_data/canada/cyed-cfb-edmonton/visual_apch_dnd.pdf",
                 "localUrl": "charts_data/canada/cyed-cfb-edmonton/visual_apch_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1EJQ4Y_Yv3SId01vwKTDiWfGUIYdNr0Co", "driveUrl": "https://drive.google.com/file/d/1EJQ4Y_Yv3SId01vwKTDiWfGUIYdNr0Co/view?usp=drivesdk" },
         {
                 "id": "copter_rnav_gnss_295_deg_dnd.pdf",
                 "name": "COPTER_RNAV_GNSS_295_DEG_DND.pdf",
                 "url": "charts_data/canada/cyed-cfb-edmonton/copter_rnav_gnss_295_deg_dnd.pdf",
                 "localUrl": "charts_data/canada/cyed-cfb-edmonton/copter_rnav_gnss_295_deg_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1wVd3-9Hf4okgHQ4d7mXS76y7DNT2Ihx3", "driveUrl": "https://drive.google.com/file/d/1wVd3-9Hf4okgHQ4d7mXS76y7DNT2Ihx3/view?usp=drivesdk" },
         {
                 "id": "copter_ndb_291_deg_dnd.pdf",
                 "name": "COPTER_NDB_291_DEG_DND.pdf",
                 "url": "charts_data/canada/cyed-cfb-edmonton/copter_ndb_291_deg_dnd.pdf",
                 "localUrl": "charts_data/canada/cyed-cfb-edmonton/copter_ndb_291_deg_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "113IHf5jwV_eG-c5sJMjJaYsYn6fPWz5c", "driveUrl": "https://drive.google.com/file/d/113IHf5jwV_eG-c5sJMjJaYsYn6fPWz5c/view?usp=drivesdk" },
         {
                 "id": "copter_ndb_204_deg_dnd.pdf",
                 "name": "COPTER_NDB_204_DEG_DND.pdf",
                 "url": "charts_data/canada/cyed-cfb-edmonton/copter_ndb_204_deg_dnd.pdf",
                 "localUrl": "charts_data/canada/cyed-cfb-edmonton/copter_ndb_204_deg_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "15PNhlo5Y6krsLH85L-RFhIqqEqoZqnHP", "driveUrl": "https://drive.google.com/file/d/15PNhlo5Y6krsLH85L-RFhIqqEqoZqnHP/view?usp=drivesdk" },
         {
                 "id": "copter_ndb_128_deg_dnd.pdf",
                 "name": "COPTER_NDB_128_DEG_DND.pdf",
                 "url": "charts_data/canada/cyed-cfb-edmonton/copter_ndb_128_deg_dnd.pdf",
                 "localUrl": "charts_data/canada/cyed-cfb-edmonton/copter_ndb_128_deg_dnd.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1LgHwJfSL9X0j5wDj50zKJGGw7Wu4pjfo", "driveUrl": "https://drive.google.com/file/d/1LgHwJfSL9X0j5wDj50zKJGGw7Wu4pjfo/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1176,7 +1176,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

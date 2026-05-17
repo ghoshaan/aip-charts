@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,175 +1065,175 @@
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_torngat_1_dep_dnd_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_torngat_1_dep_dnd_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1EeCUhDT8UzDsadWlB5rM2oCJv9WtPNMB", "driveUrl": "https://drive.google.com/file/d/1EeCUhDT8UzDsadWlB5rM2oCJv9WtPNMB/view?usp=drivesdk" },
         {
                 "id": "cyyr_torngat_1_dep_dnd_rnav.pdf",
                 "name": "CYYR_TORNGAT_1_DEP_DND_RNAV.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_torngat_1_dep_dnd_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_torngat_1_dep_dnd_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1-9w3jzER8Wb1fn82PR83Vxl7iyS5FDnA", "driveUrl": "https://drive.google.com/file/d/1-9w3jzER8Wb1fn82PR83Vxl7iyS5FDnA/view?usp=drivesdk" },
         {
                 "id": "cyyr_mealy_1_dep_dnd_rnav_pg_02.pdf",
                 "name": "CYYR_MEALY_1_DEP_DND_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_mealy_1_dep_dnd_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_mealy_1_dep_dnd_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "12GM6lz8HxO7I4mRmIHGkElWtUYzgFPuc", "driveUrl": "https://drive.google.com/file/d/12GM6lz8HxO7I4mRmIHGkElWtUYzgFPuc/view?usp=drivesdk" },
         {
                 "id": "cyyr_mealy_1_dep_dnd_rnav.pdf",
                 "name": "CYYR_MEALY_1_DEP_DND_RNAV.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_mealy_1_dep_dnd_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_mealy_1_dep_dnd_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1HesUzLXR7i8GIznayqRzG_YvStmtYSSI", "driveUrl": "https://drive.google.com/file/d/1HesUzLXR7i8GIznayqRzG_YvStmtYSSI/view?usp=drivesdk" },
         {
                 "id": "cyyr_labrador_1_dep_dnd_rnav_pg_02.pdf",
                 "name": "CYYR_LABRADOR_1_DEP_DND_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_labrador_1_dep_dnd_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_labrador_1_dep_dnd_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1fdfVY6iee-LfqnaFSbeDcdWrXWZdcLHV", "driveUrl": "https://drive.google.com/file/d/1fdfVY6iee-LfqnaFSbeDcdWrXWZdcLHV/view?usp=drivesdk" },
         {
                 "id": "cyyr_labrador_1_dep_dnd_rnav.pdf",
                 "name": "CYYR_LABRADOR_1_DEP_DND_RNAV.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_labrador_1_dep_dnd_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_labrador_1_dep_dnd_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1MR6pWV2Tf_OaBQPQQiSHAV3fwzE3yXx6", "driveUrl": "https://drive.google.com/file/d/1MR6pWV2Tf_OaBQPQQiSHAV3fwzE3yXx6/view?usp=drivesdk" },
         {
                 "id": "cyyr_goose_bay_1_dep_dnd_rnav_pg_02.pdf",
                 "name": "CYYR_GOOSE_BAY_1_DEP_DND_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_goose_bay_1_dep_dnd_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_goose_bay_1_dep_dnd_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1z5l3kldS2ngf7QvhzzH4_ZanW3CmpywF", "driveUrl": "https://drive.google.com/file/d/1z5l3kldS2ngf7QvhzzH4_ZanW3CmpywF/view?usp=drivesdk" },
         {
                 "id": "cyyr_goose_bay_1_dep_dnd_rnav.pdf",
                 "name": "CYYR_GOOSE_BAY_1_DEP_DND_RNAV.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_goose_bay_1_dep_dnd_rnav.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_goose_bay_1_dep_dnd_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1AUu5hfpb7Ju9n2k5Sx4hT3UbaoAb4rYu", "driveUrl": "https://drive.google.com/file/d/1AUu5hfpb7Ju9n2k5Sx4hT3UbaoAb4rYu/view?usp=drivesdk" },
         {
                 "id": "cyyr_parking_areas_dnd.pdf",
                 "name": "CYYR_PARKING_AREAS_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_parking_areas_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_parking_areas_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1cD6L01m1WCWPn04d0-P1OdF9sjVk5tfP", "driveUrl": "https://drive.google.com/file/d/1cD6L01m1WCWPn04d0-P1OdF9sjVk5tfP/view?usp=drivesdk" },
         {
                 "id": "cyyr_aerodrome_chart_dnd.pdf",
                 "name": "CYYR_AERODROME_CHART_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_aerodrome_chart_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_aerodrome_chart_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1_cvl2AV0EQFq6sQwL_nhcYXNfI5NqHpg", "driveUrl": "https://drive.google.com/file/d/1_cvl2AV0EQFq6sQwL_nhcYXNfI5NqHpg/view?usp=drivesdk" },
         {
                 "id": "cyyr_tacan_rwy_33_dnd.pdf",
                 "name": "CYYR_TACAN_RWY_33_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_tacan_rwy_33_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_tacan_rwy_33_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ehL5HdeOoyhWkfgFVLNtgimJpLGTBlWi", "driveUrl": "https://drive.google.com/file/d/1ehL5HdeOoyhWkfgFVLNtgimJpLGTBlWi/view?usp=drivesdk" },
         {
                 "id": "cyyr_tacan_rwy_26_dnd.pdf",
                 "name": "CYYR_TACAN_RWY_26_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_tacan_rwy_26_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_tacan_rwy_26_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1jZvXMPwg9aiiMjjy2UACFwODnFpYq8Zt", "driveUrl": "https://drive.google.com/file/d/1jZvXMPwg9aiiMjjy2UACFwODnFpYq8Zt/view?usp=drivesdk" },
         {
                 "id": "cyyr_tacan_rwy_08_dnd.pdf",
                 "name": "CYYR_TACAN_RWY_08_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_tacan_rwy_08_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_tacan_rwy_08_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1m12601PmObETff_rlWS--eQwuD54Mnpj", "driveUrl": "https://drive.google.com/file/d/1m12601PmObETff_rlWS--eQwuD54Mnpj/view?usp=drivesdk" },
         {
                 "id": "cyyr_rnav_gnss_rwy_33_dnd.pdf",
                 "name": "CYYR_RNAV_GNSS_RWY_33_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_rnav_gnss_rwy_33_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_rnav_gnss_rwy_33_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1PfV5TnEW-b7j8qPmC9KaNNuvyVRmVf3N", "driveUrl": "https://drive.google.com/file/d/1PfV5TnEW-b7j8qPmC9KaNNuvyVRmVf3N/view?usp=drivesdk" },
         {
                 "id": "cyyr_rnav_gnss_rwy_26_dnd.pdf",
                 "name": "CYYR_RNAV_GNSS_RWY_26_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_rnav_gnss_rwy_26_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_rnav_gnss_rwy_26_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "19UUaVlXglHApFjGS6_ahIIIDkwxdJPxO", "driveUrl": "https://drive.google.com/file/d/19UUaVlXglHApFjGS6_ahIIIDkwxdJPxO/view?usp=drivesdk" },
         {
                 "id": "cyyr_rnav_gnss_rwy_15_dnd.pdf",
                 "name": "CYYR_RNAV_GNSS_RWY_15_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_rnav_gnss_rwy_15_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_rnav_gnss_rwy_15_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1bOq3GJG18fJeUy1IeQbEYjyKe-BKudI-", "driveUrl": "https://drive.google.com/file/d/1bOq3GJG18fJeUy1IeQbEYjyKe-BKudI-/view?usp=drivesdk" },
         {
                 "id": "cyyr_rnav_gnss_rwy_08_dnd.pdf",
                 "name": "CYYR_RNAV_GNSS_RWY_08_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_rnav_gnss_rwy_08_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_rnav_gnss_rwy_08_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1mno02EKVL1mB_-3of5_PT4T4WFQaPEdm", "driveUrl": "https://drive.google.com/file/d/1mno02EKVL1mB_-3of5_PT4T4WFQaPEdm/view?usp=drivesdk" },
         {
                 "id": "cyyr_ndb_rwy_26_dnd.pdf",
                 "name": "CYYR_NDB_RWY_26_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_ndb_rwy_26_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_ndb_rwy_26_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1jB_v80M_c-uvJqilO9rfB6uCV3JED1t-", "driveUrl": "https://drive.google.com/file/d/1jB_v80M_c-uvJqilO9rfB6uCV3JED1t-/view?usp=drivesdk" },
         {
                 "id": "cyyr_loc_bc_rwy_26_dnd.pdf",
                 "name": "CYYR_LOC_BC_RWY_26_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_loc_bc_rwy_26_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_loc_bc_rwy_26_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "18ATe3R1KnasfYFm9hNbttFs6RaC0_Zpt", "driveUrl": "https://drive.google.com/file/d/18ATe3R1KnasfYFm9hNbttFs6RaC0_Zpt/view?usp=drivesdk" },
         {
                 "id": "cyyr_ils_z_rwy_08_dnd.pdf",
                 "name": "CYYR_ILS_Z_RWY_08_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_ils_z_rwy_08_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_ils_z_rwy_08_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1eU9yeph571NeLdFKNxBi5d42XVCYQ9Rz", "driveUrl": "https://drive.google.com/file/d/1eU9yeph571NeLdFKNxBi5d42XVCYQ9Rz/view?usp=drivesdk" },
         {
                 "id": "cyyr_ils_y_rwy_08_dnd.pdf",
                 "name": "CYYR_ILS_Y_RWY_08_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_ils_y_rwy_08_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_ils_y_rwy_08_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1NfMBTF7PuQhncfz7WHfpWEJAJ2ZTbEAE", "driveUrl": "https://drive.google.com/file/d/1NfMBTF7PuQhncfz7WHfpWEJAJ2ZTbEAE/view?usp=drivesdk" },
         {
                 "id": "cyyr_ils_x_rwy_08_dnd.pdf",
                 "name": "CYYR_ILS_X_RWY_08_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_ils_x_rwy_08_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_ils_x_rwy_08_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1tdCr6wWBCi16AN1FBC3weiRC_-7CHNlI", "driveUrl": "https://drive.google.com/file/d/1tdCr6wWBCi16AN1FBC3weiRC_-7CHNlI/view?usp=drivesdk" },
         {
                 "id": "cyyr_hi-tacan_rwy_33_dnd.pdf",
                 "name": "CYYR_HI-TACAN_RWY_33_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_hi-tacan_rwy_33_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_hi-tacan_rwy_33_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1NQaOSKmqL3zkG5fPsX_yRd8WIoeLMLV_", "driveUrl": "https://drive.google.com/file/d/1NQaOSKmqL3zkG5fPsX_yRd8WIoeLMLV_/view?usp=drivesdk" },
         {
                 "id": "cyyr_hi-tacan_rwy_26_dnd.pdf",
                 "name": "CYYR_HI-TACAN_RWY_26_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_hi-tacan_rwy_26_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_hi-tacan_rwy_26_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1eodzvpYmcDVnEOY5f_95XaknNFmqc29o", "driveUrl": "https://drive.google.com/file/d/1eodzvpYmcDVnEOY5f_95XaknNFmqc29o/view?usp=drivesdk" },
         {
                 "id": "cyyr_hi-tacan_rwy_08_dnd.pdf",
                 "name": "CYYR_HI-TACAN_RWY_08_DND.pdf",
                 "url": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_hi-tacan_rwy_08_dnd.pdf",
                 "localUrl": "charts_data/canada/cyyr-cfb-goose-bay/cyyr_hi-tacan_rwy_08_dnd.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1vXuhAYjOOsC1R1r-6NU0sg3hblWKM887", "driveUrl": "https://drive.google.com/file/d/1vXuhAYjOOsC1R1r-6NU0sg3hblWKM887/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1281,7 +1281,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

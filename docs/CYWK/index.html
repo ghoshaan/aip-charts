@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cywk/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cywk/aerodrome_chart.pdf"
-        },
+, "driveId": "1A5uSpWcdJNKpZaATaannou61dE8w2YRR", "driveUrl": "https://drive.google.com/file/d/1A5uSpWcdJNKpZaATaannou61dE8w2YRR/view?usp=drivesdk" },
         {
                 "id": "takeoff_minimums.pdf",
                 "name": "TAKEOFF_MINIMUMS.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cywk/takeoff_minimums.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cywk/takeoff_minimums.pdf"
-        },
+, "driveId": "1NdzEeF1kvIa02b3k3Le90m7zYuWmCQcu", "driveUrl": "https://drive.google.com/file/d/1NdzEeF1kvIa02b3k3Le90m7zYuWmCQcu/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_36.pdf",
                 "name": "RNAV_GNSS_RWY_36.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cywk/rnav_gnss_rwy_36.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cywk/rnav_gnss_rwy_36.pdf"
-        },
+, "driveId": "16iiMeZLo4Al-2QSA6xb2zbg_G-2w2QdW", "driveUrl": "https://drive.google.com/file/d/16iiMeZLo4Al-2QSA6xb2zbg_G-2w2QdW/view?usp=drivesdk" },
         {
                 "id": "ils_rwy_36.pdf",
                 "name": "ILS_RWY_36.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/canada/cywk/ils_rwy_36.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cywk/ils_rwy_36.pdf"
-        },
+, "driveId": "1b-cNO2VbSLgP8xhkAk6ypAgc4HCDoJdA", "driveUrl": "https://drive.google.com/file/d/1b-cNO2VbSLgP8xhkAk6ypAgc4HCDoJdA/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_18.pdf",
                 "name": "RNAV_GNSS_RWY_18.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/canada/cywk/rnav_gnss_rwy_18.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cywk/rnav_gnss_rwy_18.pdf"
-        }
+, "driveId": "1pD9M0DUjcCrQqMOhZk7HJ3zhmcsTr0wB", "driveUrl": "https://drive.google.com/file/d/1pD9M0DUjcCrQqMOhZk7HJ3zhmcsTr0wB/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1145,7 +1145,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

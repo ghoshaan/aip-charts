@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/netherlands/ehtx/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehtx/aerodrome_chart.pdf"
-        },
+, "driveId": "1ci4S-wRa6aJKgvlpvASu08ZScTDm-vDP", "driveUrl": "https://drive.google.com/file/d/1ci4S-wRa6aJKgvlpvASu08ZScTDm-vDP/view?usp=drivesdk" },
         {
                 "id": "seasonal_vfr_departure_procedures_rwy_0321.pdf",
                 "name": "SEASONAL_VFR_DEPARTURE_PROCEDURES_RWY_0321.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/netherlands/ehtx/seasonal_vfr_departure_procedures_rwy_0321.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehtx/seasonal_vfr_departure_procedures_rwy_0321.pdf"
-        },
+, "driveId": "1B9n3ef1DyvIMyVKPTwGA8O9HoMj9EgBj", "driveUrl": "https://drive.google.com/file/d/1B9n3ef1DyvIMyVKPTwGA8O9HoMj9EgBj/view?usp=drivesdk" },
         {
                 "id": "seasonal_vfr_arrival_procedures_rwy_0321.pdf",
                 "name": "SEASONAL_VFR_ARRIVAL_PROCEDURES_RWY_0321.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/netherlands/ehtx/seasonal_vfr_arrival_procedures_rwy_0321.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehtx/seasonal_vfr_arrival_procedures_rwy_0321.pdf"
-        },
+, "driveId": "17e9JUOAe0DuRGqa7Y2CWcpkAVz_qeC6y", "driveUrl": "https://drive.google.com/file/d/17e9JUOAe0DuRGqa7Y2CWcpkAVz_qeC6y/view?usp=drivesdk" },
         {
                 "id": "visual_approach_chartvfr_procedures.pdf",
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/netherlands/ehtx/visual_approach_chartvfr_procedures.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehtx/visual_approach_chartvfr_procedures.pdf"
-        }
+, "driveId": "1GBh5TyxMSJQSveA1RPaSCh7TG7tB1YmL", "driveUrl": "https://drive.google.com/file/d/1GBh5TyxMSJQSveA1RPaSCh7TG7tB1YmL/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1137,7 +1137,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

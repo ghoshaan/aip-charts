@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,35 +1065,35 @@
                 "url": "charts_data/canada/cyda-dawson-city/rnav_gnss_z_rwy_03.pdf",
                 "localUrl": "charts_data/canada/cyda-dawson-city/rnav_gnss_z_rwy_03.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1gPXsOoThBaaeog4XjFQH7m_uN-YExFPX", "driveUrl": "https://drive.google.com/file/d/1gPXsOoThBaaeog4XjFQH7m_uN-YExFPX/view?usp=drivesdk" },
         {
                 "id": "ndb_a.pdf",
                 "name": "NDB_A.pdf",
                 "url": "charts_data/canada/cyda-dawson-city/ndb_a.pdf",
                 "localUrl": "charts_data/canada/cyda-dawson-city/ndb_a.pdf",
                 "type": "pdf"
-        },
+, "driveId": "129v-ZJOXkZ-hpvQ7bjmS99N2rYFu9897", "driveUrl": "https://drive.google.com/file/d/129v-ZJOXkZ-hpvQ7bjmS99N2rYFu9897/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_21.pdf",
                 "name": "RNAV_GNSS_RWY_21.pdf",
                 "url": "charts_data/canada/cyda-dawson-city/rnav_gnss_rwy_21.pdf",
                 "localUrl": "charts_data/canada/cyda-dawson-city/rnav_gnss_rwy_21.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1NDyy_rsaYqhwcZOuZuAuz6STalxW3xtE", "driveUrl": "https://drive.google.com/file/d/1NDyy_rsaYqhwcZOuZuAuz6STalxW3xtE/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_y_rwy_03.pdf",
                 "name": "RNAV_GNSS_Y_RWY_03.pdf",
                 "url": "charts_data/canada/cyda-dawson-city/rnav_gnss_y_rwy_03.pdf",
                 "localUrl": "charts_data/canada/cyda-dawson-city/rnav_gnss_y_rwy_03.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ZJo6ZHTxh3Na7qhn0TOt7KnOVXzCKrbe", "driveUrl": "https://drive.google.com/file/d/1ZJo6ZHTxh3Na7qhn0TOt7KnOVXzCKrbe/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cyda-dawson-city/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyda-dawson-city/aerodrome_chart.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1MTbMcOBivLThYttBCNSw7hpqw3xsvlOt", "driveUrl": "https://drive.google.com/file/d/1MTbMcOBivLThYttBCNSw7hpqw3xsvlOt/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1141,7 +1141,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

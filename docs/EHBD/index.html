@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/netherlands/ehbd/standard_departure_chart_-_instrument_rwy_21.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehbd/standard_departure_chart_-_instrument_rwy_21.pdf"
-        },
+, "driveId": "1ZQePYOvx3or4hsbPH-MNIeW9QNso3rH_", "driveUrl": "https://drive.google.com/file/d/1ZQePYOvx3or4hsbPH-MNIeW9QNso3rH_/view?usp=drivesdk" },
         {
                 "id": "standard_departure_chart_-_instrument_rwy_03.pdf",
                 "name": "STANDARD_DEPARTURE_CHART_-_INSTRUMENT_RWY_03.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/netherlands/ehbd/standard_departure_chart_-_instrument_rwy_03.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehbd/standard_departure_chart_-_instrument_rwy_03.pdf"
-        },
+, "driveId": "1Gw5Uk5uTDDOzIAqsl7I3lpSDW7FZt9YV", "driveUrl": "https://drive.google.com/file/d/1Gw5Uk5uTDDOzIAqsl7I3lpSDW7FZt9YV/view?usp=drivesdk" },
         {
                 "id": "standard_departure_chart_-_instrument.pdf",
                 "name": "STANDARD_DEPARTURE_CHART_-_INSTRUMENT.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/netherlands/ehbd/standard_departure_chart_-_instrument.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehbd/standard_departure_chart_-_instrument.pdf"
-        },
+, "driveId": "1m1KH1XJ5ZktzQgvTjVKLq6sOi_pNvqen", "driveUrl": "https://drive.google.com/file/d/1m1KH1XJ5ZktzQgvTjVKLq6sOi_pNvqen/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/netherlands/ehbd/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehbd/aerodrome_chart.pdf"
-        },
+, "driveId": "1FpQLlXeeus0XUX5PZOEaE_6b4lJpNCKB", "driveUrl": "https://drive.google.com/file/d/1FpQLlXeeus0XUX5PZOEaE_6b4lJpNCKB/view?usp=drivesdk" },
         {
                 "id": "vfr_traffic_circuits.pdf",
                 "name": "VFR_TRAFFIC_CIRCUITS.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/netherlands/ehbd/vfr_traffic_circuits.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehbd/vfr_traffic_circuits.pdf"
-        },
+, "driveId": "1kChWEVyTpcZA4XSMvl8FiepU-NXRBDt7", "driveUrl": "https://drive.google.com/file/d/1kChWEVyTpcZA4XSMvl8FiepU-NXRBDt7/view?usp=drivesdk" },
         {
                 "id": "visual_approach_chartvfr_procedures.pdf",
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES.pdf",
@@ -1105,7 +1105,7 @@
                 "localUrl": "../charts_data/netherlands/ehbd/visual_approach_chartvfr_procedures.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehbd/visual_approach_chartvfr_procedures.pdf"
-        },
+, "driveId": "1F2RFfubkikb9DsJD0RwdvEmjRWgofd_Q", "driveUrl": "https://drive.google.com/file/d/1F2RFfubkikb9DsJD0RwdvEmjRWgofd_Q/view?usp=drivesdk" },
         {
                 "id": "instrument_approach_chart_rnp_rwy_21.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_21.pdf",
@@ -1113,7 +1113,7 @@
                 "localUrl": "../charts_data/netherlands/ehbd/instrument_approach_chart_rnp_rwy_21.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehbd/instrument_approach_chart_rnp_rwy_21.pdf"
-        },
+, "driveId": "1mUTTIfNlyvAJ8Ym-tlAhwv5iV-NWR7Cp", "driveUrl": "https://drive.google.com/file/d/1mUTTIfNlyvAJ8Ym-tlAhwv5iV-NWR7Cp/view?usp=drivesdk" },
         {
                 "id": "standard_arrival_chart_-_instrument.pdf",
                 "name": "STANDARD_ARRIVAL_CHART_-_INSTRUMENT.pdf",
@@ -1121,7 +1121,7 @@
                 "localUrl": "../charts_data/netherlands/ehbd/standard_arrival_chart_-_instrument.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehbd/standard_arrival_chart_-_instrument.pdf"
-        }
+, "driveId": "1zDTPo6apn8t1qy7JELKlRaCl5m8Qcnlm", "driveUrl": "https://drive.google.com/file/d/1zDTPo6apn8t1qy7JELKlRaCl5m8Qcnlm/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1169,7 +1169,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

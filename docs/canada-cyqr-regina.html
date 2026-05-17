@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,133 +1065,133 @@
                 "url": "charts_data/canada/cyqr-regina/.DS_Store",
                 "localUrl": "charts_data/canada/cyqr-regina/.DS_Store",
                 "type": "doc"
-        },
+, "driveId": "19XrCOI-ZW2sZ7v-XBwzfE8hByAu2eF6V", "driveUrl": "https://drive.google.com/file/d/19XrCOI-ZW2sZ7v-XBwzfE8hByAu2eF6V/view?usp=drivesdk" },
         {
                 "id": "cyqr_rnav_gnss_z_rwy_31.pdf",
                 "name": "CYQR_RNAV_GNSS_Z_RWY_31.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_31.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_31.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1mUzxqNVvHjZFhRY0JHv8R9c_sHm9onmK", "driveUrl": "https://drive.google.com/file/d/1mUzxqNVvHjZFhRY0JHv8R9c_sHm9onmK/view?usp=drivesdk" },
         {
                 "id": "cyqr_regina_2_dep_vector_pg_02.pdf",
                 "name": "CYQR_REGINA_2_DEP_VECTOR_PG_02.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1N7TTAezoT_9tJ2tRYSoPynGFs1vF-PDu", "driveUrl": "https://drive.google.com/file/d/1N7TTAezoT_9tJ2tRYSoPynGFs1vF-PDu/view?usp=drivesdk" },
         {
                 "id": "cyqr_aerodrome_chart.pdf",
                 "name": "CYQR_AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1YHUcU3pcDkOz9bfuZJHd9HiaHhUZlDni", "driveUrl": "https://drive.google.com/file/d/1YHUcU3pcDkOz9bfuZJHd9HiaHhUZlDni/view?usp=drivesdk" },
         {
                 "id": "cyqr_rnav_gnss_z_rwy_13.pdf",
                 "name": "CYQR_RNAV_GNSS_Z_RWY_13.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_13.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_13.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1JdYyD0UEMG13MFoIfSPkMQ4yYM2SylgL", "driveUrl": "https://drive.google.com/file/d/1JdYyD0UEMG13MFoIfSPkMQ4yYM2SylgL/view?usp=drivesdk" },
         {
                 "id": "cyqr_noise_abatement_procedures.pdf",
                 "name": "CYQR_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_noise_abatement_procedures.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_noise_abatement_procedures.pdf",
                 "type": "pdf"
-        },
+, "driveId": "15s_poq0nC-M1vpMAk3TkVJnBNV5r4_ud", "driveUrl": "https://drive.google.com/file/d/15s_poq0nC-M1vpMAk3TkVJnBNV5r4_ud/view?usp=drivesdk" },
         {
                 "id": "cyqr_rnav_rnp_y_rwy_31.pdf",
                 "name": "CYQR_RNAV_RNP_Y_RWY_31.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_31.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_31.pdf",
                 "type": "pdf"
-        },
+, "driveId": "190pQCMX8zXLK_dgbYLRGRbDmhs4b88qZ", "driveUrl": "https://drive.google.com/file/d/190pQCMX8zXLK_dgbYLRGRbDmhs4b88qZ/view?usp=drivesdk" },
         {
                 "id": "cyqr_parking_areas.pdf",
                 "name": "CYQR_PARKING_AREAS.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_parking_areas.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_parking_areas.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1-3z2yZ0cT_KPai7xbDhCuJ4XoUtN312l", "driveUrl": "https://drive.google.com/file/d/1-3z2yZ0cT_KPai7xbDhCuJ4XoUtN312l/view?usp=drivesdk" },
         {
                 "id": "cyqr_regina_2_dep_vector.pdf",
                 "name": "CYQR_REGINA_2_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ttLMUuTROKj_qU_8BzU5ouzfYdzOIqIY", "driveUrl": "https://drive.google.com/file/d/1ttLMUuTROKj_qU_8BzU5ouzfYdzOIqIY/view?usp=drivesdk" },
         {
                 "id": "cyqr_rnav_gnss_z_rwy_26.pdf",
                 "name": "CYQR_RNAV_GNSS_Z_RWY_26.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_26.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_26.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1FOZoG77mq7swmFZ1JL_AwF83n-JpxCg0", "driveUrl": "https://drive.google.com/file/d/1FOZoG77mq7swmFZ1JL_AwF83n-JpxCg0/view?usp=drivesdk" },
         {
                 "id": "cyqr_rnav_rnp_y_rwy_26.pdf",
                 "name": "CYQR_RNAV_RNP_Y_RWY_26.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_26.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_26.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1T8G8_5SvG9SR77Xs7qpx6sC85oWCmgUi", "driveUrl": "https://drive.google.com/file/d/1T8G8_5SvG9SR77Xs7qpx6sC85oWCmgUi/view?usp=drivesdk" },
         {
                 "id": "cyqr_rnav_rnp_y_rwy_13.pdf",
                 "name": "CYQR_RNAV_RNP_Y_RWY_13.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_13.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_13.pdf",
                 "type": "pdf"
-        },
+, "driveId": "17TjGuXzFYC5tLpEehu7WuTaO3tUQ0K-T", "driveUrl": "https://drive.google.com/file/d/17TjGuXzFYC5tLpEehu7WuTaO3tUQ0K-T/view?usp=drivesdk" },
         {
                 "id": "cyqr_rnav_rnp_y_rwy_08.pdf",
                 "name": "CYQR_RNAV_RNP_Y_RWY_08.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_08.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_08.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1iwdj4Zjr34axOd2CWWz_VEfKWSxZlHCZ", "driveUrl": "https://drive.google.com/file/d/1iwdj4Zjr34axOd2CWWz_VEfKWSxZlHCZ/view?usp=drivesdk" },
         {
                 "id": "cyqr_rnav_gnss_z_rwy_08.pdf",
                 "name": "CYQR_RNAV_GNSS_Z_RWY_08.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_08.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_08.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1G4S7N-joWALySfGEwN6e-lTlcXyWloB1", "driveUrl": "https://drive.google.com/file/d/1G4S7N-joWALySfGEwN6e-lTlcXyWloB1/view?usp=drivesdk" },
         {
                 "id": "cyqr_antos_6_arr_rnav.pdf",
                 "name": "CYQR_ANTOS_6_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_antos_6_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_antos_6_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1RUl8cpIxGzsYU8LfJSt3b67V_PTOVO4A", "driveUrl": "https://drive.google.com/file/d/1RUl8cpIxGzsYU8LfJSt3b67V_PTOVO4A/view?usp=drivesdk" },
         {
                 "id": "cyqr_gorak_2_arr_rnav.pdf",
                 "name": "CYQR_GORAK_2_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_gorak_2_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_gorak_2_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1mLFdaD7z1XQtv-ERCPl7Y4DROKMIfdqG", "driveUrl": "https://drive.google.com/file/d/1mLFdaD7z1XQtv-ERCPl7Y4DROKMIfdqG/view?usp=drivesdk" },
         {
                 "id": "cyqr_ils_rwy_13.pdf",
                 "name": "CYQR_ILS_RWY_13.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_ils_rwy_13.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_ils_rwy_13.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1fuNUDGiRbs-gmEq_wCK8weG1HF8CgO7T", "driveUrl": "https://drive.google.com/file/d/1fuNUDGiRbs-gmEq_wCK8weG1HF8CgO7T/view?usp=drivesdk" },
         {
                 "id": "cyqr_odgov_6_arr_rnav.pdf",
                 "name": "CYQR_ODGOV_6_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_odgov_6_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_odgov_6_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ssMj60cxI_FU4hLANLIZwy3GtVed84-8", "driveUrl": "https://drive.google.com/file/d/1ssMj60cxI_FU4hLANLIZwy3GtVed84-8/view?usp=drivesdk" },
         {
                 "id": "cyqr_kemka_6_arr_rnav.pdf",
                 "name": "CYQR_KEMKA_6_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cyqr-regina/cyqr_kemka_6_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cyqr-regina/cyqr_kemka_6_arr_rnav.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1P_jPVAidQN4aLG9FDxFbOJTXNsyQa806", "driveUrl": "https://drive.google.com/file/d/1P_jPVAidQN4aLG9FDxFbOJTXNsyQa806/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1239,7 +1239,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

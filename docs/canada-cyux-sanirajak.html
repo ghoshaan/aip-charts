@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,35 +1065,35 @@
                 "url": "charts_data/canada/cyux-sanirajak/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyux-sanirajak/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1rFCqEJQFWnW22yDbm6XjkfReFN3Ammix", "driveUrl": "https://drive.google.com/file/d/1rFCqEJQFWnW22yDbm6XjkfReFN3Ammix/view?usp=drivesdk" },
         {
                 "id": "vor_rwy_30_true.pdf",
                 "name": "VOR_RWY_30_TRUE.pdf",
                 "url": "charts_data/canada/cyux-sanirajak/vor_rwy_30_true.pdf",
                 "localUrl": "charts_data/canada/cyux-sanirajak/vor_rwy_30_true.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1HZ_xXMPUWeH_nrJsKsBi_7uxrVPO0qU6", "driveUrl": "https://drive.google.com/file/d/1HZ_xXMPUWeH_nrJsKsBi_7uxrVPO0qU6/view?usp=drivesdk" },
         {
                 "id": "vor_dme_rwy_12_true.pdf",
                 "name": "VOR_DME_RWY_12_TRUE.pdf",
                 "url": "charts_data/canada/cyux-sanirajak/vor_dme_rwy_12_true.pdf",
                 "localUrl": "charts_data/canada/cyux-sanirajak/vor_dme_rwy_12_true.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1j2dVZoYl-mPXEfM5xb3Kg2-W7Wb-DXpl", "driveUrl": "https://drive.google.com/file/d/1j2dVZoYl-mPXEfM5xb3Kg2-W7Wb-DXpl/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_30_true.pdf",
                 "name": "RNAV_GNSS_RWY_30_TRUE.pdf",
                 "url": "charts_data/canada/cyux-sanirajak/rnav_gnss_rwy_30_true.pdf",
                 "localUrl": "charts_data/canada/cyux-sanirajak/rnav_gnss_rwy_30_true.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1v0lrSyP2nYX3J5fm0NUNr75IE1XXdYC8", "driveUrl": "https://drive.google.com/file/d/1v0lrSyP2nYX3J5fm0NUNr75IE1XXdYC8/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_12_true.pdf",
                 "name": "RNAV_GNSS_RWY_12_TRUE.pdf",
                 "url": "charts_data/canada/cyux-sanirajak/rnav_gnss_rwy_12_true.pdf",
                 "localUrl": "charts_data/canada/cyux-sanirajak/rnav_gnss_rwy_12_true.pdf",
                 "type": "pdf"
-        }
+, "driveId": "14LwYWnqoqxA4mdiWLz0qwHQN-trYEKUZ", "driveUrl": "https://drive.google.com/file/d/14LwYWnqoqxA4mdiWLz0qwHQN-trYEKUZ/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1141,7 +1141,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

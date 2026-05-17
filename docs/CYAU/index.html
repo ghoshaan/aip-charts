@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cyau/restricted_aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyau/restricted_aerodrome_chart.pdf"
-        },
+, "driveId": "1d6Zz1TrAohnLNt9Q04ul9e7M5kC85ZCC", "driveUrl": "https://drive.google.com/file/d/1d6Zz1TrAohnLNt9Q04ul9e7M5kC85ZCC/view?usp=drivesdk" },
         {
                 "id": "restricted_rnav_gnss_rwy_25_pg_02.pdf",
                 "name": "RESTRICTED_RNAV_GNSS_RWY_25_PG_02.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cyau/restricted_rnav_gnss_rwy_25_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyau/restricted_rnav_gnss_rwy_25_pg_02.pdf"
-        },
+, "driveId": "1-_pIPuVxK7j3da5A53uQzLT3O6o_uKvd", "driveUrl": "https://drive.google.com/file/d/1-_pIPuVxK7j3da5A53uQzLT3O6o_uKvd/view?usp=drivesdk" },
         {
                 "id": "restricted_rnav_gnss_rwy_07_pg_02.pdf",
                 "name": "RESTRICTED_RNAV_GNSS_RWY_07_PG_02.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cyau/restricted_rnav_gnss_rwy_07_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyau/restricted_rnav_gnss_rwy_07_pg_02.pdf"
-        },
+, "driveId": "1lMAofn7D_UP3ESGUGPwtKGFNwqSZC5L1", "driveUrl": "https://drive.google.com/file/d/1lMAofn7D_UP3ESGUGPwtKGFNwqSZC5L1/view?usp=drivesdk" },
         {
                 "id": "restricted_rnav_gnss_rwy_25.pdf",
                 "name": "RESTRICTED_RNAV_GNSS_RWY_25.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/canada/cyau/restricted_rnav_gnss_rwy_25.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyau/restricted_rnav_gnss_rwy_25.pdf"
-        },
+, "driveId": "1nYXzdvI2CKBUIGnXNyShQAoVvHOVApsG", "driveUrl": "https://drive.google.com/file/d/1nYXzdvI2CKBUIGnXNyShQAoVvHOVApsG/view?usp=drivesdk" },
         {
                 "id": "restricted_rnav_gnss_rwy_07.pdf",
                 "name": "RESTRICTED_RNAV_GNSS_RWY_07.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/canada/cyau/restricted_rnav_gnss_rwy_07.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyau/restricted_rnav_gnss_rwy_07.pdf"
-        }
+, "driveId": "1UO8A0jMbwwHQfvSJFuAtzB5l94e7QicQ", "driveUrl": "https://drive.google.com/file/d/1UO8A0jMbwwHQfvSJFuAtzB5l94e7QicQ/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1145,7 +1145,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

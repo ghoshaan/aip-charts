@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,35 +1065,35 @@
                 "url": "charts_data/canada/cynj-langley-regional/cynj_omino_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cynj-langley-regional/cynj_omino_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1dRfg_P9QLVcL-6JX21A4xvtGuFKgD4xV", "driveUrl": "https://drive.google.com/file/d/1dRfg_P9QLVcL-6JX21A4xvtGuFKgD4xV/view?usp=drivesdk" },
         {
                 "id": "cynj_omino_2_dep_rnav.pdf",
                 "name": "CYNJ_OMINO_2_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cynj-langley-regional/cynj_omino_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cynj-langley-regional/cynj_omino_2_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1WhzY6VSxyRuTgSwqzAeza1JzTV1zo98S", "driveUrl": "https://drive.google.com/file/d/1WhzY6VSxyRuTgSwqzAeza1JzTV1zo98S/view?usp=drivesdk" },
         {
                 "id": "cynj_taxi_chart.pdf",
                 "name": "CYNJ_TAXI_CHART.pdf",
                 "url": "charts_data/canada/cynj-langley-regional/cynj_taxi_chart.pdf",
                 "localUrl": "charts_data/canada/cynj-langley-regional/cynj_taxi_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "14lIt3k7Am8YqsBv69Wwfltq7XT_AVaha", "driveUrl": "https://drive.google.com/file/d/14lIt3k7Am8YqsBv69Wwfltq7XT_AVaha/view?usp=drivesdk" },
         {
                 "id": "cynj_aerodrome_chart.pdf",
                 "name": "CYNJ_AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cynj-langley-regional/cynj_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cynj-langley-regional/cynj_aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1rRWhhtdnD8fo_WFIdAcyxmGCc23EHyX7", "driveUrl": "https://drive.google.com/file/d/1rRWhhtdnD8fo_WFIdAcyxmGCc23EHyX7/view?usp=drivesdk" },
         {
                 "id": "cynj_rnav_gnss_rwy_01.pdf",
                 "name": "CYNJ_RNAV_GNSS_RWY_01.pdf",
                 "url": "charts_data/canada/cynj-langley-regional/cynj_rnav_gnss_rwy_01.pdf",
                 "localUrl": "charts_data/canada/cynj-langley-regional/cynj_rnav_gnss_rwy_01.pdf",
                 "type": "pdf"
-        }
+, "driveId": "10ViBoQGz3NgMPXwYhvV_YYQR98cx-xwI", "driveUrl": "https://drive.google.com/file/d/10ViBoQGz3NgMPXwYhvV_YYQR98cx-xwI/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1141,7 +1141,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

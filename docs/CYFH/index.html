@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cyfh-fort-hope/rnav_gnss_rwy_27.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyfh-fort-hope/rnav_gnss_rwy_27.pdf"
-        },
+, "driveId": "1CNNEfxwzv5KQGaSI57PBCOvj3VocSz_i", "driveUrl": "https://drive.google.com/file/d/1CNNEfxwzv5KQGaSI57PBCOvj3VocSz_i/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cyfh-fort-hope/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyfh-fort-hope/aerodrome_chart.pdf"
-        },
+, "driveId": "1D_ESdMg5m1k6yQ97D_Cvyi-3T2J2nboa", "driveUrl": "https://drive.google.com/file/d/1D_ESdMg5m1k6yQ97D_Cvyi-3T2J2nboa/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_09.pdf",
                 "name": "RNAV_GNSS_RWY_09.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cyfh-fort-hope/rnav_gnss_rwy_09.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyfh-fort-hope/rnav_gnss_rwy_09.pdf"
-        }
+, "driveId": "1AdxL-GvBUIxBkJmAEJmzF-I43TAZ1jWz", "driveUrl": "https://drive.google.com/file/d/1AdxL-GvBUIxBkJmAEJmzF-I43TAZ1jWz/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1129,7 +1129,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

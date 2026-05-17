@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,91 +1065,91 @@
                 "url": "charts_data/canada/cybr-brandon-municipal/iklam_1_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/iklam_1_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "18A96XE0nsoiTmWgjclG6dPoaU_4nt2pb", "driveUrl": "https://drive.google.com/file/d/18A96XE0nsoiTmWgjclG6dPoaU_4nt2pb/view?usp=drivesdk" },
         {
                 "id": "iklam_1_dep_rnav.pdf",
                 "name": "IKLAM_1_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/iklam_1_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/iklam_1_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "18lxXCx1qo4vpBwCLegl7RBy_oION10mK", "driveUrl": "https://drive.google.com/file/d/18lxXCx1qo4vpBwCLegl7RBy_oION10mK/view?usp=drivesdk" },
         {
                 "id": "etmin_1_dep_rnav.pdf",
                 "name": "ETMIN_1_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/etmin_1_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/etmin_1_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1BpkDBJyjHZKg2rHuz8FQ_l2dif3WS4V-", "driveUrl": "https://drive.google.com/file/d/1BpkDBJyjHZKg2rHuz8FQ_l2dif3WS4V-/view?usp=drivesdk" },
         {
                 "id": "etmin_1_dep_rnav_pg_02.pdf",
                 "name": "ETMIN_1_DEP_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/etmin_1_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/etmin_1_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ZNnXKTwaASmAcyaDUtFv3I3ck5atq-zH", "driveUrl": "https://drive.google.com/file/d/1ZNnXKTwaASmAcyaDUtFv3I3ck5atq-zH/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1UJ1DByky01FnsnPMMkwglCsiUX0tygIU", "driveUrl": "https://drive.google.com/file/d/1UJ1DByky01FnsnPMMkwglCsiUX0tygIU/view?usp=drivesdk" },
         {
                 "id": "rnav_rnp_y_rwy_26.pdf",
                 "name": "RNAV_RNP_Y_RWY_26.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/rnav_rnp_y_rwy_26.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/rnav_rnp_y_rwy_26.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1rC8Zp3vktfL4NafCVvuC9pOZKSqSStLp", "driveUrl": "https://drive.google.com/file/d/1rC8Zp3vktfL4NafCVvuC9pOZKSqSStLp/view?usp=drivesdk" },
         {
                 "id": "rnav_rnp_y_rwy_08.pdf",
                 "name": "RNAV_RNP_Y_RWY_08.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/rnav_rnp_y_rwy_08.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/rnav_rnp_y_rwy_08.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Un_uqoTW-vR6Kf0gCfvvJwWoWKH86Ixa", "driveUrl": "https://drive.google.com/file/d/1Un_uqoTW-vR6Kf0gCfvvJwWoWKH86Ixa/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_z_rwy_26.pdf",
                 "name": "RNAV_GNSS_Z_RWY_26.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/rnav_gnss_z_rwy_26.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/rnav_gnss_z_rwy_26.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1QaD2HRL2DQLNEGsGhOAEqqXX-o3fqAty", "driveUrl": "https://drive.google.com/file/d/1QaD2HRL2DQLNEGsGhOAEqqXX-o3fqAty/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_z_rwy_08.pdf",
                 "name": "RNAV_GNSS_Z_RWY_08.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/rnav_gnss_z_rwy_08.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/rnav_gnss_z_rwy_08.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1z4Qi8-qwDg01Rgpx-3lY1ZyPuJKuKi6b", "driveUrl": "https://drive.google.com/file/d/1z4Qi8-qwDg01Rgpx-3lY1ZyPuJKuKi6b/view?usp=drivesdk" },
         {
                 "id": "ils_rwy_08.pdf",
                 "name": "ILS_RWY_08.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/ils_rwy_08.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/ils_rwy_08.pdf",
                 "type": "pdf"
-        },
+, "driveId": "131GTvQrna0hhTs5y-rJqcA3zK5mkDdok", "driveUrl": "https://drive.google.com/file/d/131GTvQrna0hhTs5y-rJqcA3zK5mkDdok/view?usp=drivesdk" },
         {
                 "id": "kepko_1_arr_rnav.pdf",
                 "name": "KEPKO_1_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/kepko_1_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/kepko_1_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "16g7RsAVlRM7dtHzCHoIk8WYSgfI91o3u", "driveUrl": "https://drive.google.com/file/d/16g7RsAVlRM7dtHzCHoIk8WYSgfI91o3u/view?usp=drivesdk" },
         {
                 "id": "talop_3_arr_rnav.pdf",
                 "name": "TALOP_3_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/talop_3_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/talop_3_arr_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1VmObvgWgAfN1-7CnYQXPrXI_7HkvFT8-", "driveUrl": "https://drive.google.com/file/d/1VmObvgWgAfN1-7CnYQXPrXI_7HkvFT8-/view?usp=drivesdk" },
         {
                 "id": "epviv_1_arr_rnav.pdf",
                 "name": "EPVIV_1_ARR_RNAV.pdf",
                 "url": "charts_data/canada/cybr-brandon-municipal/epviv_1_arr_rnav.pdf",
                 "localUrl": "charts_data/canada/cybr-brandon-municipal/epviv_1_arr_rnav.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1jGTzHAiCN7DboSpSCUff5XlzJ9G7rfcp", "driveUrl": "https://drive.google.com/file/d/1jGTzHAiCN7DboSpSCUff5XlzJ9G7rfcp/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1197,7 +1197,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

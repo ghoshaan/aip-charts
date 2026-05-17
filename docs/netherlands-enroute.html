@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,63 +1065,63 @@
                 "url": "charts_data/netherlands/enroute/enr_6-9_maastricht_uac_en-route_communication_at_or_above_fl_245.pdf",
                 "localUrl": "charts_data/netherlands/enroute/enr_6-9_maastricht_uac_en-route_communication_at_or_above_fl_245.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1wrxdnson8wRrRiudFO-1msEfSqV9BAZi", "driveUrl": "https://drive.google.com/file/d/1wrxdnson8wRrRiudFO-1msEfSqV9BAZi/view?usp=drivesdk" },
         {
                 "id": "enr_6-5_en-route_communication_below_controlled_airspace.pdf",
                 "name": "ENR_6-5_EN-ROUTE_COMMUNICATION_BELOW_CONTROLLED_AIRSPACE.pdf",
                 "url": "charts_data/netherlands/enroute/enr_6-5_en-route_communication_below_controlled_airspace.pdf",
                 "localUrl": "charts_data/netherlands/enroute/enr_6-5_en-route_communication_below_controlled_airspace.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Rrnbtav3E7LR-sZv9VkT3T1LFeJuDWOj", "driveUrl": "https://drive.google.com/file/d/1Rrnbtav3E7LR-sZv9VkT3T1LFeJuDWOj/view?usp=drivesdk" },
         {
                 "id": "enr_6-7_en-route_communication_lower_control_areas_below_fl_195upper_control_area_btn_fl_195_and_fl_245.pdf",
                 "name": "ENR_6-7_EN-ROUTE_COMMUNICATION_LOWER_CONTROL_AREAS_BELOW_FL_195UPPER_CONTROL_AREA_BTN_FL_195_AND_FL_245.pdf",
                 "url": "charts_data/netherlands/enroute/enr_6-7_en-route_communication_lower_control_areas_below_fl_195upper_control_area_btn_fl_195_and_fl_245.pdf",
                 "localUrl": "charts_data/netherlands/enroute/enr_6-7_en-route_communication_lower_control_areas_below_fl_195upper_control_area_btn_fl_195_and_fl_245.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1uC_pQuB34UdXB6r5890Ami852PcxQup6", "driveUrl": "https://drive.google.com/file/d/1uC_pQuB34UdXB6r5890Ami852PcxQup6/view?usp=drivesdk" },
         {
                 "id": "enr_6-3_controlled_airspace_-_index_chart.pdf",
                 "name": "ENR_6-3_CONTROLLED_AIRSPACE_-_INDEX_CHART.pdf",
                 "url": "charts_data/netherlands/enroute/enr_6-3_controlled_airspace_-_index_chart.pdf",
                 "localUrl": "charts_data/netherlands/enroute/enr_6-3_controlled_airspace_-_index_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1KDhf1dVhjhCa8zrvVhuQNG80MRvlJn1J", "driveUrl": "https://drive.google.com/file/d/1KDhf1dVhjhCa8zrvVhuQNG80MRvlJn1J/view?usp=drivesdk" },
         {
                 "id": "enr_6-19_fauna_flight_restrictions_-_index_chart.pdf",
                 "name": "ENR_6-19_FAUNA_FLIGHT_RESTRICTIONS_-_INDEX_CHART.pdf",
                 "url": "charts_data/netherlands/enroute/enr_6-19_fauna_flight_restrictions_-_index_chart.pdf",
                 "localUrl": "charts_data/netherlands/enroute/enr_6-19_fauna_flight_restrictions_-_index_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1POqKah42wU55utjLEwE1VY35mj_yuh8U", "driveUrl": "https://drive.google.com/file/d/1POqKah42wU55utjLEwE1VY35mj_yuh8U/view?usp=drivesdk" },
         {
                 "id": "enr_6-15_en-route_chart_-_icao.pdf",
                 "name": "ENR_6-15_EN-ROUTE_CHART_-_ICAO.pdf",
                 "url": "charts_data/netherlands/enroute/enr_6-15_en-route_chart_-_icao.pdf",
                 "localUrl": "charts_data/netherlands/enroute/enr_6-15_en-route_chart_-_icao.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1YAOiBT67QVEjR1zyDtOrRZnA4WrqJgo_", "driveUrl": "https://drive.google.com/file/d/1YAOiBT67QVEjR1zyDtOrRZnA4WrqJgo_/view?usp=drivesdk" },
         {
                 "id": "enr_6-17_low_flying_routesareas_-_index_chart.pdf",
                 "name": "ENR_6-17_LOW_FLYING_ROUTESAREAS_-_INDEX_CHART.pdf",
                 "url": "charts_data/netherlands/enroute/enr_6-17_low_flying_routesareas_-_index_chart.pdf",
                 "localUrl": "charts_data/netherlands/enroute/enr_6-17_low_flying_routesareas_-_index_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "13aNwjAl2hyoOx7D260QkfhP2GtojxfV_", "driveUrl": "https://drive.google.com/file/d/13aNwjAl2hyoOx7D260QkfhP2GtojxfV_/view?usp=drivesdk" },
         {
                 "id": "enr_6-13_transponder_mandatory_zones.pdf",
                 "name": "ENR_6-13_TRANSPONDER_MANDATORY_ZONES.pdf",
                 "url": "charts_data/netherlands/enroute/enr_6-13_transponder_mandatory_zones.pdf",
                 "localUrl": "charts_data/netherlands/enroute/enr_6-13_transponder_mandatory_zones.pdf",
                 "type": "pdf"
-        },
+, "driveId": "12GSmUYL7nbWOR_eZSFGSun67l8xoEfmI", "driveUrl": "https://drive.google.com/file/d/12GSmUYL7nbWOR_eZSFGSun67l8xoEfmI/view?usp=drivesdk" },
         {
                 "id": "enr_6-11_maastricht_uac_special_ops_en-route_communication_at_or_above_fl_245.pdf",
                 "name": "ENR_6-11_MAASTRICHT_UAC_(special_OPS)_EN-ROUTE_COMMUNICATION_AT_OR_ABOVE_FL_245.pdf",
                 "url": "charts_data/netherlands/enroute/enr_6-11_maastricht_uac_special_ops_en-route_communication_at_or_above_fl_245.pdf",
                 "localUrl": "charts_data/netherlands/enroute/enr_6-11_maastricht_uac_special_ops_en-route_communication_at_or_above_fl_245.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1XSTseOaqSN13I5EH_RVBq6rtCvcehAs1", "driveUrl": "https://drive.google.com/file/d/1XSTseOaqSN13I5EH_RVBq6rtCvcehAs1/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1169,7 +1169,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

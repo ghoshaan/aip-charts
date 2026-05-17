@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,14 +1065,14 @@
                 "url": "charts_data/netherlands/ehal/visual_approach_chartvfr_procedures.pdf",
                 "localUrl": "charts_data/netherlands/ehal/visual_approach_chartvfr_procedures.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1RVIdP_mqzeEPMUCp3UzlWJHdSM0WEG7h", "driveUrl": "https://drive.google.com/file/d/1RVIdP_mqzeEPMUCp3UzlWJHdSM0WEG7h/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
                 "url": "charts_data/netherlands/ehal/aerodrome_chart.pdf",
                 "localUrl": "charts_data/netherlands/ehal/aerodrome_chart.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1kfwEzfQSaaVpSVaDKSoPB8huV-0YRL2n", "driveUrl": "https://drive.google.com/file/d/1kfwEzfQSaaVpSVaDKSoPB8huV-0YRL2n/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1120,7 +1120,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

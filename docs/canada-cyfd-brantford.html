@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,28 +1065,28 @@
                 "url": "charts_data/canada/cyfd-brantford/cyfd_takeoff_minimums.pdf",
                 "localUrl": "charts_data/canada/cyfd-brantford/cyfd_takeoff_minimums.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1-RnX60iormuX5D-h__Vop1O5ztoOpEFE", "driveUrl": "https://drive.google.com/file/d/1-RnX60iormuX5D-h__Vop1O5ztoOpEFE/view?usp=drivesdk" },
         {
                 "id": "cyfd_aerodrome_chart.pdf",
                 "name": "CYFD_AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cyfd-brantford/cyfd_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyfd-brantford/cyfd_aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "17s8sksMMzpQR6s71Y6MjlXfmfkQ9L0y5", "driveUrl": "https://drive.google.com/file/d/17s8sksMMzpQR6s71Y6MjlXfmfkQ9L0y5/view?usp=drivesdk" },
         {
                 "id": "cyfd_rnav_gnss_rwy_23.pdf",
                 "name": "CYFD_RNAV_GNSS_RWY_23.pdf",
                 "url": "charts_data/canada/cyfd-brantford/cyfd_rnav_gnss_rwy_23.pdf",
                 "localUrl": "charts_data/canada/cyfd-brantford/cyfd_rnav_gnss_rwy_23.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1eliY2XyUEYPruZdM4gLITf_kfuu6W7NL", "driveUrl": "https://drive.google.com/file/d/1eliY2XyUEYPruZdM4gLITf_kfuu6W7NL/view?usp=drivesdk" },
         {
                 "id": "cyfd_rnav_gnss_rwy_05.pdf",
                 "name": "CYFD_RNAV_GNSS_RWY_05.pdf",
                 "url": "charts_data/canada/cyfd-brantford/cyfd_rnav_gnss_rwy_05.pdf",
                 "localUrl": "charts_data/canada/cyfd-brantford/cyfd_rnav_gnss_rwy_05.pdf",
                 "type": "pdf"
-        }
+, "driveId": "11Oc5zorBulmmoiXKpk4gMK-12GQduV15", "driveUrl": "https://drive.google.com/file/d/11Oc5zorBulmmoiXKpk4gMK-12GQduV15/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1134,7 +1134,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

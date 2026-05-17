@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,84 +1065,84 @@
                 "url": "charts_data/switzerland/lsza/star_icao_rwy_0119_-_lusil_7l_lusil_7p_odina_7l_ori_7l_ori_7p_srn_6l_top_6l_vog_6l.pdf",
                 "localUrl": "charts_data/switzerland/lsza/star_icao_rwy_0119_-_lusil_7l_lusil_7p_odina_7l_ori_7l_ori_7p_srn_6l_top_6l_vog_6l.pdf",
                 "type": "pdf"
-        },
+, "driveId": "13U2LPhXQf8Wejg_j6y5Mk7iDh-uiv-6Z", "driveUrl": "https://drive.google.com/file/d/13U2LPhXQf8Wejg_j6y5Mk7iDh-uiv-6Z/view?usp=drivesdk" },
         {
                 "id": "sid_icao_high_performance_rwy_19_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
                 "name": "SID_ICAO_HIGH_PERFORMANCE_RWY_19_-_CANNE_2U_CANNE_1Z_OMETO_1F_ORI_1U_ORI_1W_PINIK_1A_SRN_1W_VOG_1W.pdf",
                 "url": "charts_data/switzerland/lsza/sid_icao_high_performance_rwy_19_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
                 "localUrl": "charts_data/switzerland/lsza/sid_icao_high_performance_rwy_19_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1UMA6Uvd5FIkDWFje4B35V8huJmQeyXMB", "driveUrl": "https://drive.google.com/file/d/1UMA6Uvd5FIkDWFje4B35V8huJmQeyXMB/view?usp=drivesdk" },
         {
                 "id": "sid_icao_rwy_01_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
                 "name": "SID_ICAO_RWY_01_-_CANNE_2U_CANNE_1Z_OMETO_1F_ORI_1U_ORI_1W_PINIK_1A_SRN_1W_VOG_1W.pdf",
                 "url": "charts_data/switzerland/lsza/sid_icao_rwy_01_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
                 "localUrl": "charts_data/switzerland/lsza/sid_icao_rwy_01_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1tbpuJjkyBCY_Dz7dkbfNw_OgZpNYHuAj", "driveUrl": "https://drive.google.com/file/d/1tbpuJjkyBCY_Dz7dkbfNw_OgZpNYHuAj/view?usp=drivesdk" },
         {
                 "id": "sid_icao_rnav_rwy_0119_-_canne_1e_ometo_1e.pdf",
                 "name": "SID_ICAO_RNAV_RWY_0119_-_CANNE_1E_OMETO_1E.pdf",
                 "url": "charts_data/switzerland/lsza/sid_icao_rnav_rwy_0119_-_canne_1e_ometo_1e.pdf",
                 "localUrl": "charts_data/switzerland/lsza/sid_icao_rnav_rwy_0119_-_canne_1e_ometo_1e.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1VhmebVzNyBipdBz_zul2nqo6xdmhZVHx", "driveUrl": "https://drive.google.com/file/d/1VhmebVzNyBipdBz_zul2nqo6xdmhZVHx/view?usp=drivesdk" },
         {
                 "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_19.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_19.pdf",
                 "url": "charts_data/switzerland/lsza/aerodrome_obstacle_chart_-_type_a_-_rwy_19.pdf",
                 "localUrl": "charts_data/switzerland/lsza/aerodrome_obstacle_chart_-_type_a_-_rwy_19.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1xr7YwrDfkixzETDVJ6peeyWo0Ay-NW8t", "driveUrl": "https://drive.google.com/file/d/1xr7YwrDfkixzETDVJ6peeyWo0Ay-NW8t/view?usp=drivesdk" },
         {
                 "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_01.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_01.pdf",
                 "url": "charts_data/switzerland/lsza/aerodrome_obstacle_chart_-_type_a_-_rwy_01.pdf",
                 "localUrl": "charts_data/switzerland/lsza/aerodrome_obstacle_chart_-_type_a_-_rwy_01.pdf",
                 "type": "pdf"
-        },
+, "driveId": "19DK2MrjvlVyHcjbcEtK2J5cV__ktXQJN", "driveUrl": "https://drive.google.com/file/d/19DK2MrjvlVyHcjbcEtK2J5cV__ktXQJN/view?usp=drivesdk" },
         {
                 "id": "aircraft_parking_docking_chart.pdf",
                 "name": "AIRCRAFT_PARKING_DOCKING_CHART.pdf",
                 "url": "charts_data/switzerland/lsza/aircraft_parking_docking_chart.pdf",
                 "localUrl": "charts_data/switzerland/lsza/aircraft_parking_docking_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1uvPrXpW92XnNs76UwIhiyrERmgpzz4eq", "driveUrl": "https://drive.google.com/file/d/1uvPrXpW92XnNs76UwIhiyrERmgpzz4eq/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
                 "url": "charts_data/switzerland/lsza/aerodrome_chart.pdf",
                 "localUrl": "charts_data/switzerland/lsza/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1WHjT3zmkq1WMOsISbMNozYXDYVC-q4vY", "driveUrl": "https://drive.google.com/file/d/1WHjT3zmkq1WMOsISbMNozYXDYVC-q4vY/view?usp=drivesdk" },
         {
                 "id": "visual_approach_procedure_charlie_circling_rwy_19.pdf",
                 "name": "VISUAL_APPROACH_PROCEDURE_CHARLIE_CIRCLING_RWY_19.pdf",
                 "url": "charts_data/switzerland/lsza/visual_approach_procedure_charlie_circling_rwy_19.pdf",
                 "localUrl": "charts_data/switzerland/lsza/visual_approach_procedure_charlie_circling_rwy_19.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1I0D-fP8-B3Ee8ivi5P8J8ibycDcddPGu", "driveUrl": "https://drive.google.com/file/d/1I0D-fP8-B3Ee8ivi5P8J8ibycDcddPGu/view?usp=drivesdk" },
         {
                 "id": "visual_approach_procedure_foxtrott_circling_rwy_19.pdf",
                 "name": "VISUAL_APPROACH_PROCEDURE_FOXTROTT_CIRCLING_RWY_19.pdf",
                 "url": "charts_data/switzerland/lsza/visual_approach_procedure_foxtrott_circling_rwy_19.pdf",
                 "localUrl": "charts_data/switzerland/lsza/visual_approach_procedure_foxtrott_circling_rwy_19.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1EBJsKZ-UWH-aX7TnRoL64ZuR2s3U67Aj", "driveUrl": "https://drive.google.com/file/d/1EBJsKZ-UWH-aX7TnRoL64ZuR2s3U67Aj/view?usp=drivesdk" },
         {
                 "id": "iac_icao_loc_rwy_01_circling_rwy_19.pdf",
                 "name": "IAC_ICAO_LOC_RWY_01_CIRCLING_RWY_19.pdf",
                 "url": "charts_data/switzerland/lsza/iac_icao_loc_rwy_01_circling_rwy_19.pdf",
                 "localUrl": "charts_data/switzerland/lsza/iac_icao_loc_rwy_01_circling_rwy_19.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1E069QpvRHL5cvdTyNX7bl9sEdxflgE-D", "driveUrl": "https://drive.google.com/file/d/1E069QpvRHL5cvdTyNX7bl9sEdxflgE-D/view?usp=drivesdk" },
         {
                 "id": "iac_igs_rwy_01.pdf",
                 "name": "IAC_IGS_RWY_01.pdf",
                 "url": "charts_data/switzerland/lsza/iac_igs_rwy_01.pdf",
                 "localUrl": "charts_data/switzerland/lsza/iac_igs_rwy_01.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1gVckGMheHLaqyrEW3JHAyhX2qWa-Opib", "driveUrl": "https://drive.google.com/file/d/1gVckGMheHLaqyrEW3JHAyhX2qWa-Opib/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1190,7 +1190,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

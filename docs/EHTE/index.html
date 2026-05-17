@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/netherlands/ehte/visual_approach_chartvfr_procedures.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehte/visual_approach_chartvfr_procedures.pdf"
-        },
+, "driveId": "1evlo0kvILDnjNN7HzOPNxgnEkprgzbAt", "driveUrl": "https://drive.google.com/file/d/1evlo0kvILDnjNN7HzOPNxgnEkprgzbAt/view?usp=drivesdk" },
         {
                 "id": "aerodrome_obstacle_chart_-_type_a_rwy_08-26.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_RWY_08-26.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/netherlands/ehte/aerodrome_obstacle_chart_-_type_a_rwy_08-26.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehte/aerodrome_obstacle_chart_-_type_a_rwy_08-26.pdf"
-        },
+, "driveId": "1Ahhjbr35wIFiBIe5Eah0hiBEmuEr4_Ku", "driveUrl": "https://drive.google.com/file/d/1Ahhjbr35wIFiBIe5Eah0hiBEmuEr4_Ku/view?usp=drivesdk" },
         {
                 "id": "aerodrome_ground_movement_chart.pdf",
                 "name": "AERODROME_GROUND_MOVEMENT_CHART.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/netherlands/ehte/aerodrome_ground_movement_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehte/aerodrome_ground_movement_chart.pdf"
-        },
+, "driveId": "1d6nJXZf0iMVF6yg9RyXmlVb6eGxJVUY2", "driveUrl": "https://drive.google.com/file/d/1d6nJXZf0iMVF6yg9RyXmlVb6eGxJVUY2/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/netherlands/ehte/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehte/aerodrome_chart.pdf"
-        },
+, "driveId": "1_M9d0aK_3dMI-btzHZgiBEE25AEkBkKX", "driveUrl": "https://drive.google.com/file/d/1_M9d0aK_3dMI-btzHZgiBEE25AEkBkKX/view?usp=drivesdk" },
         {
                 "id": "instrument_approach_chart_rnp_rwy_26.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_26.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/netherlands/ehte/instrument_approach_chart_rnp_rwy_26.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/ehte/instrument_approach_chart_rnp_rwy_26.pdf"
-        }
+, "driveId": "14ArWfV-Pp70E35ABUeDHwxsQAwPE9xmn", "driveUrl": "https://drive.google.com/file/d/14ArWfV-Pp70E35ABUeDHwxsQAwPE9xmn/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1145,7 +1145,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

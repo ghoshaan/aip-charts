@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cypg/portage_1_dep_vector.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cypg/portage_1_dep_vector.pdf"
-        },
+, "driveId": "1heGxSys2Tjqx4hBCkS8ee1GSUeEOdl1p", "driveUrl": "https://drive.google.com/file/d/1heGxSys2Tjqx4hBCkS8ee1GSUeEOdl1p/view?usp=drivesdk" },
         {
                 "id": "portage_1_dep_vector_pg_02.pdf",
                 "name": "PORTAGE_1_DEP_VECTOR_PG_02.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cypg/portage_1_dep_vector_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cypg/portage_1_dep_vector_pg_02.pdf"
-        },
+, "driveId": "1Mzwd-DYFAkT-dLmFnWxogHtWj0nSTzVN", "driveUrl": "https://drive.google.com/file/d/1Mzwd-DYFAkT-dLmFnWxogHtWj0nSTzVN/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cypg/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cypg/aerodrome_chart.pdf"
-        },
+, "driveId": "1jRaY6Rt5vM99nD4K0BrjTyXMx5HdqK4-", "driveUrl": "https://drive.google.com/file/d/1jRaY6Rt5vM99nD4K0BrjTyXMx5HdqK4-/view?usp=drivesdk" },
         {
                 "id": "takeoff_minimums_dnd.pdf",
                 "name": "TAKEOFF_MINIMUMS_DND.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/canada/cypg/takeoff_minimums_dnd.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cypg/takeoff_minimums_dnd.pdf"
-        },
+, "driveId": "1bbVXXXDLnCOtFvke9USlj88QN52lZZO2", "driveUrl": "https://drive.google.com/file/d/1bbVXXXDLnCOtFvke9USlj88QN52lZZO2/view?usp=drivesdk" },
         {
                 "id": "vor_dme_rwy_31l.pdf",
                 "name": "VOR_DME_RWY_31L.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/canada/cypg/vor_dme_rwy_31l.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cypg/vor_dme_rwy_31l.pdf"
-        },
+, "driveId": "1ZVg_7l5QhaKtUKXacJ2EO7HBNG6aodzr", "driveUrl": "https://drive.google.com/file/d/1ZVg_7l5QhaKtUKXacJ2EO7HBNG6aodzr/view?usp=drivesdk" },
         {
                 "id": "vor_rwy_31l.pdf",
                 "name": "VOR_RWY_31L.pdf",
@@ -1105,7 +1105,7 @@
                 "localUrl": "../charts_data/canada/cypg/vor_rwy_31l.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cypg/vor_rwy_31l.pdf"
-        },
+, "driveId": "18JRp6a6T0l35rPMxVe6Iyxjr1cghdWWN", "driveUrl": "https://drive.google.com/file/d/18JRp6a6T0l35rPMxVe6Iyxjr1cghdWWN/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_31l.pdf",
                 "name": "RNAV_GNSS_RWY_31L.pdf",
@@ -1113,7 +1113,7 @@
                 "localUrl": "../charts_data/canada/cypg/rnav_gnss_rwy_31l.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cypg/rnav_gnss_rwy_31l.pdf"
-        },
+, "driveId": "1mv9-fsmUqDC15j3xZmKeQ4oGhXNz4bUB", "driveUrl": "https://drive.google.com/file/d/1mv9-fsmUqDC15j3xZmKeQ4oGhXNz4bUB/view?usp=drivesdk" },
         {
                 "id": "vor_dme_rwy_13r.pdf",
                 "name": "VOR_DME_RWY_13R.pdf",
@@ -1121,7 +1121,7 @@
                 "localUrl": "../charts_data/canada/cypg/vor_dme_rwy_13r.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cypg/vor_dme_rwy_13r.pdf"
-        },
+, "driveId": "1Y1V--TayjUtd_am9oUuxs99q4zBpb-Tj", "driveUrl": "https://drive.google.com/file/d/1Y1V--TayjUtd_am9oUuxs99q4zBpb-Tj/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_13r.pdf",
                 "name": "RNAV_GNSS_RWY_13R.pdf",
@@ -1129,7 +1129,7 @@
                 "localUrl": "../charts_data/canada/cypg/rnav_gnss_rwy_13r.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cypg/rnav_gnss_rwy_13r.pdf"
-        },
+, "driveId": "1wslUg9XkQQEVm77zI1mB7fjp7oP3NZeT", "driveUrl": "https://drive.google.com/file/d/1wslUg9XkQQEVm77zI1mB7fjp7oP3NZeT/view?usp=drivesdk" },
         {
                 "id": "ndb_rwy_31l.pdf",
                 "name": "NDB_RWY_31L.pdf",
@@ -1137,7 +1137,7 @@
                 "localUrl": "../charts_data/canada/cypg/ndb_rwy_31l.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cypg/ndb_rwy_31l.pdf"
-        },
+, "driveId": "1VgDzCslKLZAw-zjPVqcIfvr2OUZtNpZu", "driveUrl": "https://drive.google.com/file/d/1VgDzCslKLZAw-zjPVqcIfvr2OUZtNpZu/view?usp=drivesdk" },
         {
                 "id": "ils_rwy_31l.pdf",
                 "name": "ILS_RWY_31L.pdf",
@@ -1145,7 +1145,7 @@
                 "localUrl": "../charts_data/canada/cypg/ils_rwy_31l.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cypg/ils_rwy_31l.pdf"
-        }
+, "driveId": "1x0TiV2aWelNr7O8U37UbuXL0OvqBgL4Q", "driveUrl": "https://drive.google.com/file/d/1x0TiV2aWelNr7O8U37UbuXL0OvqBgL4Q/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1193,7 +1193,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,35 +1065,35 @@
                 "url": "charts_data/switzerland/enroute/enr_67_-_1_enroute_chart_icao_upper_airspace.pdf",
                 "localUrl": "charts_data/switzerland/enroute/enr_67_-_1_enroute_chart_icao_upper_airspace.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1a7MroWA7ZcFElFk-rFtTJ0-rWtVL8Rkd", "driveUrl": "https://drive.google.com/file/d/1a7MroWA7ZcFElFk-rFtTJ0-rWtVL8Rkd/view?usp=drivesdk" },
         {
                 "id": "enr_65_-_1_enroute_chart_icao_lower_airspace.pdf",
                 "name": "ENR_6.5_-_1_ENROUTE_CHART_ICAO,_LOWER_AIRSPACE.pdf",
                 "url": "charts_data/switzerland/enroute/enr_65_-_1_enroute_chart_icao_lower_airspace.pdf",
                 "localUrl": "charts_data/switzerland/enroute/enr_65_-_1_enroute_chart_icao_lower_airspace.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1aKTWRAK_YIoh03ggUvqcvx6E4sWce8Nn", "driveUrl": "https://drive.google.com/file/d/1aKTWRAK_YIoh03ggUvqcvx6E4sWce8Nn/view?usp=drivesdk" },
         {
                 "id": "enr_64_-_1_gnss_low_flight_network_lfn_for_hel.pdf",
                 "name": "ENR_6.4_-_1_GNSS_LOW_FLIGHT_NETWORK_(LFN)_FOR_HEL.pdf",
                 "url": "charts_data/switzerland/enroute/enr_64_-_1_gnss_low_flight_network_lfn_for_hel.pdf",
                 "localUrl": "charts_data/switzerland/enroute/enr_64_-_1_gnss_low_flight_network_lfn_for_hel.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1dlpkvfeFxH-ZgLwxpZESLEhwI7uELsgn", "driveUrl": "https://drive.google.com/file/d/1dlpkvfeFxH-ZgLwxpZESLEhwI7uELsgn/view?usp=drivesdk" },
         {
                 "id": "enr_63_-_1_radio_facility_index_-_accficnav.pdf",
                 "name": "ENR_6.3_-_1_RADIO_FACILITY_INDEX_-_ACCFICNAV.pdf",
                 "url": "charts_data/switzerland/enroute/enr_63_-_1_radio_facility_index_-_accficnav.pdf",
                 "localUrl": "charts_data/switzerland/enroute/enr_63_-_1_radio_facility_index_-_accficnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1FYN4jxHB3qRQnxfW3k0BQ7liEaeKog2H", "driveUrl": "https://drive.google.com/file/d/1FYN4jxHB3qRQnxfW3k0BQ7liEaeKog2H/view?usp=drivesdk" },
         {
                 "id": "enr_61_-_1_radio_facility_index_-_ad_comafis.pdf",
                 "name": "ENR_6.1_-_1_RADIO_FACILITY_INDEX_-_AD_COMAFIS.pdf",
                 "url": "charts_data/switzerland/enroute/enr_61_-_1_radio_facility_index_-_ad_comafis.pdf",
                 "localUrl": "charts_data/switzerland/enroute/enr_61_-_1_radio_facility_index_-_ad_comafis.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1S8r4GKE-FvNYH0z6iM66lLT1B7OEZbc4", "driveUrl": "https://drive.google.com/file/d/1S8r4GKE-FvNYH0z6iM66lLT1B7OEZbc4/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1141,7 +1141,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

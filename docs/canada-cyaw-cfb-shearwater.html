@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,28 +1065,28 @@
                 "url": "charts_data/canada/cyaw-cfb-shearwater/heliport_chart_dnd.pdf",
                 "localUrl": "charts_data/canada/cyaw-cfb-shearwater/heliport_chart_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1C4BQV56VIqSOKoM4iu2aIKxMTguC--8i", "driveUrl": "https://drive.google.com/file/d/1C4BQV56VIqSOKoM4iu2aIKxMTguC--8i/view?usp=drivesdk" },
         {
                 "id": "copter_rnav_gnss_16h_dnd.pdf",
                 "name": "COPTER_RNAV_GNSS_16H_DND.pdf",
                 "url": "charts_data/canada/cyaw-cfb-shearwater/copter_rnav_gnss_16h_dnd.pdf",
                 "localUrl": "charts_data/canada/cyaw-cfb-shearwater/copter_rnav_gnss_16h_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1tia0re7eWxErBu8T06Z1AjJitm8PIfNZ", "driveUrl": "https://drive.google.com/file/d/1tia0re7eWxErBu8T06Z1AjJitm8PIfNZ/view?usp=drivesdk" },
         {
                 "id": "copter_rnav_gnss_34h_dnd.pdf",
                 "name": "COPTER_RNAV_GNSS_34H_DND.pdf",
                 "url": "charts_data/canada/cyaw-cfb-shearwater/copter_rnav_gnss_34h_dnd.pdf",
                 "localUrl": "charts_data/canada/cyaw-cfb-shearwater/copter_rnav_gnss_34h_dnd.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1phBDXhsjVzTxlOTXJuPZPsjAkIBs17Yh", "driveUrl": "https://drive.google.com/file/d/1phBDXhsjVzTxlOTXJuPZPsjAkIBs17Yh/view?usp=drivesdk" },
         {
                 "id": "copter_par_dnd.pdf",
                 "name": "COPTER_PAR_DND.pdf",
                 "url": "charts_data/canada/cyaw-cfb-shearwater/copter_par_dnd.pdf",
                 "localUrl": "charts_data/canada/cyaw-cfb-shearwater/copter_par_dnd.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1H9I16rNjzxZ1oaVHe9Ong9iLv-uASFZt", "driveUrl": "https://drive.google.com/file/d/1H9I16rNjzxZ1oaVHe9Ong9iLv-uASFZt/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1134,7 +1134,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

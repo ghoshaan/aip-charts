@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cyla/rnav_gnss_rwy_22.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyla/rnav_gnss_rwy_22.pdf"
-        },
+, "driveId": "1211ufSvBBOG-SSCkjjqamNlT6MWc2WIh", "driveUrl": "https://drive.google.com/file/d/1211ufSvBBOG-SSCkjjqamNlT6MWc2WIh/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cyla/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyla/aerodrome_chart.pdf"
-        },
+, "driveId": "1B9Ny8KkvDM_bc1BMw4aIjMxVTIPSYG0c", "driveUrl": "https://drive.google.com/file/d/1B9Ny8KkvDM_bc1BMw4aIjMxVTIPSYG0c/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_04.pdf",
                 "name": "RNAV_GNSS_RWY_04.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cyla/rnav_gnss_rwy_04.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyla/rnav_gnss_rwy_04.pdf"
-        }
+, "driveId": "159NVAQL7Q0u7o1n_UmHL9V9ejplxc7T4", "driveUrl": "https://drive.google.com/file/d/159NVAQL7Q0u7o1n_UmHL9V9ejplxc7T4/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1129,7 +1129,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

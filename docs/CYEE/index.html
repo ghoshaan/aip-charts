@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cyee-huronia-midland/cyee_aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyee-huronia-midland/cyee_aerodrome_chart.pdf"
-        },
+, "driveId": "1GfBEojJavFSs5PzfwkLZnWJGz23oC9xL", "driveUrl": "https://drive.google.com/file/d/1GfBEojJavFSs5PzfwkLZnWJGz23oC9xL/view?usp=drivesdk" },
         {
                 "id": "cyee_rnav_gnss_rwy_34.pdf",
                 "name": "CYEE_RNAV_GNSS_RWY_34.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cyee-huronia-midland/cyee_rnav_gnss_rwy_34.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyee-huronia-midland/cyee_rnav_gnss_rwy_34.pdf"
-        },
+, "driveId": "1xz6qGZik6decEZvAlz-czEWIA63uXUdn", "driveUrl": "https://drive.google.com/file/d/1xz6qGZik6decEZvAlz-czEWIA63uXUdn/view?usp=drivesdk" },
         {
                 "id": "cyee_rnav_gnss_rwy_16.pdf",
                 "name": "CYEE_RNAV_GNSS_RWY_16.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cyee-huronia-midland/cyee_rnav_gnss_rwy_16.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyee-huronia-midland/cyee_rnav_gnss_rwy_16.pdf"
-        }
+, "driveId": "1OReFoRpFfnU2SAVPxNyLYGbLggknA13n", "driveUrl": "https://drive.google.com/file/d/1OReFoRpFfnU2SAVPxNyLYGbLggknA13n/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1129,7 +1129,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,63 +1065,63 @@
                 "url": "charts_data/canada/cyfb-iqaluit/cyfb_itrus_2_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_itrus_2_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "17GD8fY5csOdjxfXQTOCsGQ1OqTJWCjgY", "driveUrl": "https://drive.google.com/file/d/17GD8fY5csOdjxfXQTOCsGQ1OqTJWCjgY/view?usp=drivesdk" },
         {
                 "id": "cyfb_itrus_2_dep_rnav.pdf",
                 "name": "CYFB_ITRUS_2_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cyfb-iqaluit/cyfb_itrus_2_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_itrus_2_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1c1ZUhD40O7X_IyGtrSvYp9RCpmhxSd9o", "driveUrl": "https://drive.google.com/file/d/1c1ZUhD40O7X_IyGtrSvYp9RCpmhxSd9o/view?usp=drivesdk" },
         {
                 "id": "cyfb_alrex_3_dep_rnav_pg_02.pdf",
                 "name": "CYFB_ALREX_3_DEP_RNAV_PG_02.pdf",
                 "url": "charts_data/canada/cyfb-iqaluit/cyfb_alrex_3_dep_rnav_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_alrex_3_dep_rnav_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1jzBcYUPPT-chdMhFhOi5rUjaEcE5LIZ3", "driveUrl": "https://drive.google.com/file/d/1jzBcYUPPT-chdMhFhOi5rUjaEcE5LIZ3/view?usp=drivesdk" },
         {
                 "id": "cyfb_alrex_3_dep_rnav.pdf",
                 "name": "CYFB_ALREX_3_DEP_RNAV.pdf",
                 "url": "charts_data/canada/cyfb-iqaluit/cyfb_alrex_3_dep_rnav.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_alrex_3_dep_rnav.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1fxSgIplbTbVsGZiZCv4VLA0dOYkUpnEt", "driveUrl": "https://drive.google.com/file/d/1fxSgIplbTbVsGZiZCv4VLA0dOYkUpnEt/view?usp=drivesdk" },
         {
                 "id": "cyfb_aerodrome_chart_pg_02_ai.pdf",
                 "name": "CYFB_AERODROME_CHART_PG_02_AI.pdf",
                 "url": "charts_data/canada/cyfb-iqaluit/cyfb_aerodrome_chart_pg_02_ai.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_aerodrome_chart_pg_02_ai.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1sKpT9g8x6uIHekQWDbg8ChV8p4ZQ71uh", "driveUrl": "https://drive.google.com/file/d/1sKpT9g8x6uIHekQWDbg8ChV8p4ZQ71uh/view?usp=drivesdk" },
         {
                 "id": "cyfb_aerodrome_chart.pdf",
                 "name": "CYFB_AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cyfb-iqaluit/cyfb_aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1B9H_T19l3CwqaRG-hUY7YplOz3Efutu6", "driveUrl": "https://drive.google.com/file/d/1B9H_T19l3CwqaRG-hUY7YplOz3Efutu6/view?usp=drivesdk" },
         {
                 "id": "cyfb_rnav_gnss_rwy_34.pdf",
                 "name": "CYFB_RNAV_GNSS_RWY_34.pdf",
                 "url": "charts_data/canada/cyfb-iqaluit/cyfb_rnav_gnss_rwy_34.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_rnav_gnss_rwy_34.pdf",
                 "type": "pdf"
-        },
+, "driveId": "18JzhujiOaKLgLCJVF1WpLB4LupAVmvKw", "driveUrl": "https://drive.google.com/file/d/18JzhujiOaKLgLCJVF1WpLB4LupAVmvKw/view?usp=drivesdk" },
         {
                 "id": "cyfb_rnav_gnss_rwy_16.pdf",
                 "name": "CYFB_RNAV_GNSS_RWY_16.pdf",
                 "url": "charts_data/canada/cyfb-iqaluit/cyfb_rnav_gnss_rwy_16.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_rnav_gnss_rwy_16.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ScUc_r8vkMEE5m2voESqTE7gHZ1OSE5u", "driveUrl": "https://drive.google.com/file/d/1ScUc_r8vkMEE5m2voESqTE7gHZ1OSE5u/view?usp=drivesdk" },
         {
                 "id": "cyfb_ils_rwy_34.pdf",
                 "name": "CYFB_ILS_RWY_34.pdf",
                 "url": "charts_data/canada/cyfb-iqaluit/cyfb_ils_rwy_34.pdf",
                 "localUrl": "charts_data/canada/cyfb-iqaluit/cyfb_ils_rwy_34.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1aQuUwEhe0jwf65j2o82TAltWsnumu8QI", "driveUrl": "https://drive.google.com/file/d/1aQuUwEhe0jwf65j2o82TAltWsnumu8QI/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1169,7 +1169,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

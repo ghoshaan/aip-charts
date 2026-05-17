@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,35 +1065,35 @@
                 "url": "charts_data/canada/cyen-estevan-regional/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyen-estevan-regional/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "13upi7bMaSSGrrMOzW9iz25YZHG06rPcE", "driveUrl": "https://drive.google.com/file/d/13upi7bMaSSGrrMOzW9iz25YZHG06rPcE/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_33.pdf",
                 "name": "RNAV_GNSS_RWY_33.pdf",
                 "url": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_33.pdf",
                 "localUrl": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_33.pdf",
                 "type": "pdf"
-        },
+, "driveId": "10_Nk33r8cw-XwlBokunqQkHuDPJL8YaD", "driveUrl": "https://drive.google.com/file/d/10_Nk33r8cw-XwlBokunqQkHuDPJL8YaD/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_26.pdf",
                 "name": "RNAV_GNSS_RWY_26.pdf",
                 "url": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_26.pdf",
                 "localUrl": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_26.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ZmnoHa9_dIA1-TpIWR3r9QfERyaCe3iN", "driveUrl": "https://drive.google.com/file/d/1ZmnoHa9_dIA1-TpIWR3r9QfERyaCe3iN/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_08.pdf",
                 "name": "RNAV_GNSS_RWY_08.pdf",
                 "url": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_08.pdf",
                 "localUrl": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_08.pdf",
                 "type": "pdf"
-        },
+, "driveId": "10sOV7AJtzAeVpttsv_7XajJSJvkA_BSp", "driveUrl": "https://drive.google.com/file/d/10sOV7AJtzAeVpttsv_7XajJSJvkA_BSp/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_15.pdf",
                 "name": "RNAV_GNSS_RWY_15.pdf",
                 "url": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_15.pdf",
                 "localUrl": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_15.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1r5niphEB8umkAqVfAGaBQuD9gL-Gn-AA", "driveUrl": "https://drive.google.com/file/d/1r5niphEB8umkAqVfAGaBQuD9gL-Gn-AA/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1141,7 +1141,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

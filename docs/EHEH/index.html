@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/iac_cdo_approaches_to_ils_x_or_loc_x_rwy_03.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/iac_cdo_approaches_to_ils_x_or_loc_x_rwy_03.pdf"
-        },
+, "driveId": "1Q1R4DY-XsmShU_TbonrgAVXg1Gzf0UCc", "driveUrl": "https://drive.google.com/file/d/1Q1R4DY-XsmShU_TbonrgAVXg1Gzf0UCc/view?usp=drivesdk" },
         {
                 "id": "sid_rwy_21.pdf",
                 "name": "SID_RWY_21.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/sid_rwy_21.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/sid_rwy_21.pdf"
-        },
+, "driveId": "1vi65zeB0bWzTNs7hBCLF8r3kjwamnmV5", "driveUrl": "https://drive.google.com/file/d/1vi65zeB0bWzTNs7hBCLF8r3kjwamnmV5/view?usp=drivesdk" },
         {
                 "id": "rnav_sid_rwy_21.pdf",
                 "name": "RNAV_SID_RWY_21.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/rnav_sid_rwy_21.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/rnav_sid_rwy_21.pdf"
-        },
+, "driveId": "1jjCPhl7cnJxZMzie-5AgJmSMi2FFHaVA", "driveUrl": "https://drive.google.com/file/d/1jjCPhl7cnJxZMzie-5AgJmSMi2FFHaVA/view?usp=drivesdk" },
         {
                 "id": "sid.pdf",
                 "name": "SID.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/sid.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/sid.pdf"
-        },
+, "driveId": "1vsMi8d7InSqAqTU0KEC4ULz1DNGSon6Y", "driveUrl": "https://drive.google.com/file/d/1vsMi8d7InSqAqTU0KEC4ULz1DNGSon6Y/view?usp=drivesdk" },
         {
                 "id": "apdc.pdf",
                 "name": "APDC.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/apdc.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/apdc.pdf"
-        },
+, "driveId": "1ymK6pkeYnqEMHQIZPkKqPJjv3pWyiu1H", "driveUrl": "https://drive.google.com/file/d/1ymK6pkeYnqEMHQIZPkKqPJjv3pWyiu1H/view?usp=drivesdk" },
         {
                 "id": "sid_rwy_03.pdf",
                 "name": "SID_RWY_03.pdf",
@@ -1105,7 +1105,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/sid_rwy_03.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/sid_rwy_03.pdf"
-        },
+, "driveId": "1RfubRwf5MBz3-vnx6wwqUiImX9WsjjOu", "driveUrl": "https://drive.google.com/file/d/1RfubRwf5MBz3-vnx6wwqUiImX9WsjjOu/view?usp=drivesdk" },
         {
                 "id": "aoc_type_a_rwy_03-21.pdf",
                 "name": "AOC_TYPE_A_RWY_03-21.pdf",
@@ -1113,7 +1113,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/aoc_type_a_rwy_03-21.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/aoc_type_a_rwy_03-21.pdf"
-        },
+, "driveId": "1LjU26GB3KlKZ93fgu0XLWRAeq5NfEov4", "driveUrl": "https://drive.google.com/file/d/1LjU26GB3KlKZ93fgu0XLWRAeq5NfEov4/view?usp=drivesdk" },
         {
                 "id": "vac_-_vfr_procedures.pdf",
                 "name": "VAC_-_VFR_PROCEDURES.pdf",
@@ -1121,7 +1121,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/vac_-_vfr_procedures.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/vac_-_vfr_procedures.pdf"
-        },
+, "driveId": "1NXMovLBij6B-xelFUMHFs8VHbQfzexba", "driveUrl": "https://drive.google.com/file/d/1NXMovLBij6B-xelFUMHFs8VHbQfzexba/view?usp=drivesdk" },
         {
                 "id": "adc.pdf",
                 "name": "ADC.pdf",
@@ -1129,7 +1129,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/adc.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/adc.pdf"
-        },
+, "driveId": "19x-QpKF3gCqfSZyYSyxHzgMQ9RhyRdQF", "driveUrl": "https://drive.google.com/file/d/19x-QpKF3gCqfSZyYSyxHzgMQ9RhyRdQF/view?usp=drivesdk" },
         {
                 "id": "vfr_tfc_circuits.pdf",
                 "name": "VFR_TFC_CIRCUITS.pdf",
@@ -1137,7 +1137,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/vfr_tfc_circuits.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/vfr_tfc_circuits.pdf"
-        },
+, "driveId": "1WPV9NA4GiWTZqUUgBSdDVK5OUwRC2uje", "driveUrl": "https://drive.google.com/file/d/1WPV9NA4GiWTZqUUgBSdDVK5OUwRC2uje/view?usp=drivesdk" },
         {
                 "id": "iac_cdo_approaches_rnp_y_rwy_03.pdf",
                 "name": "IAC_CDO_APPROACHES_RNP_Y_RWY_03.pdf",
@@ -1145,7 +1145,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/iac_cdo_approaches_rnp_y_rwy_03.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/iac_cdo_approaches_rnp_y_rwy_03.pdf"
-        },
+, "driveId": "1CmZyzgoKl1MtjVb8bfVTzoHc8mQVS9Jv", "driveUrl": "https://drive.google.com/file/d/1CmZyzgoKl1MtjVb8bfVTzoHc8mQVS9Jv/view?usp=drivesdk" },
         {
                 "id": "iac_ils_y_or_loc_y_rwy_21.pdf",
                 "name": "IAC_ILS_Y_OR_LOC_Y_RWY_21.pdf",
@@ -1153,7 +1153,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/iac_ils_y_or_loc_y_rwy_21.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/iac_ils_y_or_loc_y_rwy_21.pdf"
-        },
+, "driveId": "1jQYXN2a7_XJK6KDfhP41F82XKJhRcwmL", "driveUrl": "https://drive.google.com/file/d/1jQYXN2a7_XJK6KDfhP41F82XKJhRcwmL/view?usp=drivesdk" },
         {
                 "id": "iac_cdo_approaches_to_ils_x_or_loc_x_rwy_21.pdf",
                 "name": "IAC_CDO_APPROACHES_TO_ILS_X_OR_LOC_X_RWY_21.pdf",
@@ -1161,7 +1161,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/iac_cdo_approaches_to_ils_x_or_loc_x_rwy_21.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/iac_cdo_approaches_to_ils_x_or_loc_x_rwy_21.pdf"
-        },
+, "driveId": "1j1rgocrnpMBtNwn4b15xKhz-uWgv3YQH", "driveUrl": "https://drive.google.com/file/d/1j1rgocrnpMBtNwn4b15xKhz-uWgv3YQH/view?usp=drivesdk" },
         {
                 "id": "iac_cdo_approaches_rnp_y_rwy_21.pdf",
                 "name": "IAC_CDO_APPROACHES_RNP_Y_RWY_21.pdf",
@@ -1169,7 +1169,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/iac_cdo_approaches_rnp_y_rwy_21.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/iac_cdo_approaches_rnp_y_rwy_21.pdf"
-        },
+, "driveId": "1vBAzDi6ajaAA0bh3op6VR9469qFHaETM", "driveUrl": "https://drive.google.com/file/d/1vBAzDi6ajaAA0bh3op6VR9469qFHaETM/view?usp=drivesdk" },
         {
                 "id": "iac_ils_y_or_loc_y_rwy_03.pdf",
                 "name": "IAC_ILS_Y_OR_LOC_Y_RWY_03.pdf",
@@ -1177,7 +1177,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/iac_ils_y_or_loc_y_rwy_03.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/iac_ils_y_or_loc_y_rwy_03.pdf"
-        },
+, "driveId": "1tTvJbWVCkFtxZi6LSd9mTiG_ljJoj0iN", "driveUrl": "https://drive.google.com/file/d/1tTvJbWVCkFtxZi6LSd9mTiG_ljJoj0iN/view?usp=drivesdk" },
         {
                 "id": "star_only_from_ebaw_ebbr_ebmb_eham_ehgg_ehle.pdf",
                 "name": "STAR_ONLY_FROM_EBAW,_EBBR,_EBMB,_EHAM,_EHGG,_EHLE,.pdf",
@@ -1185,7 +1185,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/star_only_from_ebaw_ebbr_ebmb_eham_ehgg_ehle.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/star_only_from_ebaw_ebbr_ebmb_eham_ehgg_ehle.pdf"
-        },
+, "driveId": "1ConJ2uUgiRU0z8WWrGmRaA3BEV9Up_Dv", "driveUrl": "https://drive.google.com/file/d/1ConJ2uUgiRU0z8WWrGmRaA3BEV9Up_Dv/view?usp=drivesdk" },
         {
                 "id": "star.pdf",
                 "name": "STAR.pdf",
@@ -1193,7 +1193,7 @@
                 "localUrl": "../charts_data/netherlands/eheh/star.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/netherlands/eheh/star.pdf"
-        }
+, "driveId": "1VS2TJD-ZuBJh7vi8g3XTgwIVMKSMA_sZ", "driveUrl": "https://drive.google.com/file/d/1VS2TJD-ZuBJh7vi8g3XTgwIVMKSMA_sZ/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1241,7 +1241,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

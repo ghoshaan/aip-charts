@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cyco-kugluktuk/rnav_gnss_rwy_30_true.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyco-kugluktuk/rnav_gnss_rwy_30_true.pdf"
-        },
+, "driveId": "1Gh9gsch9ne4Zl94rwPyXd78I6CYoL5bg", "driveUrl": "https://drive.google.com/file/d/1Gh9gsch9ne4Zl94rwPyXd78I6CYoL5bg/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cyco-kugluktuk/aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyco-kugluktuk/aerodrome_chart.pdf"
-        },
+, "driveId": "1K5RwyB_iHS0IxtmPtYa4xA-o7JEolKLn", "driveUrl": "https://drive.google.com/file/d/1K5RwyB_iHS0IxtmPtYa4xA-o7JEolKLn/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_12_true.pdf",
                 "name": "RNAV_GNSS_RWY_12_TRUE.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cyco-kugluktuk/rnav_gnss_rwy_12_true.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyco-kugluktuk/rnav_gnss_rwy_12_true.pdf"
-        },
+, "driveId": "1hKzZy6PY0hYZl_8Bcd-1YQgnUMBN__Ka", "driveUrl": "https://drive.google.com/file/d/1hKzZy6PY0hYZl_8Bcd-1YQgnUMBN__Ka/view?usp=drivesdk" },
         {
                 "id": "ndb_a_true.pdf",
                 "name": "NDB_A_TRUE.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/canada/cyco-kugluktuk/ndb_a_true.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyco-kugluktuk/ndb_a_true.pdf"
-        }
+, "driveId": "1SNZcjIM13SGXE9eg0RklsWLSjuShN1b9", "driveUrl": "https://drive.google.com/file/d/1SNZcjIM13SGXE9eg0RklsWLSjuShN1b9/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1137,7 +1137,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

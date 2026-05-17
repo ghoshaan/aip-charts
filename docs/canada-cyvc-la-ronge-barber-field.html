@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -882,7 +882,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,42 +1065,42 @@
                 "url": "charts_data/canada/cyvc-la-ronge-barber-field/la_ronge_2_dep_vector_pg_02.pdf",
                 "localUrl": "charts_data/canada/cyvc-la-ronge-barber-field/la_ronge_2_dep_vector_pg_02.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1rHWxYpI9dp8Ve_6GgUWzT5v0Qs14ZOjr", "driveUrl": "https://drive.google.com/file/d/1rHWxYpI9dp8Ve_6GgUWzT5v0Qs14ZOjr/view?usp=drivesdk" },
         {
                 "id": "la_ronge_2_dep_vector.pdf",
                 "name": "LA_RONGE_2_DEP_VECTOR.pdf",
                 "url": "charts_data/canada/cyvc-la-ronge-barber-field/la_ronge_2_dep_vector.pdf",
                 "localUrl": "charts_data/canada/cyvc-la-ronge-barber-field/la_ronge_2_dep_vector.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1Qjf-RY79sGTgXWpmFSmSOZAqAMHxn9gx", "driveUrl": "https://drive.google.com/file/d/1Qjf-RY79sGTgXWpmFSmSOZAqAMHxn9gx/view?usp=drivesdk" },
         {
                 "id": "vor_rwy_18.pdf",
                 "name": "VOR_RWY_18.pdf",
                 "url": "charts_data/canada/cyvc-la-ronge-barber-field/vor_rwy_18.pdf",
                 "localUrl": "charts_data/canada/cyvc-la-ronge-barber-field/vor_rwy_18.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1pHBtXOOojNAn35rUCJie6PucBaq_BjF5", "driveUrl": "https://drive.google.com/file/d/1pHBtXOOojNAn35rUCJie6PucBaq_BjF5/view?usp=drivesdk" },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
                 "url": "charts_data/canada/cyvc-la-ronge-barber-field/aerodrome_chart.pdf",
                 "localUrl": "charts_data/canada/cyvc-la-ronge-barber-field/aerodrome_chart.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1ZtKDFwAeCiQiu_If7eAtO1Hx1XLOEJ61", "driveUrl": "https://drive.google.com/file/d/1ZtKDFwAeCiQiu_If7eAtO1Hx1XLOEJ61/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_36.pdf",
                 "name": "RNAV_GNSS_RWY_36.pdf",
                 "url": "charts_data/canada/cyvc-la-ronge-barber-field/rnav_gnss_rwy_36.pdf",
                 "localUrl": "charts_data/canada/cyvc-la-ronge-barber-field/rnav_gnss_rwy_36.pdf",
                 "type": "pdf"
-        },
+, "driveId": "1UJVYYZVHY1pySZN9ar_6VbTu-pwngKDJ", "driveUrl": "https://drive.google.com/file/d/1UJVYYZVHY1pySZN9ar_6VbTu-pwngKDJ/view?usp=drivesdk" },
         {
                 "id": "rnav_gnss_rwy_18.pdf",
                 "name": "RNAV_GNSS_RWY_18.pdf",
                 "url": "charts_data/canada/cyvc-la-ronge-barber-field/rnav_gnss_rwy_18.pdf",
                 "localUrl": "charts_data/canada/cyvc-la-ronge-barber-field/rnav_gnss_rwy_18.pdf",
                 "type": "pdf"
-        }
+, "driveId": "1xuW5V9d5uGXHhgtGSWEvJLJNIMgQcgT0", "driveUrl": "https://drive.google.com/file/d/1xuW5V9d5uGXHhgtGSWEvJLJNIMgQcgT0/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1148,7 +1148,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

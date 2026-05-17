@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_springbank_4_dep_vector_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_springbank_4_dep_vector_pg_02.pdf"
-        },
+, "driveId": "1LHvOAtwb6C7kN8vkiq4M3j6oGaBvnmmY", "driveUrl": "https://drive.google.com/file/d/1LHvOAtwb6C7kN8vkiq4M3j6oGaBvnmmY/view?usp=drivesdk" },
         {
                 "id": "cybw_springbank_4_dep_vector.pdf",
                 "name": "CYBW_SPRINGBANK_4_DEP_VECTOR.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_springbank_4_dep_vector.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_springbank_4_dep_vector.pdf"
-        },
+, "driveId": "1Um7Q2oGo35RK06BW5f2jmiZ5XJS9WSId", "driveUrl": "https://drive.google.com/file/d/1Um7Q2oGo35RK06BW5f2jmiZ5XJS9WSId/view?usp=drivesdk" },
         {
                 "id": "cybw_takeoff_minimums.pdf",
                 "name": "CYBW_TAKEOFF_MINIMUMS.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_takeoff_minimums.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_takeoff_minimums.pdf"
-        },
+, "driveId": "1QijtjNiCHkjOmL1o7o35EeB6tArV6wkf", "driveUrl": "https://drive.google.com/file/d/1QijtjNiCHkjOmL1o7o35EeB6tArV6wkf/view?usp=drivesdk" },
         {
                 "id": "cybw_reduced_visibility_taxi_chart.pdf",
                 "name": "CYBW_REDUCED_VISIBILITY_TAXI_CHART.pdf",
@@ -1089,7 +1089,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_reduced_visibility_taxi_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_reduced_visibility_taxi_chart.pdf"
-        },
+, "driveId": "1oxkurcKW7pvmlCvYVHCVgZGDmkH4Efs5", "driveUrl": "https://drive.google.com/file/d/1oxkurcKW7pvmlCvYVHCVgZGDmkH4Efs5/view?usp=drivesdk" },
         {
                 "id": "cybw_reduced_visibility_procedures.pdf",
                 "name": "CYBW_REDUCED_VISIBILITY_PROCEDURES.pdf",
@@ -1097,7 +1097,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_reduced_visibility_procedures.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_reduced_visibility_procedures.pdf"
-        },
+, "driveId": "1KgWyXwzeSaM8hXo9qrslUwufTuy3mCXd", "driveUrl": "https://drive.google.com/file/d/1KgWyXwzeSaM8hXo9qrslUwufTuy3mCXd/view?usp=drivesdk" },
         {
                 "id": "cybw_noise_abatement_procedures.pdf",
                 "name": "CYBW_NOISE_ABATEMENT_PROCEDURES.pdf",
@@ -1105,7 +1105,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_noise_abatement_procedures.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_noise_abatement_procedures.pdf"
-        },
+, "driveId": "1biQnrASNRnWSLkfFuYKWlThMx2Mt-U9r", "driveUrl": "https://drive.google.com/file/d/1biQnrASNRnWSLkfFuYKWlThMx2Mt-U9r/view?usp=drivesdk" },
         {
                 "id": "cybw_aerodrome_chart.pdf",
                 "name": "CYBW_AERODROME_CHART.pdf",
@@ -1113,7 +1113,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_aerodrome_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_aerodrome_chart.pdf"
-        },
+, "driveId": "1r8mraMHegzu7m0KeeIHPrrkX8SRvXlma", "driveUrl": "https://drive.google.com/file/d/1r8mraMHegzu7m0KeeIHPrrkX8SRvXlma/view?usp=drivesdk" },
         {
                 "id": "cybw_rnav_gnss_rwy_35.pdf",
                 "name": "CYBW_RNAV_GNSS_RWY_35.pdf",
@@ -1121,7 +1121,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_rnav_gnss_rwy_35.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_rnav_gnss_rwy_35.pdf"
-        },
+, "driveId": "1GmGPCThVXBgnuxOKJdzOlJ3eL6xpD_5q", "driveUrl": "https://drive.google.com/file/d/1GmGPCThVXBgnuxOKJdzOlJ3eL6xpD_5q/view?usp=drivesdk" },
         {
                 "id": "cybw_rnav_gnss_rwy_17.pdf",
                 "name": "CYBW_RNAV_GNSS_RWY_17.pdf",
@@ -1129,7 +1129,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_rnav_gnss_rwy_17.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_rnav_gnss_rwy_17.pdf"
-        },
+, "driveId": "1LVdONyN6-aUnCv86zHBTjP0qnPEiuFZJ", "driveUrl": "https://drive.google.com/file/d/1LVdONyN6-aUnCv86zHBTjP0qnPEiuFZJ/view?usp=drivesdk" },
         {
                 "id": "cybw_ils_rwy_35.pdf",
                 "name": "CYBW_ILS_RWY_35.pdf",
@@ -1137,7 +1137,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_ils_rwy_35.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_ils_rwy_35.pdf"
-        },
+, "driveId": "1SDXzxAecL12BPvXjS0QtMEL8flrLnkz3", "driveUrl": "https://drive.google.com/file/d/1SDXzxAecL12BPvXjS0QtMEL8flrLnkz3/view?usp=drivesdk" },
         {
                 "id": "cybw_madyn_3_arr_rnav_pg_02.pdf",
                 "name": "CYBW_MADYN_3_ARR_RNAV_PG_02.pdf",
@@ -1145,7 +1145,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_madyn_3_arr_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_madyn_3_arr_rnav_pg_02.pdf"
-        },
+, "driveId": "1jWii02LUMGB4okWCDmrCq_J9y4uxzDKs", "driveUrl": "https://drive.google.com/file/d/1jWii02LUMGB4okWCDmrCq_J9y4uxzDKs/view?usp=drivesdk" },
         {
                 "id": "cybw_madyn_3_arr_rnav.pdf",
                 "name": "CYBW_MADYN_3_ARR_RNAV.pdf",
@@ -1153,7 +1153,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_madyn_3_arr_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_madyn_3_arr_rnav.pdf"
-        },
+, "driveId": "1SNcXimja0keAlaECKdAZzIoxYujD12N2", "driveUrl": "https://drive.google.com/file/d/1SNcXimja0keAlaECKdAZzIoxYujD12N2/view?usp=drivesdk" },
         {
                 "id": "cybw_kipev_4_arr_rnav_pg_02.pdf",
                 "name": "CYBW_KIPEV_4_ARR_RNAV_PG_02.pdf",
@@ -1161,7 +1161,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_kipev_4_arr_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_kipev_4_arr_rnav_pg_02.pdf"
-        },
+, "driveId": "1nJf2Kdo40tZx5gO0tHe2HJoKilO5NRxL", "driveUrl": "https://drive.google.com/file/d/1nJf2Kdo40tZx5gO0tHe2HJoKilO5NRxL/view?usp=drivesdk" },
         {
                 "id": "cybw_kipev_4_arr_rnav.pdf",
                 "name": "CYBW_KIPEV_4_ARR_RNAV.pdf",
@@ -1169,7 +1169,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_kipev_4_arr_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_kipev_4_arr_rnav.pdf"
-        },
+, "driveId": "17spPZf5srTPqIaCOUTObCMWSzOgUaxTC", "driveUrl": "https://drive.google.com/file/d/17spPZf5srTPqIaCOUTObCMWSzOgUaxTC/view?usp=drivesdk" },
         {
                 "id": "cybw_elbow_4_arr_rnav_pg_02.pdf",
                 "name": "CYBW_ELBOW_4_ARR_RNAV_PG_02.pdf",
@@ -1177,7 +1177,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_elbow_4_arr_rnav_pg_02.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_elbow_4_arr_rnav_pg_02.pdf"
-        },
+, "driveId": "1HdWsHxkSFG2Ut-_X2IpwmOcGKRNe_ZZr", "driveUrl": "https://drive.google.com/file/d/1HdWsHxkSFG2Ut-_X2IpwmOcGKRNe_ZZr/view?usp=drivesdk" },
         {
                 "id": "cybw_elbow_4_arr_rnav.pdf",
                 "name": "CYBW_ELBOW_4_ARR_RNAV.pdf",
@@ -1185,7 +1185,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_elbow_4_arr_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_elbow_4_arr_rnav.pdf"
-        },
+, "driveId": "1bs-1gVbRRCDnEFvy21hlx26Age_xIGfD", "driveUrl": "https://drive.google.com/file/d/1bs-1gVbRRCDnEFvy21hlx26Age_xIGfD/view?usp=drivesdk" },
         {
                 "id": "cybw_bragg_5_arr_rnav.pdf",
                 "name": "CYBW_BRAGG_5_ARR_RNAV.pdf",
@@ -1193,7 +1193,7 @@
                 "localUrl": "../charts_data/canada/cybw-calgary-springbank/cybw_bragg_5_arr_rnav.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybw-calgary-springbank/cybw_bragg_5_arr_rnav.pdf"
-        }
+, "driveId": "1ZK4GnScfi_lA3mDgLI7RQqH-RlJyqz1M", "driveUrl": "https://drive.google.com/file/d/1ZK4GnScfi_lA3mDgLI7RQqH-RlJyqz1M/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1241,7 +1241,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';

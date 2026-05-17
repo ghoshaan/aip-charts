@@ -790,7 +790,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.url, file.localUrl, false,
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -875,7 +875,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.url || found.viewUrl, found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1065,7 +1065,7 @@
                 "localUrl": "../charts_data/ireland/enroute/enr_63_-_enroute_connectivity_chart__h24_frequencies_chart.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/ireland/enroute/enr_63_-_enroute_connectivity_chart__h24_frequencies_chart.pdf"
-        },
+, "driveId": "1g6Rir3qacKBHzkaMwD76VdRs2lPdLW6N", "driveUrl": "https://drive.google.com/file/d/1g6Rir3qacKBHzkaMwD76VdRs2lPdLW6N/view?usp=drivesdk" },
         {
                 "id": "enr_62_-_enroute_chart_upper_airspace.pdf",
                 "name": "ENR_6.2_-_ENROUTE_CHART_UPPER_AIRSPACE.pdf",
@@ -1073,7 +1073,7 @@
                 "localUrl": "../charts_data/ireland/enroute/enr_62_-_enroute_chart_upper_airspace.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/ireland/enroute/enr_62_-_enroute_chart_upper_airspace.pdf"
-        },
+, "driveId": "1dP5NYxlFQNyGmGGJBp2ae8mTpEWPNEkZ", "driveUrl": "https://drive.google.com/file/d/1dP5NYxlFQNyGmGGJBp2ae8mTpEWPNEkZ/view?usp=drivesdk" },
         {
                 "id": "enr_61_-_enroute_chart_lower_ats_routes.pdf",
                 "name": "ENR_6.1_-_ENROUTE_CHART_LOWER_ATS_ROUTES.pdf",
@@ -1081,7 +1081,7 @@
                 "localUrl": "../charts_data/ireland/enroute/enr_61_-_enroute_chart_lower_ats_routes.pdf",
                 "type": "pdf",
                 "rootUrl": "charts_data/ireland/enroute/enr_61_-_enroute_chart_lower_ats_routes.pdf"
-        }
+, "driveId": "1WWKw-_4YdK418vt-ourhsR18_koG2Wio", "driveUrl": "https://drive.google.com/file/d/1WWKw-_4YdK418vt-ourhsR18_koG2Wio/view?usp=drivesdk" }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1129,7 +1129,7 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.url, file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
