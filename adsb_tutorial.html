@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADS-B Techniques — Visual Tutorial</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f4f4f2; --bg3: #ebebea;
+    --text: #1a1a18; --text2: #5a5a56; --text3: #8a8a84;
+    --border: rgba(0,0,0,0.15); --border2: rgba(0,0,0,0.25);
+    --radius: 8px; --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "SF Mono", "Fira Mono", "Consolas", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18; --bg2: #242422; --bg3: #2e2e2a;
+      --text: #e8e8e0; --text2: #a0a09a; --text3: #606060;
+      --border: rgba(255,255,255,0.12); --border2: rgba(255,255,255,0.22);
+    }
+  }
+  body {
+    font-family: var(--font); background: var(--bg); color: var(--text);
+    min-height: 100vh; padding: 2rem 1rem;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.5; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .tab {
+    padding: 7px 14px; font-size: 13px; font-family: var(--font);
+    border: 0.5px solid var(--border2); border-radius: var(--radius);
+    background: transparent; cursor: pointer; color: var(--text2); transition: all .15s;
+  }
+  .tab.active { background: var(--bg2); color: var(--text); border-color: var(--border2); }
+  .tab:hover:not(.active) { background: var(--bg2); }
+  .panel { display: none; } .panel.active { display: block; }
+  .desc { font-size: 13px; color: var(--text2); margin-bottom: 10px; line-height: 1.6; }
+  .desc strong { color: var(--text); }
+  .desc em { font-style: italic; }
+  .radar {
+    width: 100%; background: #0a1520; border-radius: var(--radius-lg);
+    border: 0.5px solid #1e3a50; display: block;
+  }
+  .grid-circle { fill: none; stroke: #1a3040; stroke-width: 0.5; }
+  .grid-line { stroke: #1a3040; stroke-width: 0.5; }
+  .aircraft { cursor: default; transition: opacity .4s; }
+  .aircraft.dimmed { opacity: 0.12; }
+  .ac-dot { fill: #00cc66; }
+  .ac-label { font-size: 11px; fill: #88ccaa; font-family: var(--mono); }
+  .ac-alt { font-size: 10px; fill: #55aaaa; font-family: var(--mono); }
+  .waypoint { font-size: 10px; fill: #ffaa00; font-family: var(--mono); }
+  .wp-sym { fill: none; stroke: #ffaa00; stroke-width: 1; }
+  .airport-label { fill: #4488cc; font-size: 11px; font-family: var(--mono); }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    margin-top: 12px; align-items: center;
+  }
+  .ctrl-group { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); }
+  .ctrl-group label { white-space: nowrap; min-width: 80px; }
+  .ctrl-group input[type=range] { width: 120px; accent-color: #00cc66; }
+  .ctrl-val {
+    font-size: 13px; font-weight: 500; font-family: var(--mono);
+    color: var(--text); min-width: 52px;
+  }
+  .info-box {
+    margin-top: 12px; padding: 10px 14px; background: var(--bg2);
+    border-radius: var(--radius); font-size: 13px; color: var(--text2);
+    line-height: 1.6; border-left: 2px solid #1e3a50;
+  }
+  .info-box strong { color: var(--text); }
+  .info-warn { border-left-color: #cc8800; margin-top: 6px; }
+  .info-tip { border-left-color: #00cc66; margin-top: 6px; }
+  .step-btn {
+    padding: 6px 14px; font-size: 13px; font-family: var(--font);
+    border: 0.5px solid var(--border2); border-radius: var(--radius);
+    background: transparent; cursor: pointer; color: var(--text); transition: background .15s;
+  }
+  .step-btn:hover { background: var(--bg2); }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 500; margin-right: 6px;
+  }
+  .badge-green { background: #0a2e1a; color: #00cc66; }
+  .badge-amber { background: #2a1e00; color: #ffaa00; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text2); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  footer { margin-top: 2rem; font-size: 12px; color: var(--text3); text-align: center; }
+  #ray3,#wp3-nexus,#ray4,#cone4,#wp4-sigma,#wp5-golfe{transition:opacity 0.5s;}
+
+    .pin-card-wrapper { min-width: 0; }
+    .pin-card { min-width: 0; }
+    .pin-info { flex: 1; min-width: 0; }
+    .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }
+
+    </style>
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+<div class="container">
+  <h1>ADS-B Techniques — Visual Tutorial</h1>
+  <p class="subtitle">Five practical techniques from flight debriefs: altitude filters, airport traffic isolation, extended track, direct-clearance cone, and crossing restrictions.</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab(0)">① Altitude filter — unknown callsign</button>
+    <button class="tab" onclick="showTab(1)">② Airport filter — arrivals &amp; departures</button>
+    <button class="tab" onclick="showTab(2)">③ Old track — where was it going?</button>
+    <button class="tab" onclick="showTab(3)">④ Direct clearance — extend bearing</button>
+    <button class="tab" onclick="showTab(4)">⑤ Crossing restriction — alt &amp; speed</button>
+  </div>
+
+  <!-- PANEL 0 -->
+  <div class="panel active" id="panel-0">
+    <p class="desc">You hear an aircraft check in and ATC says <em>"climb and maintain <strong>flight level two one zero</strong>"</em> but the callsign was unintelligible. Set the filter ±500 ft around FL210 (20,500–21,500 ft) to narrow the field.</p>
+    <svg class="radar" viewBox="0 0 620 320">
+      <circle class="grid-circle" cx="310" cy="160" r="60"/>
+      <circle class="grid-circle" cx="310" cy="160" r="120"/>
+      <line class="grid-line" x1="310" y1="10" x2="310" y2="310"/>
+      <line class="grid-line" x1="10" y1="160" x2="610" y2="160"/>
+      <g class="aircraft" id="ac0-0"><circle class="ac-dot" cx="80" cy="60" r="4"/><text class="ac-label" x="88" y="57">UAL41</text><text class="ac-alt" x="88" y="68">FL350</text></g>
+      <g class="aircraft" id="ac0-1"><circle class="ac-dot" cx="180" cy="90" r="4"/><text class="ac-label" x="188" y="87">DAL22</text><text class="ac-alt" x="188" y="98">FL370</text></g>
+      <g class="aircraft" id="ac0-2"><circle class="ac-dot" cx="420" cy="75" r="4"/><text class="ac-label" x="428" y="72">SWA??</text><text class="ac-alt" x="428" y="83">FL210</text></g>
+      <g class="aircraft" id="ac0-3"><circle class="ac-dot" cx="520" cy="130" r="4"/><text class="ac-label" x="528" y="127">AAL55</text><text class="ac-alt" x="528" y="138">FL290</text></g>
+      <g class="aircraft" id="ac0-4"><circle class="ac-dot" cx="260" cy="200" r="4"/><text class="ac-label" x="268" y="197">FDX11</text><text class="ac-alt" x="268" y="208">FL330</text></g>
+      <g class="aircraft" id="ac0-5"><circle class="ac-dot" cx="370" cy="220" r="4"/><text class="ac-label" x="378" y="217">N???X</text><text class="ac-alt" x="378" y="228">FL209</text></g>
+      <g class="aircraft" id="ac0-6"><circle class="ac-dot" cx="150" cy="240" r="4"/><text class="ac-label" x="158" y="237">NKS77</text><text class="ac-alt" x="158" y="248">FL240</text></g>
+      <g class="aircraft" id="ac0-7"><circle class="ac-dot" cx="480" cy="260" r="4"/><text class="ac-label" x="488" y="257">UPS99</text><text class="ac-alt" x="488" y="268">FL380</text></g>
+      <g class="aircraft" id="ac0-8"><circle class="ac-dot" cx="80" cy="280" r="4"/><text class="ac-label" x="88" y="277">JSB33</text><text class="ac-alt" x="88" y="288">FL270</text></g>
+      <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — UNFILTERED</text>
+    </svg>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Lower (ft)</label>
+        <input type="range" min="0" max="40000" step="500" value="0" id="lo0" oninput="updateFilter0()">
+        <span class="ctrl-val" id="lo0-val">0</span>
+      </div>
+      <div class="ctrl-group">
+        <label>Upper (ft)</label>
+        <input type="range" min="0" max="40000" step="500" value="40000" id="hi0" oninput="updateFilter0()">
+        <span class="ctrl-val" id="hi0-val">40000</span>
+      </div>
+      <button class="step-btn" onclick="applyPreset0()">Apply FL210 filter</button>
+      <button class="step-btn" onclick="resetFilter0()">Reset</button>
+    </div>
+    <div class="info-box" id="info0">Drag the sliders or click <strong>Apply FL210 filter</strong> to set the altitude band to 20,500–21,500 ft. Aircraft outside the band dim out, leaving only candidates near FL210.</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#00cc66"></div>Visible aircraft</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#224433"></div>Filtered out</div>
+    </div>
+  </div>
+
+  <!-- PANEL 1 -->
+  <div class="panel" id="panel-1">
+    <p class="desc">Center on your target airport and set filter from <strong>0 ft</strong> up to around <strong>5,000 ft AGL</strong> (higher for mountain airports). Only arrivals, departures, and pattern traffic survive the filter.</p>
+    <svg class="radar" viewBox="0 0 620 320">
+      <circle class="grid-circle" cx="310" cy="160" r="60"/>
+      <circle class="grid-circle" cx="310" cy="160" r="120"/>
+      <line class="grid-line" x1="310" y1="10" x2="310" y2="310"/>
+      <line class="grid-line" x1="10" y1="160" x2="610" y2="160"/>
+      <rect x="295" y="152" width="28" height="5" fill="#4488cc" opacity="0.8" rx="1"/>
+      <rect x="307" y="140" width="5" height="30" fill="#4488cc" opacity="0.8" rx="1"/>
+      <text class="airport-label" x="314" y="197" text-anchor="middle">EGLL</text>
+      <g class="aircraft" id="ac1-0"><circle class="ac-dot" cx="80" cy="55" r="4"/><text class="ac-label" x="88" y="52">UAL41</text><text class="ac-alt" x="88" y="63">FL350</text></g>
+      <g class="aircraft" id="ac1-1"><circle class="ac-dot" cx="520" cy="80" r="4"/><text class="ac-label" x="528" y="77">DAL77</text><text class="ac-alt" x="528" y="88">FL330</text></g>
+      <g class="aircraft" id="ac1-2"><circle class="ac-dot" cx="200" cy="40" r="4"/><text class="ac-label" x="208" y="37">BAW??</text><text class="ac-alt" x="208" y="48">FL290</text></g>
+      <g class="aircraft" id="ac1-3"><circle class="ac-dot" cx="480" cy="50" r="4"/><text class="ac-label" x="488" y="47">VIR22</text><text class="ac-alt" x="488" y="58">FL370</text></g>
+      <g class="aircraft" id="ac1-4">
+        <circle class="ac-dot" cx="200" cy="140" r="4"/>
+        <text class="ac-label" x="208" y="137">BAW51</text>
+        <text class="ac-alt" x="208" y="148">3,400ft</text>
+        <line stroke="#00cc66" stroke-width="0.8" stroke-dasharray="4 3" x1="200" y1="144" x2="295" y2="156" opacity="0.4"/>
+      </g>
+      <g class="aircraft" id="ac1-5">
+        <circle class="ac-dot" cx="390" cy="175" r="4"/>
+        <text class="ac-label" x="398" y="172">EZY33</text>
+        <text class="ac-alt" x="398" y="183">1,800ft</text>
+        <line stroke="#00cc66" stroke-width="0.8" stroke-dasharray="4 3" x1="330" y1="157" x2="390" y2="175" opacity="0.4"/>
+      </g>
+      <g class="aircraft" id="ac1-6">
+        <circle class="ac-dot" cx="310" cy="250" r="4"/>
+        <text class="ac-label" x="318" y="247">RYR91</text>
+        <text class="ac-alt" x="318" y="258">4,200ft</text>
+        <line stroke="#00cc66" stroke-width="0.8" stroke-dasharray="4 3" x1="312" y1="184" x2="310" y2="246" opacity="0.4"/>
+      </g>
+      <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — UNFILTERED</text>
+    </svg>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Upper (ft AGL)</label>
+        <input type="range" min="500" max="40000" step="500" value="40000" id="hi1" oninput="updateFilter1()">
+        <span class="ctrl-val" id="hi1-val">40000</span>
+      </div>
+      <button class="step-btn" onclick="applyPreset1()">Set 0 – 5,000 ft filter</button>
+      <button class="step-btn" onclick="resetFilter1()">Reset</button>
+    </div>
+    <div class="info-box" id="info1">Lower filter stays at <strong>0 ft</strong> always. Drag the upper slider down or click the preset. High-altitude en-route traffic disappears, leaving only the airport vicinity.</div>
+    <div class="info-box info-warn"><span class="badge badge-amber">Mountain tip</span> In high-elevation areas like the US mountain west, raise the upper filter — e.g. Denver KDEN sits at 5,431 ft MSL, so traffic at "5,000 ft AGL" is actually 10,000+ ft MSL. Adjust accordingly.</div>
+  </div>
+
+  <!-- PANEL 2 -->
+  <div class="panel" id="panel-2">
+    <p class="desc">The plane made a turn — but before it did, it was heading toward an unknown fix. Extend the old track forward as a line: the fix is somewhere ahead on that bearing.</p>
+    <svg class="radar" viewBox="0 0 620 320">
+      <circle class="grid-circle" cx="310" cy="160" r="60"/>
+      <circle class="grid-circle" cx="310" cy="160" r="120"/>
+      <line class="grid-line" x1="310" y1="10" x2="310" y2="310"/>
+      <line class="grid-line" x1="10" y1="160" x2="610" y2="160"/>
+      <polygon class="wp-sym" points="130,70 138,87 124,87"/>
+      <text class="waypoint" x="142" y="85">ROLAV</text>
+      <polygon class="wp-sym" points="500,250 508,267 494,267"/>
+      <text class="waypoint" x="512" y="265">BIMEX</text>
+      <circle cx="65" cy="300" r="3" fill="#00cc66" opacity="0.35"/>
+      <circle cx="116" cy="268" r="3" fill="#00cc66" opacity="0.4"/>
+      <circle cx="167" cy="236" r="3" fill="#00cc66" opacity="0.45"/>
+      <circle cx="218" cy="204" r="3" fill="#00cc66" opacity="0.5"/>
+      <circle cx="269" cy="172" r="3" fill="#00cc66" opacity="0.55"/>
+      <circle cx="285" cy="162" r="4" fill="#aaffcc" opacity="0.7"/>
+      <circle cx="287" cy="134" r="3" fill="#00cc66" opacity="0.55"/>
+      <circle cx="290" cy="106" r="3" fill="#00cc66" opacity="0.6"/>
+      <circle cx="292" cy="78" r="3" fill="#00cc66" opacity="0.65"/>
+      <circle cx="293" cy="62" r="5" fill="#ffaa00"/>
+      <text font-size="11" fill="#ffaa00" font-family="monospace" x="301" y="59">SWA??</text>
+      <text font-size="10" fill="#ffcc44" font-family="monospace" x="301" y="70">FL230</text>
+      <line id="ray3" stroke="#ffaa00" stroke-width="1.2" stroke-dasharray="8 5" x1="285" y1="162" x2="497" y2="30" opacity="0"/>
+      <g id="wp3-nexus" opacity="0">
+        <polygon class="wp-sym" points="415,72 423,89 409,89"/>
+        <text class="waypoint" x="427" y="87">NEXUS</text>
+      </g>
+      <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — TRACK HISTORY</text>
+    </svg>
+    <div class="controls">
+      <button class="step-btn" id="btn3" onclick="step3()">Extend old track</button>
+      <button class="step-btn" onclick="reset3()">Reset</button>
+    </div>
+    <div class="info-box" id="info3">The aircraft turned. Before the turn it was heading toward an unknown fix. Click <strong>Extend old track</strong> to project the original heading forward.</div>
+  </div>
+
+  <!-- PANEL 3 -->
+  <div class="panel" id="panel-3">
+    <p class="desc">ATC clears AAL55 <em>"direct <strong>SIGMA</strong>"</em>. The plane has been tracking consistently on this heading. Cast a wide cone ahead from its current position — SIGMA is somewhere in that sector.</p>
+    <svg class="radar" viewBox="0 0 620 320">
+      <circle class="grid-circle" cx="310" cy="160" r="60"/>
+      <circle class="grid-circle" cx="310" cy="160" r="120"/>
+      <line class="grid-line" x1="310" y1="10" x2="310" y2="310"/>
+      <line class="grid-line" x1="10" y1="160" x2="610" y2="160"/>
+      <polygon class="wp-sym" points="150,75 158,92 144,92"/>
+      <text class="waypoint" x="162" y="90">FOBEX</text>
+      <polygon class="wp-sym" points="500,258 508,275 494,275"/>
+      <text class="waypoint" x="512" y="273">KETAR</text>
+      <circle cx="292" cy="305" r="3" fill="#00cc66" opacity="0.35"/>
+      <circle cx="298" cy="270" r="3" fill="#00cc66" opacity="0.4"/>
+      <circle cx="304" cy="235" r="3" fill="#00cc66" opacity="0.5"/>
+      <circle cx="310" cy="200" r="5" fill="#ffaa00"/>
+      <text font-size="11" fill="#ffaa00" font-family="monospace" x="318" y="197">AAL55</text>
+      <text font-size="10" fill="#ffcc44" font-family="monospace" x="318" y="208">FL310</text>
+      <polygon id="cone4" points="310,200 237,0 478,0" fill="#ffaa00" opacity="0"/>
+      <line id="ray4" stroke="#ffaa00" stroke-width="0.8" stroke-dasharray="6 4" x1="310" y1="200" x2="344" y2="8" opacity="0"/>
+      <g id="wp4-sigma" opacity="0">
+        <polygon class="wp-sym" points="370,50 378,67 364,67"/>
+        <text class="waypoint" x="382" y="65">SIGMA</text>
+      </g>
+      <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — DIRECT CLEARANCE</text>
+    </svg>
+    <div class="controls">
+      <button class="step-btn" id="btn4" onclick="step4()">Cast search cone</button>
+      <button class="step-btn" onclick="reset4()">Reset</button>
+    </div>
+    <div class="info-box" id="info4">AAL55 has been cleared direct <strong>SIGMA</strong>. Click <strong>Cast search cone</strong> to open the search sector ahead of the aircraft.</div>
+  </div>
+
+  <!-- PANEL 4 -->
+  <div class="panel" id="panel-4">
+    <p class="desc">ATC says <em>"cross <strong>GOLFE</strong> at <strong>18,000 ft</strong>, speed <strong>250 knots</strong>"</em>. Watch the plane descend and slow. The moment both parameters match the restriction simultaneously, that's the fix.</p>
+    <svg class="radar" viewBox="0 0 620 320">
+      <circle class="grid-circle" cx="310" cy="160" r="60"/>
+      <circle class="grid-circle" cx="310" cy="160" r="120"/>
+      <line class="grid-line" x1="310" y1="10" x2="310" y2="310"/>
+      <line class="grid-line" x1="10" y1="160" x2="610" y2="160"/>
+      <polygon class="wp-sym" points="150,80 158,97 144,97"/>
+      <text class="waypoint" x="162" y="95">DIBIX</text>
+      <polygon class="wp-sym" points="520,198 528,215 514,215"/>
+      <text class="waypoint" x="532" y="213">ERHAN</text>
+      <line stroke="#2a4060" stroke-width="0.8" stroke-dasharray="4 4" x1="90" y1="255" x2="480" y2="148"/>
+      <g id="wp5-golfe" opacity="0">
+        <polygon class="wp-sym" points="430,133 438,150 424,150"/>
+        <text class="waypoint" x="390" y="131">GOLFE</text>
+      </g>
+      <g id="ac5">
+        <circle cx="90" cy="255" r="5" fill="#ffaa00"/>
+        <text class="ac5-label" font-size="11" fill="#ffaa00" font-family="monospace" x="98" y="252">AAL77</text>
+        <text id="ac5-alt" font-size="10" fill="#ffcc44" font-family="monospace" x="98" y="263">24,000 ft ↓</text>
+      </g>
+      <rect x="438" y="262" width="174" height="48" fill="#060e18" rx="3" opacity="0.9"/>
+      <text id="gauge5-alt" font-size="12" fill="#55aaaa" font-family="monospace" x="445" y="279">ALT  24,000 ft ↓</text>
+      <text id="gauge5-spd" font-size="12" fill="#55aaaa" font-family="monospace" x="445" y="298">SPD     318 kt ↓</text>
+      <text fill="#334455" font-size="10" font-family="monospace" x="8" y="16">ADSB — CROSSING RESTRICTION</text>
+    </svg>
+    <div class="controls">
+      <button class="step-btn" id="play5" onclick="togglePlay5()">▶ Simulate descent</button>
+      <button class="step-btn" onclick="resetSim5()">Reset</button>
+    </div>
+    <div class="info-box" id="info5">ATC said <em>"cross GOLFE at 18,000 ft, 250 knots"</em>. Both conditions must be met simultaneously. Click <strong>Simulate descent</strong>.</div>
+  </div>
+
+  <footer>ADS-B tutorial · techniques from flight debriefs · Sweden extension + waypoint overlay assumed</footer>
+</div>
+
+<script>
+const acData0=[
+  {id:'ac0-0',alt:35000},{id:'ac0-1',alt:37000},{id:'ac0-2',alt:21000},
+  {id:'ac0-3',alt:29000},{id:'ac0-4',alt:33000},{id:'ac0-5',alt:20900},
+  {id:'ac0-6',alt:24000},{id:'ac0-7',alt:38000},{id:'ac0-8',alt:27000}
+];
+function updateFilter0(){
+  const lo=parseInt(document.getElementById('lo0').value);
+  const hi=parseInt(document.getElementById('hi0').value);
+  document.getElementById('lo0-val').textContent=lo;
+  document.getElementById('hi0-val').textContent=hi;
+  let shown=0,hidden=0;
+  acData0.forEach(a=>{
+    const el=document.getElementById(a.id);
+    if(a.alt>=lo&&a.alt<=hi){el.classList.remove('dimmed');shown++;}
+    else{el.classList.add('dimmed');hidden++;}
+  });
+  const info=document.getElementById('info0');
+  if(lo===0&&hi===40000){
+    info.innerHTML='Drag the sliders or click <strong>Apply FL210 filter</strong> to set the altitude band to 20,500–21,500 ft.';
+  } else {
+    info.innerHTML=`Filter active: <strong>${lo.toLocaleString()} – ${hi.toLocaleString()} ft</strong>. Showing <strong>${shown}</strong> aircraft, dimmed <strong>${hidden}</strong>. Investigate only the bright ones.`;
+  }
+}
+function applyPreset0(){document.getElementById('lo0').value=20500;document.getElementById('hi0').value=21500;updateFilter0();}
+function resetFilter0(){document.getElementById('lo0').value=0;document.getElementById('hi0').value=40000;updateFilter0();}
+
+const acData1=[
+  {id:'ac1-0',alt:35000},{id:'ac1-1',alt:33000},{id:'ac1-2',alt:29000},
+  {id:'ac1-3',alt:37000},{id:'ac1-4',alt:3400},{id:'ac1-5',alt:1800},{id:'ac1-6',alt:4200}
+];
+function updateFilter1(){
+  const hi=parseInt(document.getElementById('hi1').value);
+  document.getElementById('hi1-val').textContent=hi;
+  let shown=0,hidden=0;
+  acData1.forEach(a=>{
+    const el=document.getElementById(a.id);
+    if(a.alt<=hi){el.classList.remove('dimmed');shown++;}
+    else{el.classList.add('dimmed');hidden++;}
+  });
+  const info=document.getElementById('info1');
+  if(hi>=40000){
+    info.innerHTML='Lower filter stays at <strong>0 ft</strong> always. Drag the upper slider down or click the preset.';
+  } else {
+    info.innerHTML=`Filter: <strong>0 – ${hi.toLocaleString()} ft AGL</strong>. <strong>${shown}</strong> aircraft shown — only low-altitude traffic near the airfield remains.`;
+  }
+}
+function applyPreset1(){document.getElementById('hi1').value=5000;updateFilter1();}
+function resetFilter1(){document.getElementById('hi1').value=40000;updateFilter1();}
+
+function showTab(n){
+  if(sim5Timer){clearInterval(sim5Timer);sim5Timer=null;sim5Running=false;const p=document.getElementById('play5');if(p)p.textContent='▶ Simulate descent';}
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+}
+
+// Tab ③ — extended inbound track
+let revealed3=false;
+function step3(){
+  revealed3=true;
+  document.getElementById('ray3').setAttribute('opacity','0.75');
+  document.getElementById('wp3-nexus').setAttribute('opacity','1');
+  document.getElementById('info3').innerHTML='The dashed line extends the old heading forward. <strong>NEXUS</strong> is on this bearing — where the aircraft was originally heading before the reclearance.';
+  document.getElementById('btn3').disabled=true;
+}
+function reset3(){
+  revealed3=false;
+  document.getElementById('ray3').setAttribute('opacity','0');
+  document.getElementById('wp3-nexus').setAttribute('opacity','0');
+  document.getElementById('info3').innerHTML='The aircraft turned. Before the turn it was heading toward an unknown fix. Click <strong>Extend old track</strong> to project the original heading forward.';
+  document.getElementById('btn3').disabled=false;
+}
+
+// Tab ④ — direct clearance cone
+function step4(){
+  document.getElementById('cone4').setAttribute('opacity','0.07');
+  document.getElementById('ray4').setAttribute('opacity','0.5');
+  document.getElementById('wp4-sigma').setAttribute('opacity','1');
+  document.getElementById('info4').innerHTML='<strong>Search cone open.</strong> SIGMA is somewhere inside the shaded sector. Scan forward along the heading — anything outside the cone is ruled out.';
+  document.getElementById('btn4').disabled=true;
+}
+function reset4(){
+  document.getElementById('cone4').setAttribute('opacity','0');
+  document.getElementById('ray4').setAttribute('opacity','0');
+  document.getElementById('wp4-sigma').setAttribute('opacity','0');
+  document.getElementById('info4').innerHTML='AAL55 has been cleared direct <strong>SIGMA</strong>. Click <strong>Cast search cone</strong> to open the search sector ahead of the aircraft.';
+  document.getElementById('btn4').disabled=false;
+}
+
+// Tab ⑤ — crossing restriction
+let sim5Running=false,sim5Timer=null,sim5Step=0;
+const SIM5_STEPS=30;
+function togglePlay5(){
+  if(sim5Step>=SIM5_STEPS)return;
+  if(sim5Running){clearInterval(sim5Timer);sim5Running=false;document.getElementById('play5').textContent='▶ Simulate descent';}
+  else{sim5Running=true;document.getElementById('play5').textContent='⏸ Pause';sim5Timer=setInterval(stepSim5,120);}
+}
+function stepSim5(){
+  sim5Step++;
+  const t=sim5Step/SIM5_STEPS;
+  const cx=Math.round(90+340*t);
+  const cy=Math.round(255-95*t);
+  const alt_ft=24000-200*sim5Step;
+  const spd=Math.round(318-68*t);
+  const acG=document.getElementById('ac5');
+  acG.querySelector('circle').setAttribute('cx',cx);
+  acG.querySelector('circle').setAttribute('cy',cy);
+  acG.querySelector('.ac5-label').setAttribute('x',cx+8);
+  acG.querySelector('.ac5-label').setAttribute('y',cy-3);
+  document.getElementById('ac5-alt').setAttribute('x',cx+8);
+  document.getElementById('ac5-alt').setAttribute('y',cy+8);
+  document.getElementById('ac5-alt').textContent=alt_ft.toLocaleString()+' ft ↓';
+  const altEl=document.getElementById('gauge5-alt');
+  const spdEl=document.getElementById('gauge5-spd');
+  altEl.textContent='ALT  '+alt_ft.toLocaleString()+' ft ↓';
+  spdEl.textContent='SPD     '+spd+' kt ↓';
+  altEl.setAttribute('fill',alt_ft<=20000?'#ffaa00':'#55aaaa');
+  spdEl.setAttribute('fill',spd<=270?'#ffaa00':'#55aaaa');
+  document.getElementById('info5').innerHTML='ALT <strong>'+alt_ft.toLocaleString()+' ft</strong> → 18,000 &nbsp;|&nbsp; SPD <strong>'+spd+' kt</strong> → 250';
+  if(sim5Step>=SIM5_STEPS){
+    clearInterval(sim5Timer);sim5Timer=null;sim5Running=false;
+    document.getElementById('play5').textContent='▶ Simulate descent';
+    document.getElementById('wp5-golfe').setAttribute('opacity','1');
+    altEl.setAttribute('fill','#00cc66');spdEl.setAttribute('fill','#00cc66');
+    document.getElementById('ac5-alt').textContent='18,000 ft ✓';
+    altEl.textContent='ALT  18,000 ft ✓';spdEl.textContent='SPD     250 kt ✓';
+    document.getElementById('info5').innerHTML='<strong>Both restrictions met — 18,000 ft, 250 kt.</strong> AAL77 is at GOLFE.';
+  }
+}
+function resetSim5(){
+  clearInterval(sim5Timer);sim5Timer=null;sim5Running=false;sim5Step=0;
+  document.getElementById('play5').textContent='▶ Simulate descent';
+  document.getElementById('wp5-golfe').setAttribute('opacity','0');
+  const acG=document.getElementById('ac5');
+  acG.querySelector('circle').setAttribute('cx','90');
+  acG.querySelector('circle').setAttribute('cy','255');
+  acG.querySelector('.ac5-label').setAttribute('x','98');
+  acG.querySelector('.ac5-label').setAttribute('y','252');
+  document.getElementById('ac5-alt').setAttribute('x','98');
+  document.getElementById('ac5-alt').setAttribute('y','263');
+  document.getElementById('ac5-alt').textContent='24,000 ft ↓';
+  document.getElementById('gauge5-alt').textContent='ALT  24,000 ft ↓';
+  document.getElementById('gauge5-alt').setAttribute('fill','#55aaaa');
+  document.getElementById('gauge5-spd').textContent='SPD     318 kt ↓';
+  document.getElementById('gauge5-spd').setAttribute('fill','#55aaaa');
+  document.getElementById('info5').innerHTML='ATC said <em>"cross GOLFE at 18,000 ft, 250 knots"</em>. Both conditions must be met simultaneously. Click <strong>Simulate descent</strong>.';
+}
+</script>
+</body>
+</html>

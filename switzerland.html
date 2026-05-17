@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switzerland - ATC Charts</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+    <style>
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-hover: #1c2128;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-dim: #7d8590;
+            --accent: #79b8ff;
+            --accent-glow: rgba(121, 184, 255, 0.15);
+            --warning: #d29922;
+        }
+        
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb-separator { opacity: 0.5; }
+        
+        header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .header-content { flex: 1; min-width: 0; }
+
+        h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.02em;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .new-tab-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            opacity: 0.4;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 4px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .new-tab-btn:hover { opacity: 1; background: var(--accent-glow); color: var(--accent); }
+        
+        .search-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-wrapper { position: relative; margin-bottom: 0.5rem; }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+        }
+        
+        .search-help {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+        
+        .search-help code {
+            background: var(--bg);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            color: var(--accent);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-dim);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-dim);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        
+        .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+        .filter-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+        /* Favicon-like icon styling */
+        img[src*="favicon"] {
+            border-radius: 20%;
+        }
+
+        /* Pinning System Styles */
+        .pin-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            opacity: 0.25;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 4px;
+        }
+        .pin-btn:hover { opacity: 0.8; background: var(--accent-glow); }
+        .pin-btn.pinned { opacity: 1; color: var(--accent); }
+
+        .unpin-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            padding: 0.4rem;
+            opacity: 0.6;
+            transition: all 0.2s;
+            line-height: 1;
+            margin-left: auto;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .unpin-btn:hover { 
+            opacity: 1; 
+            color: var(--warning); 
+            background: rgba(210, 153, 34, 0.1);
+        }
+
+        .pinned-section {
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+        }
+
+        .pinned-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .pin-card-wrapper {
+            min-width: 0;
+        }
+
+        .pin-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+            min-width: 0;
+        }
+
+        .pin-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .pin-info { flex: 1; min-width: 0; }
+        .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .clear-all-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 0.65rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .clear-all-btn:hover {
+            border-color: var(--warning);
+            color: var(--warning);
+            background: rgba(210, 153, 34, 0.1);
+            transform: translateY(-1px);
+        }
+        .clear-all-btn::before {
+            content: '🗑️';
+            font-size: 0.8rem;
+        }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.98);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            backdrop-filter: blur(4px);
+        }
+
+        .viewer-header {
+            padding: 0.75rem 1.5rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 1.1rem;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.4rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateY(-1px);
+        }
+
+        .control-btn.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #05070a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #pdfViewerContainer {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            background: #05070a;
+            scroll-behavior: smooth;
+        }
+
+        #pdfViewer {
+            position: relative;
+            transform-origin: top center;
+            transition: transform 0.1s ease-out;
+        }
+
+        .pdf-page-container {
+            margin: 20px 0;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            position: relative;
+            background: white;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+        }
+
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 1; /* Keep visible for Ctrl+F */
+            line-height: 1.0;
+            pointer-events: none; /* Let clicks pass through to canvas if needed, but spans will have pointer-events: auto */
+        }
+
+        .textLayer > span {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+            pointer-events: auto;
+        }
+
+        ::selection {
+            background: rgba(88, 166, 255, 0.3);
+        }
+
+        .viewer-tip {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            z-index: 20;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .viewer-tip b { color: var(--accent); }
+
+        /* Viewer sidebar */
+        .viewer-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.25s ease;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar.collapsed {
+            width: 0;
+        }
+
+        .sidebar-header {
+            padding: 0.6rem 1rem;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .sidebar-list::-webkit-scrollbar { width: 4px; }
+        .sidebar-list::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .sidebar-item {
+            padding: 0.65rem 1rem 0.65rem 1.1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            transition: all 0.12s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-left: 2px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-left-color: var(--accent);
+            font-weight: 600;
+        }
+        
+        
+        .airport-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .airport-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .airport-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleY(0);
+            transition: transform 0.2s;
+        }
+        
+        .airport-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(88, 166, 255, 0.12);
+        }
+        
+        .airport-card:hover::before { transform: scaleY(1); }
+        
+        .airport-code {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .airport-name {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .airport-stats {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        
+        .airport-stats strong { color: var(--accent); }
+    
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>Switzerland</span>
+        </div>
+        
+        <header>
+            <h1>🇨🇭 Switzerland</h1>
+            <div class="subtitle">Select an airport</div>
+        </header>
+        
+        <div class="search-section">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" 
+                       placeholder="Search airports..." autocomplete="off">
+            </div>
+        </div>
+        
+        <div class="airport-grid" id="airportGrid"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
+            <p>No airports found.</p>
+        </div>
+    </div>
+    
+    <script>
+        const airports = [
+        {
+                "icao": "ENROUTE",
+                "name": "ENROUTE",
+                "displayName": "ENROUTE",
+                "slug": "ENROUTE",
+                "fileCount": 5
+        },
+        {
+                "icao": "LSGC",
+                "name": "Les Eplatures",
+                "displayName": "LSGC - Les Eplatures",
+                "slug": "LSGC",
+                "fileCount": 9
+        },
+        {
+                "icao": "LSGG",
+                "name": "Geneva",
+                "displayName": "LSGG - Geneva",
+                "slug": "LSGG",
+                "fileCount": 25
+        },
+        {
+                "icao": "LSGS",
+                "name": "Sion",
+                "displayName": "LSGS - Sion",
+                "slug": "LSGS",
+                "fileCount": 11
+        },
+        {
+                "icao": "LSMP",
+                "name": "Payerne",
+                "displayName": "LSMP - Payerne",
+                "slug": "LSMP",
+                "fileCount": 8
+        },
+        {
+                "icao": "LSZA",
+                "name": "Lugano",
+                "displayName": "LSZA - Lugano",
+                "slug": "LSZA",
+                "fileCount": 12
+        },
+        {
+                "icao": "LSZB",
+                "name": "Bern",
+                "displayName": "LSZB - Bern",
+                "slug": "LSZB",
+                "fileCount": 16
+        },
+        {
+                "icao": "LSZC",
+                "name": "Buochs",
+                "displayName": "LSZC - Buochs",
+                "slug": "LSZC",
+                "fileCount": 6
+        },
+        {
+                "icao": "LSZG",
+                "name": "Grenchen",
+                "displayName": "LSZG - Grenchen",
+                "slug": "LSZG",
+                "fileCount": 10
+        },
+        {
+                "icao": "LSZH",
+                "name": "Zurich",
+                "displayName": "LSZH - Zurich",
+                "slug": "LSZH",
+                "fileCount": 55
+        },
+        {
+                "icao": "LSZL",
+                "name": "Locarno",
+                "displayName": "LSZL - Locarno",
+                "slug": "LSZL",
+                "fileCount": 3
+        },
+        {
+                "icao": "LSZR",
+                "name": "St. Gallen-Altenrhein",
+                "displayName": "LSZR - St. Gallen-Altenrhein",
+                "slug": "LSZR",
+                "fileCount": 15
+        },
+        {
+                "icao": "LSZS",
+                "name": "Samedan",
+                "displayName": "LSZS - Samedan",
+                "slug": "LSZS",
+                "fileCount": 11
+        }
+];
+        
+        const fuse = new Fuse(airports, {
+            keys: ['icao', 'name', 'displayName'],
+            threshold: 0.3,
+            includeMatches: true
+        });
+        
+        function renderAirports(results = null) {
+            const grid = document.getElementById('airportGrid');
+            grid.innerHTML = '';
+            
+            const airportsToShow = results ? results.map(r => ({...r.item, matches: r.matches})) : airports;
+            
+            if (airportsToShow.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('emptyState').style.display = 'none';
+            
+            airportsToShow.forEach(airport => {
+                const wrapper = document.createElement('div');
+                wrapper.style.cssText = 'position:relative;';
+
+                const card = document.createElement('a');
+                card.className = 'airport-card';
+                card.href = airport.slug + '/';
+                card.style.display = 'block';
+                card.innerHTML = `
+                    <div class="airport-code">${airport.displayName}</div>
+                    <div class="airport-stats">
+                        <span>📄 <strong>${airport.fileCount}</strong> files</span>
+                    </div>
+                `;
+
+                const pins = getPins();
+                const isPinned = pins.airports.some(a => a.slug === airport.slug);
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'pin-btn' + (isPinned ? ' pinned' : '');
+                pinBtn.innerHTML = '📌';
+                pinBtn.title = isPinned ? 'Unpin airport' : 'Pin airport';
+                pinBtn.style.cssText = 'position:absolute;top:0.5rem;right:0.5rem;z-index:2;';
+                pinBtn.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleAirportPin({
+                        slug: airport.slug,
+                        name: airport.displayName,
+                        region: airport.region || ''
+                    });
+                    pinBtn.classList.toggle('pinned');
+                    pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin airport' : 'Pin airport';
+                };
+
+                wrapper.appendChild(card);
+                wrapper.appendChild(pinBtn);
+                grid.appendChild(wrapper);
+            });
+
+        }
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            renderAirports(query ? fuse.search(query) : null);
+        });
+        
+        renderAirports();
+    </script>
+</body>
+</html>
