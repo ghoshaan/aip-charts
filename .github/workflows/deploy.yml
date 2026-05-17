@@ -44,6 +44,9 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
         run: python generate_multipage_directory.py
 
+      - name: Remove downloaded PDFs before upload
+        run: rm -rf docs/charts_data
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
