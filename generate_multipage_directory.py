@@ -709,8 +709,10 @@ def organize_by_hierarchy(service, items, manifest):
             if cached.get('md5') == item['md5'] and os.path.exists(local_full_path):
                 needs_download = False
         
+        download_ok = True
         if needs_download:
-            if download_file(service, item['id'], local_full_path, item['md5']):
+            download_ok = download_file(service, item['id'], local_full_path, item['md5'])
+            if download_ok:
                 downloaded_count += 1
                 manifest['files'][item['id']] = {
                     'md5': item['md5'],
@@ -722,11 +724,13 @@ def organize_by_hierarchy(service, items, manifest):
 
         drive_file_id = item['id']
         drive_view_url = item.get('viewUrl', '#')
+        # Only set localUrl if the file actually exists locally
+        resolved_local_url = local_rel_path if download_ok and os.path.exists(local_full_path) else '#'
         hierarchy[region][airport].append({
             'id': safe_filename,
             'name': item['name'],
-            'url': local_rel_path,
-            'localUrl': local_rel_path,
+            'url': resolved_local_url,
+            'localUrl': resolved_local_url,
             'driveId': drive_file_id,
             'driveUrl': drive_view_url,
             'type': get_file_type(item['mimeType'], item.get('ext', ''))
@@ -746,7 +750,11 @@ def create_output_dir():
     """Create output directory"""
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
-    
+
+    # Disable Jekyll so GitHub Pages serves files as-is
+    with open(os.path.join(OUTPUT_DIR, '.nojekyll'), 'w') as f:
+        f.write('')
+
     # Also ensure charts_data exists
     if not os.path.exists(CHARTS_DOWNLOAD_DIR):
         os.makedirs(CHARTS_DOWNLOAD_DIR)

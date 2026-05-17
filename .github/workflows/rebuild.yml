@@ -30,7 +30,7 @@ jobs:
           path: |
             docs/charts_data
             manifest.json
-          key: charts-${{ github.run_id }}
+          key: charts-${{ hashFiles('manifest.json') }}
           restore-keys: charts-
 
       - name: Generate site
