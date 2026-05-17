@@ -179,19 +179,41 @@
             display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem;
             background: var(--bg-elevated); border: 1px solid var(--border);
             border-radius: 6px; transition: all 0.2s ease;
-            text-decoration: none; color: var(--text-primary);
+            text-decoration: none; color: #ffffff;
         }
         .file-item:hover {
             background: var(--bg-dark); border-color: var(--secondary);
             transform: translateX(4px);
         }
+        .file-item:visited { color: #ffffff; }
         .file-icon { font-size: 1.1rem; }
-        .file-name { flex: 1; font-size: 0.9rem; }
+        .file-name { flex: 1; font-size: 0.9rem; color: #ffffff; }
         .file-type {
             background: var(--secondary); color: white;
             padding: 0.2rem 0.5rem; border-radius: 4px;
             font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
         }
+        .pin-btn {
+            background: none; border: none; cursor: pointer;
+            font-size: 1rem; opacity: 0.3; transition: all 0.2s ease;
+            padding: 0.1rem 0.2rem; line-height: 1;
+            color: var(--primary);
+        }
+        .pin-btn:hover { opacity: 0.8; transform: scale(1.2); }
+        .pin-btn.pinned { opacity: 1; filter: none; }
+        .file-item.is-pinned { border-color: var(--primary); }
+        .pinned-section {
+            background: var(--bg-surface); border: 1px solid var(--primary);
+            border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem;
+            display: none;
+        }
+        .pinned-section.has-pins { display: block; }
+        .pinned-section-title {
+            font-family: 'Orbitron', sans-serif; font-size: 0.9rem;
+            color: var(--primary); letter-spacing: 0.1em;
+            text-transform: uppercase; margin-bottom: 1rem;
+        }
+        .pinned-list { display: flex; flex-direction: column; gap: 0.5rem; }
         .empty-state {
             text-align: center; padding: 4rem 2rem; color: var(--text-secondary);
         }
@@ -225,6 +247,10 @@
             <div class="stat-card"><span class="stat-number" id="totalFiles">0</span><span class="stat-label">Total Files</span></div>
             <div class="stat-card"><span class="stat-number" id="totalFolders">0</span><span class="stat-label">Folders</span></div>
             <div class="stat-card"><span class="stat-number" id="visibleItems">0</span><span class="stat-label">Visible</span></div>
+        </div>
+        <div id="pinnedSection" class="pinned-section">
+            <div class="pinned-section-title">&#128204; Pinned Charts</div>
+            <div id="pinnedList" class="pinned-list"></div>
         </div>
         <div id="directory" class="directory"></div>
         <div id="emptyState" class="empty-state" style="display: none;">
@@ -3818,6 +3844,50 @@
             document.getElementById('totalFolders').textContent = totalFolders;
             document.getElementById('visibleItems').textContent = visibleFolders;
         }
+        let pinnedIds = new Set(JSON.parse(localStorage.getItem('pinnedCharts') || '[]'));
+
+        function savePins() {
+            localStorage.setItem('pinnedCharts', JSON.stringify([...pinnedIds]));
+        }
+
+        function updatePinnedSection() {
+            const section = document.getElementById('pinnedSection');
+            const list = document.getElementById('pinnedList');
+            if (pinnedIds.size === 0) {
+                section.classList.remove('has-pins');
+                return;
+            }
+            section.classList.add('has-pins');
+            list.innerHTML = '';
+            directoryData.forEach(folder => {
+                folder.files.forEach(file => {
+                    if (!pinnedIds.has(file.id)) return;
+                    const a = document.createElement('a');
+                    a.href = file.url;
+                    a.target = '_blank';
+                    a.className = 'file-item is-pinned';
+                    a.dataset.type = file.type;
+                    a.innerHTML = `
+                        <span class="file-icon">${getFileTypeIcon(file.type)}</span>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-type">${file.type}</span>
+                        <button class="pin-btn pinned" data-id="${file.id}" title="Unpin">&#128204;</button>
+                    `;
+                    a.querySelector('.pin-btn').addEventListener('click', e => {
+                        e.preventDefault(); e.stopPropagation();
+                        pinnedIds.delete(file.id);
+                        savePins();
+                        updatePinnedSection();
+                        document.querySelectorAll(`.pin-btn[data-id="${CSS.escape(file.id)}"]`).forEach(btn => {
+                            btn.classList.remove('pinned');
+                            btn.closest('.file-item').classList.remove('is-pinned');
+                        });
+                    });
+                    list.appendChild(a);
+                });
+            });
+        }
+
         function renderDirectory() {
             const directoryEl = document.getElementById('directory');
             directoryEl.innerHTML = '';
@@ -3825,22 +3895,45 @@
                 const folderEl = document.createElement('div');
                 folderEl.className = 'folder';
                 folderEl.dataset.folderIndex = folderIndex;
-                const fileListHTML = folder.files.map(file => `
-                    <a href="${file.url}" target="_blank" class="file-item" data-type="${file.type}">
-                        <span class="file-icon">${getFileTypeIcon(file.type)}</span>
-                        <span class="file-name">${file.name}</span>
-                        <span class="file-type">${file.type}</span>
-                    </a>
-                `).join('');
                 folderEl.innerHTML = `
                     <div class="folder-header">
                         <span class="folder-icon">${folder.icon}</span>
                         <span class="folder-name">${folder.name}</span>
                         <span class="folder-count">${folder.files.length}</span>
-                        <span class="folder-toggle">▶</span>
+                        <span class="folder-toggle">&#9658;</span>
                     </div>
-                    <div class="file-list">${fileListHTML}</div>
+                    <div class="file-list"></div>
                 `;
+                const fileList = folderEl.querySelector('.file-list');
+                folder.files.forEach(file => {
+                    const a = document.createElement('a');
+                    a.href = file.url;
+                    a.target = '_blank';
+                    a.className = 'file-item' + (pinnedIds.has(file.id) ? ' is-pinned' : '');
+                    a.dataset.type = file.type;
+                    a.innerHTML = `
+                        <span class="file-icon">${getFileTypeIcon(file.type)}</span>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-type">${file.type}</span>
+                        <button class="pin-btn${pinnedIds.has(file.id) ? ' pinned' : ''}" data-id="${file.id}" title="Pin chart">&#128204;</button>
+                    `;
+                    a.querySelector('.pin-btn').addEventListener('click', e => {
+                        e.preventDefault(); e.stopPropagation();
+                        const id = file.id;
+                        if (pinnedIds.has(id)) {
+                            pinnedIds.delete(id);
+                            e.currentTarget.classList.remove('pinned');
+                            a.classList.remove('is-pinned');
+                        } else {
+                            pinnedIds.add(id);
+                            e.currentTarget.classList.add('pinned');
+                            a.classList.add('is-pinned');
+                        }
+                        savePins();
+                        updatePinnedSection();
+                    });
+                    fileList.appendChild(a);
+                });
                 directoryEl.appendChild(folderEl);
             });
             document.querySelectorAll('.folder-header').forEach(header => {
@@ -3849,6 +3942,7 @@
                 });
             });
             updateStats();
+            updatePinnedSection();
         }
         function filterFiles() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();

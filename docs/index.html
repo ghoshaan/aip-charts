@@ -1304,18 +1304,6 @@
 
         renderPins();
 
-        const fuse = new Fuse(searchIndex, {
-            keys: [
-                { name: 'name', weight: 2 },
-                { name: 'code', weight: 2 },
-                { name: 'airport', weight: 1 },
-                { name: 'region', weight: 1 }
-            ],
-            threshold: 0.3,
-            includeMatches: true,
-            limit: 50
-        });
-        
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const resultsList = document.getElementById('resultsList');
@@ -1330,10 +1318,11 @@
                 searchResults.style.display = 'none';
                 defaultView.style.display = 'block';
                 emptyState.style.display = 'none';
-                renderPins(); // Refresh pins when returning to default view
+                renderPins();
                 return;
             }
 
+            if (!fuse) return;
             pinnedSection.style.display = 'none';
             const results = fuse.search(query);
 
