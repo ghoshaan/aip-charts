@@ -2692,17 +2692,17 @@ def get_file_list_styles():
             overflow: hidden;
         }
         
-        .file-item {{ display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }}
-        
-        .file-item:last-child {{ border-bottom: none; }}
-        
-        .file-item:hover {{
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: #ffffff; transition: all 0.15s; min-width: 0; }
+
+        .file-item:last-child { border-bottom: none; }
+
+        .file-item:hover {
             background: var(--surface-hover);
             padding-left: 1.5rem;
-        }}
-        
-        .file-icon {{ font-size: 1.2rem; flex-shrink: 0; }}
-        .file-name {{ flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }}
+        }
+
+        .file-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; color: #ffffff; }
 
         .file-type {
             font-size: 0.65rem;            color: var(--text-dim);
