@@ -1215,15 +1215,16 @@ def generate_index_page(hierarchy):
                 div.style.marginBottom = '0';
                 div.style.minWidth = '0';
 
-                if (item.type === 'chart') {
-                    div.href = `#view=${item.id}`;
-                    div.onclick = (e) => {
+                if (item.type === 'chart') {{
+                    div.href = `#view=${{item.id}}`;
+                    div.onclick = (e) => {{
                         e.preventDefault();
                         openViewer(item.id, item.name, item.driveUrl || '#', item.localUrl, false, item.airport);
-                    };
-                } else {
+                    }};
+                }} else {{
                     div.href = item.url;
                 }}
+            }});
 
                 const meta = item.type === 'airport' 
                     ? `${{item.region}}` 
@@ -1617,10 +1618,10 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
                 item.className = 'file-item';
                 item.style.minWidth = '0';
                 item.href = `#view=${{file.id}}`;
-                item.onclick = (e) => {
+                item.onclick = (e) => {{
                     e.preventDefault();
                     openViewer(file.id, file.name, file.driveUrl || '#', file.localUrl, false, airportCtx.icao);
-                };
+                }};
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
                 const pagesBadge = file.pages && file.pages.length > 1
