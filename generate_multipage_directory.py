@@ -1278,16 +1278,42 @@ def generate_region_page(region_name, region_slug, airports):
             document.getElementById('emptyState').style.display = 'none';
             
             airportsToShow.forEach(airport => {{
+                const wrapper = document.createElement('div');
+                wrapper.style.cssText = 'position:relative;';
+
                 const card = document.createElement('a');
                 card.className = 'airport-card';
                 card.href = airport.slug + '/';
+                card.style.display = 'block';
                 card.innerHTML = `
                     <div class="airport-code">${{airport.displayName}}</div>
                     <div class="airport-stats">
                         <span>📄 <strong>${{airport.fileCount}}</strong> files</span>
                     </div>
                 `;
-                grid.appendChild(card);
+
+                const pins = getPins();
+                const isPinned = pins.airports.some(a => a.slug === airport.slug);
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'pin-btn' + (isPinned ? ' pinned' : '');
+                pinBtn.innerHTML = '📌';
+                pinBtn.title = isPinned ? 'Unpin airport' : 'Pin airport';
+                pinBtn.style.cssText = 'position:absolute;top:0.5rem;right:0.5rem;z-index:2;';
+                pinBtn.onclick = (e) => {{
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleAirportPin({{
+                        slug: airport.slug,
+                        name: airport.displayName,
+                        region: airport.region || ''
+                    }});
+                    pinBtn.classList.toggle('pinned');
+                    pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin airport' : 'Pin airport';
+                }};
+
+                wrapper.appendChild(card);
+                wrapper.appendChild(pinBtn);
+                grid.appendChild(wrapper);
             }});
 
         }}
@@ -2626,7 +2652,7 @@ def get_airport_card_styles():
             font-family: 'Rajdhani', sans-serif;
             font-size: 1.8rem;
             font-weight: 700;
-            color: var(--accent);
+            color: var(--text);
             margin-bottom: 0.25rem;
             white-space: nowrap;
             overflow: hidden;
