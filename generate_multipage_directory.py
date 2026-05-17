@@ -1371,8 +1371,9 @@ def generate_region_page(region_name, region_slug, airports):
     </div>
     
     <script>
+        {get_pinning_js()}
         const airports = {json.dumps(airport_list, indent=8)};
-        
+
         const fuse = new Fuse(airports, {{
             keys: ['icao', 'name', 'displayName'],
             threshold: 0.3,
