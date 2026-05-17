@@ -622,7 +622,7 @@
                        placeholder="Search charts..." autocomplete="off">
             </div>
             <div class="search-help">
-                <strong>Examples:</strong> <code>star</code> • <code>RWY 04</code> • <code>ILS</code>
+                <strong>Examples:</strong> <code>star</code> &bull; <code>RWY 04</code> &bull; <code>ILS</code>
             </div>
         </div>
         
@@ -634,7 +634,7 @@
         
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
         
-        <div class="file-count" id="fileCount">Showing 71 files</div>
+        <div class="file-count" id="fileCount">Showing 46 files</div>
         <div class="file-list" id="fileList"></div>
         <div id="emptyState" class="empty-state" style="display: none;">
             <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
@@ -692,6 +692,12 @@
                         <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
                     </div>
 
+                    <div id="pageNav" style="display:none; justify-content:center; align-items:center; gap:1rem; padding:0.5rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
+                        <button class="control-btn" id="prevPageBtn" style="padding:0.25rem 0.75rem;">&#9664; PREV</button>
+                        <span id="pageIndicator" style="font-size:0.75rem; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); min-width:100px; text-align:center;">PAGE 1 OF 2</span>
+                        <button class="control-btn" id="nextPageBtn" style="padding:0.25rem 0.75rem;">NEXT &#9654;</button>
+                    </div>
+
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
                     </div>
@@ -745,6 +751,8 @@
             let isOpeningFromHash = false;
             let originalPageTitle = document.title;
             let currentFileId = null;
+            let currentFilePages = null;
+            let currentFilePageIndex = 0;
 
             const SIDEBAR_KEY = 'atc_sidebar_open';
             let sidebarOpen = localStorage.getItem(SIDEBAR_KEY) !== 'false';
@@ -790,7 +798,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
+                            openViewer(file.id, file.name, file.url, file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -803,6 +811,10 @@
 
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
+                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
+                currentFilePageIndex = 0;
+                if (currentFilePages) localUrl = currentFilePages[0].localUrl;
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
                 const loader = document.getElementById('viewerLoader');
@@ -844,17 +856,58 @@
                 try {
                     const loadingTask = pdfjsLib.getDocument(localUrl);
                     currentPdf = await loadingTask.promise;
-                    loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
+                    loaderStatus.textContent = `INDEXING ${{currentPdf.numPages}} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
+                    updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
-                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
-                    setTimeout(() => {
-                        window.open(driveUrl, '_blank');
-                        closeViewer();
-                    }, 2000);
+                    // Local file unavailable — embed Drive preview iframe
+                    const fileObj2 = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                    const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
+                    if (embedId) {
+                        loader.style.display = 'none';
+                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${{embedId}}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
+                    } else if (driveUrl && driveUrl !== '#') {
+                        loaderStatus.textContent = 'OPENING IN DRIVE...';
+                        setTimeout(() => {{ window.open(driveUrl, '_blank'); closeViewer(); }}, 1000);
+                    } else {
+                        loaderStatus.textContent = 'PDF NOT AVAILABLE.';
+                    }
                 }
+            }
+
+            function updatePageNav() {
+                const nav = document.getElementById('pageNav');
+                if (!nav) return;
+                if (currentFilePages && currentFilePages.length > 1) {
+                    nav.style.display = 'flex';
+                    document.getElementById('prevPageBtn').disabled = currentFilePageIndex === 0;
+                    document.getElementById('nextPageBtn').disabled = currentFilePageIndex === currentFilePages.length - 1;
+                    document.getElementById('pageIndicator').textContent =
+                        `PAGE ${currentFilePageIndex + 1} OF ${currentFilePages.length}`;
+                } else {
+                    nav.style.display = 'none';
+                }
+            }
+
+            async function goToFilePage(delta) {
+                if (!currentFilePages) return;
+                const newIndex = currentFilePageIndex + delta;
+                if (newIndex < 0 || newIndex >= currentFilePages.length) return;
+                currentFilePageIndex = newIndex;
+                const page = currentFilePages[newIndex];
+                const loader = document.getElementById('viewerLoader');
+                const loaderStatus = document.getElementById('loaderStatus');
+                loader.style.display = 'flex';
+                loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentRotation = 0;
+                const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                currentPdf = await loadingTask.promise;
+                await renderAllPages();
+                loader.style.display = 'none';
+                updatePageNav();
             }
 
             async function checkHash() {
@@ -875,7 +928,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1034,6 +1087,9 @@
                 localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
                 applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
         
         const airportCtx = {
@@ -1063,569 +1119,915 @@
                 "name": ".DS_Store",
                 "url": "../charts_data/canada/cyyc-calgary/.DS_Store",
                 "localUrl": "../charts_data/canada/cyyc-calgary/.DS_Store",
+                "driveId": "1tfbcUx6bjYmL0j_FPjaxcQGZoB7eurSU",
+                "driveUrl": "https://drive.google.com/file/d/1tfbcUx6bjYmL0j_FPjaxcQGZoB7eurSU/view?usp=drivesdk",
                 "type": "doc",
                 "rootUrl": "charts_data/canada/cyyc-calgary/.DS_Store"
-, "driveId": "1tfbcUx6bjYmL0j_FPjaxcQGZoB7eurSU", "driveUrl": "https://drive.google.com/file/d/1tfbcUx6bjYmL0j_FPjaxcQGZoB7eurSU/view?usp=drivesdk" },
-        {
-                "id": "cyyc_stampede_2_dep_vector_pg_02.pdf",
-                "name": "CYYC_STAMPEDE_2_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector_pg_02.pdf"
-, "driveId": "1whW0DihILfSAlc8EazEPz_6zQV9y3L9j", "driveUrl": "https://drive.google.com/file/d/1whW0DihILfSAlc8EazEPz_6zQV9y3L9j/view?usp=drivesdk" },
-        {
-                "id": "cyyc_cowboy_2_dep_vector_pg_02.pdf",
-                "name": "CYYC_COWBOY_2_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector_pg_02.pdf"
-, "driveId": "1WQyq3iT1e2UcevkZAB6WxwFHfpFZp1gV", "driveUrl": "https://drive.google.com/file/d/1WQyq3iT1e2UcevkZAB6WxwFHfpFZp1gV/view?usp=drivesdk" },
-        {
-                "id": "cyyc_rodeo_2_dep_vector_pg_02.pdf",
-                "name": "CYYC_RODEO_2_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector_pg_02.pdf"
-, "driveId": "1Y3vm2Y2eDTZ3g4jPDo2HgBikKUcJTjEE", "driveUrl": "https://drive.google.com/file/d/1Y3vm2Y2eDTZ3g4jPDo2HgBikKUcJTjEE/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_stampede_2_dep_vector.pdf",
-                "name": "CYYC_STAMPEDE_2_DEP_VECTOR.pdf",
+                "name": "CYYC_STAMPEDE_2_DEP_VECTOR",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector.pdf",
+                "driveId": "19SAd5dBWN0JTdYoFxcXyI3t7Zrs6juXF",
+                "driveUrl": "https://drive.google.com/file/d/19SAd5dBWN0JTdYoFxcXyI3t7Zrs6juXF/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector.pdf"
-, "driveId": "19SAd5dBWN0JTdYoFxcXyI3t7Zrs6juXF", "driveUrl": "https://drive.google.com/file/d/19SAd5dBWN0JTdYoFxcXyI3t7Zrs6juXF/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_stampede_2_dep_vector.pdf",
+                                "name": "CYYC_STAMPEDE_2_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector.pdf",
+                                "driveId": "19SAd5dBWN0JTdYoFxcXyI3t7Zrs6juXF",
+                                "driveUrl": "https://drive.google.com/file/d/19SAd5dBWN0JTdYoFxcXyI3t7Zrs6juXF/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cyyc_stampede_2_dep_vector_pg_02.pdf",
+                                "name": "CYYC_STAMPEDE_2_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector_pg_02.pdf",
+                                "driveId": "1whW0DihILfSAlc8EazEPz_6zQV9y3L9j",
+                                "driveUrl": "https://drive.google.com/file/d/1whW0DihILfSAlc8EazEPz_6zQV9y3L9j/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_stampede_2_dep_vector_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_aerodrome_chart_pg_02_high_intensity_runway_operations_-_hiro.pdf",
                 "name": "CYYC_AERODROME_CHART_PG_02_HIGH_INTENSITY_RUNWAY_OPERATIONS_-_HIRO.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart_pg_02_high_intensity_runway_operations_-_hiro.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart_pg_02_high_intensity_runway_operations_-_hiro.pdf",
+                "driveId": "14sRr-BYi71nuprjsCn5s4itcj_PIEVi4",
+                "driveUrl": "https://drive.google.com/file/d/14sRr-BYi71nuprjsCn5s4itcj_PIEVi4/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart_pg_02_high_intensity_runway_operations_-_hiro.pdf"
-, "driveId": "14sRr-BYi71nuprjsCn5s4itcj_PIEVi4", "driveUrl": "https://drive.google.com/file/d/14sRr-BYi71nuprjsCn5s4itcj_PIEVi4/view?usp=drivesdk" },
-        {
-                "id": "cyyc_calgary_8_dep_vector_pg_02.pdf",
-                "name": "CYYC_CALGARY_8_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector_pg_02.pdf"
-, "driveId": "1cEhmGI9vXGi9_wD9NlXb_UkyogfZ01e8", "driveUrl": "https://drive.google.com/file/d/1cEhmGI9vXGi9_wD9NlXb_UkyogfZ01e8/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_taxi_chart.pdf",
-                "name": "CYYC_TAXI_CHART.pdf",
+                "name": "CYYC_TAXI_CHART",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_taxi_chart.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_taxi_chart.pdf",
+                "driveId": "1KIJycrzpKajL4sW6_6PwX7VncG8x5NSU",
+                "driveUrl": "https://drive.google.com/file/d/1KIJycrzpKajL4sW6_6PwX7VncG8x5NSU/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_taxi_chart.pdf"
-, "driveId": "1KIJycrzpKajL4sW6_6PwX7VncG8x5NSU", "driveUrl": "https://drive.google.com/file/d/1KIJycrzpKajL4sW6_6PwX7VncG8x5NSU/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_taxi_chart.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_taxi_chart.pdf",
+                                "name": "CYYC_TAXI_CHART.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_taxi_chart.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_taxi_chart.pdf",
+                                "driveId": "1KIJycrzpKajL4sW6_6PwX7VncG8x5NSU",
+                                "driveUrl": "https://drive.google.com/file/d/1KIJycrzpKajL4sW6_6PwX7VncG8x5NSU/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_taxi_chart.pdf"
+                        },
+                        {
+                                "id": "cyyc_taxi_chart_pg_02.pdf",
+                                "name": "CYYC_TAXI_CHART_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_taxi_chart_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_taxi_chart_pg_02.pdf",
+                                "driveId": "1-aQnphJe-Fdj2w8y-d46zdcJa3DFJg8w",
+                                "driveUrl": "https://drive.google.com/file/d/1-aQnphJe-Fdj2w8y-d46zdcJa3DFJg8w/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_taxi_chart_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_low_reduced_visibility_procedures.pdf",
-                "name": "CYYC_LOW_REDUCED_VISIBILITY_PROCEDURES.pdf",
+                "name": "CYYC_LOW_REDUCED_VISIBILITY_PROCEDURES",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures.pdf",
+                "driveId": "1egT_fboghYWGuTYqT9F-Dp5E1FQnOWEl",
+                "driveUrl": "https://drive.google.com/file/d/1egT_fboghYWGuTYqT9F-Dp5E1FQnOWEl/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures.pdf"
-, "driveId": "1egT_fboghYWGuTYqT9F-Dp5E1FQnOWEl", "driveUrl": "https://drive.google.com/file/d/1egT_fboghYWGuTYqT9F-Dp5E1FQnOWEl/view?usp=drivesdk" },
-        {
-                "id": "cyyc_noise_abatement_procedures_pg_02.pdf",
-                "name": "CYYC_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures_pg_02.pdf"
-, "driveId": "12hgp7yDL-6fVF6nH7ii2qDJAAPQjSQbQ", "driveUrl": "https://drive.google.com/file/d/12hgp7yDL-6fVF6nH7ii2qDJAAPQjSQbQ/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_low_reduced_visibility_procedures.pdf",
+                                "name": "CYYC_LOW_REDUCED_VISIBILITY_PROCEDURES.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures.pdf",
+                                "driveId": "1egT_fboghYWGuTYqT9F-Dp5E1FQnOWEl",
+                                "driveUrl": "https://drive.google.com/file/d/1egT_fboghYWGuTYqT9F-Dp5E1FQnOWEl/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures.pdf"
+                        },
+                        {
+                                "id": "cyyc_low_reduced_visibility_procedures_pg_02.pdf",
+                                "name": "CYYC_LOW_REDUCED_VISIBILITY_PROCEDURES_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures_pg_02.pdf",
+                                "driveId": "1p-oF2SNtZFkN4nIz8zEsbeXzV8PmLxfA",
+                                "driveUrl": "https://drive.google.com/file/d/1p-oF2SNtZFkN4nIz8zEsbeXzV8PmLxfA/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_takeoff_minimums.pdf",
                 "name": "CYYC_TAKEOFF_MINIMUMS.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_takeoff_minimums.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_takeoff_minimums.pdf",
+                "driveId": "1CPTNicZ1Dl_Gop1i_Zo--lehGr50D3lc",
+                "driveUrl": "https://drive.google.com/file/d/1CPTNicZ1Dl_Gop1i_Zo--lehGr50D3lc/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_takeoff_minimums.pdf"
-, "driveId": "1CPTNicZ1Dl_Gop1i_Zo--lehGr50D3lc", "driveUrl": "https://drive.google.com/file/d/1CPTNicZ1Dl_Gop1i_Zo--lehGr50D3lc/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_low_visibility_taxi_chart.pdf",
-                "name": "CYYC_LOW_VISIBILITY_TAXI_CHART.pdf",
+                "name": "CYYC_LOW_VISIBILITY_TAXI_CHART",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart.pdf",
+                "driveId": "1nLKyCKifaH2IRzO5i-GPyVuKGkazdxQT",
+                "driveUrl": "https://drive.google.com/file/d/1nLKyCKifaH2IRzO5i-GPyVuKGkazdxQT/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart.pdf"
-, "driveId": "1nLKyCKifaH2IRzO5i-GPyVuKGkazdxQT", "driveUrl": "https://drive.google.com/file/d/1nLKyCKifaH2IRzO5i-GPyVuKGkazdxQT/view?usp=drivesdk" },
-        {
-                "id": "cyyc_taxi_chart_pg_02.pdf",
-                "name": "CYYC_TAXI_CHART_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_taxi_chart_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_taxi_chart_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_taxi_chart_pg_02.pdf"
-, "driveId": "1-aQnphJe-Fdj2w8y-d46zdcJa3DFJg8w", "driveUrl": "https://drive.google.com/file/d/1-aQnphJe-Fdj2w8y-d46zdcJa3DFJg8w/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_low_visibility_taxi_chart.pdf",
+                                "name": "CYYC_LOW_VISIBILITY_TAXI_CHART.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart.pdf",
+                                "driveId": "1nLKyCKifaH2IRzO5i-GPyVuKGkazdxQT",
+                                "driveUrl": "https://drive.google.com/file/d/1nLKyCKifaH2IRzO5i-GPyVuKGkazdxQT/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart.pdf"
+                        },
+                        {
+                                "id": "cyyc_low_visibility_taxi_chart_pg_02.pdf",
+                                "name": "CYYC_LOW_VISIBILITY_TAXI_CHART_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart_pg_02.pdf",
+                                "driveId": "1dlxU0AW_ieNSulSe4pJwuLC92NSEioiC",
+                                "driveUrl": "https://drive.google.com/file/d/1dlxU0AW_ieNSulSe4pJwuLC92NSEioiC/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_cowboy_2_dep_vector.pdf",
-                "name": "CYYC_COWBOY_2_DEP_VECTOR.pdf",
+                "name": "CYYC_COWBOY_2_DEP_VECTOR",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector.pdf",
+                "driveId": "1RnoOFB4T-MqS4o0OqYkBBoPE6rDUkbKK",
+                "driveUrl": "https://drive.google.com/file/d/1RnoOFB4T-MqS4o0OqYkBBoPE6rDUkbKK/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector.pdf"
-, "driveId": "1RnoOFB4T-MqS4o0OqYkBBoPE6rDUkbKK", "driveUrl": "https://drive.google.com/file/d/1RnoOFB4T-MqS4o0OqYkBBoPE6rDUkbKK/view?usp=drivesdk" },
-        {
-                "id": "cyyc_de-icing_operations_pg_02.pdf",
-                "name": "CYYC_DE-ICING_OPERATIONS_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_de-icing_operations_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_de-icing_operations_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_de-icing_operations_pg_02.pdf"
-, "driveId": "1--Hl2Npi_5UXOd8bd3oxG-6NWZwLp9AG", "driveUrl": "https://drive.google.com/file/d/1--Hl2Npi_5UXOd8bd3oxG-6NWZwLp9AG/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_cowboy_2_dep_vector.pdf",
+                                "name": "CYYC_COWBOY_2_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector.pdf",
+                                "driveId": "1RnoOFB4T-MqS4o0OqYkBBoPE6rDUkbKK",
+                                "driveUrl": "https://drive.google.com/file/d/1RnoOFB4T-MqS4o0OqYkBBoPE6rDUkbKK/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cyyc_cowboy_2_dep_vector_pg_02.pdf",
+                                "name": "CYYC_COWBOY_2_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector_pg_02.pdf",
+                                "driveId": "1WQyq3iT1e2UcevkZAB6WxwFHfpFZp1gV",
+                                "driveUrl": "https://drive.google.com/file/d/1WQyq3iT1e2UcevkZAB6WxwFHfpFZp1gV/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_cowboy_2_dep_vector_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_parking_areas.pdf",
                 "name": "CYYC_PARKING_AREAS.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_parking_areas.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_parking_areas.pdf",
+                "driveId": "1NYn6kkU7_DM9A-IuxhSwYDVJ_Wqlgsgj",
+                "driveUrl": "https://drive.google.com/file/d/1NYn6kkU7_DM9A-IuxhSwYDVJ_Wqlgsgj/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_parking_areas.pdf"
-, "driveId": "1NYn6kkU7_DM9A-IuxhSwYDVJ_Wqlgsgj", "driveUrl": "https://drive.google.com/file/d/1NYn6kkU7_DM9A-IuxhSwYDVJ_Wqlgsgj/view?usp=drivesdk" },
-        {
-                "id": "cyyc_low_visibility_taxi_chart_pg_02.pdf",
-                "name": "CYYC_LOW_VISIBILITY_TAXI_CHART_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_low_visibility_taxi_chart_pg_02.pdf"
-, "driveId": "1dlxU0AW_ieNSulSe4pJwuLC92NSEioiC", "driveUrl": "https://drive.google.com/file/d/1dlxU0AW_ieNSulSe4pJwuLC92NSEioiC/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rodeo_2_dep_vector.pdf",
-                "name": "CYYC_RODEO_2_DEP_VECTOR.pdf",
+                "name": "CYYC_RODEO_2_DEP_VECTOR",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector.pdf",
+                "driveId": "1CMca-sqbVx5JoO6wvFGc9HodXR4dI3yh",
+                "driveUrl": "https://drive.google.com/file/d/1CMca-sqbVx5JoO6wvFGc9HodXR4dI3yh/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector.pdf"
-, "driveId": "1CMca-sqbVx5JoO6wvFGc9HodXR4dI3yh", "driveUrl": "https://drive.google.com/file/d/1CMca-sqbVx5JoO6wvFGc9HodXR4dI3yh/view?usp=drivesdk" },
-        {
-                "id": "cyyc_low_reduced_visibility_procedures_pg_02.pdf",
-                "name": "CYYC_LOW_REDUCED_VISIBILITY_PROCEDURES_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_low_reduced_visibility_procedures_pg_02.pdf"
-, "driveId": "1p-oF2SNtZFkN4nIz8zEsbeXzV8PmLxfA", "driveUrl": "https://drive.google.com/file/d/1p-oF2SNtZFkN4nIz8zEsbeXzV8PmLxfA/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_rodeo_2_dep_vector.pdf",
+                                "name": "CYYC_RODEO_2_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector.pdf",
+                                "driveId": "1CMca-sqbVx5JoO6wvFGc9HodXR4dI3yh",
+                                "driveUrl": "https://drive.google.com/file/d/1CMca-sqbVx5JoO6wvFGc9HodXR4dI3yh/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cyyc_rodeo_2_dep_vector_pg_02.pdf",
+                                "name": "CYYC_RODEO_2_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector_pg_02.pdf",
+                                "driveId": "1Y3vm2Y2eDTZ3g4jPDo2HgBikKUcJTjEE",
+                                "driveUrl": "https://drive.google.com/file/d/1Y3vm2Y2eDTZ3g4jPDo2HgBikKUcJTjEE/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rodeo_2_dep_vector_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_noise_abatement_procedures.pdf",
-                "name": "CYYC_NOISE_ABATEMENT_PROCEDURES.pdf",
+                "name": "CYYC_NOISE_ABATEMENT_PROCEDURES",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures.pdf",
+                "driveId": "1fOemaCPpD0DlTLGW-Ulg6gDDHr8w2gXq",
+                "driveUrl": "https://drive.google.com/file/d/1fOemaCPpD0DlTLGW-Ulg6gDDHr8w2gXq/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures.pdf"
-, "driveId": "1fOemaCPpD0DlTLGW-Ulg6gDDHr8w2gXq", "driveUrl": "https://drive.google.com/file/d/1fOemaCPpD0DlTLGW-Ulg6gDDHr8w2gXq/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_noise_abatement_procedures.pdf",
+                                "name": "CYYC_NOISE_ABATEMENT_PROCEDURES.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures.pdf",
+                                "driveId": "1fOemaCPpD0DlTLGW-Ulg6gDDHr8w2gXq",
+                                "driveUrl": "https://drive.google.com/file/d/1fOemaCPpD0DlTLGW-Ulg6gDDHr8w2gXq/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures.pdf"
+                        },
+                        {
+                                "id": "cyyc_noise_abatement_procedures_pg_02.pdf",
+                                "name": "CYYC_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures_pg_02.pdf",
+                                "driveId": "12hgp7yDL-6fVF6nH7ii2qDJAAPQjSQbQ",
+                                "driveUrl": "https://drive.google.com/file/d/12hgp7yDL-6fVF6nH7ii2qDJAAPQjSQbQ/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_noise_abatement_procedures_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_de-icing_operations.pdf",
-                "name": "CYYC_DE-ICING_OPERATIONS.pdf",
+                "name": "CYYC_DE-ICING_OPERATIONS",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_de-icing_operations.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_de-icing_operations.pdf",
+                "driveId": "11uzAChi18jpLmo9Kb8F_M5dV1QOFA09N",
+                "driveUrl": "https://drive.google.com/file/d/11uzAChi18jpLmo9Kb8F_M5dV1QOFA09N/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_de-icing_operations.pdf"
-, "driveId": "11uzAChi18jpLmo9Kb8F_M5dV1QOFA09N", "driveUrl": "https://drive.google.com/file/d/11uzAChi18jpLmo9Kb8F_M5dV1QOFA09N/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_de-icing_operations.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_de-icing_operations.pdf",
+                                "name": "CYYC_DE-ICING_OPERATIONS.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_de-icing_operations.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_de-icing_operations.pdf",
+                                "driveId": "11uzAChi18jpLmo9Kb8F_M5dV1QOFA09N",
+                                "driveUrl": "https://drive.google.com/file/d/11uzAChi18jpLmo9Kb8F_M5dV1QOFA09N/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_de-icing_operations.pdf"
+                        },
+                        {
+                                "id": "cyyc_de-icing_operations_pg_02.pdf",
+                                "name": "CYYC_DE-ICING_OPERATIONS_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_de-icing_operations_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_de-icing_operations_pg_02.pdf",
+                                "driveId": "1--Hl2Npi_5UXOd8bd3oxG-6NWZwLp9AG",
+                                "driveUrl": "https://drive.google.com/file/d/1--Hl2Npi_5UXOd8bd3oxG-6NWZwLp9AG/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_de-icing_operations_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_calgary_8_dep_vector.pdf",
-                "name": "CYYC_CALGARY_8_DEP_VECTOR.pdf",
+                "name": "CYYC_CALGARY_8_DEP_VECTOR",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector.pdf",
+                "driveId": "1l4LBXi4CY0n1pOghKDa2bvTyys4B-R6E",
+                "driveUrl": "https://drive.google.com/file/d/1l4LBXi4CY0n1pOghKDa2bvTyys4B-R6E/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector.pdf"
-, "driveId": "1l4LBXi4CY0n1pOghKDa2bvTyys4B-R6E", "driveUrl": "https://drive.google.com/file/d/1l4LBXi4CY0n1pOghKDa2bvTyys4B-R6E/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_calgary_8_dep_vector.pdf",
+                                "name": "CYYC_CALGARY_8_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector.pdf",
+                                "driveId": "1l4LBXi4CY0n1pOghKDa2bvTyys4B-R6E",
+                                "driveUrl": "https://drive.google.com/file/d/1l4LBXi4CY0n1pOghKDa2bvTyys4B-R6E/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cyyc_calgary_8_dep_vector_pg_02.pdf",
+                                "name": "CYYC_CALGARY_8_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector_pg_02.pdf",
+                                "driveId": "1cEhmGI9vXGi9_wD9NlXb_UkyogfZ01e8",
+                                "driveUrl": "https://drive.google.com/file/d/1cEhmGI9vXGi9_wD9NlXb_UkyogfZ01e8/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_calgary_8_dep_vector_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_rnav_rnp_y_rwy_17r.pdf",
                 "name": "CYYC_RNAV_RNP_Y_RWY_17R.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_17r.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_17r.pdf",
+                "driveId": "1nLAB_1lp-E7cnhjjMA7CyKgvcXMC2Zmt",
+                "driveUrl": "https://drive.google.com/file/d/1nLAB_1lp-E7cnhjjMA7CyKgvcXMC2Zmt/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_17r.pdf"
-, "driveId": "1nLAB_1lp-E7cnhjjMA7CyKgvcXMC2Zmt", "driveUrl": "https://drive.google.com/file/d/1nLAB_1lp-E7cnhjjMA7CyKgvcXMC2Zmt/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rnav_rnp_y_rwy_35l.pdf",
                 "name": "CYYC_RNAV_RNP_Y_RWY_35L.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_35l.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_35l.pdf",
+                "driveId": "1jhPvyqfC59r1sebgIwP-w_5kT_E9zewe",
+                "driveUrl": "https://drive.google.com/file/d/1jhPvyqfC59r1sebgIwP-w_5kT_E9zewe/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_35l.pdf"
-, "driveId": "1jhPvyqfC59r1sebgIwP-w_5kT_E9zewe", "driveUrl": "https://drive.google.com/file/d/1jhPvyqfC59r1sebgIwP-w_5kT_E9zewe/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rnav_gnss_z_rwy_35r.pdf",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_35R.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_35r.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_35r.pdf",
+                "driveId": "1y2MxHtJR49lY90rkpsCoujIHzZZmDqUl",
+                "driveUrl": "https://drive.google.com/file/d/1y2MxHtJR49lY90rkpsCoujIHzZZmDqUl/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_35r.pdf"
-, "driveId": "1y2MxHtJR49lY90rkpsCoujIHzZZmDqUl", "driveUrl": "https://drive.google.com/file/d/1y2MxHtJR49lY90rkpsCoujIHzZZmDqUl/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_aerodrome_chart_pg_03_reduced_take_off_runs.pdf",
                 "name": "CYYC_AERODROME_CHART_PG_03_REDUCED_TAKE_OFF_RUNS.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart_pg_03_reduced_take_off_runs.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart_pg_03_reduced_take_off_runs.pdf",
+                "driveId": "1eMunSOglVuNE4KMvPGd4GotdtpwWGoOn",
+                "driveUrl": "https://drive.google.com/file/d/1eMunSOglVuNE4KMvPGd4GotdtpwWGoOn/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart_pg_03_reduced_take_off_runs.pdf"
-, "driveId": "1eMunSOglVuNE4KMvPGd4GotdtpwWGoOn", "driveUrl": "https://drive.google.com/file/d/1eMunSOglVuNE4KMvPGd4GotdtpwWGoOn/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rnav_rnp_y_rwy_35r.pdf",
                 "name": "CYYC_RNAV_RNP_Y_RWY_35R.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_35r.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_35r.pdf",
+                "driveId": "1dmoDJGxcQ3vuPx88Af56g-g7JB8Aonnm",
+                "driveUrl": "https://drive.google.com/file/d/1dmoDJGxcQ3vuPx88Af56g-g7JB8Aonnm/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_35r.pdf"
-, "driveId": "1dmoDJGxcQ3vuPx88Af56g-g7JB8Aonnm", "driveUrl": "https://drive.google.com/file/d/1dmoDJGxcQ3vuPx88Af56g-g7JB8Aonnm/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rnav_gnss_z_rwy_17r.pdf",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_17R.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_17r.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_17r.pdf",
+                "driveId": "1tkj6lKBWpVK6qlzw5RzMcb0lqEd4lzvu",
+                "driveUrl": "https://drive.google.com/file/d/1tkj6lKBWpVK6qlzw5RzMcb0lqEd4lzvu/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_17r.pdf"
-, "driveId": "1tkj6lKBWpVK6qlzw5RzMcb0lqEd4lzvu", "driveUrl": "https://drive.google.com/file/d/1tkj6lKBWpVK6qlzw5RzMcb0lqEd4lzvu/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rnav_rnp_y_rwy_17l.pdf",
                 "name": "CYYC_RNAV_RNP_Y_RWY_17L.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_17l.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_17l.pdf",
+                "driveId": "1jxv5W7Aeltu9zdc6IFjWEtWuoUvHf2Xe",
+                "driveUrl": "https://drive.google.com/file/d/1jxv5W7Aeltu9zdc6IFjWEtWuoUvHf2Xe/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_17l.pdf"
-, "driveId": "1jxv5W7Aeltu9zdc6IFjWEtWuoUvHf2Xe", "driveUrl": "https://drive.google.com/file/d/1jxv5W7Aeltu9zdc6IFjWEtWuoUvHf2Xe/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_attention_all_users.pdf",
                 "name": "CYYC_ATTENTION_ALL_USERS.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_attention_all_users.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_attention_all_users.pdf",
+                "driveId": "1NgvFfZ31Og1qrCMfF86H3AfVdD_tGCo9",
+                "driveUrl": "https://drive.google.com/file/d/1NgvFfZ31Og1qrCMfF86H3AfVdD_tGCo9/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_attention_all_users.pdf"
-, "driveId": "1NgvFfZ31Og1qrCMfF86H3AfVdD_tGCo9", "driveUrl": "https://drive.google.com/file/d/1NgvFfZ31Og1qrCMfF86H3AfVdD_tGCo9/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rnav_rnp_y_rwy_11.pdf",
                 "name": "CYYC_RNAV_RNP_Y_RWY_11.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_11.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_11.pdf",
+                "driveId": "1Uxq0J_wByhMLSsbkuVTFKblMkdVmbWG1",
+                "driveUrl": "https://drive.google.com/file/d/1Uxq0J_wByhMLSsbkuVTFKblMkdVmbWG1/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_11.pdf"
-, "driveId": "1Uxq0J_wByhMLSsbkuVTFKblMkdVmbWG1", "driveUrl": "https://drive.google.com/file/d/1Uxq0J_wByhMLSsbkuVTFKblMkdVmbWG1/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rnav_rnp_y_rwy_29.pdf",
                 "name": "CYYC_RNAV_RNP_Y_RWY_29.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_29.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_29.pdf",
+                "driveId": "1qGg7hz4I8DUeUbCQA6NCynXEPpooT6iJ",
+                "driveUrl": "https://drive.google.com/file/d/1qGg7hz4I8DUeUbCQA6NCynXEPpooT6iJ/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_rnp_y_rwy_29.pdf"
-, "driveId": "1qGg7hz4I8DUeUbCQA6NCynXEPpooT6iJ", "driveUrl": "https://drive.google.com/file/d/1qGg7hz4I8DUeUbCQA6NCynXEPpooT6iJ/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rnav_gnss_z_rwy_35l.pdf",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_35L.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_35l.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_35l.pdf",
+                "driveId": "1teN6WrAY6i9P0YPn2z6Z_bLhgBpgEvJg",
+                "driveUrl": "https://drive.google.com/file/d/1teN6WrAY6i9P0YPn2z6Z_bLhgBpgEvJg/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_35l.pdf"
-, "driveId": "1teN6WrAY6i9P0YPn2z6Z_bLhgBpgEvJg", "driveUrl": "https://drive.google.com/file/d/1teN6WrAY6i9P0YPn2z6Z_bLhgBpgEvJg/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rnav_gnss_z_rwy_29.pdf",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_29.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_29.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_29.pdf",
+                "driveId": "15twWHBPzUOpBS9dKZ-O_JhUb0dXmKUaU",
+                "driveUrl": "https://drive.google.com/file/d/15twWHBPzUOpBS9dKZ-O_JhUb0dXmKUaU/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_29.pdf"
-, "driveId": "15twWHBPzUOpBS9dKZ-O_JhUb0dXmKUaU", "driveUrl": "https://drive.google.com/file/d/15twWHBPzUOpBS9dKZ-O_JhUb0dXmKUaU/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rnav_gnss_z_rwy_17l.pdf",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_17L.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_17l.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_17l.pdf",
+                "driveId": "1kEp9uYS-9MzFZAQQ7e4WehCQ4UkB-qMd",
+                "driveUrl": "https://drive.google.com/file/d/1kEp9uYS-9MzFZAQQ7e4WehCQ4UkB-qMd/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_17l.pdf"
-, "driveId": "1kEp9uYS-9MzFZAQQ7e4WehCQ4UkB-qMd", "driveUrl": "https://drive.google.com/file/d/1kEp9uYS-9MzFZAQQ7e4WehCQ4UkB-qMd/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_aerodrome_chart.pdf",
                 "name": "CYYC_AERODROME_CHART.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart.pdf",
+                "driveId": "1kIS9zj6Yy-IwWChSBTKrOaNXdPOJ8Nux",
+                "driveUrl": "https://drive.google.com/file/d/1kIS9zj6Yy-IwWChSBTKrOaNXdPOJ8Nux/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_aerodrome_chart.pdf"
-, "driveId": "1kIS9zj6Yy-IwWChSBTKrOaNXdPOJ8Nux", "driveUrl": "https://drive.google.com/file/d/1kIS9zj6Yy-IwWChSBTKrOaNXdPOJ8Nux/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_rnav_gnss_z_rwy_11.pdf",
                 "name": "CYYC_RNAV_GNSS_Z_RWY_11.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_11.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_11.pdf",
+                "driveId": "1pvmy5VFk4UVf-QBN_pGH0ITW2BcLKCT_",
+                "driveUrl": "https://drive.google.com/file/d/1pvmy5VFk4UVf-QBN_pGH0ITW2BcLKCT_/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_rnav_gnss_z_rwy_11.pdf"
-, "driveId": "1pvmy5VFk4UVf-QBN_pGH0ITW2BcLKCT_", "driveUrl": "https://drive.google.com/file/d/1pvmy5VFk4UVf-QBN_pGH0ITW2BcLKCT_/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_totub_5_arr_rnav.pdf",
-                "name": "CYYC_TOTUB_5_ARR_RNAV.pdf",
+                "name": "CYYC_TOTUB_5_ARR_RNAV",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav.pdf",
+                "driveId": "17D-MmAf4j-1YAH-KoS7qzhguvqDELQJt",
+                "driveUrl": "https://drive.google.com/file/d/17D-MmAf4j-1YAH-KoS7qzhguvqDELQJt/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav.pdf"
-, "driveId": "17D-MmAf4j-1YAH-KoS7qzhguvqDELQJt", "driveUrl": "https://drive.google.com/file/d/17D-MmAf4j-1YAH-KoS7qzhguvqDELQJt/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_totub_5_arr_rnav.pdf",
+                                "name": "CYYC_TOTUB_5_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav.pdf",
+                                "driveId": "17D-MmAf4j-1YAH-KoS7qzhguvqDELQJt",
+                                "driveUrl": "https://drive.google.com/file/d/17D-MmAf4j-1YAH-KoS7qzhguvqDELQJt/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyyc_totub_5_arr_rnav_pg_02.pdf",
+                                "name": "CYYC_TOTUB_5_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_02.pdf",
+                                "driveId": "1f0GKXJzAK4qcQxpJML1QrrYdwOHqvLwS",
+                                "driveUrl": "https://drive.google.com/file/d/1f0GKXJzAK4qcQxpJML1QrrYdwOHqvLwS/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyyc_totub_5_arr_rnav_pg_03.pdf",
+                                "name": "CYYC_TOTUB_5_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_03.pdf",
+                                "driveId": "1uP4aQVield9g8k7sI3lGQK--E2n0S0tZ",
+                                "driveUrl": "https://drive.google.com/file/d/1uP4aQVield9g8k7sI3lGQK--E2n0S0tZ/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_03.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_ils_rwy_17r.pdf",
                 "name": "CYYC_ILS_RWY_17R.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_17r.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_17r.pdf",
+                "driveId": "149zuJXd2dm4LtcRgw2foH48Oa8WjdB-v",
+                "driveUrl": "https://drive.google.com/file/d/149zuJXd2dm4LtcRgw2foH48Oa8WjdB-v/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_17r.pdf"
-, "driveId": "149zuJXd2dm4LtcRgw2foH48Oa8WjdB-v", "driveUrl": "https://drive.google.com/file/d/149zuJXd2dm4LtcRgw2foH48Oa8WjdB-v/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_ils_rwy_29.pdf",
                 "name": "CYYC_ILS_RWY_29.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_29.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_29.pdf",
+                "driveId": "1_y1vDFIrNMTAc59LWMfY8tAWBvgw6uKa",
+                "driveUrl": "https://drive.google.com/file/d/1_y1vDFIrNMTAc59LWMfY8tAWBvgw6uKa/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_29.pdf"
-, "driveId": "1_y1vDFIrNMTAc59LWMfY8tAWBvgw6uKa", "driveUrl": "https://drive.google.com/file/d/1_y1vDFIrNMTAc59LWMfY8tAWBvgw6uKa/view?usp=drivesdk" },
-        {
-                "id": "cyyc_tiduk_7_arr_rnav_pg_02.pdf",
-                "name": "CYYC_TIDUK_7_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_02.pdf"
-, "driveId": "1f0b7Yi7NB2VBvLwj421kWpvGL7uttgiq", "driveUrl": "https://drive.google.com/file/d/1f0b7Yi7NB2VBvLwj421kWpvGL7uttgiq/view?usp=drivesdk" },
-        {
-                "id": "cyyc_vesga_6_arr_rnav_pg_02.pdf",
-                "name": "CYYC_VESGA_6_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_02.pdf"
-, "driveId": "1mRZOoEkUJ8dMwRdjI0CPBWlu8TZ8AUme", "driveUrl": "https://drive.google.com/file/d/1mRZOoEkUJ8dMwRdjI0CPBWlu8TZ8AUme/view?usp=drivesdk" },
-        {
-                "id": "cyyc_vesga_6_arr_rnav_pg_03.pdf",
-                "name": "CYYC_VESGA_6_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_03.pdf"
-, "driveId": "1j295fbZQQAqURM86yhT61meGSm3ea-zp", "driveUrl": "https://drive.google.com/file/d/1j295fbZQQAqURM86yhT61meGSm3ea-zp/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_ils_cat_ii_or_iii_rwy_35r.pdf",
                 "name": "CYYC_ILS_CAT_II_OR_III_RWY_35R.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_or_iii_rwy_35r.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_or_iii_rwy_35r.pdf",
+                "driveId": "1NXIBdVZSehdc_CK_ZTKJ-wfelr-aUL5-",
+                "driveUrl": "https://drive.google.com/file/d/1NXIBdVZSehdc_CK_ZTKJ-wfelr-aUL5-/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_or_iii_rwy_35r.pdf"
-, "driveId": "1NXIBdVZSehdc_CK_ZTKJ-wfelr-aUL5-", "driveUrl": "https://drive.google.com/file/d/1NXIBdVZSehdc_CK_ZTKJ-wfelr-aUL5-/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_ils_cat_ii_rwy_35l.pdf",
                 "name": "CYYC_ILS_CAT_II_RWY_35L.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_rwy_35l.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_rwy_35l.pdf",
+                "driveId": "1BAxoSxnmvG72ceKBiQbR2WcKX71W0eap",
+                "driveUrl": "https://drive.google.com/file/d/1BAxoSxnmvG72ceKBiQbR2WcKX71W0eap/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_rwy_35l.pdf"
-, "driveId": "1BAxoSxnmvG72ceKBiQbR2WcKX71W0eap", "driveUrl": "https://drive.google.com/file/d/1BAxoSxnmvG72ceKBiQbR2WcKX71W0eap/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_ils_cat_ii_rwy_17r.pdf",
                 "name": "CYYC_ILS_CAT_II_RWY_17R.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_rwy_17r.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_rwy_17r.pdf",
+                "driveId": "1DLwldeX2VNXjz38cMkiMSpzRdjjSxd3W",
+                "driveUrl": "https://drive.google.com/file/d/1DLwldeX2VNXjz38cMkiMSpzRdjjSxd3W/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_rwy_17r.pdf"
-, "driveId": "1DLwldeX2VNXjz38cMkiMSpzRdjjSxd3W", "driveUrl": "https://drive.google.com/file/d/1DLwldeX2VNXjz38cMkiMSpzRdjjSxd3W/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_ils_rwy_35l.pdf",
                 "name": "CYYC_ILS_RWY_35L.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_35l.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_35l.pdf",
+                "driveId": "16JH083wlZP0jLoDCB2oDH1y4_yYW_WWa",
+                "driveUrl": "https://drive.google.com/file/d/16JH083wlZP0jLoDCB2oDH1y4_yYW_WWa/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_35l.pdf"
-, "driveId": "16JH083wlZP0jLoDCB2oDH1y4_yYW_WWa", "driveUrl": "https://drive.google.com/file/d/16JH083wlZP0jLoDCB2oDH1y4_yYW_WWa/view?usp=drivesdk" },
-        {
-                "id": "cyyc_totub_5_arr_rnav_pg_02.pdf",
-                "name": "CYYC_TOTUB_5_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_02.pdf"
-, "driveId": "1f0GKXJzAK4qcQxpJML1QrrYdwOHqvLwS", "driveUrl": "https://drive.google.com/file/d/1f0GKXJzAK4qcQxpJML1QrrYdwOHqvLwS/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_ils_rwy_17l.pdf",
                 "name": "CYYC_ILS_RWY_17L.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_17l.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_17l.pdf",
+                "driveId": "1wfXu4oWohB3x_N7hTgFAS3GMywlN_WFp",
+                "driveUrl": "https://drive.google.com/file/d/1wfXu4oWohB3x_N7hTgFAS3GMywlN_WFp/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_17l.pdf"
-, "driveId": "1wfXu4oWohB3x_N7hTgFAS3GMywlN_WFp", "driveUrl": "https://drive.google.com/file/d/1wfXu4oWohB3x_N7hTgFAS3GMywlN_WFp/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_ils_rwy_11.pdf",
                 "name": "CYYC_ILS_RWY_11.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_11.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_11.pdf",
+                "driveId": "1Llhcc9GtZMvxYHcU3DWFdVZBC4vvxPga",
+                "driveUrl": "https://drive.google.com/file/d/1Llhcc9GtZMvxYHcU3DWFdVZBC4vvxPga/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_11.pdf"
-, "driveId": "1Llhcc9GtZMvxYHcU3DWFdVZBC4vvxPga", "driveUrl": "https://drive.google.com/file/d/1Llhcc9GtZMvxYHcU3DWFdVZBC4vvxPga/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_ils_rwy_35r.pdf",
                 "name": "CYYC_ILS_RWY_35R.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_35r.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ils_rwy_35r.pdf",
+                "driveId": "1NEyGMxvrNdwLAAY3HZt1iBL9jHFS9hXq",
+                "driveUrl": "https://drive.google.com/file/d/1NEyGMxvrNdwLAAY3HZt1iBL9jHFS9hXq/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_rwy_35r.pdf"
-, "driveId": "1NEyGMxvrNdwLAAY3HZt1iBL9jHFS9hXq", "driveUrl": "https://drive.google.com/file/d/1NEyGMxvrNdwLAAY3HZt1iBL9jHFS9hXq/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_ils_cat_ii_or_iii_rwy_17l.pdf",
                 "name": "CYYC_ILS_CAT_II_OR_III_RWY_17L.pdf",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_or_iii_rwy_17l.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_or_iii_rwy_17l.pdf",
+                "driveId": "1LEh-ZapWuf23CfKhsCRa6LhvWuZvwh2Y",
+                "driveUrl": "https://drive.google.com/file/d/1LEh-ZapWuf23CfKhsCRa6LhvWuZvwh2Y/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ils_cat_ii_or_iii_rwy_17l.pdf"
-, "driveId": "1LEh-ZapWuf23CfKhsCRa6LhvWuZvwh2Y", "driveUrl": "https://drive.google.com/file/d/1LEh-ZapWuf23CfKhsCRa6LhvWuZvwh2Y/view?usp=drivesdk" },
-        {
-                "id": "cyyc_totub_5_arr_rnav_pg_03.pdf",
-                "name": "CYYC_TOTUB_5_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_totub_5_arr_rnav_pg_03.pdf"
-, "driveId": "1uP4aQVield9g8k7sI3lGQK--E2n0S0tZ", "driveUrl": "https://drive.google.com/file/d/1uP4aQVield9g8k7sI3lGQK--E2n0S0tZ/view?usp=drivesdk" },
+        },
         {
                 "id": "cyyc_vesga_6_arr_rnav.pdf",
-                "name": "CYYC_VESGA_6_ARR_RNAV.pdf",
+                "name": "CYYC_VESGA_6_ARR_RNAV",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav.pdf",
+                "driveId": "1SPz2xHgdCptS6LLNlIOyfUrPvVK62gTt",
+                "driveUrl": "https://drive.google.com/file/d/1SPz2xHgdCptS6LLNlIOyfUrPvVK62gTt/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav.pdf"
-, "driveId": "1SPz2xHgdCptS6LLNlIOyfUrPvVK62gTt", "driveUrl": "https://drive.google.com/file/d/1SPz2xHgdCptS6LLNlIOyfUrPvVK62gTt/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_vesga_6_arr_rnav.pdf",
+                                "name": "CYYC_VESGA_6_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav.pdf",
+                                "driveId": "1SPz2xHgdCptS6LLNlIOyfUrPvVK62gTt",
+                                "driveUrl": "https://drive.google.com/file/d/1SPz2xHgdCptS6LLNlIOyfUrPvVK62gTt/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyyc_vesga_6_arr_rnav_pg_02.pdf",
+                                "name": "CYYC_VESGA_6_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_02.pdf",
+                                "driveId": "1mRZOoEkUJ8dMwRdjI0CPBWlu8TZ8AUme",
+                                "driveUrl": "https://drive.google.com/file/d/1mRZOoEkUJ8dMwRdjI0CPBWlu8TZ8AUme/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyyc_vesga_6_arr_rnav_pg_03.pdf",
+                                "name": "CYYC_VESGA_6_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_03.pdf",
+                                "driveId": "1j295fbZQQAqURM86yhT61meGSm3ea-zp",
+                                "driveUrl": "https://drive.google.com/file/d/1j295fbZQQAqURM86yhT61meGSm3ea-zp/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_vesga_6_arr_rnav_pg_03.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_flaam_7_arr_rnav.pdf",
-                "name": "CYYC_FLAAM_7_ARR_RNAV.pdf",
+                "name": "CYYC_FLAAM_7_ARR_RNAV",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav.pdf",
+                "driveId": "1m01bmUBOMYftQ0hktLs0ENtWJGPpWAa9",
+                "driveUrl": "https://drive.google.com/file/d/1m01bmUBOMYftQ0hktLs0ENtWJGPpWAa9/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav.pdf"
-, "driveId": "1m01bmUBOMYftQ0hktLs0ENtWJGPpWAa9", "driveUrl": "https://drive.google.com/file/d/1m01bmUBOMYftQ0hktLs0ENtWJGPpWAa9/view?usp=drivesdk" },
-        {
-                "id": "cyyc_flaam_7_arr_rnav_pg_02.pdf",
-                "name": "CYYC_FLAAM_7_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_02.pdf"
-, "driveId": "1Xq2nO3XDGeVnmZ4bLJZF3M6EqCb4oKTe", "driveUrl": "https://drive.google.com/file/d/1Xq2nO3XDGeVnmZ4bLJZF3M6EqCb4oKTe/view?usp=drivesdk" },
-        {
-                "id": "cyyc_birko_6_arr_rnav_pg_02.pdf",
-                "name": "CYYC_BIRKO_6_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_02.pdf"
-, "driveId": "17HrY_B1-DpawKmGwxw4T7qQdfgHiUXnW", "driveUrl": "https://drive.google.com/file/d/17HrY_B1-DpawKmGwxw4T7qQdfgHiUXnW/view?usp=drivesdk" },
-        {
-                "id": "cyyc_birko_6_arr_rnav_pg_03.pdf",
-                "name": "CYYC_BIRKO_6_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_03.pdf"
-, "driveId": "1k5X-7hwpSehl21yiNOV2mxP5Ll05NaB7", "driveUrl": "https://drive.google.com/file/d/1k5X-7hwpSehl21yiNOV2mxP5Ll05NaB7/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_flaam_7_arr_rnav.pdf",
+                                "name": "CYYC_FLAAM_7_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav.pdf",
+                                "driveId": "1m01bmUBOMYftQ0hktLs0ENtWJGPpWAa9",
+                                "driveUrl": "https://drive.google.com/file/d/1m01bmUBOMYftQ0hktLs0ENtWJGPpWAa9/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyyc_flaam_7_arr_rnav_pg_02.pdf",
+                                "name": "CYYC_FLAAM_7_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_02.pdf",
+                                "driveId": "1Xq2nO3XDGeVnmZ4bLJZF3M6EqCb4oKTe",
+                                "driveUrl": "https://drive.google.com/file/d/1Xq2nO3XDGeVnmZ4bLJZF3M6EqCb4oKTe/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyyc_flaam_7_arr_rnav_pg_03.pdf",
+                                "name": "CYYC_FLAAM_7_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_03.pdf",
+                                "driveId": "1gg5YearRBko3iH1Z9bG_7ePTlxqJjepd",
+                                "driveUrl": "https://drive.google.com/file/d/1gg5YearRBko3iH1Z9bG_7ePTlxqJjepd/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_03.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_igvep_7_arr_rnav.pdf",
-                "name": "CYYC_IGVEP_7_ARR_RNAV.pdf",
+                "name": "CYYC_IGVEP_7_ARR_RNAV",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav.pdf",
+                "driveId": "1W8MerU1SIB9u2LWkLSIJTxQWAqsl1_-J",
+                "driveUrl": "https://drive.google.com/file/d/1W8MerU1SIB9u2LWkLSIJTxQWAqsl1_-J/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav.pdf"
-, "driveId": "1W8MerU1SIB9u2LWkLSIJTxQWAqsl1_-J", "driveUrl": "https://drive.google.com/file/d/1W8MerU1SIB9u2LWkLSIJTxQWAqsl1_-J/view?usp=drivesdk" },
-        {
-                "id": "cyyc_ebgal_7_arr_rnav_pg_02.pdf",
-                "name": "CYYC_EBGAL_7_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_02.pdf"
-, "driveId": "1-kwZlngSNQqO-F8ejhywTlJ0Zpj2M2MC", "driveUrl": "https://drive.google.com/file/d/1-kwZlngSNQqO-F8ejhywTlJ0Zpj2M2MC/view?usp=drivesdk" },
-        {
-                "id": "cyyc_advox_9_arr_rnav_pg_02.pdf",
-                "name": "CYYC_ADVOX_9_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_02.pdf"
-, "driveId": "1ZvJ3oQ2E_8MxEg3b13Sp5GyGhCYKnNsG", "driveUrl": "https://drive.google.com/file/d/1ZvJ3oQ2E_8MxEg3b13Sp5GyGhCYKnNsG/view?usp=drivesdk" },
-        {
-                "id": "cyyc_ebgal_7_arr_rnav_pg_03.pdf",
-                "name": "CYYC_EBGAL_7_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_03.pdf"
-, "driveId": "1dM97WVt2uMW7fxPVUY0ZS0u1ISFfI4O9", "driveUrl": "https://drive.google.com/file/d/1dM97WVt2uMW7fxPVUY0ZS0u1ISFfI4O9/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_igvep_7_arr_rnav.pdf",
+                                "name": "CYYC_IGVEP_7_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav.pdf",
+                                "driveId": "1W8MerU1SIB9u2LWkLSIJTxQWAqsl1_-J",
+                                "driveUrl": "https://drive.google.com/file/d/1W8MerU1SIB9u2LWkLSIJTxQWAqsl1_-J/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyyc_igvep_7_arr_rnav_pg_02.pdf",
+                                "name": "CYYC_IGVEP_7_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_02.pdf",
+                                "driveId": "1QAqPAB0sGKZj_Xp3FtLHKJ6XiPKMfH_h",
+                                "driveUrl": "https://drive.google.com/file/d/1QAqPAB0sGKZj_Xp3FtLHKJ6XiPKMfH_h/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyyc_igvep_7_arr_rnav_pg_03.pdf",
+                                "name": "CYYC_IGVEP_7_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_03.pdf",
+                                "driveId": "1wcB1R_z2GHiSzeS2Fq8blUUTACIB3t97",
+                                "driveUrl": "https://drive.google.com/file/d/1wcB1R_z2GHiSzeS2Fq8blUUTACIB3t97/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_03.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_ebgal_7_arr_rnav.pdf",
-                "name": "CYYC_EBGAL_7_ARR_RNAV.pdf",
+                "name": "CYYC_EBGAL_7_ARR_RNAV",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav.pdf",
+                "driveId": "1bu4qUZUOw4sYUwDu-VrRBS-HCZMiaW3C",
+                "driveUrl": "https://drive.google.com/file/d/1bu4qUZUOw4sYUwDu-VrRBS-HCZMiaW3C/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav.pdf"
-, "driveId": "1bu4qUZUOw4sYUwDu-VrRBS-HCZMiaW3C", "driveUrl": "https://drive.google.com/file/d/1bu4qUZUOw4sYUwDu-VrRBS-HCZMiaW3C/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_ebgal_7_arr_rnav.pdf",
+                                "name": "CYYC_EBGAL_7_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav.pdf",
+                                "driveId": "1bu4qUZUOw4sYUwDu-VrRBS-HCZMiaW3C",
+                                "driveUrl": "https://drive.google.com/file/d/1bu4qUZUOw4sYUwDu-VrRBS-HCZMiaW3C/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyyc_ebgal_7_arr_rnav_pg_02.pdf",
+                                "name": "CYYC_EBGAL_7_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_02.pdf",
+                                "driveId": "1-kwZlngSNQqO-F8ejhywTlJ0Zpj2M2MC",
+                                "driveUrl": "https://drive.google.com/file/d/1-kwZlngSNQqO-F8ejhywTlJ0Zpj2M2MC/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyyc_ebgal_7_arr_rnav_pg_03.pdf",
+                                "name": "CYYC_EBGAL_7_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_03.pdf",
+                                "driveId": "1dM97WVt2uMW7fxPVUY0ZS0u1ISFfI4O9",
+                                "driveUrl": "https://drive.google.com/file/d/1dM97WVt2uMW7fxPVUY0ZS0u1ISFfI4O9/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_ebgal_7_arr_rnav_pg_03.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_birko_6_arr_rnav.pdf",
-                "name": "CYYC_BIRKO_6_ARR_RNAV.pdf",
+                "name": "CYYC_BIRKO_6_ARR_RNAV",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav.pdf",
+                "driveId": "1P-zPlmU1CoZB-AT7OTrseF6GTqOSzH4A",
+                "driveUrl": "https://drive.google.com/file/d/1P-zPlmU1CoZB-AT7OTrseF6GTqOSzH4A/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav.pdf"
-, "driveId": "1P-zPlmU1CoZB-AT7OTrseF6GTqOSzH4A", "driveUrl": "https://drive.google.com/file/d/1P-zPlmU1CoZB-AT7OTrseF6GTqOSzH4A/view?usp=drivesdk" },
-        {
-                "id": "cyyc_igvep_7_arr_rnav_pg_03.pdf",
-                "name": "CYYC_IGVEP_7_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_03.pdf"
-, "driveId": "1wcB1R_z2GHiSzeS2Fq8blUUTACIB3t97", "driveUrl": "https://drive.google.com/file/d/1wcB1R_z2GHiSzeS2Fq8blUUTACIB3t97/view?usp=drivesdk" },
-        {
-                "id": "cyyc_advox_9_arr_rnav_pg_03.pdf",
-                "name": "CYYC_ADVOX_9_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_03.pdf"
-, "driveId": "14VFrRx0aprKtzIZ2U69V0RTVyMJQs6UW", "driveUrl": "https://drive.google.com/file/d/14VFrRx0aprKtzIZ2U69V0RTVyMJQs6UW/view?usp=drivesdk" },
-        {
-                "id": "cyyc_igvep_7_arr_rnav_pg_02.pdf",
-                "name": "CYYC_IGVEP_7_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_igvep_7_arr_rnav_pg_02.pdf"
-, "driveId": "1QAqPAB0sGKZj_Xp3FtLHKJ6XiPKMfH_h", "driveUrl": "https://drive.google.com/file/d/1QAqPAB0sGKZj_Xp3FtLHKJ6XiPKMfH_h/view?usp=drivesdk" },
-        {
-                "id": "cyyc_tiduk_7_arr_rnav_pg_03.pdf",
-                "name": "CYYC_TIDUK_7_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_03.pdf"
-, "driveId": "1mv6hya24ogt8cG4fAjHFQcMMkn4hwp26", "driveUrl": "https://drive.google.com/file/d/1mv6hya24ogt8cG4fAjHFQcMMkn4hwp26/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_birko_6_arr_rnav.pdf",
+                                "name": "CYYC_BIRKO_6_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav.pdf",
+                                "driveId": "1P-zPlmU1CoZB-AT7OTrseF6GTqOSzH4A",
+                                "driveUrl": "https://drive.google.com/file/d/1P-zPlmU1CoZB-AT7OTrseF6GTqOSzH4A/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyyc_birko_6_arr_rnav_pg_02.pdf",
+                                "name": "CYYC_BIRKO_6_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_02.pdf",
+                                "driveId": "17HrY_B1-DpawKmGwxw4T7qQdfgHiUXnW",
+                                "driveUrl": "https://drive.google.com/file/d/17HrY_B1-DpawKmGwxw4T7qQdfgHiUXnW/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyyc_birko_6_arr_rnav_pg_03.pdf",
+                                "name": "CYYC_BIRKO_6_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_03.pdf",
+                                "driveId": "1k5X-7hwpSehl21yiNOV2mxP5Ll05NaB7",
+                                "driveUrl": "https://drive.google.com/file/d/1k5X-7hwpSehl21yiNOV2mxP5Ll05NaB7/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_birko_6_arr_rnav_pg_03.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_tiduk_7_arr_rnav.pdf",
-                "name": "CYYC_TIDUK_7_ARR_RNAV.pdf",
+                "name": "CYYC_TIDUK_7_ARR_RNAV",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav.pdf",
+                "driveId": "1fAZL63s4UMrwyWBIkiD8CS9V59uoB4XH",
+                "driveUrl": "https://drive.google.com/file/d/1fAZL63s4UMrwyWBIkiD8CS9V59uoB4XH/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav.pdf"
-, "driveId": "1fAZL63s4UMrwyWBIkiD8CS9V59uoB4XH", "driveUrl": "https://drive.google.com/file/d/1fAZL63s4UMrwyWBIkiD8CS9V59uoB4XH/view?usp=drivesdk" },
-        {
-                "id": "cyyc_flaam_7_arr_rnav_pg_03.pdf",
-                "name": "CYYC_FLAAM_7_ARR_RNAV_PG_03.pdf",
-                "url": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_flaam_7_arr_rnav_pg_03.pdf"
-, "driveId": "1gg5YearRBko3iH1Z9bG_7ePTlxqJjepd", "driveUrl": "https://drive.google.com/file/d/1gg5YearRBko3iH1Z9bG_7ePTlxqJjepd/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_tiduk_7_arr_rnav.pdf",
+                                "name": "CYYC_TIDUK_7_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav.pdf",
+                                "driveId": "1fAZL63s4UMrwyWBIkiD8CS9V59uoB4XH",
+                                "driveUrl": "https://drive.google.com/file/d/1fAZL63s4UMrwyWBIkiD8CS9V59uoB4XH/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyyc_tiduk_7_arr_rnav_pg_02.pdf",
+                                "name": "CYYC_TIDUK_7_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_02.pdf",
+                                "driveId": "1f0b7Yi7NB2VBvLwj421kWpvGL7uttgiq",
+                                "driveUrl": "https://drive.google.com/file/d/1f0b7Yi7NB2VBvLwj421kWpvGL7uttgiq/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyyc_tiduk_7_arr_rnav_pg_03.pdf",
+                                "name": "CYYC_TIDUK_7_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_03.pdf",
+                                "driveId": "1mv6hya24ogt8cG4fAjHFQcMMkn4hwp26",
+                                "driveUrl": "https://drive.google.com/file/d/1mv6hya24ogt8cG4fAjHFQcMMkn4hwp26/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_tiduk_7_arr_rnav_pg_03.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyyc_advox_9_arr_rnav.pdf",
-                "name": "CYYC_ADVOX_9_ARR_RNAV.pdf",
+                "name": "CYYC_ADVOX_9_ARR_RNAV",
                 "url": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav.pdf",
+                "driveId": "1_PheT-S2bDQyngc-ltkjhgLuHV3moOEl",
+                "driveUrl": "https://drive.google.com/file/d/1_PheT-S2bDQyngc-ltkjhgLuHV3moOEl/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav.pdf"
-, "driveId": "1_PheT-S2bDQyngc-ltkjhgLuHV3moOEl", "driveUrl": "https://drive.google.com/file/d/1_PheT-S2bDQyngc-ltkjhgLuHV3moOEl/view?usp=drivesdk" }
+                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyyc_advox_9_arr_rnav.pdf",
+                                "name": "CYYC_ADVOX_9_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav.pdf",
+                                "driveId": "1_PheT-S2bDQyngc-ltkjhgLuHV3moOEl",
+                                "driveUrl": "https://drive.google.com/file/d/1_PheT-S2bDQyngc-ltkjhgLuHV3moOEl/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cyyc_advox_9_arr_rnav_pg_02.pdf",
+                                "name": "CYYC_ADVOX_9_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_02.pdf",
+                                "driveId": "1ZvJ3oQ2E_8MxEg3b13Sp5GyGhCYKnNsG",
+                                "driveUrl": "https://drive.google.com/file/d/1ZvJ3oQ2E_8MxEg3b13Sp5GyGhCYKnNsG/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyyc_advox_9_arr_rnav_pg_03.pdf",
+                                "name": "CYYC_ADVOX_9_ARR_RNAV_PG_03.pdf",
+                                "url": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_03.pdf",
+                                "driveId": "14VFrRx0aprKtzIZ2U69V0RTVyMJQs6UW",
+                                "driveUrl": "https://drive.google.com/file/d/14VFrRx0aprKtzIZ2U69V0RTVyMJQs6UW/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyyc-calgary/cyyc_advox_9_arr_rnav_pg_03.pdf"
+                        }
+                ]
+        }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1673,14 +2075,17 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || '#', file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                const pagesBadge = file.pages && file.pages.length > 1
+                    ? `<span class="file-type">${file.pages.length} pages</span>`
+                    : `<span class="file-type">${file.type}</span>`;
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>
-                    <span class="file-type">${file.type}</span>
+                    ${pagesBadge}
                 `;
 
                 const pins = getPins();

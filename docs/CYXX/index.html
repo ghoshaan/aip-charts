@@ -622,7 +622,7 @@
                        placeholder="Search charts..." autocomplete="off">
             </div>
             <div class="search-help">
-                <strong>Examples:</strong> <code>star</code> • <code>RWY 04</code> • <code>ILS</code>
+                <strong>Examples:</strong> <code>star</code> &bull; <code>RWY 04</code> &bull; <code>ILS</code>
             </div>
         </div>
         
@@ -634,7 +634,7 @@
         
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
         
-        <div class="file-count" id="fileCount">Showing 21 files</div>
+        <div class="file-count" id="fileCount">Showing 16 files</div>
         <div class="file-list" id="fileList"></div>
         <div id="emptyState" class="empty-state" style="display: none;">
             <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
@@ -692,6 +692,12 @@
                         <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
                     </div>
 
+                    <div id="pageNav" style="display:none; justify-content:center; align-items:center; gap:1rem; padding:0.5rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
+                        <button class="control-btn" id="prevPageBtn" style="padding:0.25rem 0.75rem;">&#9664; PREV</button>
+                        <span id="pageIndicator" style="font-size:0.75rem; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); min-width:100px; text-align:center;">PAGE 1 OF 2</span>
+                        <button class="control-btn" id="nextPageBtn" style="padding:0.25rem 0.75rem;">NEXT &#9654;</button>
+                    </div>
+
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
                     </div>
@@ -745,6 +751,8 @@
             let isOpeningFromHash = false;
             let originalPageTitle = document.title;
             let currentFileId = null;
+            let currentFilePages = null;
+            let currentFilePageIndex = 0;
 
             const SIDEBAR_KEY = 'atc_sidebar_open';
             let sidebarOpen = localStorage.getItem(SIDEBAR_KEY) !== 'false';
@@ -790,7 +798,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
+                            openViewer(file.id, file.name, file.url, file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -803,6 +811,10 @@
 
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
+                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
+                currentFilePageIndex = 0;
+                if (currentFilePages) localUrl = currentFilePages[0].localUrl;
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
                 const loader = document.getElementById('viewerLoader');
@@ -844,17 +856,58 @@
                 try {
                     const loadingTask = pdfjsLib.getDocument(localUrl);
                     currentPdf = await loadingTask.promise;
-                    loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
+                    loaderStatus.textContent = `INDEXING ${{currentPdf.numPages}} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
+                    updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
-                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
-                    setTimeout(() => {
-                        window.open(driveUrl, '_blank');
-                        closeViewer();
-                    }, 2000);
+                    // Local file unavailable — embed Drive preview iframe
+                    const fileObj2 = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                    const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
+                    if (embedId) {
+                        loader.style.display = 'none';
+                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${{embedId}}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
+                    } else if (driveUrl && driveUrl !== '#') {
+                        loaderStatus.textContent = 'OPENING IN DRIVE...';
+                        setTimeout(() => {{ window.open(driveUrl, '_blank'); closeViewer(); }}, 1000);
+                    } else {
+                        loaderStatus.textContent = 'PDF NOT AVAILABLE.';
+                    }
                 }
+            }
+
+            function updatePageNav() {
+                const nav = document.getElementById('pageNav');
+                if (!nav) return;
+                if (currentFilePages && currentFilePages.length > 1) {
+                    nav.style.display = 'flex';
+                    document.getElementById('prevPageBtn').disabled = currentFilePageIndex === 0;
+                    document.getElementById('nextPageBtn').disabled = currentFilePageIndex === currentFilePages.length - 1;
+                    document.getElementById('pageIndicator').textContent =
+                        `PAGE ${currentFilePageIndex + 1} OF ${currentFilePages.length}`;
+                } else {
+                    nav.style.display = 'none';
+                }
+            }
+
+            async function goToFilePage(delta) {
+                if (!currentFilePages) return;
+                const newIndex = currentFilePageIndex + delta;
+                if (newIndex < 0 || newIndex >= currentFilePages.length) return;
+                currentFilePageIndex = newIndex;
+                const page = currentFilePages[newIndex];
+                const loader = document.getElementById('viewerLoader');
+                const loaderStatus = document.getElementById('loaderStatus');
+                loader.style.display = 'flex';
+                loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentRotation = 0;
+                const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                currentPdf = await loadingTask.promise;
+                await renderAllPages();
+                loader.style.display = 'none';
+                updatePageNav();
             }
 
             async function checkHash() {
@@ -875,7 +928,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1034,6 +1087,9 @@
                 localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
                 applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
         
         const airportCtx = {
@@ -1063,169 +1119,259 @@
                 "name": ".DS_Store",
                 "url": "../charts_data/canada/cyxx-abbotsford/.DS_Store",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/.DS_Store",
+                "driveId": "1Xbl6YOxyTpVS8WtTFkHaXClRJjWIlTA2",
+                "driveUrl": "https://drive.google.com/file/d/1Xbl6YOxyTpVS8WtTFkHaXClRJjWIlTA2/view?usp=drivesdk",
                 "type": "doc",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/.DS_Store"
-, "driveId": "1Xbl6YOxyTpVS8WtTFkHaXClRJjWIlTA2", "driveUrl": "https://drive.google.com/file/d/1Xbl6YOxyTpVS8WtTFkHaXClRJjWIlTA2/view?usp=drivesdk" },
+        },
         {
                 "id": "cyxx_noise_abatement_procedures.pdf",
                 "name": "CYXX_NOISE_ABATEMENT_PROCEDURES.pdf",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_noise_abatement_procedures.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_noise_abatement_procedures.pdf",
+                "driveId": "15XXmR2aLUdTrOhDSFDdwRSZiVt4D0cV0",
+                "driveUrl": "https://drive.google.com/file/d/15XXmR2aLUdTrOhDSFDdwRSZiVt4D0cV0/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_noise_abatement_procedures.pdf"
-, "driveId": "15XXmR2aLUdTrOhDSFDdwRSZiVt4D0cV0", "driveUrl": "https://drive.google.com/file/d/15XXmR2aLUdTrOhDSFDdwRSZiVt4D0cV0/view?usp=drivesdk" },
-        {
-                "id": "cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_03.pdf",
-                "name": "CYXX_RESTRICTED_WESTJET_ABBOTSFORD_WESTJET_1_DEP_PG_03.pdf",
-                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_03.pdf",
-                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_03.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_03.pdf"
-, "driveId": "1D_tFjNNseI-D2_uRt1DctgH8h-jboqJP", "driveUrl": "https://drive.google.com/file/d/1D_tFjNNseI-D2_uRt1DctgH8h-jboqJP/view?usp=drivesdk" },
+        },
         {
                 "id": "cyxx_gabvo_5_dep_rnav.pdf",
-                "name": "CYXX_GABVO_5_DEP_RNAV.pdf",
+                "name": "CYXX_GABVO_5_DEP_RNAV",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav.pdf",
+                "driveId": "1sm7CFXw63oOr49Nsaa44zRs2b3JAcmOg",
+                "driveUrl": "https://drive.google.com/file/d/1sm7CFXw63oOr49Nsaa44zRs2b3JAcmOg/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav.pdf"
-, "driveId": "1sm7CFXw63oOr49Nsaa44zRs2b3JAcmOg", "driveUrl": "https://drive.google.com/file/d/1sm7CFXw63oOr49Nsaa44zRs2b3JAcmOg/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cyxx_gabvo_5_dep_rnav.pdf",
+                                "name": "CYXX_GABVO_5_DEP_RNAV.pdf",
+                                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav.pdf",
+                                "driveId": "1sm7CFXw63oOr49Nsaa44zRs2b3JAcmOg",
+                                "driveUrl": "https://drive.google.com/file/d/1sm7CFXw63oOr49Nsaa44zRs2b3JAcmOg/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav.pdf"
+                        },
+                        {
+                                "id": "cyxx_gabvo_5_dep_rnav_pg_02.pdf",
+                                "name": "CYXX_GABVO_5_DEP_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav_pg_02.pdf",
+                                "driveId": "1UqMxSP3_HP4TYes1b4axMnEEs_HpxZ07",
+                                "driveUrl": "https://drive.google.com/file/d/1UqMxSP3_HP4TYes1b4axMnEEs_HpxZ07/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyxx_rnav_rnp_y_rwy_07.pdf",
                 "name": "CYXX_RNAV_RNP_Y_RWY_07.pdf",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_rnav_rnp_y_rwy_07.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_rnav_rnp_y_rwy_07.pdf",
+                "driveId": "1aPlmKs9M9T2SCro_mtcYoWzycI07AR7i",
+                "driveUrl": "https://drive.google.com/file/d/1aPlmKs9M9T2SCro_mtcYoWzycI07AR7i/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_rnav_rnp_y_rwy_07.pdf"
-, "driveId": "1aPlmKs9M9T2SCro_mtcYoWzycI07AR7i", "driveUrl": "https://drive.google.com/file/d/1aPlmKs9M9T2SCro_mtcYoWzycI07AR7i/view?usp=drivesdk" },
-        {
-                "id": "cyxx_abbotsford_1_dep_vector_pg_02.pdf",
-                "name": "CYXX_ABBOTSFORD_1_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector_pg_02.pdf"
-, "driveId": "1NrHDsTc7zeBi3ixTa9laDJGMfDXPKsvr", "driveUrl": "https://drive.google.com/file/d/1NrHDsTc7zeBi3ixTa9laDJGMfDXPKsvr/view?usp=drivesdk" },
+        },
         {
                 "id": "cyxx_clearbrook_3_dep_vector.pdf",
-                "name": "CYXX_CLEARBROOK_3_DEP_VECTOR.pdf",
+                "name": "CYXX_CLEARBROOK_3_DEP_VECTOR",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector.pdf",
+                "driveId": "13wSLaNwMZ0kHSjqR4cuy4mBzxKztxsye",
+                "driveUrl": "https://drive.google.com/file/d/13wSLaNwMZ0kHSjqR4cuy4mBzxKztxsye/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector.pdf"
-, "driveId": "13wSLaNwMZ0kHSjqR4cuy4mBzxKztxsye", "driveUrl": "https://drive.google.com/file/d/13wSLaNwMZ0kHSjqR4cuy4mBzxKztxsye/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cyxx_clearbrook_3_dep_vector.pdf",
+                                "name": "CYXX_CLEARBROOK_3_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector.pdf",
+                                "driveId": "13wSLaNwMZ0kHSjqR4cuy4mBzxKztxsye",
+                                "driveUrl": "https://drive.google.com/file/d/13wSLaNwMZ0kHSjqR4cuy4mBzxKztxsye/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cyxx_clearbrook_3_dep_vector_pg_02.pdf",
+                                "name": "CYXX_CLEARBROOK_3_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector_pg_02.pdf",
+                                "driveId": "1TPO4yqY60Q6haH1M_aTlYs5mrF_N3kzg",
+                                "driveUrl": "https://drive.google.com/file/d/1TPO4yqY60Q6haH1M_aTlYs5mrF_N3kzg/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyxx_abbotsford_1_dep_vector.pdf",
-                "name": "CYXX_ABBOTSFORD_1_DEP_VECTOR.pdf",
+                "name": "CYXX_ABBOTSFORD_1_DEP_VECTOR",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector.pdf",
+                "driveId": "1Ki-sLfI-G3R40_EBmQh4nWPLktB9RoX_",
+                "driveUrl": "https://drive.google.com/file/d/1Ki-sLfI-G3R40_EBmQh4nWPLktB9RoX_/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector.pdf"
-, "driveId": "1Ki-sLfI-G3R40_EBmQh4nWPLktB9RoX_", "driveUrl": "https://drive.google.com/file/d/1Ki-sLfI-G3R40_EBmQh4nWPLktB9RoX_/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cyxx_abbotsford_1_dep_vector.pdf",
+                                "name": "CYXX_ABBOTSFORD_1_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector.pdf",
+                                "driveId": "1Ki-sLfI-G3R40_EBmQh4nWPLktB9RoX_",
+                                "driveUrl": "https://drive.google.com/file/d/1Ki-sLfI-G3R40_EBmQh4nWPLktB9RoX_/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cyxx_abbotsford_1_dep_vector_pg_02.pdf",
+                                "name": "CYXX_ABBOTSFORD_1_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector_pg_02.pdf",
+                                "driveId": "1NrHDsTc7zeBi3ixTa9laDJGMfDXPKsvr",
+                                "driveUrl": "https://drive.google.com/file/d/1NrHDsTc7zeBi3ixTa9laDJGMfDXPKsvr/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_abbotsford_1_dep_vector_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyxx_restricted_westjet_abbotsford_westjet_1_dep.pdf",
-                "name": "CYXX_RESTRICTED_WESTJET_ABBOTSFORD_WESTJET_1_DEP.pdf",
+                "name": "CYXX_RESTRICTED_WESTJET_ABBOTSFORD_WESTJET_1_DEP",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep.pdf",
+                "driveId": "1YtueX6qcDuVCxSwcSzkhPIgvqbjZ8bok",
+                "driveUrl": "https://drive.google.com/file/d/1YtueX6qcDuVCxSwcSzkhPIgvqbjZ8bok/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep.pdf"
-, "driveId": "1YtueX6qcDuVCxSwcSzkhPIgvqbjZ8bok", "driveUrl": "https://drive.google.com/file/d/1YtueX6qcDuVCxSwcSzkhPIgvqbjZ8bok/view?usp=drivesdk" },
-        {
-                "id": "cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_02.pdf",
-                "name": "CYXX_RESTRICTED_WESTJET_ABBOTSFORD_WESTJET_1_DEP_PG_02.pdf",
-                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_02.pdf"
-, "driveId": "1643vduJQ7RRy0TIQmj2cb7WsnwA05KX5", "driveUrl": "https://drive.google.com/file/d/1643vduJQ7RRy0TIQmj2cb7WsnwA05KX5/view?usp=drivesdk" },
-        {
-                "id": "cyxx_gabvo_5_dep_rnav_pg_02.pdf",
-                "name": "CYXX_GABVO_5_DEP_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_gabvo_5_dep_rnav_pg_02.pdf"
-, "driveId": "1UqMxSP3_HP4TYes1b4axMnEEs_HpxZ07", "driveUrl": "https://drive.google.com/file/d/1UqMxSP3_HP4TYes1b4axMnEEs_HpxZ07/view?usp=drivesdk" },
-        {
-                "id": "cyxx_clearbrook_3_dep_vector_pg_02.pdf",
-                "name": "CYXX_CLEARBROOK_3_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_clearbrook_3_dep_vector_pg_02.pdf"
-, "driveId": "1TPO4yqY60Q6haH1M_aTlYs5mrF_N3kzg", "driveUrl": "https://drive.google.com/file/d/1TPO4yqY60Q6haH1M_aTlYs5mrF_N3kzg/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep.pdf",
+                "pages": [
+                        {
+                                "id": "cyxx_restricted_westjet_abbotsford_westjet_1_dep.pdf",
+                                "name": "CYXX_RESTRICTED_WESTJET_ABBOTSFORD_WESTJET_1_DEP.pdf",
+                                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep.pdf",
+                                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep.pdf",
+                                "driveId": "1YtueX6qcDuVCxSwcSzkhPIgvqbjZ8bok",
+                                "driveUrl": "https://drive.google.com/file/d/1YtueX6qcDuVCxSwcSzkhPIgvqbjZ8bok/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep.pdf"
+                        },
+                        {
+                                "id": "cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_02.pdf",
+                                "name": "CYXX_RESTRICTED_WESTJET_ABBOTSFORD_WESTJET_1_DEP_PG_02.pdf",
+                                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_02.pdf",
+                                "driveId": "1643vduJQ7RRy0TIQmj2cb7WsnwA05KX5",
+                                "driveUrl": "https://drive.google.com/file/d/1643vduJQ7RRy0TIQmj2cb7WsnwA05KX5/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_02.pdf"
+                        },
+                        {
+                                "id": "cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_03.pdf",
+                                "name": "CYXX_RESTRICTED_WESTJET_ABBOTSFORD_WESTJET_1_DEP_PG_03.pdf",
+                                "url": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_03.pdf",
+                                "driveId": "1D_tFjNNseI-D2_uRt1DctgH8h-jboqJP",
+                                "driveUrl": "https://drive.google.com/file/d/1D_tFjNNseI-D2_uRt1DctgH8h-jboqJP/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_restricted_westjet_abbotsford_westjet_1_dep_pg_03.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cyxx_aerodrome_chart.pdf",
                 "name": "CYXX_AERODROME_CHART.pdf",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_aerodrome_chart.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_aerodrome_chart.pdf",
+                "driveId": "1cwlV4LywAPaogTOl5yGQdtdfcWjHpLow",
+                "driveUrl": "https://drive.google.com/file/d/1cwlV4LywAPaogTOl5yGQdtdfcWjHpLow/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_aerodrome_chart.pdf"
-, "driveId": "1cwlV4LywAPaogTOl5yGQdtdfcWjHpLow", "driveUrl": "https://drive.google.com/file/d/1cwlV4LywAPaogTOl5yGQdtdfcWjHpLow/view?usp=drivesdk" },
+        },
         {
                 "id": "cyxx_ils_z_rwy_07.pdf",
                 "name": "CYXX_ILS_Z_RWY_07.pdf",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_ils_z_rwy_07.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_ils_z_rwy_07.pdf",
+                "driveId": "1IhNcmXgE2JReXfP38bErqQeKFFsnTkmE",
+                "driveUrl": "https://drive.google.com/file/d/1IhNcmXgE2JReXfP38bErqQeKFFsnTkmE/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_ils_z_rwy_07.pdf"
-, "driveId": "1IhNcmXgE2JReXfP38bErqQeKFFsnTkmE", "driveUrl": "https://drive.google.com/file/d/1IhNcmXgE2JReXfP38bErqQeKFFsnTkmE/view?usp=drivesdk" },
+        },
         {
                 "id": "cyxx_ils_y_rwy_07.pdf",
                 "name": "CYXX_ILS_Y_RWY_07.pdf",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_ils_y_rwy_07.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_ils_y_rwy_07.pdf",
+                "driveId": "1KZyBVeFbX3wfTSmXZf2dmkDbziPHyHPj",
+                "driveUrl": "https://drive.google.com/file/d/1KZyBVeFbX3wfTSmXZf2dmkDbziPHyHPj/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_ils_y_rwy_07.pdf"
-, "driveId": "1KZyBVeFbX3wfTSmXZf2dmkDbziPHyHPj", "driveUrl": "https://drive.google.com/file/d/1KZyBVeFbX3wfTSmXZf2dmkDbziPHyHPj/view?usp=drivesdk" },
+        },
         {
                 "id": "cyxx_rnav_rnp_y_rwy_25.pdf",
                 "name": "CYXX_RNAV_RNP_Y_RWY_25.pdf",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_rnav_rnp_y_rwy_25.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_rnav_rnp_y_rwy_25.pdf",
+                "driveId": "1h4hKhi9NxiSgLUaBZ37wV2QNRPJPF01h",
+                "driveUrl": "https://drive.google.com/file/d/1h4hKhi9NxiSgLUaBZ37wV2QNRPJPF01h/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_rnav_rnp_y_rwy_25.pdf"
-, "driveId": "1h4hKhi9NxiSgLUaBZ37wV2QNRPJPF01h", "driveUrl": "https://drive.google.com/file/d/1h4hKhi9NxiSgLUaBZ37wV2QNRPJPF01h/view?usp=drivesdk" },
+        },
         {
                 "id": "cyxx_restricted_rnav_rnp_x_rwy_25.pdf",
                 "name": "CYXX_RESTRICTED_RNAV_RNP_X_RWY_25.pdf",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_rnav_rnp_x_rwy_25.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_rnav_rnp_x_rwy_25.pdf",
+                "driveId": "11VIgzKiTvq2XFDj4cJPFx8J-K3RpncIT",
+                "driveUrl": "https://drive.google.com/file/d/11VIgzKiTvq2XFDj4cJPFx8J-K3RpncIT/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_restricted_rnav_rnp_x_rwy_25.pdf"
-, "driveId": "11VIgzKiTvq2XFDj4cJPFx8J-K3RpncIT", "driveUrl": "https://drive.google.com/file/d/11VIgzKiTvq2XFDj4cJPFx8J-K3RpncIT/view?usp=drivesdk" },
+        },
         {
                 "id": "cyxx_restricted_rnav_rnp_x_rwy_07.pdf",
                 "name": "CYXX_RESTRICTED_RNAV_RNP_X_RWY_07.pdf",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_rnav_rnp_x_rwy_07.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_restricted_rnav_rnp_x_rwy_07.pdf",
+                "driveId": "1ja0_aFy08s2QsrkrgBlBYMyCkjiXOV0K",
+                "driveUrl": "https://drive.google.com/file/d/1ja0_aFy08s2QsrkrgBlBYMyCkjiXOV0K/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_restricted_rnav_rnp_x_rwy_07.pdf"
-, "driveId": "1ja0_aFy08s2QsrkrgBlBYMyCkjiXOV0K", "driveUrl": "https://drive.google.com/file/d/1ja0_aFy08s2QsrkrgBlBYMyCkjiXOV0K/view?usp=drivesdk" },
+        },
         {
                 "id": "cyxx_rnav_gnss_z_rwy_25.pdf",
                 "name": "CYXX_RNAV_GNSS_Z_RWY_25.pdf",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_rnav_gnss_z_rwy_25.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_rnav_gnss_z_rwy_25.pdf",
+                "driveId": "1pmeERHQ_2cqj7atgSB1o16IDqNw4b9pd",
+                "driveUrl": "https://drive.google.com/file/d/1pmeERHQ_2cqj7atgSB1o16IDqNw4b9pd/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_rnav_gnss_z_rwy_25.pdf"
-, "driveId": "1pmeERHQ_2cqj7atgSB1o16IDqNw4b9pd", "driveUrl": "https://drive.google.com/file/d/1pmeERHQ_2cqj7atgSB1o16IDqNw4b9pd/view?usp=drivesdk" },
+        },
         {
                 "id": "cyxx_rnav_gnss_z_rwy_07.pdf",
                 "name": "CYXX_RNAV_GNSS_Z_RWY_07.pdf",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_rnav_gnss_z_rwy_07.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_rnav_gnss_z_rwy_07.pdf",
+                "driveId": "17xZKb51Kn3f5b-HAH-bMW_si2VVSjaNW",
+                "driveUrl": "https://drive.google.com/file/d/17xZKb51Kn3f5b-HAH-bMW_si2VVSjaNW/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_rnav_gnss_z_rwy_07.pdf"
-, "driveId": "17xZKb51Kn3f5b-HAH-bMW_si2VVSjaNW", "driveUrl": "https://drive.google.com/file/d/17xZKb51Kn3f5b-HAH-bMW_si2VVSjaNW/view?usp=drivesdk" },
+        },
         {
                 "id": "cyxx_hope_5_arr_rnav.pdf",
                 "name": "CYXX_HOPE_5_ARR_RNAV.pdf",
                 "url": "../charts_data/canada/cyxx-abbotsford/cyxx_hope_5_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyxx-abbotsford/cyxx_hope_5_arr_rnav.pdf",
+                "driveId": "1w46Qcuh7NpbG7UV6K3_fsBgJRu3tvceo",
+                "driveUrl": "https://drive.google.com/file/d/1w46Qcuh7NpbG7UV6K3_fsBgJRu3tvceo/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyxx-abbotsford/cyxx_hope_5_arr_rnav.pdf"
-, "driveId": "1w46Qcuh7NpbG7UV6K3_fsBgJRu3tvceo", "driveUrl": "https://drive.google.com/file/d/1w46Qcuh7NpbG7UV6K3_fsBgJRu3tvceo/view?usp=drivesdk" }
+        }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1273,14 +1419,17 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || '#', file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                const pagesBadge = file.pages && file.pages.length > 1
+                    ? `<span class="file-type">${file.pages.length} pages</span>`
+                    : `<span class="file-type">${file.type}</span>`;
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>
-                    <span class="file-type">${file.type}</span>
+                    ${pagesBadge}
                 `;
 
                 const pins = getPins();

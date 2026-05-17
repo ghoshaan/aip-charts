@@ -622,7 +622,7 @@
                        placeholder="Search charts..." autocomplete="off">
             </div>
             <div class="search-help">
-                <strong>Examples:</strong> <code>star</code> • <code>RWY 04</code> • <code>ILS</code>
+                <strong>Examples:</strong> <code>star</code> &bull; <code>RWY 04</code> &bull; <code>ILS</code>
             </div>
         </div>
         
@@ -634,7 +634,7 @@
         
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
         
-        <div class="file-count" id="fileCount">Showing 36 files</div>
+        <div class="file-count" id="fileCount">Showing 29 files</div>
         <div class="file-list" id="fileList"></div>
         <div id="emptyState" class="empty-state" style="display: none;">
             <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
@@ -692,6 +692,12 @@
                         <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
                     </div>
 
+                    <div id="pageNav" style="display:none; justify-content:center; align-items:center; gap:1rem; padding:0.5rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
+                        <button class="control-btn" id="prevPageBtn" style="padding:0.25rem 0.75rem;">&#9664; PREV</button>
+                        <span id="pageIndicator" style="font-size:0.75rem; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); min-width:100px; text-align:center;">PAGE 1 OF 2</span>
+                        <button class="control-btn" id="nextPageBtn" style="padding:0.25rem 0.75rem;">NEXT &#9654;</button>
+                    </div>
+
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
                     </div>
@@ -745,6 +751,8 @@
             let isOpeningFromHash = false;
             let originalPageTitle = document.title;
             let currentFileId = null;
+            let currentFilePages = null;
+            let currentFilePageIndex = 0;
 
             const SIDEBAR_KEY = 'atc_sidebar_open';
             let sidebarOpen = localStorage.getItem(SIDEBAR_KEY) !== 'false';
@@ -790,7 +798,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
+                            openViewer(file.id, file.name, file.url, file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -803,6 +811,10 @@
 
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
+                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
+                currentFilePageIndex = 0;
+                if (currentFilePages) localUrl = currentFilePages[0].localUrl;
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
                 const loader = document.getElementById('viewerLoader');
@@ -844,17 +856,58 @@
                 try {
                     const loadingTask = pdfjsLib.getDocument(localUrl);
                     currentPdf = await loadingTask.promise;
-                    loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
+                    loaderStatus.textContent = `INDEXING ${{currentPdf.numPages}} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
+                    updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
-                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
-                    setTimeout(() => {
-                        window.open(driveUrl, '_blank');
-                        closeViewer();
-                    }, 2000);
+                    // Local file unavailable — embed Drive preview iframe
+                    const fileObj2 = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                    const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
+                    if (embedId) {
+                        loader.style.display = 'none';
+                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${{embedId}}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
+                    } else if (driveUrl && driveUrl !== '#') {
+                        loaderStatus.textContent = 'OPENING IN DRIVE...';
+                        setTimeout(() => {{ window.open(driveUrl, '_blank'); closeViewer(); }}, 1000);
+                    } else {
+                        loaderStatus.textContent = 'PDF NOT AVAILABLE.';
+                    }
                 }
+            }
+
+            function updatePageNav() {
+                const nav = document.getElementById('pageNav');
+                if (!nav) return;
+                if (currentFilePages && currentFilePages.length > 1) {
+                    nav.style.display = 'flex';
+                    document.getElementById('prevPageBtn').disabled = currentFilePageIndex === 0;
+                    document.getElementById('nextPageBtn').disabled = currentFilePageIndex === currentFilePages.length - 1;
+                    document.getElementById('pageIndicator').textContent =
+                        `PAGE ${currentFilePageIndex + 1} OF ${currentFilePages.length}`;
+                } else {
+                    nav.style.display = 'none';
+                }
+            }
+
+            async function goToFilePage(delta) {
+                if (!currentFilePages) return;
+                const newIndex = currentFilePageIndex + delta;
+                if (newIndex < 0 || newIndex >= currentFilePages.length) return;
+                currentFilePageIndex = newIndex;
+                const page = currentFilePages[newIndex];
+                const loader = document.getElementById('viewerLoader');
+                const loaderStatus = document.getElementById('loaderStatus');
+                loader.style.display = 'flex';
+                loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentRotation = 0;
+                const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                currentPdf = await loadingTask.promise;
+                await renderAllPages();
+                loader.style.display = 'none';
+                updatePageNav();
             }
 
             async function checkHash() {
@@ -875,7 +928,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1034,6 +1087,9 @@
                 localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
                 applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
         
         const airportCtx = {
@@ -1060,292 +1116,448 @@
         const files = [
         {
                 "id": "voodoo_1_dep_dnd_rnav.pdf",
-                "name": "VOODOO_1_DEP_DND_RNAV.pdf",
+                "name": "VOODOO_1_DEP_DND_RNAV",
                 "url": "../charts_data/canada/cybg/voodoo_1_dep_dnd_rnav.pdf",
                 "localUrl": "../charts_data/canada/cybg/voodoo_1_dep_dnd_rnav.pdf",
+                "driveId": "1Vf74Jherq73xwkIidvjZx11CsDfrrA4K",
+                "driveUrl": "https://drive.google.com/file/d/1Vf74Jherq73xwkIidvjZx11CsDfrrA4K/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/voodoo_1_dep_dnd_rnav.pdf"
-, "driveId": "1Vf74Jherq73xwkIidvjZx11CsDfrrA4K", "driveUrl": "https://drive.google.com/file/d/1Vf74Jherq73xwkIidvjZx11CsDfrrA4K/view?usp=drivesdk" },
-        {
-                "id": "voodoo_1_dep_dnd_rnav_pg_02.pdf",
-                "name": "VOODOO_1_DEP_DND_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cybg/voodoo_1_dep_dnd_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cybg/voodoo_1_dep_dnd_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/voodoo_1_dep_dnd_rnav_pg_02.pdf"
-, "driveId": "1Rgxnc3zFYyS4aPx8MDpLEWMHCEe1rOlf", "driveUrl": "https://drive.google.com/file/d/1Rgxnc3zFYyS4aPx8MDpLEWMHCEe1rOlf/view?usp=drivesdk" },
-        {
-                "id": "hornet_1_dep_dnd_rnav_pg_02.pdf",
-                "name": "HORNET_1_DEP_DND_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cybg/hornet_1_dep_dnd_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cybg/hornet_1_dep_dnd_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/hornet_1_dep_dnd_rnav_pg_02.pdf"
-, "driveId": "1tUWMq1zvJoMq-QSFpQA3_rcC0xja-eLg", "driveUrl": "https://drive.google.com/file/d/1tUWMq1zvJoMq-QSFpQA3_rcC0xja-eLg/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cybg/voodoo_1_dep_dnd_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "voodoo_1_dep_dnd_rnav.pdf",
+                                "name": "VOODOO_1_DEP_DND_RNAV.pdf",
+                                "url": "../charts_data/canada/cybg/voodoo_1_dep_dnd_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cybg/voodoo_1_dep_dnd_rnav.pdf",
+                                "driveId": "1Vf74Jherq73xwkIidvjZx11CsDfrrA4K",
+                                "driveUrl": "https://drive.google.com/file/d/1Vf74Jherq73xwkIidvjZx11CsDfrrA4K/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/voodoo_1_dep_dnd_rnav.pdf"
+                        },
+                        {
+                                "id": "voodoo_1_dep_dnd_rnav_pg_02.pdf",
+                                "name": "VOODOO_1_DEP_DND_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cybg/voodoo_1_dep_dnd_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cybg/voodoo_1_dep_dnd_rnav_pg_02.pdf",
+                                "driveId": "1Rgxnc3zFYyS4aPx8MDpLEWMHCEe1rOlf",
+                                "driveUrl": "https://drive.google.com/file/d/1Rgxnc3zFYyS4aPx8MDpLEWMHCEe1rOlf/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/voodoo_1_dep_dnd_rnav_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "hornet_1_dep_dnd_rnav.pdf",
-                "name": "HORNET_1_DEP_DND_RNAV.pdf",
+                "name": "HORNET_1_DEP_DND_RNAV",
                 "url": "../charts_data/canada/cybg/hornet_1_dep_dnd_rnav.pdf",
                 "localUrl": "../charts_data/canada/cybg/hornet_1_dep_dnd_rnav.pdf",
+                "driveId": "1u1ksMPPRp2H_kMXn6m2Tz38Pw92W2EeV",
+                "driveUrl": "https://drive.google.com/file/d/1u1ksMPPRp2H_kMXn6m2Tz38Pw92W2EeV/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/hornet_1_dep_dnd_rnav.pdf"
-, "driveId": "1u1ksMPPRp2H_kMXn6m2Tz38Pw92W2EeV", "driveUrl": "https://drive.google.com/file/d/1u1ksMPPRp2H_kMXn6m2Tz38Pw92W2EeV/view?usp=drivesdk" },
-        {
-                "id": "alouette_1_dep_dnd_rnav_pg_02.pdf",
-                "name": "ALOUETTE_1_DEP_DND_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cybg/alouette_1_dep_dnd_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cybg/alouette_1_dep_dnd_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/alouette_1_dep_dnd_rnav_pg_02.pdf"
-, "driveId": "1hXyRpI71vyaXEiXZzPBd9pWaXqpfamnB", "driveUrl": "https://drive.google.com/file/d/1hXyRpI71vyaXEiXZzPBd9pWaXqpfamnB/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cybg/hornet_1_dep_dnd_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "hornet_1_dep_dnd_rnav.pdf",
+                                "name": "HORNET_1_DEP_DND_RNAV.pdf",
+                                "url": "../charts_data/canada/cybg/hornet_1_dep_dnd_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cybg/hornet_1_dep_dnd_rnav.pdf",
+                                "driveId": "1u1ksMPPRp2H_kMXn6m2Tz38Pw92W2EeV",
+                                "driveUrl": "https://drive.google.com/file/d/1u1ksMPPRp2H_kMXn6m2Tz38Pw92W2EeV/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/hornet_1_dep_dnd_rnav.pdf"
+                        },
+                        {
+                                "id": "hornet_1_dep_dnd_rnav_pg_02.pdf",
+                                "name": "HORNET_1_DEP_DND_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cybg/hornet_1_dep_dnd_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cybg/hornet_1_dep_dnd_rnav_pg_02.pdf",
+                                "driveId": "1tUWMq1zvJoMq-QSFpQA3_rcC0xja-eLg",
+                                "driveUrl": "https://drive.google.com/file/d/1tUWMq1zvJoMq-QSFpQA3_rcC0xja-eLg/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/hornet_1_dep_dnd_rnav_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "alouette_1_dep_dnd_rnav.pdf",
-                "name": "ALOUETTE_1_DEP_DND_RNAV.pdf",
+                "name": "ALOUETTE_1_DEP_DND_RNAV",
                 "url": "../charts_data/canada/cybg/alouette_1_dep_dnd_rnav.pdf",
                 "localUrl": "../charts_data/canada/cybg/alouette_1_dep_dnd_rnav.pdf",
+                "driveId": "182dvX2gU9IiZOgNBcrytmnSSB9nUjB9m",
+                "driveUrl": "https://drive.google.com/file/d/182dvX2gU9IiZOgNBcrytmnSSB9nUjB9m/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/alouette_1_dep_dnd_rnav.pdf"
-, "driveId": "182dvX2gU9IiZOgNBcrytmnSSB9nUjB9m", "driveUrl": "https://drive.google.com/file/d/182dvX2gU9IiZOgNBcrytmnSSB9nUjB9m/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cybg/alouette_1_dep_dnd_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "alouette_1_dep_dnd_rnav.pdf",
+                                "name": "ALOUETTE_1_DEP_DND_RNAV.pdf",
+                                "url": "../charts_data/canada/cybg/alouette_1_dep_dnd_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cybg/alouette_1_dep_dnd_rnav.pdf",
+                                "driveId": "182dvX2gU9IiZOgNBcrytmnSSB9nUjB9m",
+                                "driveUrl": "https://drive.google.com/file/d/182dvX2gU9IiZOgNBcrytmnSSB9nUjB9m/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/alouette_1_dep_dnd_rnav.pdf"
+                        },
+                        {
+                                "id": "alouette_1_dep_dnd_rnav_pg_02.pdf",
+                                "name": "ALOUETTE_1_DEP_DND_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cybg/alouette_1_dep_dnd_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cybg/alouette_1_dep_dnd_rnav_pg_02.pdf",
+                                "driveId": "1hXyRpI71vyaXEiXZzPBd9pWaXqpfamnB",
+                                "driveUrl": "https://drive.google.com/file/d/1hXyRpI71vyaXEiXZzPBd9pWaXqpfamnB/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/alouette_1_dep_dnd_rnav_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "aerodrome_chart_dnd.pdf",
                 "name": "AERODROME_CHART_DND.pdf",
                 "url": "../charts_data/canada/cybg/aerodrome_chart_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/aerodrome_chart_dnd.pdf",
+                "driveId": "1mkAxarBdgP9Hg6c6rJ5g6o2ZKuuoMvJ6",
+                "driveUrl": "https://drive.google.com/file/d/1mkAxarBdgP9Hg6c6rJ5g6o2ZKuuoMvJ6/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/aerodrome_chart_dnd.pdf"
-, "driveId": "1mkAxarBdgP9Hg6c6rJ5g6o2ZKuuoMvJ6", "driveUrl": "https://drive.google.com/file/d/1mkAxarBdgP9Hg6c6rJ5g6o2ZKuuoMvJ6/view?usp=drivesdk" },
+        },
         {
                 "id": "tacan_z_rwy_11_dnd.pdf",
                 "name": "TACAN_Z_RWY_11_DND.pdf",
                 "url": "../charts_data/canada/cybg/tacan_z_rwy_11_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/tacan_z_rwy_11_dnd.pdf",
+                "driveId": "1Z7DkGvymWS7QNA4JaK17eYGECJeJ5Un9",
+                "driveUrl": "https://drive.google.com/file/d/1Z7DkGvymWS7QNA4JaK17eYGECJeJ5Un9/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/tacan_z_rwy_11_dnd.pdf"
-, "driveId": "1Z7DkGvymWS7QNA4JaK17eYGECJeJ5Un9", "driveUrl": "https://drive.google.com/file/d/1Z7DkGvymWS7QNA4JaK17eYGECJeJ5Un9/view?usp=drivesdk" },
+        },
         {
                 "id": "tacan_rwy_36_dnd.pdf",
                 "name": "TACAN_RWY_36_DND.pdf",
                 "url": "../charts_data/canada/cybg/tacan_rwy_36_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/tacan_rwy_36_dnd.pdf",
+                "driveId": "1qehlW8sAunRvHhOaInbtPtwhBRgLBb2d",
+                "driveUrl": "https://drive.google.com/file/d/1qehlW8sAunRvHhOaInbtPtwhBRgLBb2d/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/tacan_rwy_36_dnd.pdf"
-, "driveId": "1qehlW8sAunRvHhOaInbtPtwhBRgLBb2d", "driveUrl": "https://drive.google.com/file/d/1qehlW8sAunRvHhOaInbtPtwhBRgLBb2d/view?usp=drivesdk" },
+        },
         {
                 "id": "tacan_rwy_29_dnd.pdf",
                 "name": "TACAN_RWY_29_DND.pdf",
                 "url": "../charts_data/canada/cybg/tacan_rwy_29_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/tacan_rwy_29_dnd.pdf",
+                "driveId": "1wFGVzUCkY0feV68nMJiyt8K1G5ANNSbD",
+                "driveUrl": "https://drive.google.com/file/d/1wFGVzUCkY0feV68nMJiyt8K1G5ANNSbD/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/tacan_rwy_29_dnd.pdf"
-, "driveId": "1wFGVzUCkY0feV68nMJiyt8K1G5ANNSbD", "driveUrl": "https://drive.google.com/file/d/1wFGVzUCkY0feV68nMJiyt8K1G5ANNSbD/view?usp=drivesdk" },
+        },
         {
                 "id": "tacan_rwy_18_dnd.pdf",
                 "name": "TACAN_RWY_18_DND.pdf",
                 "url": "../charts_data/canada/cybg/tacan_rwy_18_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/tacan_rwy_18_dnd.pdf",
+                "driveId": "1rhD6_f4a1QwoXCRkVa-OlMw9FoYBbsok",
+                "driveUrl": "https://drive.google.com/file/d/1rhD6_f4a1QwoXCRkVa-OlMw9FoYBbsok/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/tacan_rwy_18_dnd.pdf"
-, "driveId": "1rhD6_f4a1QwoXCRkVa-OlMw9FoYBbsok", "driveUrl": "https://drive.google.com/file/d/1rhD6_f4a1QwoXCRkVa-OlMw9FoYBbsok/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_z_rwy_29.pdf",
                 "name": "RNAV_GNSS_Z_RWY_29.pdf",
                 "url": "../charts_data/canada/cybg/rnav_gnss_z_rwy_29.pdf",
                 "localUrl": "../charts_data/canada/cybg/rnav_gnss_z_rwy_29.pdf",
+                "driveId": "1zEstetlNum3DjtxIHOp7_NcRF0U-C6Wi",
+                "driveUrl": "https://drive.google.com/file/d/1zEstetlNum3DjtxIHOp7_NcRF0U-C6Wi/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/rnav_gnss_z_rwy_29.pdf"
-, "driveId": "1zEstetlNum3DjtxIHOp7_NcRF0U-C6Wi", "driveUrl": "https://drive.google.com/file/d/1zEstetlNum3DjtxIHOp7_NcRF0U-C6Wi/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_z_rwy_11.pdf",
                 "name": "RNAV_GNSS_Z_RWY_11.pdf",
                 "url": "../charts_data/canada/cybg/rnav_gnss_z_rwy_11.pdf",
                 "localUrl": "../charts_data/canada/cybg/rnav_gnss_z_rwy_11.pdf",
+                "driveId": "1DVbBxdxxiUT5J-zZmjEphEPPFbpzeVq3",
+                "driveUrl": "https://drive.google.com/file/d/1DVbBxdxxiUT5J-zZmjEphEPPFbpzeVq3/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/rnav_gnss_z_rwy_11.pdf"
-, "driveId": "1DVbBxdxxiUT5J-zZmjEphEPPFbpzeVq3", "driveUrl": "https://drive.google.com/file/d/1DVbBxdxxiUT5J-zZmjEphEPPFbpzeVq3/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_y_rwy_11_dnd.pdf",
                 "name": "RNAV_GNSS_Y_RWY_11_DND.pdf",
                 "url": "../charts_data/canada/cybg/rnav_gnss_y_rwy_11_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/rnav_gnss_y_rwy_11_dnd.pdf",
+                "driveId": "171ytnS-fy8L_xvJZiKrk0uF8xJeeJ5tI",
+                "driveUrl": "https://drive.google.com/file/d/171ytnS-fy8L_xvJZiKrk0uF8xJeeJ5tI/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/rnav_gnss_y_rwy_11_dnd.pdf"
-, "driveId": "171ytnS-fy8L_xvJZiKrk0uF8xJeeJ5tI", "driveUrl": "https://drive.google.com/file/d/171ytnS-fy8L_xvJZiKrk0uF8xJeeJ5tI/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_y_rwy_29_dnd.pdf",
                 "name": "RNAV_GNSS_Y_RWY_29_DND.pdf",
                 "url": "../charts_data/canada/cybg/rnav_gnss_y_rwy_29_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/rnav_gnss_y_rwy_29_dnd.pdf",
+                "driveId": "1mHcSHSkV5o-_RC5HotxDeOhau8K4vLg6",
+                "driveUrl": "https://drive.google.com/file/d/1mHcSHSkV5o-_RC5HotxDeOhau8K4vLg6/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/rnav_gnss_y_rwy_29_dnd.pdf"
-, "driveId": "1mHcSHSkV5o-_RC5HotxDeOhau8K4vLg6", "driveUrl": "https://drive.google.com/file/d/1mHcSHSkV5o-_RC5HotxDeOhau8K4vLg6/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_rwy_36_dnd.pdf",
                 "name": "RNAV_GNSS_RWY_36_DND.pdf",
                 "url": "../charts_data/canada/cybg/rnav_gnss_rwy_36_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/rnav_gnss_rwy_36_dnd.pdf",
+                "driveId": "1cIsFkqSNK6nlh9qJLO4oUoyGDlcqVlA5",
+                "driveUrl": "https://drive.google.com/file/d/1cIsFkqSNK6nlh9qJLO4oUoyGDlcqVlA5/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/rnav_gnss_rwy_36_dnd.pdf"
-, "driveId": "1cIsFkqSNK6nlh9qJLO4oUoyGDlcqVlA5", "driveUrl": "https://drive.google.com/file/d/1cIsFkqSNK6nlh9qJLO4oUoyGDlcqVlA5/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_rwy_18_dnd.pdf",
                 "name": "RNAV_GNSS_RWY_18_DND.pdf",
                 "url": "../charts_data/canada/cybg/rnav_gnss_rwy_18_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/rnav_gnss_rwy_18_dnd.pdf",
+                "driveId": "1lKi8rZW6PzariE_Ykyp800QGxs5XaPW9",
+                "driveUrl": "https://drive.google.com/file/d/1lKi8rZW6PzariE_Ykyp800QGxs5XaPW9/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/rnav_gnss_rwy_18_dnd.pdf"
-, "driveId": "1lKi8rZW6PzariE_Ykyp800QGxs5XaPW9", "driveUrl": "https://drive.google.com/file/d/1lKi8rZW6PzariE_Ykyp800QGxs5XaPW9/view?usp=drivesdk" },
-        {
-                "id": "restricted_rnav_gnss_x_rwy_29_pg_02.pdf",
-                "name": "RESTRICTED_RNAV_GNSS_X_RWY_29_PG_02.pdf",
-                "url": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29_pg_02.pdf"
-, "driveId": "1o_o4NjqkArJB7twNttN8L14w4eQlqJ0e", "driveUrl": "https://drive.google.com/file/d/1o_o4NjqkArJB7twNttN8L14w4eQlqJ0e/view?usp=drivesdk" },
+        },
         {
                 "id": "restricted_rnav_gnss_x_rwy_29.pdf",
-                "name": "RESTRICTED_RNAV_GNSS_X_RWY_29.pdf",
+                "name": "RESTRICTED_RNAV_GNSS_X_RWY_29",
                 "url": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29.pdf",
                 "localUrl": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29.pdf",
+                "driveId": "1v8jCiVrYjbT_7UzoFRrtMV0nw0w1W_Of",
+                "driveUrl": "https://drive.google.com/file/d/1v8jCiVrYjbT_7UzoFRrtMV0nw0w1W_Of/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29.pdf"
-, "driveId": "1v8jCiVrYjbT_7UzoFRrtMV0nw0w1W_Of", "driveUrl": "https://drive.google.com/file/d/1v8jCiVrYjbT_7UzoFRrtMV0nw0w1W_Of/view?usp=drivesdk" },
-        {
-                "id": "restricted_rnav_gnss_x_rwy_11_pg_02.pdf",
-                "name": "RESTRICTED_RNAV_GNSS_X_RWY_11_PG_02.pdf",
-                "url": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11_pg_02.pdf"
-, "driveId": "1qP5Ut0D2g_C4yky353t1AWOZa_C29CbQ", "driveUrl": "https://drive.google.com/file/d/1qP5Ut0D2g_C4yky353t1AWOZa_C29CbQ/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29.pdf",
+                "pages": [
+                        {
+                                "id": "restricted_rnav_gnss_x_rwy_29.pdf",
+                                "name": "RESTRICTED_RNAV_GNSS_X_RWY_29.pdf",
+                                "url": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29.pdf",
+                                "localUrl": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29.pdf",
+                                "driveId": "1v8jCiVrYjbT_7UzoFRrtMV0nw0w1W_Of",
+                                "driveUrl": "https://drive.google.com/file/d/1v8jCiVrYjbT_7UzoFRrtMV0nw0w1W_Of/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29.pdf"
+                        },
+                        {
+                                "id": "restricted_rnav_gnss_x_rwy_29_pg_02.pdf",
+                                "name": "RESTRICTED_RNAV_GNSS_X_RWY_29_PG_02.pdf",
+                                "url": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29_pg_02.pdf",
+                                "driveId": "1o_o4NjqkArJB7twNttN8L14w4eQlqJ0e",
+                                "driveUrl": "https://drive.google.com/file/d/1o_o4NjqkArJB7twNttN8L14w4eQlqJ0e/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_29_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "restricted_rnav_gnss_x_rwy_11.pdf",
-                "name": "RESTRICTED_RNAV_GNSS_X_RWY_11.pdf",
+                "name": "RESTRICTED_RNAV_GNSS_X_RWY_11",
                 "url": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11.pdf",
                 "localUrl": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11.pdf",
+                "driveId": "1yfwSSHWSmtA4AJLErnisKP1H2dVGLP_j",
+                "driveUrl": "https://drive.google.com/file/d/1yfwSSHWSmtA4AJLErnisKP1H2dVGLP_j/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11.pdf"
-, "driveId": "1yfwSSHWSmtA4AJLErnisKP1H2dVGLP_j", "driveUrl": "https://drive.google.com/file/d/1yfwSSHWSmtA4AJLErnisKP1H2dVGLP_j/view?usp=drivesdk" },
-        {
-                "id": "restricted_ils_x_rwy_29_pg_02.pdf",
-                "name": "RESTRICTED_ILS_X_RWY_29_PG_02.pdf",
-                "url": "../charts_data/canada/cybg/restricted_ils_x_rwy_29_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cybg/restricted_ils_x_rwy_29_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/restricted_ils_x_rwy_29_pg_02.pdf"
-, "driveId": "1FSnbXEUvkspvBmc4JHeYjyE0NQep_Vc5", "driveUrl": "https://drive.google.com/file/d/1FSnbXEUvkspvBmc4JHeYjyE0NQep_Vc5/view?usp=drivesdk" },
-        {
-                "id": "restricted_ils_x_rwy_11_pg_02.pdf",
-                "name": "RESTRICTED_ILS_X_RWY_11_PG_02.pdf",
-                "url": "../charts_data/canada/cybg/restricted_ils_x_rwy_11_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cybg/restricted_ils_x_rwy_11_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/restricted_ils_x_rwy_11_pg_02.pdf"
-, "driveId": "1iI_qePl1PQxXc3Sn6QWJjQN7ObilSI66", "driveUrl": "https://drive.google.com/file/d/1iI_qePl1PQxXc3Sn6QWJjQN7ObilSI66/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11.pdf",
+                "pages": [
+                        {
+                                "id": "restricted_rnav_gnss_x_rwy_11.pdf",
+                                "name": "RESTRICTED_RNAV_GNSS_X_RWY_11.pdf",
+                                "url": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11.pdf",
+                                "localUrl": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11.pdf",
+                                "driveId": "1yfwSSHWSmtA4AJLErnisKP1H2dVGLP_j",
+                                "driveUrl": "https://drive.google.com/file/d/1yfwSSHWSmtA4AJLErnisKP1H2dVGLP_j/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11.pdf"
+                        },
+                        {
+                                "id": "restricted_rnav_gnss_x_rwy_11_pg_02.pdf",
+                                "name": "RESTRICTED_RNAV_GNSS_X_RWY_11_PG_02.pdf",
+                                "url": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11_pg_02.pdf",
+                                "driveId": "1qP5Ut0D2g_C4yky353t1AWOZa_C29CbQ",
+                                "driveUrl": "https://drive.google.com/file/d/1qP5Ut0D2g_C4yky353t1AWOZa_C29CbQ/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/restricted_rnav_gnss_x_rwy_11_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "restricted_ils_x_rwy_29.pdf",
-                "name": "RESTRICTED_ILS_X_RWY_29.pdf",
+                "name": "RESTRICTED_ILS_X_RWY_29",
                 "url": "../charts_data/canada/cybg/restricted_ils_x_rwy_29.pdf",
                 "localUrl": "../charts_data/canada/cybg/restricted_ils_x_rwy_29.pdf",
+                "driveId": "1sWLiDccMrZLF0xtoRKkUEyym3UthSX16",
+                "driveUrl": "https://drive.google.com/file/d/1sWLiDccMrZLF0xtoRKkUEyym3UthSX16/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/restricted_ils_x_rwy_29.pdf"
-, "driveId": "1sWLiDccMrZLF0xtoRKkUEyym3UthSX16", "driveUrl": "https://drive.google.com/file/d/1sWLiDccMrZLF0xtoRKkUEyym3UthSX16/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cybg/restricted_ils_x_rwy_29.pdf",
+                "pages": [
+                        {
+                                "id": "restricted_ils_x_rwy_29.pdf",
+                                "name": "RESTRICTED_ILS_X_RWY_29.pdf",
+                                "url": "../charts_data/canada/cybg/restricted_ils_x_rwy_29.pdf",
+                                "localUrl": "../charts_data/canada/cybg/restricted_ils_x_rwy_29.pdf",
+                                "driveId": "1sWLiDccMrZLF0xtoRKkUEyym3UthSX16",
+                                "driveUrl": "https://drive.google.com/file/d/1sWLiDccMrZLF0xtoRKkUEyym3UthSX16/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/restricted_ils_x_rwy_29.pdf"
+                        },
+                        {
+                                "id": "restricted_ils_x_rwy_29_pg_02.pdf",
+                                "name": "RESTRICTED_ILS_X_RWY_29_PG_02.pdf",
+                                "url": "../charts_data/canada/cybg/restricted_ils_x_rwy_29_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cybg/restricted_ils_x_rwy_29_pg_02.pdf",
+                                "driveId": "1FSnbXEUvkspvBmc4JHeYjyE0NQep_Vc5",
+                                "driveUrl": "https://drive.google.com/file/d/1FSnbXEUvkspvBmc4JHeYjyE0NQep_Vc5/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/restricted_ils_x_rwy_29_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "par_dnd.pdf",
                 "name": "PAR_DND.pdf",
                 "url": "../charts_data/canada/cybg/par_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/par_dnd.pdf",
+                "driveId": "1qRUplVqGbYJlAvI6Aa68eLdzVY5omQIg",
+                "driveUrl": "https://drive.google.com/file/d/1qRUplVqGbYJlAvI6Aa68eLdzVY5omQIg/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/par_dnd.pdf"
-, "driveId": "1qRUplVqGbYJlAvI6Aa68eLdzVY5omQIg", "driveUrl": "https://drive.google.com/file/d/1qRUplVqGbYJlAvI6Aa68eLdzVY5omQIg/view?usp=drivesdk" },
+        },
         {
                 "id": "restricted_ils_x_rwy_11.pdf",
-                "name": "RESTRICTED_ILS_X_RWY_11.pdf",
+                "name": "RESTRICTED_ILS_X_RWY_11",
                 "url": "../charts_data/canada/cybg/restricted_ils_x_rwy_11.pdf",
                 "localUrl": "../charts_data/canada/cybg/restricted_ils_x_rwy_11.pdf",
+                "driveId": "14vByCuH4F5IODuHlHhqIvc2ETj_Kdo-P",
+                "driveUrl": "https://drive.google.com/file/d/14vByCuH4F5IODuHlHhqIvc2ETj_Kdo-P/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cybg/restricted_ils_x_rwy_11.pdf"
-, "driveId": "14vByCuH4F5IODuHlHhqIvc2ETj_Kdo-P", "driveUrl": "https://drive.google.com/file/d/14vByCuH4F5IODuHlHhqIvc2ETj_Kdo-P/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cybg/restricted_ils_x_rwy_11.pdf",
+                "pages": [
+                        {
+                                "id": "restricted_ils_x_rwy_11.pdf",
+                                "name": "RESTRICTED_ILS_X_RWY_11.pdf",
+                                "url": "../charts_data/canada/cybg/restricted_ils_x_rwy_11.pdf",
+                                "localUrl": "../charts_data/canada/cybg/restricted_ils_x_rwy_11.pdf",
+                                "driveId": "14vByCuH4F5IODuHlHhqIvc2ETj_Kdo-P",
+                                "driveUrl": "https://drive.google.com/file/d/14vByCuH4F5IODuHlHhqIvc2ETj_Kdo-P/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/restricted_ils_x_rwy_11.pdf"
+                        },
+                        {
+                                "id": "restricted_ils_x_rwy_11_pg_02.pdf",
+                                "name": "RESTRICTED_ILS_X_RWY_11_PG_02.pdf",
+                                "url": "../charts_data/canada/cybg/restricted_ils_x_rwy_11_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cybg/restricted_ils_x_rwy_11_pg_02.pdf",
+                                "driveId": "1iI_qePl1PQxXc3Sn6QWJjQN7ObilSI66",
+                                "driveUrl": "https://drive.google.com/file/d/1iI_qePl1PQxXc3Sn6QWJjQN7ObilSI66/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cybg/restricted_ils_x_rwy_11_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "ndb_rwy_11_dnd.pdf",
                 "name": "NDB_RWY_11_DND.pdf",
                 "url": "../charts_data/canada/cybg/ndb_rwy_11_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/ndb_rwy_11_dnd.pdf",
+                "driveId": "15e4lBLgCeMwi_QeFshtcdYJ7aN0nxBht",
+                "driveUrl": "https://drive.google.com/file/d/15e4lBLgCeMwi_QeFshtcdYJ7aN0nxBht/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/ndb_rwy_11_dnd.pdf"
-, "driveId": "15e4lBLgCeMwi_QeFshtcdYJ7aN0nxBht", "driveUrl": "https://drive.google.com/file/d/15e4lBLgCeMwi_QeFshtcdYJ7aN0nxBht/view?usp=drivesdk" },
+        },
         {
                 "id": "ils_z_rwy_11.pdf",
                 "name": "ILS_Z_RWY_11.pdf",
                 "url": "../charts_data/canada/cybg/ils_z_rwy_11.pdf",
                 "localUrl": "../charts_data/canada/cybg/ils_z_rwy_11.pdf",
+                "driveId": "1OF-kx-s6OCHM9HES0u0K9-1ike5NNMbH",
+                "driveUrl": "https://drive.google.com/file/d/1OF-kx-s6OCHM9HES0u0K9-1ike5NNMbH/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/ils_z_rwy_11.pdf"
-, "driveId": "1OF-kx-s6OCHM9HES0u0K9-1ike5NNMbH", "driveUrl": "https://drive.google.com/file/d/1OF-kx-s6OCHM9HES0u0K9-1ike5NNMbH/view?usp=drivesdk" },
+        },
         {
                 "id": "ils_z_rwy_29.pdf",
                 "name": "ILS_Z_RWY_29.pdf",
                 "url": "../charts_data/canada/cybg/ils_z_rwy_29.pdf",
                 "localUrl": "../charts_data/canada/cybg/ils_z_rwy_29.pdf",
+                "driveId": "18csCjf2L5jMulHH_YzgyIRKetSAi5jwd",
+                "driveUrl": "https://drive.google.com/file/d/18csCjf2L5jMulHH_YzgyIRKetSAi5jwd/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/ils_z_rwy_29.pdf"
-, "driveId": "18csCjf2L5jMulHH_YzgyIRKetSAi5jwd", "driveUrl": "https://drive.google.com/file/d/18csCjf2L5jMulHH_YzgyIRKetSAi5jwd/view?usp=drivesdk" },
+        },
         {
                 "id": "ils_y_rwy_29_dnd.pdf",
                 "name": "ILS_Y_RWY_29_DND.pdf",
                 "url": "../charts_data/canada/cybg/ils_y_rwy_29_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/ils_y_rwy_29_dnd.pdf",
+                "driveId": "1LQjLnGcyK289FE5PgKstCdXypUNZ4NZy",
+                "driveUrl": "https://drive.google.com/file/d/1LQjLnGcyK289FE5PgKstCdXypUNZ4NZy/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/ils_y_rwy_29_dnd.pdf"
-, "driveId": "1LQjLnGcyK289FE5PgKstCdXypUNZ4NZy", "driveUrl": "https://drive.google.com/file/d/1LQjLnGcyK289FE5PgKstCdXypUNZ4NZy/view?usp=drivesdk" },
+        },
         {
                 "id": "ils_y_rwy_11_dnd.pdf",
                 "name": "ILS_Y_RWY_11_DND.pdf",
                 "url": "../charts_data/canada/cybg/ils_y_rwy_11_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/ils_y_rwy_11_dnd.pdf",
+                "driveId": "1tozAuZfAJ7W8HGkJDD0wioFZolLAboq3",
+                "driveUrl": "https://drive.google.com/file/d/1tozAuZfAJ7W8HGkJDD0wioFZolLAboq3/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/ils_y_rwy_11_dnd.pdf"
-, "driveId": "1tozAuZfAJ7W8HGkJDD0wioFZolLAboq3", "driveUrl": "https://drive.google.com/file/d/1tozAuZfAJ7W8HGkJDD0wioFZolLAboq3/view?usp=drivesdk" },
+        },
         {
                 "id": "ils_w_rwy_11_dnd.pdf",
                 "name": "ILS_W_RWY_11_DND.pdf",
                 "url": "../charts_data/canada/cybg/ils_w_rwy_11_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/ils_w_rwy_11_dnd.pdf",
+                "driveId": "1XcRKHdE53EyfUxgB77W8_nTfWin3IM-S",
+                "driveUrl": "https://drive.google.com/file/d/1XcRKHdE53EyfUxgB77W8_nTfWin3IM-S/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/ils_w_rwy_11_dnd.pdf"
-, "driveId": "1XcRKHdE53EyfUxgB77W8_nTfWin3IM-S", "driveUrl": "https://drive.google.com/file/d/1XcRKHdE53EyfUxgB77W8_nTfWin3IM-S/view?usp=drivesdk" },
+        },
         {
                 "id": "ils_w_rwy_29_dnd.pdf",
                 "name": "ILS_W_RWY_29_DND.pdf",
                 "url": "../charts_data/canada/cybg/ils_w_rwy_29_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/ils_w_rwy_29_dnd.pdf",
+                "driveId": "1jrFo6DCBp-TPT99VNubXnHs-u5vW_PWm",
+                "driveUrl": "https://drive.google.com/file/d/1jrFo6DCBp-TPT99VNubXnHs-u5vW_PWm/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/ils_w_rwy_29_dnd.pdf"
-, "driveId": "1jrFo6DCBp-TPT99VNubXnHs-u5vW_PWm", "driveUrl": "https://drive.google.com/file/d/1jrFo6DCBp-TPT99VNubXnHs-u5vW_PWm/view?usp=drivesdk" },
+        },
         {
                 "id": "ils_v_rwy_11_dnd.pdf",
                 "name": "ILS_V_RWY_11_DND.pdf",
                 "url": "../charts_data/canada/cybg/ils_v_rwy_11_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/ils_v_rwy_11_dnd.pdf",
+                "driveId": "1oHsgHh0o6VfgZ1LRQiR4b_-omzkMk4vZ",
+                "driveUrl": "https://drive.google.com/file/d/1oHsgHh0o6VfgZ1LRQiR4b_-omzkMk4vZ/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/ils_v_rwy_11_dnd.pdf"
-, "driveId": "1oHsgHh0o6VfgZ1LRQiR4b_-omzkMk4vZ", "driveUrl": "https://drive.google.com/file/d/1oHsgHh0o6VfgZ1LRQiR4b_-omzkMk4vZ/view?usp=drivesdk" },
+        },
         {
                 "id": "hi-tacan_y_rwy_11_dnd.pdf",
                 "name": "HI-TACAN_Y_RWY_11_DND.pdf",
                 "url": "../charts_data/canada/cybg/hi-tacan_y_rwy_11_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/hi-tacan_y_rwy_11_dnd.pdf",
+                "driveId": "1fQyIc8A06mdQcsRStWRn8eW71Da2ghTc",
+                "driveUrl": "https://drive.google.com/file/d/1fQyIc8A06mdQcsRStWRn8eW71Da2ghTc/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/hi-tacan_y_rwy_11_dnd.pdf"
-, "driveId": "1fQyIc8A06mdQcsRStWRn8eW71Da2ghTc", "driveUrl": "https://drive.google.com/file/d/1fQyIc8A06mdQcsRStWRn8eW71Da2ghTc/view?usp=drivesdk" },
+        },
         {
                 "id": "hi-tacan_y_rwy_29_dnd.pdf",
                 "name": "HI-TACAN_Y_RWY_29_DND.pdf",
                 "url": "../charts_data/canada/cybg/hi-tacan_y_rwy_29_dnd.pdf",
                 "localUrl": "../charts_data/canada/cybg/hi-tacan_y_rwy_29_dnd.pdf",
+                "driveId": "1BRqiJCuivznudyXuSxQkSyXVORi06k7S",
+                "driveUrl": "https://drive.google.com/file/d/1BRqiJCuivznudyXuSxQkSyXVORi06k7S/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cybg/hi-tacan_y_rwy_29_dnd.pdf"
-, "driveId": "1BRqiJCuivznudyXuSxQkSyXVORi06k7S", "driveUrl": "https://drive.google.com/file/d/1BRqiJCuivznudyXuSxQkSyXVORi06k7S/view?usp=drivesdk" }
+        }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1393,14 +1605,17 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || '#', file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                const pagesBadge = file.pages && file.pages.length > 1
+                    ? `<span class="file-type">${file.pages.length} pages</span>`
+                    : `<span class="file-type">${file.type}</span>`;
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>
-                    <span class="file-type">${file.type}</span>
+                    ${pagesBadge}
                 `;
 
                 const pins = getPins();

@@ -622,7 +622,7 @@
                        placeholder="Search charts..." autocomplete="off">
             </div>
             <div class="search-help">
-                <strong>Examples:</strong> <code>star</code> • <code>RWY 04</code> • <code>ILS</code>
+                <strong>Examples:</strong> <code>star</code> &bull; <code>RWY 04</code> &bull; <code>ILS</code>
             </div>
         </div>
         
@@ -634,7 +634,7 @@
         
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
         
-        <div class="file-count" id="fileCount">Showing 32 files</div>
+        <div class="file-count" id="fileCount">Showing 29 files</div>
         <div class="file-list" id="fileList"></div>
         <div id="emptyState" class="empty-state" style="display: none;">
             <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
@@ -692,6 +692,12 @@
                         <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
                     </div>
 
+                    <div id="pageNav" style="display:none; justify-content:center; align-items:center; gap:1rem; padding:0.5rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
+                        <button class="control-btn" id="prevPageBtn" style="padding:0.25rem 0.75rem;">&#9664; PREV</button>
+                        <span id="pageIndicator" style="font-size:0.75rem; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); min-width:100px; text-align:center;">PAGE 1 OF 2</span>
+                        <button class="control-btn" id="nextPageBtn" style="padding:0.25rem 0.75rem;">NEXT &#9654;</button>
+                    </div>
+
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
                     </div>
@@ -745,6 +751,8 @@
             let isOpeningFromHash = false;
             let originalPageTitle = document.title;
             let currentFileId = null;
+            let currentFilePages = null;
+            let currentFilePageIndex = 0;
 
             const SIDEBAR_KEY = 'atc_sidebar_open';
             let sidebarOpen = localStorage.getItem(SIDEBAR_KEY) !== 'false';
@@ -790,7 +798,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
+                            openViewer(file.id, file.name, file.url, file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -803,6 +811,10 @@
 
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
+                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
+                currentFilePageIndex = 0;
+                if (currentFilePages) localUrl = currentFilePages[0].localUrl;
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
                 const loader = document.getElementById('viewerLoader');
@@ -844,17 +856,58 @@
                 try {
                     const loadingTask = pdfjsLib.getDocument(localUrl);
                     currentPdf = await loadingTask.promise;
-                    loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
+                    loaderStatus.textContent = `INDEXING ${{currentPdf.numPages}} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
+                    updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
-                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
-                    setTimeout(() => {
-                        window.open(driveUrl, '_blank');
-                        closeViewer();
-                    }, 2000);
+                    // Local file unavailable — embed Drive preview iframe
+                    const fileObj2 = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                    const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
+                    if (embedId) {
+                        loader.style.display = 'none';
+                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${{embedId}}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
+                    } else if (driveUrl && driveUrl !== '#') {
+                        loaderStatus.textContent = 'OPENING IN DRIVE...';
+                        setTimeout(() => {{ window.open(driveUrl, '_blank'); closeViewer(); }}, 1000);
+                    } else {
+                        loaderStatus.textContent = 'PDF NOT AVAILABLE.';
+                    }
                 }
+            }
+
+            function updatePageNav() {
+                const nav = document.getElementById('pageNav');
+                if (!nav) return;
+                if (currentFilePages && currentFilePages.length > 1) {
+                    nav.style.display = 'flex';
+                    document.getElementById('prevPageBtn').disabled = currentFilePageIndex === 0;
+                    document.getElementById('nextPageBtn').disabled = currentFilePageIndex === currentFilePages.length - 1;
+                    document.getElementById('pageIndicator').textContent =
+                        `PAGE ${currentFilePageIndex + 1} OF ${currentFilePages.length}`;
+                } else {
+                    nav.style.display = 'none';
+                }
+            }
+
+            async function goToFilePage(delta) {
+                if (!currentFilePages) return;
+                const newIndex = currentFilePageIndex + delta;
+                if (newIndex < 0 || newIndex >= currentFilePages.length) return;
+                currentFilePageIndex = newIndex;
+                const page = currentFilePages[newIndex];
+                const loader = document.getElementById('viewerLoader');
+                const loaderStatus = document.getElementById('loaderStatus');
+                loader.style.display = 'flex';
+                loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentRotation = 0;
+                const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                currentPdf = await loadingTask.promise;
+                await renderAllPages();
+                loader.style.display = 'none';
+                updatePageNav();
             }
 
             async function checkHash() {
@@ -875,7 +928,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1034,6 +1087,9 @@
                 localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
                 applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
         
         const airportCtx = {
@@ -1060,260 +1116,360 @@
         const files = [
         {
                 "id": "levud_1_dep_dnd_rnav.pdf",
-                "name": "LEVUD_1_DEP_DND_RNAV.pdf",
+                "name": "LEVUD_1_DEP_DND_RNAV",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav.pdf",
+                "driveId": "119K6hZNfgpcIKGKKqwinPm9wuVIJBifs",
+                "driveUrl": "https://drive.google.com/file/d/119K6hZNfgpcIKGKKqwinPm9wuVIJBifs/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav.pdf"
-, "driveId": "119K6hZNfgpcIKGKKqwinPm9wuVIJBifs", "driveUrl": "https://drive.google.com/file/d/119K6hZNfgpcIKGKKqwinPm9wuVIJBifs/view?usp=drivesdk" },
-        {
-                "id": "levud_1_dep_dnd_rnav_pg_02.pdf",
-                "name": "LEVUD_1_DEP_DND_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav_pg_02.pdf"
-, "driveId": "1IljNxLbTaNjYIEUGq9yH9cwVEKDFurr0", "driveUrl": "https://drive.google.com/file/d/1IljNxLbTaNjYIEUGq9yH9cwVEKDFurr0/view?usp=drivesdk" },
-        {
-                "id": "katpu_1_dep_dnd_rnav_pg_02.pdf",
-                "name": "KATPU_1_DEP_DND_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav_pg_02.pdf"
-, "driveId": "1SHvooekBMjGIyJshvo1Jxt9SVR7W99Yg", "driveUrl": "https://drive.google.com/file/d/1SHvooekBMjGIyJshvo1Jxt9SVR7W99Yg/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "levud_1_dep_dnd_rnav.pdf",
+                                "name": "LEVUD_1_DEP_DND_RNAV.pdf",
+                                "url": "../charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav.pdf",
+                                "driveId": "119K6hZNfgpcIKGKKqwinPm9wuVIJBifs",
+                                "driveUrl": "https://drive.google.com/file/d/119K6hZNfgpcIKGKKqwinPm9wuVIJBifs/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav.pdf"
+                        },
+                        {
+                                "id": "levud_1_dep_dnd_rnav_pg_02.pdf",
+                                "name": "LEVUD_1_DEP_DND_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav_pg_02.pdf",
+                                "driveId": "1IljNxLbTaNjYIEUGq9yH9cwVEKDFurr0",
+                                "driveUrl": "https://drive.google.com/file/d/1IljNxLbTaNjYIEUGq9yH9cwVEKDFurr0/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/levud_1_dep_dnd_rnav_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "katpu_1_dep_dnd_rnav.pdf",
-                "name": "KATPU_1_DEP_DND_RNAV.pdf",
+                "name": "KATPU_1_DEP_DND_RNAV",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav.pdf",
+                "driveId": "16hu3lVPmINQ1SG76CLEP83WqDTteJCXv",
+                "driveUrl": "https://drive.google.com/file/d/16hu3lVPmINQ1SG76CLEP83WqDTteJCXv/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav.pdf"
-, "driveId": "16hu3lVPmINQ1SG76CLEP83WqDTteJCXv", "driveUrl": "https://drive.google.com/file/d/16hu3lVPmINQ1SG76CLEP83WqDTteJCXv/view?usp=drivesdk" },
-        {
-                "id": "dudso_1_dep_dnd_rnav_pg_02.pdf",
-                "name": "DUDSO_1_DEP_DND_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav_pg_02.pdf"
-, "driveId": "1snJ4nLo2FrZgLaLlIYH_BtMhB1GZcRZU", "driveUrl": "https://drive.google.com/file/d/1snJ4nLo2FrZgLaLlIYH_BtMhB1GZcRZU/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "katpu_1_dep_dnd_rnav.pdf",
+                                "name": "KATPU_1_DEP_DND_RNAV.pdf",
+                                "url": "../charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav.pdf",
+                                "driveId": "16hu3lVPmINQ1SG76CLEP83WqDTteJCXv",
+                                "driveUrl": "https://drive.google.com/file/d/16hu3lVPmINQ1SG76CLEP83WqDTteJCXv/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav.pdf"
+                        },
+                        {
+                                "id": "katpu_1_dep_dnd_rnav_pg_02.pdf",
+                                "name": "KATPU_1_DEP_DND_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav_pg_02.pdf",
+                                "driveId": "1SHvooekBMjGIyJshvo1Jxt9SVR7W99Yg",
+                                "driveUrl": "https://drive.google.com/file/d/1SHvooekBMjGIyJshvo1Jxt9SVR7W99Yg/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/katpu_1_dep_dnd_rnav_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "dudso_1_dep_dnd_rnav.pdf",
-                "name": "DUDSO_1_DEP_DND_RNAV.pdf",
+                "name": "DUDSO_1_DEP_DND_RNAV",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav.pdf",
+                "driveId": "1BKnwjRsurQXgYMow6vwNL9AIcjXeL-2L",
+                "driveUrl": "https://drive.google.com/file/d/1BKnwjRsurQXgYMow6vwNL9AIcjXeL-2L/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav.pdf"
-, "driveId": "1BKnwjRsurQXgYMow6vwNL9AIcjXeL-2L", "driveUrl": "https://drive.google.com/file/d/1BKnwjRsurQXgYMow6vwNL9AIcjXeL-2L/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "dudso_1_dep_dnd_rnav.pdf",
+                                "name": "DUDSO_1_DEP_DND_RNAV.pdf",
+                                "url": "../charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav.pdf",
+                                "driveId": "1BKnwjRsurQXgYMow6vwNL9AIcjXeL-2L",
+                                "driveUrl": "https://drive.google.com/file/d/1BKnwjRsurQXgYMow6vwNL9AIcjXeL-2L/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav.pdf"
+                        },
+                        {
+                                "id": "dudso_1_dep_dnd_rnav_pg_02.pdf",
+                                "name": "DUDSO_1_DEP_DND_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav_pg_02.pdf",
+                                "driveId": "1snJ4nLo2FrZgLaLlIYH_BtMhB1GZcRZU",
+                                "driveUrl": "https://drive.google.com/file/d/1snJ4nLo2FrZgLaLlIYH_BtMhB1GZcRZU/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/dudso_1_dep_dnd_rnav_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "noise_abatement_procedures_dnd.pdf",
                 "name": "NOISE_ABATEMENT_PROCEDURES_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/noise_abatement_procedures_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/noise_abatement_procedures_dnd.pdf",
+                "driveId": "1fO7GJUSnO8LfiHVs76lE4GCsQ07oPUyZ",
+                "driveUrl": "https://drive.google.com/file/d/1fO7GJUSnO8LfiHVs76lE4GCsQ07oPUyZ/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/noise_abatement_procedures_dnd.pdf"
-, "driveId": "1fO7GJUSnO8LfiHVs76lE4GCsQ07oPUyZ", "driveUrl": "https://drive.google.com/file/d/1fO7GJUSnO8LfiHVs76lE4GCsQ07oPUyZ/view?usp=drivesdk" },
+        },
         {
                 "id": "aerodrome_chart_dnd.pdf",
                 "name": "AERODROME_CHART_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/aerodrome_chart_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/aerodrome_chart_dnd.pdf",
+                "driveId": "1qTDGNI8pQUzHZhy54EFaYaL-cLmfLxr_",
+                "driveUrl": "https://drive.google.com/file/d/1qTDGNI8pQUzHZhy54EFaYaL-cLmfLxr_/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/aerodrome_chart_dnd.pdf"
-, "driveId": "1qTDGNI8pQUzHZhy54EFaYaL-cLmfLxr_", "driveUrl": "https://drive.google.com/file/d/1qTDGNI8pQUzHZhy54EFaYaL-cLmfLxr_/view?usp=drivesdk" },
+        },
         {
                 "id": "tacan_rwy_31r_dnd.pdf",
                 "name": "TACAN_RWY_31R_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_31r_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_31r_dnd.pdf",
+                "driveId": "1QlnUyAMqSzR-QoYOnANAzhJPA6Khbnut",
+                "driveUrl": "https://drive.google.com/file/d/1QlnUyAMqSzR-QoYOnANAzhJPA6Khbnut/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_31r_dnd.pdf"
-, "driveId": "1QlnUyAMqSzR-QoYOnANAzhJPA6Khbnut", "driveUrl": "https://drive.google.com/file/d/1QlnUyAMqSzR-QoYOnANAzhJPA6Khbnut/view?usp=drivesdk" },
+        },
         {
                 "id": "tacan_rwy_31l_dnd.pdf",
                 "name": "TACAN_RWY_31L_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_31l_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_31l_dnd.pdf",
+                "driveId": "1tYCIMwoig_DaCKC5K4qzNUogy806hBo-",
+                "driveUrl": "https://drive.google.com/file/d/1tYCIMwoig_DaCKC5K4qzNUogy806hBo-/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_31l_dnd.pdf"
-, "driveId": "1tYCIMwoig_DaCKC5K4qzNUogy806hBo-", "driveUrl": "https://drive.google.com/file/d/1tYCIMwoig_DaCKC5K4qzNUogy806hBo-/view?usp=drivesdk" },
+        },
         {
                 "id": "tacan_rwy_22_dnd.pdf",
                 "name": "TACAN_RWY_22_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_22_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_22_dnd.pdf",
+                "driveId": "1mOvcps88akVcrIFJ_705DBrJAuIZBIYm",
+                "driveUrl": "https://drive.google.com/file/d/1mOvcps88akVcrIFJ_705DBrJAuIZBIYm/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_22_dnd.pdf"
-, "driveId": "1mOvcps88akVcrIFJ_705DBrJAuIZBIYm", "driveUrl": "https://drive.google.com/file/d/1mOvcps88akVcrIFJ_705DBrJAuIZBIYm/view?usp=drivesdk" },
+        },
         {
                 "id": "tacan_rwy_13r_dnd.pdf",
                 "name": "TACAN_RWY_13R_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_13r_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_13r_dnd.pdf",
+                "driveId": "1ADiFX4Hs_TwsXH-vpkIR8wy9fuemmT8L",
+                "driveUrl": "https://drive.google.com/file/d/1ADiFX4Hs_TwsXH-vpkIR8wy9fuemmT8L/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_13r_dnd.pdf"
-, "driveId": "1ADiFX4Hs_TwsXH-vpkIR8wy9fuemmT8L", "driveUrl": "https://drive.google.com/file/d/1ADiFX4Hs_TwsXH-vpkIR8wy9fuemmT8L/view?usp=drivesdk" },
+        },
         {
                 "id": "tacan_rwy_13l_dnd.pdf",
                 "name": "TACAN_RWY_13L_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_13l_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_13l_dnd.pdf",
+                "driveId": "1y_lmSGPcN3-_9bwmd5tnkQ2Adzr7TYNv",
+                "driveUrl": "https://drive.google.com/file/d/1y_lmSGPcN3-_9bwmd5tnkQ2Adzr7TYNv/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/tacan_rwy_13l_dnd.pdf"
-, "driveId": "1y_lmSGPcN3-_9bwmd5tnkQ2Adzr7TYNv", "driveUrl": "https://drive.google.com/file/d/1y_lmSGPcN3-_9bwmd5tnkQ2Adzr7TYNv/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_rwy_31r_dnd.pdf",
                 "name": "RNAV_GNSS_RWY_31R_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_31r_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_31r_dnd.pdf",
+                "driveId": "1LZT144xvnzYFLeOSGkTN43m9EffWRg5u",
+                "driveUrl": "https://drive.google.com/file/d/1LZT144xvnzYFLeOSGkTN43m9EffWRg5u/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_31r_dnd.pdf"
-, "driveId": "1LZT144xvnzYFLeOSGkTN43m9EffWRg5u", "driveUrl": "https://drive.google.com/file/d/1LZT144xvnzYFLeOSGkTN43m9EffWRg5u/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_rwy_31l_dnd.pdf",
                 "name": "RNAV_GNSS_RWY_31L_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_31l_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_31l_dnd.pdf",
+                "driveId": "15noC5B-aJe2d86wtMbTtR84XxUCbw8pY",
+                "driveUrl": "https://drive.google.com/file/d/15noC5B-aJe2d86wtMbTtR84XxUCbw8pY/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_31l_dnd.pdf"
-, "driveId": "15noC5B-aJe2d86wtMbTtR84XxUCbw8pY", "driveUrl": "https://drive.google.com/file/d/15noC5B-aJe2d86wtMbTtR84XxUCbw8pY/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_rwy_13r_dnd.pdf",
                 "name": "RNAV_GNSS_RWY_13R_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_13r_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_13r_dnd.pdf",
+                "driveId": "10qH8m60kju3w_wNosx7N44sz_0re-S4n",
+                "driveUrl": "https://drive.google.com/file/d/10qH8m60kju3w_wNosx7N44sz_0re-S4n/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_13r_dnd.pdf"
-, "driveId": "10qH8m60kju3w_wNosx7N44sz_0re-S4n", "driveUrl": "https://drive.google.com/file/d/10qH8m60kju3w_wNosx7N44sz_0re-S4n/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_rwy_22_dnd.pdf",
                 "name": "RNAV_GNSS_RWY_22_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_22_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_22_dnd.pdf",
+                "driveId": "1ao9_jsat5Plh5WZ0BZh1kRcHrPTmG4pt",
+                "driveUrl": "https://drive.google.com/file/d/1ao9_jsat5Plh5WZ0BZh1kRcHrPTmG4pt/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_22_dnd.pdf"
-, "driveId": "1ao9_jsat5Plh5WZ0BZh1kRcHrPTmG4pt", "driveUrl": "https://drive.google.com/file/d/1ao9_jsat5Plh5WZ0BZh1kRcHrPTmG4pt/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_rwy_13l_dnd.pdf",
                 "name": "RNAV_GNSS_RWY_13L_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_13l_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_13l_dnd.pdf",
+                "driveId": "1XyiV4LqvxK0p8EcjAEqYOo2ebfE2Bec9",
+                "driveUrl": "https://drive.google.com/file/d/1XyiV4LqvxK0p8EcjAEqYOo2ebfE2Bec9/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_13l_dnd.pdf"
-, "driveId": "1XyiV4LqvxK0p8EcjAEqYOo2ebfE2Bec9", "driveUrl": "https://drive.google.com/file/d/1XyiV4LqvxK0p8EcjAEqYOo2ebfE2Bec9/view?usp=drivesdk" },
+        },
         {
                 "id": "rnav_gnss_rwy_04_dnd.pdf",
                 "name": "RNAV_GNSS_RWY_04_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_04_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_04_dnd.pdf",
+                "driveId": "1SbVkMIiYmJH_tP2_0Mq50OXuKM9kG2LF",
+                "driveUrl": "https://drive.google.com/file/d/1SbVkMIiYmJH_tP2_0Mq50OXuKM9kG2LF/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/rnav_gnss_rwy_04_dnd.pdf"
-, "driveId": "1SbVkMIiYmJH_tP2_0Mq50OXuKM9kG2LF", "driveUrl": "https://drive.google.com/file/d/1SbVkMIiYmJH_tP2_0Mq50OXuKM9kG2LF/view?usp=drivesdk" },
+        },
         {
                 "id": "par_dnd.pdf",
                 "name": "PAR_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/par_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/par_dnd.pdf",
+                "driveId": "11svIpE0PR8dT-Ow8w7UrAT0tXcOaFrNO",
+                "driveUrl": "https://drive.google.com/file/d/11svIpE0PR8dT-Ow8w7UrAT0tXcOaFrNO/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/par_dnd.pdf"
-, "driveId": "11svIpE0PR8dT-Ow8w7UrAT0tXcOaFrNO", "driveUrl": "https://drive.google.com/file/d/11svIpE0PR8dT-Ow8w7UrAT0tXcOaFrNO/view?usp=drivesdk" },
+        },
         {
                 "id": "ndb_rwy_31r_dnd.pdf",
                 "name": "NDB_RWY_31R_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/ndb_rwy_31r_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/ndb_rwy_31r_dnd.pdf",
+                "driveId": "1zjUKu5qiVtkbxayP2bOpvk1uVr1Hpwci",
+                "driveUrl": "https://drive.google.com/file/d/1zjUKu5qiVtkbxayP2bOpvk1uVr1Hpwci/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/ndb_rwy_31r_dnd.pdf"
-, "driveId": "1zjUKu5qiVtkbxayP2bOpvk1uVr1Hpwci", "driveUrl": "https://drive.google.com/file/d/1zjUKu5qiVtkbxayP2bOpvk1uVr1Hpwci/view?usp=drivesdk" },
+        },
         {
                 "id": "ndb_rwy_22_dnd.pdf",
                 "name": "NDB_RWY_22_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/ndb_rwy_22_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/ndb_rwy_22_dnd.pdf",
+                "driveId": "127duv9SZKnSqCWpqh81nEVCDL9zbLP6e",
+                "driveUrl": "https://drive.google.com/file/d/127duv9SZKnSqCWpqh81nEVCDL9zbLP6e/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/ndb_rwy_22_dnd.pdf"
-, "driveId": "127duv9SZKnSqCWpqh81nEVCDL9zbLP6e", "driveUrl": "https://drive.google.com/file/d/127duv9SZKnSqCWpqh81nEVCDL9zbLP6e/view?usp=drivesdk" },
+        },
         {
                 "id": "ndb_rwy_13l_dnd.pdf",
                 "name": "NDB_RWY_13L_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/ndb_rwy_13l_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/ndb_rwy_13l_dnd.pdf",
+                "driveId": "12cA1SNCWikhA4xFiIED9OHRdc_dn0Pgx",
+                "driveUrl": "https://drive.google.com/file/d/12cA1SNCWikhA4xFiIED9OHRdc_dn0Pgx/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/ndb_rwy_13l_dnd.pdf"
-, "driveId": "12cA1SNCWikhA4xFiIED9OHRdc_dn0Pgx", "driveUrl": "https://drive.google.com/file/d/12cA1SNCWikhA4xFiIED9OHRdc_dn0Pgx/view?usp=drivesdk" },
+        },
         {
                 "id": "ndb_dme_rwy_31r_dnd.pdf",
                 "name": "NDB_DME_RWY_31R_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/ndb_dme_rwy_31r_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/ndb_dme_rwy_31r_dnd.pdf",
+                "driveId": "1llvGUX7bNorVj3OClp0XZfdnoBxIhzZI",
+                "driveUrl": "https://drive.google.com/file/d/1llvGUX7bNorVj3OClp0XZfdnoBxIhzZI/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/ndb_dme_rwy_31r_dnd.pdf"
-, "driveId": "1llvGUX7bNorVj3OClp0XZfdnoBxIhzZI", "driveUrl": "https://drive.google.com/file/d/1llvGUX7bNorVj3OClp0XZfdnoBxIhzZI/view?usp=drivesdk" },
+        },
         {
                 "id": "ndb_dme_rwy_13l_dnd.pdf",
                 "name": "NDB_DME_RWY_13L_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/ndb_dme_rwy_13l_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/ndb_dme_rwy_13l_dnd.pdf",
+                "driveId": "1z_Mce8Kssx2Cl6-pynpPh4meQd9mmH2-",
+                "driveUrl": "https://drive.google.com/file/d/1z_Mce8Kssx2Cl6-pynpPh4meQd9mmH2-/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/ndb_dme_rwy_13l_dnd.pdf"
-, "driveId": "1z_Mce8Kssx2Cl6-pynpPh4meQd9mmH2-", "driveUrl": "https://drive.google.com/file/d/1z_Mce8Kssx2Cl6-pynpPh4meQd9mmH2-/view?usp=drivesdk" },
+        },
         {
                 "id": "ndb_dme_rwy_22_dnd.pdf",
                 "name": "NDB_DME_RWY_22_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/ndb_dme_rwy_22_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/ndb_dme_rwy_22_dnd.pdf",
+                "driveId": "1YvfKh43HYTZd5Pe_p8Iu6ju1G0pGEaxj",
+                "driveUrl": "https://drive.google.com/file/d/1YvfKh43HYTZd5Pe_p8Iu6ju1G0pGEaxj/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/ndb_dme_rwy_22_dnd.pdf"
-, "driveId": "1YvfKh43HYTZd5Pe_p8Iu6ju1G0pGEaxj", "driveUrl": "https://drive.google.com/file/d/1YvfKh43HYTZd5Pe_p8Iu6ju1G0pGEaxj/view?usp=drivesdk" },
+        },
         {
                 "id": "loc_bc_tacan_rwy_13l_dnd.pdf",
                 "name": "LOC_BC_TACAN_RWY_13L_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/loc_bc_tacan_rwy_13l_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/loc_bc_tacan_rwy_13l_dnd.pdf",
+                "driveId": "1It4fnpNyqbOCmZbe6RKdHIQyF6LVzSOp",
+                "driveUrl": "https://drive.google.com/file/d/1It4fnpNyqbOCmZbe6RKdHIQyF6LVzSOp/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/loc_bc_tacan_rwy_13l_dnd.pdf"
-, "driveId": "1It4fnpNyqbOCmZbe6RKdHIQyF6LVzSOp", "driveUrl": "https://drive.google.com/file/d/1It4fnpNyqbOCmZbe6RKdHIQyF6LVzSOp/view?usp=drivesdk" },
+        },
         {
                 "id": "ils_z_rwy_31r_dnd.pdf",
                 "name": "ILS_Z_RWY_31R_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/ils_z_rwy_31r_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/ils_z_rwy_31r_dnd.pdf",
+                "driveId": "1aMV0GE3VnAU1vM88tBHbFw09jq84lbS7",
+                "driveUrl": "https://drive.google.com/file/d/1aMV0GE3VnAU1vM88tBHbFw09jq84lbS7/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/ils_z_rwy_31r_dnd.pdf"
-, "driveId": "1aMV0GE3VnAU1vM88tBHbFw09jq84lbS7", "driveUrl": "https://drive.google.com/file/d/1aMV0GE3VnAU1vM88tBHbFw09jq84lbS7/view?usp=drivesdk" },
+        },
         {
                 "id": "ils_tacan_y_rwy_31r_dnd.pdf",
                 "name": "ILS_TACAN_Y_RWY_31R_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/ils_tacan_y_rwy_31r_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/ils_tacan_y_rwy_31r_dnd.pdf",
+                "driveId": "1g0TyQhpw6qoSptFilsH3OTAps03Gh-Hj",
+                "driveUrl": "https://drive.google.com/file/d/1g0TyQhpw6qoSptFilsH3OTAps03Gh-Hj/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/ils_tacan_y_rwy_31r_dnd.pdf"
-, "driveId": "1g0TyQhpw6qoSptFilsH3OTAps03Gh-Hj", "driveUrl": "https://drive.google.com/file/d/1g0TyQhpw6qoSptFilsH3OTAps03Gh-Hj/view?usp=drivesdk" },
+        },
         {
                 "id": "hi-tacan_rwy_31r_dnd.pdf",
                 "name": "HI-TACAN_RWY_31R_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/hi-tacan_rwy_31r_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/hi-tacan_rwy_31r_dnd.pdf",
+                "driveId": "1K3B67zEpk-8_x-sQz-h15ZF-nx-BQhqj",
+                "driveUrl": "https://drive.google.com/file/d/1K3B67zEpk-8_x-sQz-h15ZF-nx-BQhqj/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/hi-tacan_rwy_31r_dnd.pdf"
-, "driveId": "1K3B67zEpk-8_x-sQz-h15ZF-nx-BQhqj", "driveUrl": "https://drive.google.com/file/d/1K3B67zEpk-8_x-sQz-h15ZF-nx-BQhqj/view?usp=drivesdk" },
+        },
         {
                 "id": "hi-tacan_rwy_22_dnd.pdf",
                 "name": "HI-TACAN_RWY_22_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/hi-tacan_rwy_22_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/hi-tacan_rwy_22_dnd.pdf",
+                "driveId": "1o-33hnJ0xsUXVdSsEny74KcQ5L_QhOa6",
+                "driveUrl": "https://drive.google.com/file/d/1o-33hnJ0xsUXVdSsEny74KcQ5L_QhOa6/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/hi-tacan_rwy_22_dnd.pdf"
-, "driveId": "1o-33hnJ0xsUXVdSsEny74KcQ5L_QhOa6", "driveUrl": "https://drive.google.com/file/d/1o-33hnJ0xsUXVdSsEny74KcQ5L_QhOa6/view?usp=drivesdk" },
+        },
         {
                 "id": "hi-ils_tacan_x_rwy_31r_dnd.pdf",
                 "name": "HI-ILS_TACAN_X_RWY_31R_DND.pdf",
                 "url": "../charts_data/canada/cyod-cfb-cold-lake/hi-ils_tacan_x_rwy_31r_dnd.pdf",
                 "localUrl": "../charts_data/canada/cyod-cfb-cold-lake/hi-ils_tacan_x_rwy_31r_dnd.pdf",
+                "driveId": "1u1WDfgWazbYa_w67URDyJoPbjiT2ZC14",
+                "driveUrl": "https://drive.google.com/file/d/1u1WDfgWazbYa_w67URDyJoPbjiT2ZC14/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cyod-cfb-cold-lake/hi-ils_tacan_x_rwy_31r_dnd.pdf"
-, "driveId": "1u1WDfgWazbYa_w67URDyJoPbjiT2ZC14", "driveUrl": "https://drive.google.com/file/d/1u1WDfgWazbYa_w67URDyJoPbjiT2ZC14/view?usp=drivesdk" }
+        }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1361,14 +1517,17 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || '#', file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                const pagesBadge = file.pages && file.pages.length > 1
+                    ? `<span class="file-type">${file.pages.length} pages</span>`
+                    : `<span class="file-type">${file.type}</span>`;
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>
-                    <span class="file-type">${file.type}</span>
+                    ${pagesBadge}
                 `;
 
                 const pins = getPins();

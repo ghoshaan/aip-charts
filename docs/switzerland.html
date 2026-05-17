@@ -754,21 +754,6 @@
             includeMatches: true
         });
         
-
-        const PINS_KEY = 'atc_pins';
-        function getPins() {
-            try { return JSON.parse(localStorage.getItem(PINS_KEY)) || {airports: [], charts: []}; }
-            catch(e) { return {airports: [], charts: []}; }
-        }
-        function savePins(p) { localStorage.setItem(PINS_KEY, JSON.stringify(p)); }
-        function toggleAirportPin(airport) {
-            let pins = getPins();
-            let idx = pins.airports.findIndex(a => a.slug === airport.slug);
-            if (idx >= 0) pins.airports.splice(idx, 1);
-            else pins.airports.push({...airport, pinnedAt: Date.now()});
-            savePins(pins);
-        }
-
         function renderAirports(results = null) {
             const grid = document.getElementById('airportGrid');
             grid.innerHTML = '';

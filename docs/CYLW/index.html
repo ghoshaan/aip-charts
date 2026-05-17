@@ -622,7 +622,7 @@
                        placeholder="Search charts..." autocomplete="off">
             </div>
             <div class="search-help">
-                <strong>Examples:</strong> <code>star</code> • <code>RWY 04</code> • <code>ILS</code>
+                <strong>Examples:</strong> <code>star</code> &bull; <code>RWY 04</code> &bull; <code>ILS</code>
             </div>
         </div>
         
@@ -634,7 +634,7 @@
         
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
         
-        <div class="file-count" id="fileCount">Showing 41 files</div>
+        <div class="file-count" id="fileCount">Showing 30 files</div>
         <div class="file-list" id="fileList"></div>
         <div id="emptyState" class="empty-state" style="display: none;">
             <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
@@ -692,6 +692,12 @@
                         <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
                     </div>
 
+                    <div id="pageNav" style="display:none; justify-content:center; align-items:center; gap:1rem; padding:0.5rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
+                        <button class="control-btn" id="prevPageBtn" style="padding:0.25rem 0.75rem;">&#9664; PREV</button>
+                        <span id="pageIndicator" style="font-size:0.75rem; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); min-width:100px; text-align:center;">PAGE 1 OF 2</span>
+                        <button class="control-btn" id="nextPageBtn" style="padding:0.25rem 0.75rem;">NEXT &#9654;</button>
+                    </div>
+
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
                     </div>
@@ -745,6 +751,8 @@
             let isOpeningFromHash = false;
             let originalPageTitle = document.title;
             let currentFileId = null;
+            let currentFilePages = null;
+            let currentFilePageIndex = 0;
 
             const SIDEBAR_KEY = 'atc_sidebar_open';
             let sidebarOpen = localStorage.getItem(SIDEBAR_KEY) !== 'false';
@@ -790,7 +798,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
+                            openViewer(file.id, file.name, file.url, file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -803,6 +811,10 @@
 
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
+                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
+                currentFilePageIndex = 0;
+                if (currentFilePages) localUrl = currentFilePages[0].localUrl;
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
                 const loader = document.getElementById('viewerLoader');
@@ -844,17 +856,58 @@
                 try {
                     const loadingTask = pdfjsLib.getDocument(localUrl);
                     currentPdf = await loadingTask.promise;
-                    loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
+                    loaderStatus.textContent = `INDEXING ${{currentPdf.numPages}} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
+                    updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
-                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
-                    setTimeout(() => {
-                        window.open(driveUrl, '_blank');
-                        closeViewer();
-                    }, 2000);
+                    // Local file unavailable — embed Drive preview iframe
+                    const fileObj2 = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                    const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
+                    if (embedId) {
+                        loader.style.display = 'none';
+                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${{embedId}}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
+                    } else if (driveUrl && driveUrl !== '#') {
+                        loaderStatus.textContent = 'OPENING IN DRIVE...';
+                        setTimeout(() => {{ window.open(driveUrl, '_blank'); closeViewer(); }}, 1000);
+                    } else {
+                        loaderStatus.textContent = 'PDF NOT AVAILABLE.';
+                    }
                 }
+            }
+
+            function updatePageNav() {
+                const nav = document.getElementById('pageNav');
+                if (!nav) return;
+                if (currentFilePages && currentFilePages.length > 1) {
+                    nav.style.display = 'flex';
+                    document.getElementById('prevPageBtn').disabled = currentFilePageIndex === 0;
+                    document.getElementById('nextPageBtn').disabled = currentFilePageIndex === currentFilePages.length - 1;
+                    document.getElementById('pageIndicator').textContent =
+                        `PAGE ${currentFilePageIndex + 1} OF ${currentFilePages.length}`;
+                } else {
+                    nav.style.display = 'none';
+                }
+            }
+
+            async function goToFilePage(delta) {
+                if (!currentFilePages) return;
+                const newIndex = currentFilePageIndex + delta;
+                if (newIndex < 0 || newIndex >= currentFilePages.length) return;
+                currentFilePageIndex = newIndex;
+                const page = currentFilePages[newIndex];
+                const loader = document.getElementById('viewerLoader');
+                const loaderStatus = document.getElementById('loaderStatus');
+                loader.style.display = 'flex';
+                loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentRotation = 0;
+                const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                currentPdf = await loadingTask.promise;
+                await renderAllPages();
+                loader.style.display = 'none';
+                updatePageNav();
             }
 
             async function checkHash() {
@@ -875,7 +928,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1034,6 +1087,9 @@
                 localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
                 applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
         
         const airportCtx = {
@@ -1063,329 +1119,543 @@
                 "name": ".DS_Store",
                 "url": "../charts_data/canada/cylw-kelowna/.DS_Store",
                 "localUrl": "../charts_data/canada/cylw-kelowna/.DS_Store",
+                "driveId": "1426memmlrOH9hUZkKni_SHd08-ZfW3Y6",
+                "driveUrl": "https://drive.google.com/file/d/1426memmlrOH9hUZkKni_SHd08-ZfW3Y6/view?usp=drivesdk",
                 "type": "doc",
                 "rootUrl": "charts_data/canada/cylw-kelowna/.DS_Store"
-, "driveId": "1426memmlrOH9hUZkKni_SHd08-ZfW3Y6", "driveUrl": "https://drive.google.com/file/d/1426memmlrOH9hUZkKni_SHd08-ZfW3Y6/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_rnav_rnp_y_rwy_34.pdf",
                 "name": "CYLW_RNAV_RNP_Y_RWY_34.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_rnav_rnp_y_rwy_34.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_rnav_rnp_y_rwy_34.pdf",
+                "driveId": "1Up1SHCkPA9vTENGQhSagdP7UXn8cqql4",
+                "driveUrl": "https://drive.google.com/file/d/1Up1SHCkPA9vTENGQhSagdP7UXn8cqql4/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_rnav_rnp_y_rwy_34.pdf"
-, "driveId": "1Up1SHCkPA9vTENGQhSagdP7UXn8cqql4", "driveUrl": "https://drive.google.com/file/d/1Up1SHCkPA9vTENGQhSagdP7UXn8cqql4/view?usp=drivesdk" },
-        {
-                "id": "cylw_endby_3_dep_rnav_pg_02.pdf",
-                "name": "CYLW_ENDBY_3_DEP_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav_pg_02.pdf"
-, "driveId": "1Zt3Icja5GrDKJMPSfvo-yjeSV1npi030", "driveUrl": "https://drive.google.com/file/d/1Zt3Icja5GrDKJMPSfvo-yjeSV1npi030/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_restricted_rnav_rnp_z_rwy_34.pdf",
-                "name": "CYLW_RESTRICTED_RNAV_RNP_Z_RWY_34.pdf",
+                "name": "CYLW_RESTRICTED_RNAV_RNP_Z_RWY_34",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34.pdf",
+                "driveId": "1hcURQKAv5-nelDvAnPiXRMpwJbHjWAZ8",
+                "driveUrl": "https://drive.google.com/file/d/1hcURQKAv5-nelDvAnPiXRMpwJbHjWAZ8/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34.pdf"
-, "driveId": "1hcURQKAv5-nelDvAnPiXRMpwJbHjWAZ8", "driveUrl": "https://drive.google.com/file/d/1hcURQKAv5-nelDvAnPiXRMpwJbHjWAZ8/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34.pdf",
+                "pages": [
+                        {
+                                "id": "cylw_restricted_rnav_rnp_z_rwy_34.pdf",
+                                "name": "CYLW_RESTRICTED_RNAV_RNP_Z_RWY_34.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34.pdf",
+                                "driveId": "1hcURQKAv5-nelDvAnPiXRMpwJbHjWAZ8",
+                                "driveUrl": "https://drive.google.com/file/d/1hcURQKAv5-nelDvAnPiXRMpwJbHjWAZ8/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34.pdf"
+                        },
+                        {
+                                "id": "cylw_restricted_rnav_rnp_z_rwy_34_pg_02.pdf",
+                                "name": "CYLW_RESTRICTED_RNAV_RNP_Z_RWY_34_PG_02.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34_pg_02.pdf",
+                                "driveId": "1hGl2o9687LcshkY4kOpNUi1kwIKEq1Qw",
+                                "driveUrl": "https://drive.google.com/file/d/1hGl2o9687LcshkY4kOpNUi1kwIKEq1Qw/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cylw_restricted_nadev_3_dep_rnav_rnp.pdf",
                 "name": "CYLW_RESTRICTED_NADEV_3_DEP_RNAV_RNP.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_nadev_3_dep_rnav_rnp.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_nadev_3_dep_rnav_rnp.pdf",
+                "driveId": "1_87Cc1ozEAY_6OuikzpWfiIY0V-QmCwn",
+                "driveUrl": "https://drive.google.com/file/d/1_87Cc1ozEAY_6OuikzpWfiIY0V-QmCwn/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_nadev_3_dep_rnav_rnp.pdf"
-, "driveId": "1_87Cc1ozEAY_6OuikzpWfiIY0V-QmCwn", "driveUrl": "https://drive.google.com/file/d/1_87Cc1ozEAY_6OuikzpWfiIY0V-QmCwn/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_meryt_6_dep_rnav.pdf",
-                "name": "CYLW_MERYT_6_DEP_RNAV.pdf",
+                "name": "CYLW_MERYT_6_DEP_RNAV",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav.pdf",
+                "driveId": "1k_vfednmEt4wsYrKeSHiYD0ZeznIuBna",
+                "driveUrl": "https://drive.google.com/file/d/1k_vfednmEt4wsYrKeSHiYD0ZeznIuBna/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav.pdf"
-, "driveId": "1k_vfednmEt4wsYrKeSHiYD0ZeznIuBna", "driveUrl": "https://drive.google.com/file/d/1k_vfednmEt4wsYrKeSHiYD0ZeznIuBna/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cylw_meryt_6_dep_rnav.pdf",
+                                "name": "CYLW_MERYT_6_DEP_RNAV.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav.pdf",
+                                "driveId": "1k_vfednmEt4wsYrKeSHiYD0ZeznIuBna",
+                                "driveUrl": "https://drive.google.com/file/d/1k_vfednmEt4wsYrKeSHiYD0ZeznIuBna/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav.pdf"
+                        },
+                        {
+                                "id": "cylw_meryt_6_dep_rnav_pg_02.pdf",
+                                "name": "CYLW_MERYT_6_DEP_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav_pg_02.pdf",
+                                "driveId": "14TXdeqw3NCQDdXP3PTB-5kfaYtrdAmu6",
+                                "driveUrl": "https://drive.google.com/file/d/14TXdeqw3NCQDdXP3PTB-5kfaYtrdAmu6/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cylw_princeton_6_dep_rnav.pdf",
-                "name": "CYLW_PRINCETON_6_DEP_RNAV.pdf",
+                "name": "CYLW_PRINCETON_6_DEP_RNAV",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav.pdf",
+                "driveId": "1qBViSyoGPOEWAS7ZqO1X2I8DtdWeirXD",
+                "driveUrl": "https://drive.google.com/file/d/1qBViSyoGPOEWAS7ZqO1X2I8DtdWeirXD/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav.pdf"
-, "driveId": "1qBViSyoGPOEWAS7ZqO1X2I8DtdWeirXD", "driveUrl": "https://drive.google.com/file/d/1qBViSyoGPOEWAS7ZqO1X2I8DtdWeirXD/view?usp=drivesdk" },
-        {
-                "id": "cylw_restricted_katol_3_dep_rnav_rnp_pg_02.pdf",
-                "name": "CYLW_RESTRICTED_KATOL_3_DEP_RNAV_RNP_PG_02.pdf",
-                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp_pg_02.pdf"
-, "driveId": "1e4pxcYHXiBnGQjcXHa48Bz69T-uCyTmx", "driveUrl": "https://drive.google.com/file/d/1e4pxcYHXiBnGQjcXHa48Bz69T-uCyTmx/view?usp=drivesdk" },
-        {
-                "id": "cylw_kelowna_1_dep_vector_pg_02.pdf",
-                "name": "CYLW_KELOWNA_1_DEP_VECTOR_PG_02.pdf",
-                "url": "../charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector_pg_02.pdf"
-, "driveId": "1lVF50uipzV-ZanQiqQGwGR3CDk7_etf8", "driveUrl": "https://drive.google.com/file/d/1lVF50uipzV-ZanQiqQGwGR3CDk7_etf8/view?usp=drivesdk" },
-        {
-                "id": "cylw_meryt_6_dep_rnav_pg_02.pdf",
-                "name": "CYLW_MERYT_6_DEP_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_meryt_6_dep_rnav_pg_02.pdf"
-, "driveId": "14TXdeqw3NCQDdXP3PTB-5kfaYtrdAmu6", "driveUrl": "https://drive.google.com/file/d/14TXdeqw3NCQDdXP3PTB-5kfaYtrdAmu6/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cylw_princeton_6_dep_rnav.pdf",
+                                "name": "CYLW_PRINCETON_6_DEP_RNAV.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav.pdf",
+                                "driveId": "1qBViSyoGPOEWAS7ZqO1X2I8DtdWeirXD",
+                                "driveUrl": "https://drive.google.com/file/d/1qBViSyoGPOEWAS7ZqO1X2I8DtdWeirXD/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav.pdf"
+                        },
+                        {
+                                "id": "cylw_princeton_6_dep_rnav_pg_02.pdf",
+                                "name": "CYLW_PRINCETON_6_DEP_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav_pg_02.pdf",
+                                "driveId": "1KIIYrWPWzuAcUy9ykokQWnualzSkRBXN",
+                                "driveUrl": "https://drive.google.com/file/d/1KIIYrWPWzuAcUy9ykokQWnualzSkRBXN/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cylw_restricted_katol_3_dep_rnav_rnp.pdf",
-                "name": "CYLW_RESTRICTED_KATOL_3_DEP_RNAV_RNP.pdf",
+                "name": "CYLW_RESTRICTED_KATOL_3_DEP_RNAV_RNP",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp.pdf",
+                "driveId": "1iJ33EbkE05Ehk7B91gOR64qUzpuNwKZ2",
+                "driveUrl": "https://drive.google.com/file/d/1iJ33EbkE05Ehk7B91gOR64qUzpuNwKZ2/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp.pdf"
-, "driveId": "1iJ33EbkE05Ehk7B91gOR64qUzpuNwKZ2", "driveUrl": "https://drive.google.com/file/d/1iJ33EbkE05Ehk7B91gOR64qUzpuNwKZ2/view?usp=drivesdk" },
-        {
-                "id": "cylw_princeton_6_dep_rnav_pg_02.pdf",
-                "name": "CYLW_PRINCETON_6_DEP_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_princeton_6_dep_rnav_pg_02.pdf"
-, "driveId": "1KIIYrWPWzuAcUy9ykokQWnualzSkRBXN", "driveUrl": "https://drive.google.com/file/d/1KIIYrWPWzuAcUy9ykokQWnualzSkRBXN/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp.pdf",
+                "pages": [
+                        {
+                                "id": "cylw_restricted_katol_3_dep_rnav_rnp.pdf",
+                                "name": "CYLW_RESTRICTED_KATOL_3_DEP_RNAV_RNP.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp.pdf",
+                                "driveId": "1iJ33EbkE05Ehk7B91gOR64qUzpuNwKZ2",
+                                "driveUrl": "https://drive.google.com/file/d/1iJ33EbkE05Ehk7B91gOR64qUzpuNwKZ2/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp.pdf"
+                        },
+                        {
+                                "id": "cylw_restricted_katol_3_dep_rnav_rnp_pg_02.pdf",
+                                "name": "CYLW_RESTRICTED_KATOL_3_DEP_RNAV_RNP_PG_02.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp_pg_02.pdf",
+                                "driveId": "1e4pxcYHXiBnGQjcXHa48Bz69T-uCyTmx",
+                                "driveUrl": "https://drive.google.com/file/d/1e4pxcYHXiBnGQjcXHa48Bz69T-uCyTmx/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_katol_3_dep_rnav_rnp_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cylw_kelowna_1_dep_vector.pdf",
-                "name": "CYLW_KELOWNA_1_DEP_VECTOR.pdf",
+                "name": "CYLW_KELOWNA_1_DEP_VECTOR",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector.pdf",
+                "driveId": "15o7iZ9bJIfsF0URN2713YHESy83ixdcq",
+                "driveUrl": "https://drive.google.com/file/d/15o7iZ9bJIfsF0URN2713YHESy83ixdcq/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector.pdf"
-, "driveId": "15o7iZ9bJIfsF0URN2713YHESy83ixdcq", "driveUrl": "https://drive.google.com/file/d/15o7iZ9bJIfsF0URN2713YHESy83ixdcq/view?usp=drivesdk" },
-        {
-                "id": "cylw_restricted_rnav_rnp_x_rwy_16_pg_02.pdf",
-                "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_16_PG_02.pdf",
-                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16_pg_02.pdf"
-, "driveId": "1rkgSd2aabV9kRsadsVfdJ9iY4DpbvJo5", "driveUrl": "https://drive.google.com/file/d/1rkgSd2aabV9kRsadsVfdJ9iY4DpbvJo5/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector.pdf",
+                "pages": [
+                        {
+                                "id": "cylw_kelowna_1_dep_vector.pdf",
+                                "name": "CYLW_KELOWNA_1_DEP_VECTOR.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector.pdf",
+                                "driveId": "15o7iZ9bJIfsF0URN2713YHESy83ixdcq",
+                                "driveUrl": "https://drive.google.com/file/d/15o7iZ9bJIfsF0URN2713YHESy83ixdcq/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector.pdf"
+                        },
+                        {
+                                "id": "cylw_kelowna_1_dep_vector_pg_02.pdf",
+                                "name": "CYLW_KELOWNA_1_DEP_VECTOR_PG_02.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector_pg_02.pdf",
+                                "driveId": "1lVF50uipzV-ZanQiqQGwGR3CDk7_etf8",
+                                "driveUrl": "https://drive.google.com/file/d/1lVF50uipzV-ZanQiqQGwGR3CDk7_etf8/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_kelowna_1_dep_vector_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cylw_takeoff_minimums.pdf",
                 "name": "CYLW_TAKEOFF_MINIMUMS.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_takeoff_minimums.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_takeoff_minimums.pdf",
+                "driveId": "1OcnseTqy1nkM8Ix2HZ2ktcZy9wKPCWG6",
+                "driveUrl": "https://drive.google.com/file/d/1OcnseTqy1nkM8Ix2HZ2ktcZy9wKPCWG6/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_takeoff_minimums.pdf"
-, "driveId": "1OcnseTqy1nkM8Ix2HZ2ktcZy9wKPCWG6", "driveUrl": "https://drive.google.com/file/d/1OcnseTqy1nkM8Ix2HZ2ktcZy9wKPCWG6/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_endby_3_dep_rnav.pdf",
-                "name": "CYLW_ENDBY_3_DEP_RNAV.pdf",
+                "name": "CYLW_ENDBY_3_DEP_RNAV",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav.pdf",
+                "driveId": "1jJWdgotocuWKycTH9-X6OHu1eeUxVQVn",
+                "driveUrl": "https://drive.google.com/file/d/1jJWdgotocuWKycTH9-X6OHu1eeUxVQVn/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav.pdf"
-, "driveId": "1jJWdgotocuWKycTH9-X6OHu1eeUxVQVn", "driveUrl": "https://drive.google.com/file/d/1jJWdgotocuWKycTH9-X6OHu1eeUxVQVn/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cylw_endby_3_dep_rnav.pdf",
+                                "name": "CYLW_ENDBY_3_DEP_RNAV.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav.pdf",
+                                "driveId": "1jJWdgotocuWKycTH9-X6OHu1eeUxVQVn",
+                                "driveUrl": "https://drive.google.com/file/d/1jJWdgotocuWKycTH9-X6OHu1eeUxVQVn/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav.pdf"
+                        },
+                        {
+                                "id": "cylw_endby_3_dep_rnav_pg_02.pdf",
+                                "name": "CYLW_ENDBY_3_DEP_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav_pg_02.pdf",
+                                "driveId": "1Zt3Icja5GrDKJMPSfvo-yjeSV1npi030",
+                                "driveUrl": "https://drive.google.com/file/d/1Zt3Icja5GrDKJMPSfvo-yjeSV1npi030/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_endby_3_dep_rnav_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cylw_parking_areas_apron_i.pdf",
                 "name": "CYLW_PARKING_AREAS_APRON_I.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_parking_areas_apron_i.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_parking_areas_apron_i.pdf",
+                "driveId": "1wbMN3R13USn4i8YKnc0N5uofilhkzD3w",
+                "driveUrl": "https://drive.google.com/file/d/1wbMN3R13USn4i8YKnc0N5uofilhkzD3w/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_parking_areas_apron_i.pdf"
-, "driveId": "1wbMN3R13USn4i8YKnc0N5uofilhkzD3w", "driveUrl": "https://drive.google.com/file/d/1wbMN3R13USn4i8YKnc0N5uofilhkzD3w/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_parking_areas_apron_iii.pdf",
                 "name": "CYLW_PARKING_AREAS_APRON_III.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_parking_areas_apron_iii.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_parking_areas_apron_iii.pdf",
+                "driveId": "1k6qGFTSJvWxo735rSiR9qe8haMm1Aqoy",
+                "driveUrl": "https://drive.google.com/file/d/1k6qGFTSJvWxo735rSiR9qe8haMm1Aqoy/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_parking_areas_apron_iii.pdf"
-, "driveId": "1k6qGFTSJvWxo735rSiR9qe8haMm1Aqoy", "driveUrl": "https://drive.google.com/file/d/1k6qGFTSJvWxo735rSiR9qe8haMm1Aqoy/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_aerodrome_chart.pdf",
                 "name": "CYLW_AERODROME_CHART.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_aerodrome_chart.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_aerodrome_chart.pdf",
+                "driveId": "135YJG1Z4qFsj5SFtZmBqXf4UrlmHFjIR",
+                "driveUrl": "https://drive.google.com/file/d/135YJG1Z4qFsj5SFtZmBqXf4UrlmHFjIR/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_aerodrome_chart.pdf"
-, "driveId": "135YJG1Z4qFsj5SFtZmBqXf4UrlmHFjIR", "driveUrl": "https://drive.google.com/file/d/135YJG1Z4qFsj5SFtZmBqXf4UrlmHFjIR/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_night_circuit_procedures.pdf",
                 "name": "CYLW_NIGHT_CIRCUIT_PROCEDURES.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_night_circuit_procedures.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_night_circuit_procedures.pdf",
+                "driveId": "1yjv46TfSgteAwLIb636uw8UHhq2n70zh",
+                "driveUrl": "https://drive.google.com/file/d/1yjv46TfSgteAwLIb636uw8UHhq2n70zh/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_night_circuit_procedures.pdf"
-, "driveId": "1yjv46TfSgteAwLIb636uw8UHhq2n70zh", "driveUrl": "https://drive.google.com/file/d/1yjv46TfSgteAwLIb636uw8UHhq2n70zh/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_rnav_gnss_z_rwy_16.pdf",
                 "name": "CYLW_RNAV_GNSS_Z_RWY_16.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_rnav_gnss_z_rwy_16.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_rnav_gnss_z_rwy_16.pdf",
+                "driveId": "1LuIIjhaongUKlY14s33_49NLh4y_kn1B",
+                "driveUrl": "https://drive.google.com/file/d/1LuIIjhaongUKlY14s33_49NLh4y_kn1B/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_rnav_gnss_z_rwy_16.pdf"
-, "driveId": "1LuIIjhaongUKlY14s33_49NLh4y_kn1B", "driveUrl": "https://drive.google.com/file/d/1LuIIjhaongUKlY14s33_49NLh4y_kn1B/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_rnav_gnss_y_rwy_16.pdf",
                 "name": "CYLW_RNAV_GNSS_Y_RWY_16.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_rnav_gnss_y_rwy_16.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_rnav_gnss_y_rwy_16.pdf",
+                "driveId": "15jzOBY-WmZBvXEc_9tpS9v4Y6iRMwIJN",
+                "driveUrl": "https://drive.google.com/file/d/15jzOBY-WmZBvXEc_9tpS9v4Y6iRMwIJN/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_rnav_gnss_y_rwy_16.pdf"
-, "driveId": "15jzOBY-WmZBvXEc_9tpS9v4Y6iRMwIJN", "driveUrl": "https://drive.google.com/file/d/15jzOBY-WmZBvXEc_9tpS9v4Y6iRMwIJN/view?usp=drivesdk" },
-        {
-                "id": "cylw_restricted_rnav_gnss_v_rwy_16_pg_02.pdf",
-                "name": "CYLW_RESTRICTED_RNAV_GNSS_V_RWY_16_PG_02.pdf",
-                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16_pg_02.pdf"
-, "driveId": "1oAFS9r7uBOflRtWbjOssWrFOt8NYdbp7", "driveUrl": "https://drive.google.com/file/d/1oAFS9r7uBOflRtWbjOssWrFOt8NYdbp7/view?usp=drivesdk" },
-        {
-                "id": "cylw_restricted_rnav_rnp_z_rwy_34_pg_02.pdf",
-                "name": "CYLW_RESTRICTED_RNAV_RNP_Z_RWY_34_PG_02.pdf",
-                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_z_rwy_34_pg_02.pdf"
-, "driveId": "1hGl2o9687LcshkY4kOpNUi1kwIKEq1Qw", "driveUrl": "https://drive.google.com/file/d/1hGl2o9687LcshkY4kOpNUi1kwIKEq1Qw/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_rnav_gnss_a.pdf",
                 "name": "CYLW_RNAV_GNSS_A.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_rnav_gnss_a.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_rnav_gnss_a.pdf",
+                "driveId": "1btVgimkKyk1Abx5wnlMplq3Ph9XvIZhN",
+                "driveUrl": "https://drive.google.com/file/d/1btVgimkKyk1Abx5wnlMplq3Ph9XvIZhN/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_rnav_gnss_a.pdf"
-, "driveId": "1btVgimkKyk1Abx5wnlMplq3Ph9XvIZhN", "driveUrl": "https://drive.google.com/file/d/1btVgimkKyk1Abx5wnlMplq3Ph9XvIZhN/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_ndb_b.pdf",
                 "name": "CYLW_NDB_B.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_ndb_b.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_ndb_b.pdf",
+                "driveId": "10hsKmO_E73ofVsMimwQ3LMByGyJV7LAJ",
+                "driveUrl": "https://drive.google.com/file/d/10hsKmO_E73ofVsMimwQ3LMByGyJV7LAJ/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_ndb_b.pdf"
-, "driveId": "10hsKmO_E73ofVsMimwQ3LMByGyJV7LAJ", "driveUrl": "https://drive.google.com/file/d/10hsKmO_E73ofVsMimwQ3LMByGyJV7LAJ/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_restricted_rnav_rnp_w_rwy_34.pdf",
                 "name": "CYLW_RESTRICTED_RNAV_RNP_W_RWY_34.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_w_rwy_34.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_w_rwy_34.pdf",
+                "driveId": "1T_r_bqRnM2VN5usFU7Q-ngYUmh3HuySN",
+                "driveUrl": "https://drive.google.com/file/d/1T_r_bqRnM2VN5usFU7Q-ngYUmh3HuySN/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_w_rwy_34.pdf"
-, "driveId": "1T_r_bqRnM2VN5usFU7Q-ngYUmh3HuySN", "driveUrl": "https://drive.google.com/file/d/1T_r_bqRnM2VN5usFU7Q-ngYUmh3HuySN/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_restricted_rnav_rnp_x_rwy_16.pdf",
-                "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_16.pdf",
+                "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_16",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16.pdf",
+                "driveId": "1Vfoc1zNLfY92pW53kF_-ZNOGGDijjuwd",
+                "driveUrl": "https://drive.google.com/file/d/1Vfoc1zNLfY92pW53kF_-ZNOGGDijjuwd/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16.pdf"
-, "driveId": "1Vfoc1zNLfY92pW53kF_-ZNOGGDijjuwd", "driveUrl": "https://drive.google.com/file/d/1Vfoc1zNLfY92pW53kF_-ZNOGGDijjuwd/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16.pdf",
+                "pages": [
+                        {
+                                "id": "cylw_restricted_rnav_rnp_x_rwy_16.pdf",
+                                "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_16.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16.pdf",
+                                "driveId": "1Vfoc1zNLfY92pW53kF_-ZNOGGDijjuwd",
+                                "driveUrl": "https://drive.google.com/file/d/1Vfoc1zNLfY92pW53kF_-ZNOGGDijjuwd/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16.pdf"
+                        },
+                        {
+                                "id": "cylw_restricted_rnav_rnp_x_rwy_16_pg_02.pdf",
+                                "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_16_PG_02.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16_pg_02.pdf",
+                                "driveId": "1rkgSd2aabV9kRsadsVfdJ9iY4DpbvJo5",
+                                "driveUrl": "https://drive.google.com/file/d/1rkgSd2aabV9kRsadsVfdJ9iY4DpbvJo5/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_16_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cylw_restricted_rnav_rnp_x_rwy_34.pdf",
                 "name": "CYLW_RESTRICTED_RNAV_RNP_X_RWY_34.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_34.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_34.pdf",
+                "driveId": "1Xd0_ffyIDqgl9JjgMfdcO5M2VjdP6rpW",
+                "driveUrl": "https://drive.google.com/file/d/1Xd0_ffyIDqgl9JjgMfdcO5M2VjdP6rpW/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_x_rwy_34.pdf"
-, "driveId": "1Xd0_ffyIDqgl9JjgMfdcO5M2VjdP6rpW", "driveUrl": "https://drive.google.com/file/d/1Xd0_ffyIDqgl9JjgMfdcO5M2VjdP6rpW/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_restricted_rnav_rnp_w_rwy_16.pdf",
                 "name": "CYLW_RESTRICTED_RNAV_RNP_W_RWY_16.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_w_rwy_16.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_w_rwy_16.pdf",
+                "driveId": "17jim79UxKzNVVjlzbfmfUd5taSJUOQmx",
+                "driveUrl": "https://drive.google.com/file/d/17jim79UxKzNVVjlzbfmfUd5taSJUOQmx/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_rnp_w_rwy_16.pdf"
-, "driveId": "17jim79UxKzNVVjlzbfmfUd5taSJUOQmx", "driveUrl": "https://drive.google.com/file/d/17jim79UxKzNVVjlzbfmfUd5taSJUOQmx/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_restricted_rnav_gnss_v_rwy_16.pdf",
-                "name": "CYLW_RESTRICTED_RNAV_GNSS_V_RWY_16.pdf",
+                "name": "CYLW_RESTRICTED_RNAV_GNSS_V_RWY_16",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16.pdf",
+                "driveId": "1tRt_fkqjhJIzqhD0MfIEddpTMdXJWIon",
+                "driveUrl": "https://drive.google.com/file/d/1tRt_fkqjhJIzqhD0MfIEddpTMdXJWIon/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16.pdf"
-, "driveId": "1tRt_fkqjhJIzqhD0MfIEddpTMdXJWIon", "driveUrl": "https://drive.google.com/file/d/1tRt_fkqjhJIzqhD0MfIEddpTMdXJWIon/view?usp=drivesdk" },
-        {
-                "id": "cylw_restricted_ils_z_rwy_16_pg_02.pdf",
-                "name": "CYLW_RESTRICTED_ILS_Z_RWY_16_PG_02.pdf",
-                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16_pg_02.pdf"
-, "driveId": "1lUN7T-60h2Stc88qu5v1LjBnanRiwwlw", "driveUrl": "https://drive.google.com/file/d/1lUN7T-60h2Stc88qu5v1LjBnanRiwwlw/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16.pdf",
+                "pages": [
+                        {
+                                "id": "cylw_restricted_rnav_gnss_v_rwy_16.pdf",
+                                "name": "CYLW_RESTRICTED_RNAV_GNSS_V_RWY_16.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16.pdf",
+                                "driveId": "1tRt_fkqjhJIzqhD0MfIEddpTMdXJWIon",
+                                "driveUrl": "https://drive.google.com/file/d/1tRt_fkqjhJIzqhD0MfIEddpTMdXJWIon/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16.pdf"
+                        },
+                        {
+                                "id": "cylw_restricted_rnav_gnss_v_rwy_16_pg_02.pdf",
+                                "name": "CYLW_RESTRICTED_RNAV_GNSS_V_RWY_16_PG_02.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16_pg_02.pdf",
+                                "driveId": "1oAFS9r7uBOflRtWbjOssWrFOt8NYdbp7",
+                                "driveUrl": "https://drive.google.com/file/d/1oAFS9r7uBOflRtWbjOssWrFOt8NYdbp7/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_rnav_gnss_v_rwy_16_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cylw_restricted_ils_z_rwy_16.pdf",
-                "name": "CYLW_RESTRICTED_ILS_Z_RWY_16.pdf",
+                "name": "CYLW_RESTRICTED_ILS_Z_RWY_16",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16.pdf",
+                "driveId": "1CQdvLV9ePPz9yPaQ1z_DBs3fqr4SJieC",
+                "driveUrl": "https://drive.google.com/file/d/1CQdvLV9ePPz9yPaQ1z_DBs3fqr4SJieC/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16.pdf"
-, "driveId": "1CQdvLV9ePPz9yPaQ1z_DBs3fqr4SJieC", "driveUrl": "https://drive.google.com/file/d/1CQdvLV9ePPz9yPaQ1z_DBs3fqr4SJieC/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16.pdf",
+                "pages": [
+                        {
+                                "id": "cylw_restricted_ils_z_rwy_16.pdf",
+                                "name": "CYLW_RESTRICTED_ILS_Z_RWY_16.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16.pdf",
+                                "driveId": "1CQdvLV9ePPz9yPaQ1z_DBs3fqr4SJieC",
+                                "driveUrl": "https://drive.google.com/file/d/1CQdvLV9ePPz9yPaQ1z_DBs3fqr4SJieC/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16.pdf"
+                        },
+                        {
+                                "id": "cylw_restricted_ils_z_rwy_16_pg_02.pdf",
+                                "name": "CYLW_RESTRICTED_ILS_Z_RWY_16_PG_02.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16_pg_02.pdf",
+                                "driveId": "1lUN7T-60h2Stc88qu5v1LjBnanRiwwlw",
+                                "driveUrl": "https://drive.google.com/file/d/1lUN7T-60h2Stc88qu5v1LjBnanRiwwlw/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_z_rwy_16_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cylw_loc_z_rwy_16.pdf",
                 "name": "CYLW_LOC_Z_RWY_16.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_loc_z_rwy_16.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_loc_z_rwy_16.pdf",
+                "driveId": "1hxiP6A-VW1Gf7-6dDkFL06S_PfgMWZP4",
+                "driveUrl": "https://drive.google.com/file/d/1hxiP6A-VW1Gf7-6dDkFL06S_PfgMWZP4/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_loc_z_rwy_16.pdf"
-, "driveId": "1hxiP6A-VW1Gf7-6dDkFL06S_PfgMWZP4", "driveUrl": "https://drive.google.com/file/d/1hxiP6A-VW1Gf7-6dDkFL06S_PfgMWZP4/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_loc_y_rwy_16.pdf",
                 "name": "CYLW_LOC_Y_RWY_16.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_loc_y_rwy_16.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_loc_y_rwy_16.pdf",
+                "driveId": "11MHTObkIq6lRcmkFFksF9MZT2O6vKvMN",
+                "driveUrl": "https://drive.google.com/file/d/11MHTObkIq6lRcmkFFksF9MZT2O6vKvMN/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_loc_y_rwy_16.pdf"
-, "driveId": "11MHTObkIq6lRcmkFFksF9MZT2O6vKvMN", "driveUrl": "https://drive.google.com/file/d/11MHTObkIq6lRcmkFFksF9MZT2O6vKvMN/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_restricted_ils_y_rwy_16.pdf",
-                "name": "CYLW_RESTRICTED_ILS_Y_RWY_16.pdf",
+                "name": "CYLW_RESTRICTED_ILS_Y_RWY_16",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16.pdf",
+                "driveId": "1xcHZnLYdP7R-lza4iukZAL9j_MonzpAF",
+                "driveUrl": "https://drive.google.com/file/d/1xcHZnLYdP7R-lza4iukZAL9j_MonzpAF/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16.pdf"
-, "driveId": "1xcHZnLYdP7R-lza4iukZAL9j_MonzpAF", "driveUrl": "https://drive.google.com/file/d/1xcHZnLYdP7R-lza4iukZAL9j_MonzpAF/view?usp=drivesdk" },
+                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16.pdf",
+                "pages": [
+                        {
+                                "id": "cylw_restricted_ils_y_rwy_16.pdf",
+                                "name": "CYLW_RESTRICTED_ILS_Y_RWY_16.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16.pdf",
+                                "driveId": "1xcHZnLYdP7R-lza4iukZAL9j_MonzpAF",
+                                "driveUrl": "https://drive.google.com/file/d/1xcHZnLYdP7R-lza4iukZAL9j_MonzpAF/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16.pdf"
+                        },
+                        {
+                                "id": "cylw_restricted_ils_y_rwy_16_pg_02.pdf",
+                                "name": "CYLW_RESTRICTED_ILS_Y_RWY_16_PG_02.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16_pg_02.pdf",
+                                "driveId": "1mzimL35TUsZo48jb-qHYAAlnwbqV74cQ",
+                                "driveUrl": "https://drive.google.com/file/d/1mzimL35TUsZo48jb-qHYAAlnwbqV74cQ/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16_pg_02.pdf"
+                        }
+                ]
+        },
         {
                 "id": "cylw_sekab_5_arr_rnav.pdf",
                 "name": "CYLW_SEKAB_5_ARR_RNAV.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_sekab_5_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_sekab_5_arr_rnav.pdf",
+                "driveId": "1JRw0WFdTeWIgVNeYkMzEbF8jhkxj60U4",
+                "driveUrl": "https://drive.google.com/file/d/1JRw0WFdTeWIgVNeYkMzEbF8jhkxj60U4/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_sekab_5_arr_rnav.pdf"
-, "driveId": "1JRw0WFdTeWIgVNeYkMzEbF8jhkxj60U4", "driveUrl": "https://drive.google.com/file/d/1JRw0WFdTeWIgVNeYkMzEbF8jhkxj60U4/view?usp=drivesdk" },
-        {
-                "id": "cylw_restricted_ils_y_rwy_16_pg_02.pdf",
-                "name": "CYLW_RESTRICTED_ILS_Y_RWY_16_PG_02.pdf",
-                "url": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_restricted_ils_y_rwy_16_pg_02.pdf"
-, "driveId": "1mzimL35TUsZo48jb-qHYAAlnwbqV74cQ", "driveUrl": "https://drive.google.com/file/d/1mzimL35TUsZo48jb-qHYAAlnwbqV74cQ/view?usp=drivesdk" },
-        {
-                "id": "cylw_norip_5_arr_rnav_pg_02.pdf",
-                "name": "CYLW_NORIP_5_ARR_RNAV_PG_02.pdf",
-                "url": "../charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav_pg_02.pdf",
-                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav_pg_02.pdf",
-                "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav_pg_02.pdf"
-, "driveId": "14X1zV5woZBX8YoCXgLcySBgk9H-jy5Dl", "driveUrl": "https://drive.google.com/file/d/14X1zV5woZBX8YoCXgLcySBgk9H-jy5Dl/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_piglu_5_arr_rnav.pdf",
                 "name": "CYLW_PIGLU_5_ARR_RNAV.pdf",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_piglu_5_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_piglu_5_arr_rnav.pdf",
+                "driveId": "1SCal94MSJrwBAt4B6LNiDOajkaCxGaey",
+                "driveUrl": "https://drive.google.com/file/d/1SCal94MSJrwBAt4B6LNiDOajkaCxGaey/view?usp=drivesdk",
                 "type": "pdf",
                 "rootUrl": "charts_data/canada/cylw-kelowna/cylw_piglu_5_arr_rnav.pdf"
-, "driveId": "1SCal94MSJrwBAt4B6LNiDOajkaCxGaey", "driveUrl": "https://drive.google.com/file/d/1SCal94MSJrwBAt4B6LNiDOajkaCxGaey/view?usp=drivesdk" },
+        },
         {
                 "id": "cylw_norip_5_arr_rnav.pdf",
-                "name": "CYLW_NORIP_5_ARR_RNAV.pdf",
+                "name": "CYLW_NORIP_5_ARR_RNAV",
                 "url": "../charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav.pdf",
                 "localUrl": "../charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav.pdf",
+                "driveId": "1FEOE9_s9lL37zzmqLmYRz9f_G7zDAC3i",
+                "driveUrl": "https://drive.google.com/file/d/1FEOE9_s9lL37zzmqLmYRz9f_G7zDAC3i/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav.pdf"
-, "driveId": "1FEOE9_s9lL37zzmqLmYRz9f_G7zDAC3i", "driveUrl": "https://drive.google.com/file/d/1FEOE9_s9lL37zzmqLmYRz9f_G7zDAC3i/view?usp=drivesdk" }
+                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav.pdf",
+                "pages": [
+                        {
+                                "id": "cylw_norip_5_arr_rnav.pdf",
+                                "name": "CYLW_NORIP_5_ARR_RNAV.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav.pdf",
+                                "driveId": "1FEOE9_s9lL37zzmqLmYRz9f_G7zDAC3i",
+                                "driveUrl": "https://drive.google.com/file/d/1FEOE9_s9lL37zzmqLmYRz9f_G7zDAC3i/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav.pdf"
+                        },
+                        {
+                                "id": "cylw_norip_5_arr_rnav_pg_02.pdf",
+                                "name": "CYLW_NORIP_5_ARR_RNAV_PG_02.pdf",
+                                "url": "../charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav_pg_02.pdf",
+                                "driveId": "14X1zV5woZBX8YoCXgLcySBgk9H-jy5Dl",
+                                "driveUrl": "https://drive.google.com/file/d/14X1zV5woZBX8YoCXgLcySBgk9H-jy5Dl/view?usp=drivesdk",
+                                "type": "pdf",
+                                "rootUrl": "charts_data/canada/cylw-kelowna/cylw_norip_5_arr_rnav_pg_02.pdf"
+                        }
+                ]
+        }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
         let currentFilter = 'all';
@@ -1433,14 +1703,17 @@
                 item.href = `#view=${file.id}`;
                 item.onclick = (e) => {
                     e.preventDefault();
-                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
+                    openViewer(file.id, file.name, file.driveUrl || '#', file.localUrl, false, airportCtx.icao);
                 };
                 item.style.borderBottom = 'none';
                 item.style.flex = '1';
+                const pagesBadge = file.pages && file.pages.length > 1
+                    ? `<span class="file-type">${file.pages.length} pages</span>`
+                    : `<span class="file-type">${file.type}</span>`;
                 item.innerHTML = `
                     <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
                     <span class="file-name">${file.name}</span>
-                    <span class="file-type">${file.type}</span>
+                    ${pagesBadge}
                 `;
 
                 const pins = getPins();

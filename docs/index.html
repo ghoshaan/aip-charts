@@ -709,38 +709,34 @@
                     <span class="card-icon">🇨🇦</span>
                     <div class="card-title">CANADA</div>
                     <div class="card-count">
-                        <strong>368</strong> airports • 
+                        <strong>368</strong> airports &bull;
                         <strong>2840</strong> files
                     </div>
                 </a>
-                
                 <a href="ireland.html" class="region-card">
                     <span class="card-icon">🇮🇪</span>
                     <div class="card-title">Ireland</div>
                     <div class="card-count">
-                        <strong>10</strong> airports • 
+                        <strong>10</strong> airports &bull;
                         <strong>144</strong> files
                     </div>
                 </a>
-                
                 <a href="netherlands.html" class="region-card">
                     <span class="card-icon">🇳🇱</span>
                     <div class="card-title">Netherlands</div>
                     <div class="card-count">
-                        <strong>25</strong> airports • 
+                        <strong>25</strong> airports &bull;
                         <strong>221</strong> files
                     </div>
                 </a>
-                
                 <a href="switzerland.html" class="region-card">
                     <span class="card-icon">🇨🇭</span>
                     <div class="card-title">Switzerland</div>
                     <div class="card-count">
-                        <strong>13</strong> airports • 
+                        <strong>13</strong> airports &bull;
                         <strong>186</strong> files
                     </div>
                 </a>
-                
             </div>
         </div>
 
@@ -800,6 +796,12 @@
                         <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
                     </div>
 
+                    <div id="pageNav" style="display:none; justify-content:center; align-items:center; gap:1rem; padding:0.5rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
+                        <button class="control-btn" id="prevPageBtn" style="padding:0.25rem 0.75rem;">&#9664; PREV</button>
+                        <span id="pageIndicator" style="font-size:0.75rem; font-family:'IBM Plex Mono',monospace; color:var(--text-dim); min-width:100px; text-align:center;">PAGE 1 OF 2</span>
+                        <button class="control-btn" id="nextPageBtn" style="padding:0.25rem 0.75rem;">NEXT &#9654;</button>
+                    </div>
+
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
                     </div>
@@ -853,6 +855,8 @@
             let isOpeningFromHash = false;
             let originalPageTitle = document.title;
             let currentFileId = null;
+            let currentFilePages = null;
+            let currentFilePageIndex = 0;
 
             const SIDEBAR_KEY = 'atc_sidebar_open';
             let sidebarOpen = localStorage.getItem(SIDEBAR_KEY) !== 'false';
@@ -898,7 +902,7 @@
                     item.textContent = file.name.replace(/\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
-                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
+                            openViewer(file.id, file.name, file.url, file.localUrl, false,
                                 typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
                         }
                     };
@@ -911,6 +915,10 @@
 
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
+                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
+                currentFilePageIndex = 0;
+                if (currentFilePages) localUrl = currentFilePages[0].localUrl;
                 const modal = document.getElementById('viewerModal');
                 const title = document.getElementById('viewerTitle');
                 const loader = document.getElementById('viewerLoader');
@@ -952,17 +960,58 @@
                 try {
                     const loadingTask = pdfjsLib.getDocument(localUrl);
                     currentPdf = await loadingTask.promise;
-                    loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
+                    loaderStatus.textContent = `INDEXING ${{currentPdf.numPages}} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
+                    updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
-                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
-                    setTimeout(() => {
-                        window.open(driveUrl, '_blank');
-                        closeViewer();
-                    }, 2000);
+                    // Local file unavailable — embed Drive preview iframe
+                    const fileObj2 = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                    const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
+                    if (embedId) {
+                        loader.style.display = 'none';
+                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${{embedId}}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
+                    } else if (driveUrl && driveUrl !== '#') {
+                        loaderStatus.textContent = 'OPENING IN DRIVE...';
+                        setTimeout(() => {{ window.open(driveUrl, '_blank'); closeViewer(); }}, 1000);
+                    } else {
+                        loaderStatus.textContent = 'PDF NOT AVAILABLE.';
+                    }
                 }
+            }
+
+            function updatePageNav() {
+                const nav = document.getElementById('pageNav');
+                if (!nav) return;
+                if (currentFilePages && currentFilePages.length > 1) {
+                    nav.style.display = 'flex';
+                    document.getElementById('prevPageBtn').disabled = currentFilePageIndex === 0;
+                    document.getElementById('nextPageBtn').disabled = currentFilePageIndex === currentFilePages.length - 1;
+                    document.getElementById('pageIndicator').textContent =
+                        `PAGE ${currentFilePageIndex + 1} OF ${currentFilePages.length}`;
+                } else {
+                    nav.style.display = 'none';
+                }
+            }
+
+            async function goToFilePage(delta) {
+                if (!currentFilePages) return;
+                const newIndex = currentFilePageIndex + delta;
+                if (newIndex < 0 || newIndex >= currentFilePages.length) return;
+                currentFilePageIndex = newIndex;
+                const page = currentFilePages[newIndex];
+                const loader = document.getElementById('viewerLoader');
+                const loaderStatus = document.getElementById('loaderStatus');
+                loader.style.display = 'flex';
+                loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentRotation = 0;
+                const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                currentPdf = await loadingTask.promise;
+                await renderAllPages();
+                loader.style.display = 'none';
+                updatePageNav();
             }
 
             async function checkHash() {
@@ -983,7 +1032,7 @@
                         }
                         
                         if (found) {
-                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
+                            await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
                             // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
@@ -1142,6 +1191,9 @@
                 localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
                 applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
         let searchIndex = [];
         let fuse = null;
@@ -1269,7 +1321,7 @@
                     <span style="font-size: 1.25rem;">📄</span>
                     <div class="pin-info">
                         <div class="pin-name">${c.name}</div>
-                        <div class="pin-meta">${c.airport} • ${c.region}</div>
+                        <div class="pin-meta">${c.airport} &bull; ${c.region}</div>
                     </div>
                 `;
 
@@ -1304,6 +1356,18 @@
 
         renderPins();
 
+        const fuse = new Fuse(searchIndex, {
+            keys: [
+                { name: 'name', weight: 2 },
+                { name: 'code', weight: 2 },
+                { name: 'airport', weight: 1 },
+                { name: 'region', weight: 1 }
+            ],
+            threshold: 0.3,
+            includeMatches: true,
+            limit: 50
+        });
+        
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const resultsList = document.getElementById('resultsList');
@@ -1318,11 +1382,10 @@
                 searchResults.style.display = 'none';
                 defaultView.style.display = 'block';
                 emptyState.style.display = 'none';
-                renderPins();
+                renderPins(); // Refresh pins when returning to default view
                 return;
             }
 
-            if (!fuse) return;
             pinnedSection.style.display = 'none';
             const results = fuse.search(query);
 
@@ -1355,15 +1418,16 @@
                     div.href = `#view=${item.id}`;
                     div.onclick = (e) => {
                         e.preventDefault();
-                        openViewer(item.id, item.name, item.driveUrl || "#", item.localUrl, false, item.airport);
+                        openViewer(item.id, item.name, item.driveUrl || '#', item.localUrl, false, item.airport);
                     };
                 } else {
                     div.href = item.url;
                 }
+            });
 
                 const meta = item.type === 'airport' 
                     ? `${item.region}` 
-                    : `${item.airport} • ${item.region}`;
+                    : `${item.airport} &bull; ${item.region}`;
 
                 div.innerHTML = `
                     <span class="result-icon">${item.icon}</span>
