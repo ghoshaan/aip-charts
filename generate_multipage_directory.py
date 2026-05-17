@@ -2455,7 +2455,7 @@ def get_viewer_js():
                 try {
                     const loadingTask = pdfjsLib.getDocument(localUrl);
                     currentPdf = await loadingTask.promise;
-                    loaderStatus.textContent = `INDEXING ${{currentPdf.numPages}} PAGE(S)...`;
+                    loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
@@ -2466,10 +2466,10 @@ def get_viewer_js():
                     const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
                     if (embedId) {
                         loader.style.display = 'none';
-                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${{embedId}}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
+                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${embedId}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
                     } else if (driveUrl && driveUrl !== '#') {
                         loaderStatus.textContent = 'OPENING IN DRIVE...';
-                        setTimeout(() => {{ window.open(driveUrl, '_blank'); closeViewer(); }}, 1000);
+                        setTimeout(() => { window.open(driveUrl, '_blank'); closeViewer(); }, 1000);
                     } else {
                         loaderStatus.textContent = 'PDF NOT AVAILABLE.';
                     }
