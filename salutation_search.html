@@ -281,7 +281,8 @@
                 const response = await fetch('data/wiktionary_dictionary.json');
                 if (!response.ok) throw new Error('Database not found. Please ensure the data directory is correctly populated.');
                 const data = await response.json();
-                dictionary = Object.values(data);
+                // Filter dictionary to only include items with audioUrl
+                dictionary = Object.values(data).filter(d => d.audioUrl);
                 
                 // Populate Language Filter
                 const langs = [...new Set(dictionary.map(d => d.language))].sort();
@@ -341,7 +342,8 @@
             const term = document.getElementById('search').value;
             const lang = document.getElementById('langFilter').value;
             
-            let filtered = dictionary;
+            // Filter dictionary to only include items with audioUrl
+            let filtered = dictionary.filter(d => d.audioUrl);
 
             if (lang !== 'all') {
                 filtered = filtered.filter(d => d.language === lang);
@@ -350,7 +352,7 @@
             if (term.trim() !== '') {
                 const searchResults = fuse.search(term);
                 filtered = searchResults.map(r => r.item).filter(item => {
-                    return lang === 'all' || item.language === lang;
+                    return item.audioUrl && (lang === 'all' || item.language === lang);
                 });
             }
 
