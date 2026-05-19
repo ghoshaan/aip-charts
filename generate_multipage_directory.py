@@ -23,6 +23,7 @@ import re
 import io
 import time
 import socket
+import hashlib
 from collections import defaultdict
 from google.auth.transport.requests import Request
 
@@ -1165,18 +1166,6 @@ def generate_index_page(hierarchy):
 
         renderPins();
 
-        const fuse = new Fuse(searchIndex, {{
-            keys: [
-                {{ name: 'name', weight: 2 }},
-                {{ name: 'code', weight: 2 }},
-                {{ name: 'airport', weight: 1 }},
-                {{ name: 'region', weight: 1 }}
-            ],
-            threshold: 0.3,
-            includeMatches: true,
-            limit: 50
-        }});
-        
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const resultsList = document.getElementById('resultsList');
@@ -1195,6 +1184,7 @@ def generate_index_page(hierarchy):
                 return;
             }}
 
+            if (!fuse) return;
             pinnedSection.style.display = 'none';
             const results = fuse.search(query);
 
@@ -1232,9 +1222,8 @@ def generate_index_page(hierarchy):
                 }} else {{
                     div.href = item.url;
                 }}
-            }});
 
-                const meta = item.type === 'airport' 
+                const meta = item.type === 'airport'
                     ? `${{item.region}}` 
                     : `${{item.airport}} &bull; ${{item.region}}`;
 
@@ -1488,7 +1477,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
 
     # Check if we can skip regeneration
     # We use a simple hash of the files list
-    airport_data_hash = str(hash(json.dumps(files, sort_keys=True)))
+    airport_data_hash = hashlib.md5(json.dumps(files, sort_keys=True).encode()).hexdigest()
     if manifest['airports'].get(airport_slug) == airport_data_hash and os.path.exists(f"{OUTPUT_DIR}/{airport_slug}/index.html"):
         return airport_slug
 
@@ -2969,3 +2958,4 @@ if __name__ == '__main__':
         print("\n\n❌ Cancelled\n")
     except Exception as e:
         print(f"\n❌ ERROR: {e}\n")
+        sys.exit(1)

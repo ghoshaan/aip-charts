@@ -4,6 +4,8 @@ token.json
 .claude/
 __pycache__/
 *.pyc
+.DS_Store
+Thumbs.db
 
 # Chart PDFs are downloaded locally by the generator — not committed
 # Exception: CYVR Vancouver is kept as a sample set for testing the viewer
