@@ -1199,8 +1199,11 @@
         let fuse = null;
 
         // Load search index asynchronously
+        const searchInput0 = document.getElementById('searchInput');
+        if (searchInput0) searchInput0.placeholder = 'Loading search index...';
+
         fetch('search_data.json')
-            .then(res => res.json())
+            .then(res => { if (!res.ok) throw new Error(res.status); return res.json(); })
             .then(data => {
                 searchIndex = data;
                 fuse = new Fuse(searchIndex, {
@@ -1214,7 +1217,14 @@
                     includeMatches: true,
                     limit: 50
                 });
-                renderPins(); 
+                if (searchInput0) searchInput0.placeholder = 'Search global directory (e.g. Dublin, star, EHAM)...';
+                renderPins();
+            })
+            .catch(() => {
+                if (searchInput0) {
+                    searchInput0.placeholder = 'Search unavailable — open via HTTP, not file://';
+                    searchInput0.disabled = true;
+                }
             });
 
         function renderPins() {
@@ -1356,18 +1366,6 @@
 
         renderPins();
 
-        const fuse = new Fuse(searchIndex, {
-            keys: [
-                { name: 'name', weight: 2 },
-                { name: 'code', weight: 2 },
-                { name: 'airport', weight: 1 },
-                { name: 'region', weight: 1 }
-            ],
-            threshold: 0.3,
-            includeMatches: true,
-            limit: 50
-        });
-        
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const resultsList = document.getElementById('resultsList');
@@ -1386,6 +1384,7 @@
                 return;
             }
 
+            if (!fuse) { defaultView.style.display = 'none'; emptyState.style.display = 'block'; return; }
             pinnedSection.style.display = 'none';
             const results = fuse.search(query);
 
@@ -1423,7 +1422,6 @@
                 } else {
                     div.href = item.url;
                 }
-            });
 
                 const meta = item.type === 'airport' 
                     ? `${item.region}` 
