@@ -19,6 +19,7 @@ Requirements:
 
 import os
 import json
+import shutil
 import re
 import io
 import time
@@ -759,6 +760,23 @@ def create_output_dir():
     # Also ensure charts_data exists
     if not os.path.exists(CHARTS_DOWNLOAD_DIR):
         os.makedirs(CHARTS_DOWNLOAD_DIR)
+
+def copy_static_assets():
+    """Copy static assets (Salutation Search, data directory) to output dir"""
+    print("📂 Copying static assets...")
+    
+    # 1. Salutation Search HTML
+    if os.path.exists('salutation_search.html'):
+        shutil.copy2('salutation_search.html', os.path.join(OUTPUT_DIR, 'salutation_search.html'))
+        print("   ✅ salutation_search.html")
+    
+    # 2. Data directory
+    if os.path.exists('data'):
+        target_data = os.path.join(OUTPUT_DIR, 'data')
+        if os.path.exists(target_data):
+            shutil.rmtree(target_data)
+        shutil.copytree('data', target_data)
+        print("   ✅ data/ directory")
 
 
 def generate_index_page(hierarchy):
@@ -2932,6 +2950,7 @@ def main():
     # Organize & Download
     print("🔨 Organizing hierarchy and updating local files...\n")
     create_output_dir()
+    copy_static_assets()
     hierarchy = organize_by_hierarchy(service, items, manifest)
     
     # Save manifest after downloads

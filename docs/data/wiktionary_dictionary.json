@@ -1,0 +1,2952 @@
+{
+  "hello": {
+    "spelling": "hello",
+    "language": "French",
+    "romanization": "halo",
+    "ipa": "/hɛˈloʊ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/48/En-uk-hello.ogg",
+    "definitions": [
+      ", hi"
+    ]
+  },
+  "bonjour": {
+    "spelling": "bonjour",
+    "language": "French",
+    "romanization": null,
+    "ipa": "/bɒnˈʒʊə/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7f/LL-Q1860_(eng)-Vealhurl-bonjour.wav",
+    "definitions": [
+      "greetings; hello (general salutation)"
+    ]
+  },
+  "allô": {
+    "spelling": "allô",
+    "language": "French",
+    "romanization": "alō",
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Fr-allô.ogg",
+    "definitions": [
+      "hello (when answering at the beginning of a call)"
+    ]
+  },
+  "salut": {
+    "spelling": "salut",
+    "language": "French",
+    "romanization": null,
+    "ipa": "/salut/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f5/LL-Q7026_(cat)-Unjoanqualsevol-salut.wav",
+    "definitions": [
+      "hi, hello"
+    ]
+  },
+  "bienvenue": {
+    "spelling": "bienvenue",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Fr-bienvenue.ogg",
+    "definitions": [
+      "welcome"
+    ]
+  },
+  "enchanté": {
+    "spelling": "enchanté",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Fr-enchanté.ogg",
+    "definitions": [
+      "enchanted, delighted"
+    ]
+  },
+  "hé": {
+    "spelling": "hé",
+    "language": "French",
+    "romanization": null,
+    "ipa": "/ɦeː/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/15/Nl-hé.ogg",
+    "definitions": [
+      "; hey"
+    ]
+  },
+  "joyeux Noël": {
+    "spelling": "joyeux Noël",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Fr-joyeux_Noël.ogg",
+    "definitions": [
+      "Merry Christmas; Happy Christmas"
+    ]
+  },
+  "coucou": {
+    "spelling": "coucou",
+    "language": "French",
+    "romanization": "kuku",
+    "ipa": "[kowˈkow]",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/68/Fr-coucou.ogg",
+    "definitions": [
+      "cuckoo (the bird)"
+    ]
+  },
+  "ça gaze": {
+    "spelling": "ça gaze",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/36/LL-Q150_(fra)-LoquaxFR-ça_gaze.wav",
+    "definitions": [
+      "how's things?, how's tricks?"
+    ]
+  },
+  "aïoli": {
+    "spelling": "aïoli",
+    "language": "French",
+    "romanization": null,
+    "ipa": "/aˈjɔ.li/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Fr-aïoli.ogg",
+    "definitions": [
+      "aioli"
+    ]
+  },
+  "bonne année": {
+    "spelling": "bonne année",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/76/LL-Q150_(fra)-LoquaxFR-bonne_année.wav",
+    "definitions": [
+      "Happy New Year!"
+    ]
+  },
+  "holà": {
+    "spelling": "holà",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/46/LL-Q150_(fra)-LoquaxFR-holà.wav",
+    "definitions": [
+      "hey, oi"
+    ]
+  },
+  "ohé": {
+    "spelling": "ohé",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/ce/LL-Q150_(fra)-LoquaxFR-ohé.wav",
+    "definitions": [
+      "oy; hi; ahoy; yoohoo"
+    ]
+  },
+  "rebonjour": {
+    "spelling": "rebonjour",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/da/LL-Q150_(fra)-LoquaxFR-rebonjour.wav",
+    "definitions": [
+      "hello again; hi again"
+    ]
+  },
+  "bonjour/hi": {
+    "spelling": "bonjour/hi",
+    "language": "French",
+    "romanization": null,
+    "ipa": "[bɒ̃ʊ̯̃ˈʒʊu̯ʁ haɪ̯]",
+    "audioUrl": null,
+    "definitions": [
+      "hello, good day"
+    ]
+  },
+  "namasté": {
+    "spelling": "namasté",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "namaste"
+    ]
+  },
+  "adieu": {
+    "spelling": "adieu",
+    "language": "French",
+    "romanization": "alvidā",
+    "ipa": "/əˈdju/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4a/en-us-adieu.ogg",
+    "definitions": [
+      "farewell,"
+    ]
+  },
+  "bon voyage": {
+    "spelling": "bon voyage",
+    "language": "French",
+    "romanization": "riḥla saʕīda",
+    "ipa": "/ˌbɒn vwaɪˈɑːʒ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4f/LL-Q1860_(eng)-Vealhurl-bon_voyage.wav",
+    "definitions": [
+      ", have a good journey, have a good trip"
+    ]
+  },
+  "au revoir": {
+    "spelling": "au revoir",
+    "language": "French",
+    "romanization": "zoi3 gin3",
+    "ipa": "/ˌəʊ.ɹə ˈvwɑː/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/eb/LL-Q1860_(eng)-Persent101-au_revoir.wav",
+    "definitions": [
+      "goodbye"
+    ]
+  },
+  "bonne nuit": {
+    "spelling": "bonne nuit",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ee/LL-Q150_(fra)-LoquaxFR-bonne_nuit.wav",
+    "definitions": [
+      "good night"
+    ]
+  },
+  "à plus": {
+    "spelling": "à plus",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c6/LL-Q150_(fra)-LoquaxFR-à_plus.wav",
+    "definitions": [
+      "see you, later, laters"
+    ]
+  },
+  "à plus tard": {
+    "spelling": "à plus tard",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/63/LL-Q150_(fra)-LoquaxFR-à_plus_tard.wav",
+    "definitions": [
+      "see you later"
+    ]
+  },
+  "arrivederci": {
+    "spelling": "arrivederci",
+    "language": "Italian",
+    "romanization": "aribederuchi",
+    "ipa": "/əˌɹiːvəˈdɛətʃi/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/62/LL-Q150_(fra)-LoquaxFR-arrivederci.wav",
+    "definitions": [
+      "goodbye, so long, see you soon, see you"
+    ]
+  },
+  "bonne journée": {
+    "spelling": "bonne journée",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/LL-Q150_(fra)-LoquaxFR-bonne_journée.wav",
+    "definitions": [
+      "have a nice day (a phrase uttered upon a farewell)"
+    ]
+  },
+  "bonne soirée": {
+    "spelling": "bonne soirée",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2e/LL-Q150_(fra)-LoquaxFR-bonne_soirée.wav",
+    "definitions": [
+      "Have a good evening (a phrase uttered upon a farewell)"
+    ]
+  },
+  "à bientôt": {
+    "spelling": "à bientôt",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5b/LL-Q150_(fra)-LoquaxFR-à_bientôt.wav",
+    "definitions": [
+      "see you soon, see you later, laters ()"
+    ]
+  },
+  "tchao": {
+    "spelling": "tchao",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/22/LL-Q150_(fra)-LoquaxFR-tchao.wav",
+    "definitions": [
+      "* {{quote-text|fr|year=2004|author=Guy Josue Foumane|title=Cache-cache dans les ténèbres"
+    ]
+  },
+  "bonne matinée": {
+    "spelling": "bonne matinée",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "Have a good morning (a phrase uttered upon a farewell)"
+    ]
+  },
+  "bonne après-midi": {
+    "spelling": "bonne après-midi",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "have a good afternoon (a phrase uttered upon a farewell)"
+    ]
+  },
+  "babaille": {
+    "spelling": "babaille",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fe/LL-Q150_(fra)-LoquaxFR-babaille.wav",
+    "definitions": [
+      "bye-bye"
+    ]
+  },
+  "à la revoyure": {
+    "spelling": "à la revoyure",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/86/LL-Q150_(fra)-LoquaxFR-à_la_revoyure.wav",
+    "definitions": [
+      "goodbye"
+    ]
+  },
+  "bon vent": {
+    "spelling": "bon vent",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b9/LL-Q150_(fra)-LoquaxFR-bon_vent.wav",
+    "definitions": [
+      "Godspeed! safe journey! farewell! goodbye!"
+    ]
+  },
+  "à un de ces quatre": {
+    "spelling": "à un de ces quatre",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c0/LL-Q150_(fra)-LoquaxFR-à_un_de_ces_quatre.wav",
+    "definitions": [
+      "see you, later"
+    ]
+  },
+  "le devoir m'appelle": {
+    "spelling": "le devoir m'appelle",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "duty calls"
+    ]
+  },
+  "à très vite": {
+    "spelling": "à très vite",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "see you soon, see you later, laters ()"
+    ]
+  },
+  "abracadabra": {
+    "spelling": "abracadabra",
+    "language": "French",
+    "romanization": "abraqadábra",
+    "ipa": "/ˌæbɹəkəˈdæbɹə/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fe/en-us-abracadabra.ogg",
+    "definitions": [
+      "abracadabra"
+    ]
+  },
+  "à tes amours": {
+    "spelling": "à tes amours",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a9/LL-Q150_(fra)-Lepticed7-à_tes_amours.wav",
+    "definitions": [
+      "bless you (said after the second sneeze)"
+    ]
+  },
+  "allez": {
+    "spelling": "allez",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Nl-allez.ogg",
+    "definitions": [
+      ": allez pas penser que je l'ignore.|What I avoided talking about, don't think I'm ignoring it.}}"
+    ]
+  },
+  "ahi": {
+    "spelling": "ahi",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": "/ˈɑ.hi/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/48/LL-Q1860_(eng)-Vealhurl-ahi.wav",
+    "definitions": [
+      "ouch!"
+    ]
+  },
+  "a+": {
+    "spelling": "a+",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a1/LL-Q150_(fra)-LoquaxFR-a+.wav",
+    "definitions": [
+      ". cul8r; ttyl"
+    ]
+  },
+  "aïe": {
+    "spelling": "aïe",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Fr-aïe.ogg",
+    "definitions": [
+      "interjection expressing a sharp pain: ouch!"
+    ]
+  },
+  "à la bonne heure": {
+    "spelling": "à la bonne heure",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3f/LL-Q150_(fra)-LoquaxFR-à_la_bonne_heure.wav",
+    "definitions": [
+      ": splendid! that's the spirit! that's great!"
+    ]
+  },
+  "à votre santé": {
+    "spelling": "à votre santé",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/04/LL-Q150_(fra)-LoquaxFR-à_votre_santé.wav",
+    "definitions": [
+      "to your health, cheers"
+    ]
+  },
+  "à tes souhaits": {
+    "spelling": "à tes souhaits",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ea/LL-Q150_(fra)-Lepticed7-à_tes_souhaits.wav",
+    "definitions": [
+      "bless you (said in response to the first sneeze)"
+    ]
+  },
+  "alléluia": {
+    "spelling": "alléluia",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b9/LL-Q150_(fra)-Lyokoï-alléluia.wav",
+    "definitions": [
+      "hallelujah"
+    ]
+  },
+  "à l'abordage": {
+    "spelling": "à l'abordage",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/LL-Q150_(fra)-WikiLucas00-à_l’abordage.wav",
+    "definitions": [
+      "on board! ()"
+    ]
+  },
+  "à la tienne": {
+    "spelling": "à la tienne",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/LL-Q150_(fra)-LoquaxFR-à_la_tienne.wav",
+    "definitions": [
+      "cheers, here's to you"
+    ]
+  },
+  "à la vôtre": {
+    "spelling": "à la vôtre",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4f/LL-Q150_(fra)-LoquaxFR-à_la_vôtre.wav",
+    "definitions": [
+      "cheers"
+    ]
+  },
+  "à ta santé": {
+    "spelling": "à ta santé",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/03/LL-Q150_(fra)-LoquaxFR-à_ta_santé.wav",
+    "definitions": [
+      "cheers lit. \"to your health\""
+    ]
+  },
+  "affirmatif": {
+    "spelling": "affirmatif",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Fr-affirmatif.ogg",
+    "definitions": [
+      "affirmative"
+    ]
+  },
+  "à vos souhaits": {
+    "spelling": "à vos souhaits",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b6/LL-Q150_(fra)-Lepticed7-à_vos_souhaits.wav",
+    "definitions": [
+      "God bless you (used after the first sneeze)"
+    ]
+  },
+  "à l'aise": {
+    "spelling": "à l'aise",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ae/LL-Q150_(fra)-DSwissK-à_l'aise.wav",
+    "definitions": [
+      "at ease"
+    ]
+  },
+  "à bon entendeur salut": {
+    "spelling": "à bon entendeur salut",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ad/LL-Q150_(fra)-LoquaxFR-à_bon_entendeur_salut.wav",
+    "definitions": [
+      "word to the wise"
+    ]
+  },
+  "à Dieu ne plaise": {
+    "spelling": "à Dieu ne plaise",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/42/LL-Q150_(fra)-Lepticed7-à_Dieu_ne_plaise.wav",
+    "definitions": [
+      "God forbid"
+    ]
+  },
+  "à bas sa tête": {
+    "spelling": "à bas sa tête",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "off with someone's head"
+    ]
+  },
+  "à vos marques, prêts, partez": {
+    "spelling": "à vos marques, prêts, partez",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/LL-Q150_(fra)-LoquaxFR-à_vos_marques,_prêts,_partez.wav",
+    "definitions": [
+      "on your mark, get set, go!"
+    ]
+  },
+  "à l'aide": {
+    "spelling": "à l'aide",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "help! ()"
+    ]
+  },
+  "ah bon": {
+    "spelling": "ah bon",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/55/LL-Q150_(fra)-LoquaxFR-ah_bon.wav",
+    "definitions": [
+      "really? for real? is that so?"
+    ]
+  },
+  "à qui le dis-tu": {
+    "spelling": "à qui le dis-tu",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "you're telling me, you don't say, no kidding, tell me about it"
+    ]
+  },
+  "à quoi bon": {
+    "spelling": "à quoi bon",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/08/LL-Q150_(fra)-LoquaxFR-à_quoi_bon.wav",
+    "definitions": [
+      "what good is it? what's the good of? what's the point?"
+    ]
+  },
+  "à vos amours": {
+    "spelling": "à vos amours",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "bless you (used after the second sneeze)"
+    ]
+  },
+  "à moi": {
+    "spelling": "à moi",
+    "language": "French",
+    "romanization": "mine",
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9c/LL-Q150_(fra)-LoquaxFR-à_moi.wav",
+    "definitions": [
+      "help! ()"
+    ]
+  },
+  "à d'autres": {
+    "spelling": "à d'autres",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "don't give me that! tell it to the marines! my eye! pull the other one!"
+    ]
+  },
+  "à qui le dites-vous": {
+    "spelling": "à qui le dites-vous",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "you're telling me, you don't say, no kidding, tell me about it"
+    ]
+  },
+  "à l'aise, Blaise": {
+    "spelling": "à l'aise, Blaise",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "easy peasy!"
+    ]
+  },
+  "à plus dans le bus": {
+    "spelling": "à plus dans le bus",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5d/LL-Q150_(fra)-LoquaxFR-à_plus_dans_le_bus.wav",
+    "definitions": [
+      "see you later, alligator"
+    ]
+  },
+  "à l'attaque": {
+    "spelling": "à l'attaque",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "attack! forward! charge! up and at 'em!"
+    ]
+  },
+  "à l'assassin": {
+    "spelling": "à l'assassin",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/LL-Q150_(fra)-LoquaxFR-à_l’assassin.wav",
+    "definitions": [
+      "murder! murderer!"
+    ]
+  },
+  "bon appétit": {
+    "spelling": "bon appétit",
+    "language": "French",
+    "romanization": "šahiyya ṭayyiba",
+    "ipa": "/ˌbɒn apəˈtiː/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b5/LL-Q1860_(eng)-Vealhurl-bon_appétit.wav",
+    "definitions": [
+      ", enjoy your meal"
+    ]
+  },
+  "bonsoir": {
+    "spelling": "bonsoir",
+    "language": "French",
+    "romanization": null,
+    "ipa": "[bõ.swaːʁ]",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Fr-bonsoir.ogg",
+    "definitions": [
+      "good evening"
+    ]
+  },
+  "je m'appelle": {
+    "spelling": "je m'appelle",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Fr-je_m'appelle.ogg",
+    "definitions": [
+      "my name is ..., I am ..., I'm ..."
+    ]
+  },
+  "bonne chance": {
+    "spelling": "bonne chance",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/LL-Q150_(fra)-LoquaxFR-bonne_chance.wav",
+    "definitions": [
+      "good luck!"
+    ]
+  },
+  "excusez-moi": {
+    "spelling": "excusez-moi",
+    "language": "French",
+    "romanization": null,
+    "ipa": "/e(k)ˈskjuzəmwɑ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/59/LL-Q150_(fra)-LoquaxFR-excusez-moi.wav",
+    "definitions": [
+      "excuse me"
+    ]
+  },
+  "de rien": {
+    "spelling": "de rien",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/df/Fr-de_rien-fr-Paris.ogg",
+    "definitions": [
+      "you're welcome, it's nothing"
+    ]
+  },
+  "à tout à l'heure": {
+    "spelling": "à tout à l'heure",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "see you later (on the same day)"
+    ]
+  },
+  "entre nous": {
+    "spelling": "entre nous",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "between ourselves, between you and me"
+    ]
+  },
+  "ça va": {
+    "spelling": "ça va",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Qc-ça_va.ogg",
+    "definitions": [
+      "how are you? how's it going? how are things?"
+    ]
+  },
+  "à gauche": {
+    "spelling": "à gauche",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/80/Fr-à_gauche.ogg",
+    "definitions": [
+      "on the left"
+    ]
+  },
+  "bonne continuation": {
+    "spelling": "bonne continuation",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/LL-Q150_(fra)-LoquaxFR-bonne_continuation.wav",
+    "definitions": [
+      "all the best, best of luck ()"
+    ]
+  },
+  "bon rétablissement": {
+    "spelling": "bon rétablissement",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "get well soon ()"
+    ]
+  },
+  "allez-y": {
+    "spelling": "allez-y",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1c/LL-Q150_(fra)-LoquaxFR-allez-y.wav",
+    "definitions": [
+      "go ahead; go on"
+    ]
+  },
+  "comment allez-vous": {
+    "spelling": "comment allez-vous",
+    "language": "French",
+    "romanization": "gam{{sup",
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d7/LL-Q150_(fra)-LoquaxFR-comment_allez-vous.wav",
+    "definitions": [
+      "how are you"
+    ]
+  },
+  "comment vas-tu": {
+    "spelling": "comment vas-tu",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/LL-Q150_(fra)-Lepticed7-comment_vas-tu.wav",
+    "definitions": [
+      "How are you? (informal singular)"
+    ]
+  },
+  "comment ça va": {
+    "spelling": "comment ça va",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/86/LL-Q150_(fra)-LoquaxFR-comment_ça_va.wav",
+    "definitions": [
+      "how are you"
+    ]
+  },
+  "est-il": {
+    "spelling": "est-il",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "is he"
+    ]
+  },
+  "avec plaisir": {
+    "spelling": "avec plaisir",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/42/LL-Q150_(fra)-LoquaxFR-avec_plaisir.wav",
+    "definitions": [
+      "with pleasure; my pleasure"
+    ]
+  },
+  "bon courage": {
+    "spelling": "bon courage",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fc/LL-Q150_(fra)-Lyokoï-bon_courage.wav",
+    "definitions": [
+      "good luck!, Godspeed!"
+    ]
+  },
+  "c'est combien": {
+    "spelling": "c'est combien",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "how much is it?"
+    ]
+  },
+  "allons-y": {
+    "spelling": "allons-y",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "come with me, follow me"
+    ]
+  },
+  "à droite": {
+    "spelling": "à droite",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/06/LL-Q150_(fra)-LoquaxFR-à_droite.wav",
+    "definitions": [
+      "on the right; to the right"
+    ]
+  },
+  "êtes-vous allergique à certains médicaments": {
+    "spelling": "êtes-vous allergique à certains médicaments",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "are you allergic to any medications?"
+    ]
+  },
+  "j'ai une question": {
+    "spelling": "j'ai une question",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I have a question"
+    ]
+  },
+  "avez-vous besoin d'aide": {
+    "spelling": "avez-vous besoin d'aide",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "do you need help?"
+    ]
+  },
+  "as-tu besoin d'aide": {
+    "spelling": "as-tu besoin d'aide",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "do you need help?"
+    ]
+  },
+  "j'ai besoin de votre aide": {
+    "spelling": "j'ai besoin de votre aide",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I need your help"
+    ]
+  },
+  "j'ai besoin de ton aide": {
+    "spelling": "j'ai besoin de ton aide",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I need your help"
+    ]
+  },
+  "j'ai peur": {
+    "spelling": "j'ai peur",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I'm scared"
+    ]
+  },
+  "excuse-moi": {
+    "spelling": "excuse-moi",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/78/Fr-excuse-moi.ogg",
+    "definitions": [
+      "excuse me?"
+    ]
+  },
+  "j'ai besoin de ...": {
+    "spelling": "j'ai besoin de ...",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I need ..."
+    ]
+  },
+  "avez-vous des frères et sœurs": {
+    "spelling": "avez-vous des frères et sœurs",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "do you have any brothers or sisters? (formal)"
+    ]
+  },
+  "je n'ai pas d'argent": {
+    "spelling": "je n'ai pas d'argent",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I have no money"
+    ]
+  },
+  "ça marche": {
+    "spelling": "ça marche",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4b/LL-Q150_(fra)-LoquaxFR-ça_marche.wav",
+    "definitions": [
+      "OK, all right, sure, sure thing, sounds good, that's fine, that works for me"
+    ]
+  },
+  "ho mon Dieu": {
+    "spelling": "ho mon Dieu",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "oh my God!"
+    ]
+  },
+  "as-tu des frères et sœurs": {
+    "spelling": "as-tu des frères et sœurs",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "do you have any brothers or sisters? (informal)"
+    ]
+  },
+  "ce fut un plaisir": {
+    "spelling": "ce fut un plaisir",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "it was a pleasure"
+    ]
+  },
+  "j'ai faim": {
+    "spelling": "j'ai faim",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I'm hungry"
+    ]
+  },
+  "il est inconscient": {
+    "spelling": "il est inconscient",
+    "language": "French",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "he's unconscious"
+    ]
+  },
+  "servus": {
+    "spelling": "servus",
+    "language": "German",
+    "romanization": "hir",
+    "ipa": "/ˈse̞ɐ̯vus/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/74/De-servus.ogg",
+    "definitions": [
+      "hello, hi"
+    ]
+  },
+  "hallo": {
+    "spelling": "hallo",
+    "language": "German",
+    "romanization": "haló",
+    "ipa": "/həˈləʊ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/12/LL-Q1860_(eng)-Vealhurl-hallo.wav",
+    "definitions": [
+      "hello"
+    ]
+  },
+  "guten Tag": {
+    "spelling": "guten Tag",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˌɡuːtn̩ ˈtaːk/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6b/De-Guten_Tag_2.oga",
+    "definitions": [
+      "hello; hullo; good day; good afternoon"
+    ]
+  },
+  "hoi": {
+    "spelling": "hoi",
+    "language": "German",
+    "romanization": "wai<sup>2</sup>",
+    "ipa": "/ɦɔi̯/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/40/Nl-hoi.ogg",
+    "definitions": [
+      "hi!"
+    ]
+  },
+  "ey": {
+    "spelling": "ey",
+    "language": "German",
+    "romanization": "hagë́y",
+    "ipa": "/eɪ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c3/LL-Q9292_(aze)-Azerbaijani_audiorecordings-ey.wav",
+    "definitions": [
+      "* }}"
+    ]
+  },
+  "guten Abend": {
+    "spelling": "guten Abend",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ɡuːtən ʔaːbənt/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/56/De-Guten_Abend.oga",
+    "definitions": [
+      "good evening"
+    ]
+  },
+  "guten Morgen": {
+    "spelling": "guten Morgen",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈɡuːtən ˈmɔʁɡən/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b7/De-guten_Morgen.ogg",
+    "definitions": [
+      "good morning"
+    ]
+  },
+  "grüß Gott": {
+    "spelling": "grüß Gott",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ɡʁyːs ɡɔt/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b9/De-grüß_Gott.ogg",
+    "definitions": [
+      "hello"
+    ]
+  },
+  "frohes neues Jahr": {
+    "spelling": "frohes neues Jahr",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˌfʁoːəs ˌnɔɪ̯əs ˈjaːɐ̯/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/82/De-frohes_neues_Jahr.ogg",
+    "definitions": [
+      "Happy New Year"
+    ]
+  },
+  "grüezi": {
+    "spelling": "grüezi",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈɡ̊ryə̯t͡si/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Gsw-züritüütsch-Grüezi.ogg",
+    "definitions": [
+      "hello"
+    ]
+  },
+  "hallöchen": {
+    "spelling": "hallöchen",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/haˈløːçən/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/aa/De-hallöchen.ogg",
+    "definitions": [
+      "hello there"
+    ]
+  },
+  "guten Rutsch": {
+    "spelling": "guten Rutsch",
+    "language": "German",
+    "romanization": "rosh",
+    "ipa": "/ˌɡuːtn̩ ˈʁʊtʃ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/De-guten_Rutsch.ogg",
+    "definitions": [
+      "happy New Year"
+    ]
+  },
+  "Namaste": {
+    "spelling": "Namaste",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/namasˈteː/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/59/De-Namaste.ogg",
+    "definitions": [
+      "namaste!"
+    ]
+  },
+  "Schiff ahoi": {
+    "spelling": "Schiff ahoi",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "ship ahoy"
+    ]
+  },
+  "auf Wiedersehen": {
+    "spelling": "auf Wiedersehen",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/aʊ̯f ˈviːdɐˌzeː(ə)n/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/De-auf_Wiedersehen.oga",
+    "definitions": [
+      "goodbye"
+    ]
+  },
+  "ade": {
+    "spelling": "ade",
+    "language": "German",
+    "romanization": "pàopào",
+    "ipa": "/ˈeɪd/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/88/LL-Q1860_(eng)-Flame,_not_lame-ade.wav",
+    "definitions": [
+      "farewell, adieu"
+    ]
+  },
+  "gute Nacht": {
+    "spelling": "gute Nacht",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˌɡutə ˈnaxt/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b0/De-Gute_Nacht.ogg",
+    "definitions": [
+      "good night"
+    ]
+  },
+  "tschüss": {
+    "spelling": "tschüss",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/t͡ʃʏs/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/De-tschüss.ogg",
+    "definitions": [
+      "bye, cheers, ciao"
+    ]
+  },
+  "bis später": {
+    "spelling": "bis später",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "see you later"
+    ]
+  },
+  "bis bald": {
+    "spelling": "bis bald",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/bɪs balt/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2c/De-bis_bald.ogg",
+    "definitions": [
+      "see you soon"
+    ]
+  },
+  "auf Nimmerwiedersehen": {
+    "spelling": "auf Nimmerwiedersehen",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/aʊ̯f ˌnɪmɐˈviːdɐseː(ə)n/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ee/De-auf_Nimmerwiedersehen.ogg",
+    "definitions": [
+      "good riddance!, see you never!"
+    ]
+  },
+  "also": {
+    "spelling": "also",
+    "language": "German",
+    "romanization": "ka-ḏālika",
+    "ipa": "/ˈɔːl.səʊ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d0/en-us-also.ogg",
+    "definitions": [
+      "so, therefore"
+    ]
+  },
+  "ah": {
+    "spelling": "ah",
+    "language": "Italian",
+    "romanization": "āh",
+    "ipa": "/ɑː/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/85/en-us-ah.ogg",
+    "definitions": [
+      "! (usually ironic or sarcastic)"
+    ]
+  },
+  "aha": {
+    "spelling": "aha",
+    "language": "German",
+    "romanization": "āhā",
+    "ipa": "/ɑːhɑː/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/be/en-us-aha.ogg",
+    "definitions": [
+      "aha"
+    ]
+  },
+  "ach": {
+    "spelling": "ach",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/æt͡ʃ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/71/LL-Q1860_(eng)-Vealhurl-ach.wav",
+    "definitions": [
+      "oh, alas"
+    ]
+  },
+  "auf": {
+    "spelling": "auf",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/aʊ̯f/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1c/De-auf.ogg",
+    "definitions": [
+      "on, upon"
+    ]
+  },
+  "Achtung": {
+    "spelling": "Achtung",
+    "language": "German",
+    "romanization": null,
+    "ipa": "[ˈʔaχtʊŋ(k)]",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c7/De-Achtung.ogg",
+    "definitions": [
+      "attention"
+    ]
+  },
+  "aso": {
+    "spelling": "aso",
+    "language": "German",
+    "romanization": "au",
+    "ipa": "/aso/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/10/Nl-aso.ogg",
+    "definitions": [
+      "* {{quote-newsgroup|de"
+    ]
+  },
+  "Alter": {
+    "spelling": "Alter",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈaltər/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2e/De-at-Alter.ogg",
+    "definitions": [
+      "age, old age"
+    ]
+  },
+  "auch": {
+    "spelling": "auch",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/aʊ̯x/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f8/De-auch.ogg",
+    "definitions": [
+      "also, too, as well"
+    ]
+  },
+  "Augenblick": {
+    "spelling": "Augenblick",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈaʊɡənblɪk/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/29/De-Augenblick.ogg",
+    "definitions": [
+      "moment, instant, blink of an eye"
+    ]
+  },
+  "äh": {
+    "spelling": "äh",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ɛː/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/30/De-äh.ogg",
+    "definitions": [
+      "an exclamation of disgust; yuck, ew, ugh"
+    ]
+  },
+  "aua": {
+    "spelling": "aua",
+    "language": "German",
+    "romanization": null,
+    "ipa": "[aˈwa]",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c3/De-aua.ogg",
+    "definitions": [
+      "ouch, ow (''expression of one's own physical pain'')"
+    ]
+  },
+  "autsch": {
+    "spelling": "autsch",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/aʊ̯tʃ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6e/De-autsch.ogg",
+    "definitions": [
+      "ouch"
+    ]
+  },
+  "auf Wiederhören": {
+    "spelling": "auf Wiederhören",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "goodbye"
+    ]
+  },
+  "ach so": {
+    "spelling": "ach so",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/axˈzoː/<aa:Germany>",
+    "audioUrl": null,
+    "definitions": [
+      "ah, oh, I see;"
+    ]
+  },
+  "'türlich": {
+    "spelling": "'türlich",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈtyːɐ̯lɪç/",
+    "audioUrl": null,
+    "definitions": [
+      "for sure"
+    ]
+  },
+  "aber hallo": {
+    "spelling": "aber hallo",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/De-aber_hallo.wav",
+    "definitions": [
+      "absolutely!, you bet!, for sure!"
+    ]
+  },
+  "auf Ihre Gesundheit": {
+    "spelling": "auf Ihre Gesundheit",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "to your health"
+    ]
+  },
+  "auweia": {
+    "spelling": "auweia",
+    "language": "German",
+    "romanization": null,
+    "ipa": "[ʔaʊˈvaɪ̯a]",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cb/De-auweia.ogg",
+    "definitions": [
+      "oh dear!"
+    ]
+  },
+  "auch so": {
+    "spelling": "auch so",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "likewise!, same to you!, you too!"
+    ]
+  },
+  "auf Wiederschauen": {
+    "spelling": "auf Wiederschauen",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/aʊ̯f ˈviːdɐˌʃaʊ̯ən/",
+    "audioUrl": null,
+    "definitions": [
+      "goodbye"
+    ]
+  },
+  "auf Wiedertreffen": {
+    "spelling": "auf Wiedertreffen",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/aʊ̯f ˈviːdɐˌtʁɛfən/",
+    "audioUrl": null,
+    "definitions": [
+      "goodbye; until we meet again."
+    ]
+  },
+  "als ob": {
+    "spelling": "als ob",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˌʔal(t)s ˈʔɔp/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cc/De-als_ob.ogg",
+    "definitions": [
+      "as if, as though"
+    ]
+  },
+  "auf einmal": {
+    "spelling": "auf einmal",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "at once, at a time, in one go"
+    ]
+  },
+  "am Arsch": {
+    "spelling": "am Arsch",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/am ˈaʁʃ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/85/De-am_Arsch.ogg",
+    "definitions": [
+      "and }}"
+    ]
+  },
+  "auweh": {
+    "spelling": "auweh",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fd/De-auweh.ogg",
+    "definitions": [
+      "ouch, ow"
+    ]
+  },
+  "alter Schwede": {
+    "spelling": "alter Schwede",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˌʔaltɐ ˈʃveːdə/",
+    "audioUrl": null,
+    "definitions": [
+      "old chap"
+    ]
+  },
+  "aber, aber": {
+    "spelling": "aber, aber",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/ba/De-aber,_aber.ogg",
+    "definitions": [
+      "now, now"
+    ]
+  },
+  "auf geht's": {
+    "spelling": "auf geht's",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8f/De-auf_geht's.ogg",
+    "definitions": [
+      "come on, c'mon"
+    ]
+  },
+  "alles klar": {
+    "spelling": "alles klar",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "all right; okay"
+    ]
+  },
+  "ätschibätschi": {
+    "spelling": "ätschibätschi",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈɛːt͡ʃiˌbɛːt͡ʃi/",
+    "audioUrl": null,
+    "definitions": [
+      "; na-na na-na boo-boo"
+    ]
+  },
+  "ab dafür": {
+    "spelling": "ab dafür",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/De-ab_dafür.ogg",
+    "definitions": [
+      "go, let's go"
+    ]
+  },
+  "am Arsch hängt der Hammer": {
+    "spelling": "am Arsch hängt der Hammer",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "absolutely not; how dare you; forget it!"
+    ]
+  },
+  "Abmarsch": {
+    "spelling": "Abmarsch",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈʔapˌmaʁʃ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d9/De-Abmarsch.ogg",
+    "definitions": [
+      "decampment, return"
+    ]
+  },
+  "ähm": {
+    "spelling": "ähm",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "Um; uh"
+    ]
+  },
+  "April, April": {
+    "spelling": "April, April",
+    "language": "German",
+    "romanization": null,
+    "ipa": "[aˈpʁɪl aˌpʁɪl]",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1c/De-April,_April!.ogg",
+    "definitions": [
+      "April fools"
+    ]
+  },
+  "ach, du Schande": {
+    "spelling": "ach, du Schande",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "An expression of dismay, disgust, anger, surprise, etc.: oh dear, yikes"
+    ]
+  },
+  "alla hopp": {
+    "spelling": "alla hopp",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "ok, see you later!; let's go!"
+    ]
+  },
+  "danke": {
+    "spelling": "danke",
+    "language": "German",
+    "romanization": "danke Online Hunsrik Dictionary]\n\n==Plautdietsch==\n\n===Etymology===\nFrom {{inh",
+    "ipa": "[ˈdaŋkə]",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/42/Nl-danke.ogg",
+    "definitions": [
+      "thanks, thank you"
+    ]
+  },
+  "bitte": {
+    "spelling": "bitte",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈbɪtə/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Fr-bitte.ogg",
+    "definitions": [
+      "please, if you please"
+    ]
+  },
+  "danke schön": {
+    "spelling": "danke schön",
+    "language": "German",
+    "romanization": null,
+    "ipa": "[ˈdaŋkə ʃøːn]",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6e/De-danke_schön.ogg",
+    "definitions": [
+      "thank you very much"
+    ]
+  },
+  "alles Gute zum Geburtstag": {
+    "spelling": "alles Gute zum Geburtstag",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈʔaləs ˈɡuːtə tsʊm ɡəˈbuːɐ̯tstaːk/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8e/De-alles_Gute_zum_Geburtstag.ogg",
+    "definitions": [
+      "happy birthday"
+    ]
+  },
+  "gern geschehen": {
+    "spelling": "gern geschehen",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ɡɛrn ɡəˈʃeːən/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/67/De-Gern_geschehen.oga",
+    "definitions": [
+      "You're welcome:"
+    ]
+  },
+  "gerne": {
+    "spelling": "gerne",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈɡɛɐ̯nə/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/00/De-at-gerne.ogg",
+    "definitions": [
+      "; usually not translated into English}} don't mention it, not at all, you're welcome"
+    ]
+  },
+  "gute Besserung": {
+    "spelling": "gute Besserung",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9f/De-gute_Besserung.ogg",
+    "definitions": [
+      "get well soon ()"
+    ]
+  },
+  "guten Appetit": {
+    "spelling": "guten Appetit",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "bon appétit, enjoy your meal"
+    ]
+  },
+  "bitte schön": {
+    "spelling": "bitte schön",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈbɪtə ʃøːn/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/13/De-bitte_schön.ogg",
+    "definitions": [
+      "; usually not translated into English}} don't mention it, not at all, you're welcome"
+    ]
+  },
+  "ich bin nicht religiös": {
+    "spelling": "ich bin nicht religiös",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d3/De-Ich_bin_nicht_religiös.ogg",
+    "definitions": [
+      "I'm not religious"
+    ]
+  },
+  "haben Sie Allergien gegen irgendwelche Medikamente": {
+    "spelling": "haben Sie Allergien gegen irgendwelche Medikamente",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9a/De-Haben_Sie_Allergien_gegen_irgendwelche_Medikamente?.ogg",
+    "definitions": [
+      "are you allergic to any medications?"
+    ]
+  },
+  "hast du Allergien gegen irgendwelche Medikamente": {
+    "spelling": "hast du Allergien gegen irgendwelche Medikamente",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7d/De-Hast_du_Allergien_gegen_irgendwelche_Medikamente?.ogg",
+    "definitions": [
+      "are you allergic to any medications?"
+    ]
+  },
+  "ich bin Vegetarier": {
+    "spelling": "ich bin Vegetarier",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1b/De-Ich_bin_Vegetarier..ogg",
+    "definitions": [
+      "I'm a vegetarian"
+    ]
+  },
+  "ich bin schwul": {
+    "spelling": "ich bin schwul",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2a/De-Ich_bin_schwul..ogg",
+    "definitions": [
+      "I'm gay"
+    ]
+  },
+  "ich brauche ...": {
+    "spelling": "ich brauche ...",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I need ..."
+    ]
+  },
+  "ich bin katholisch": {
+    "spelling": "ich bin katholisch",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1d/De-Ich_bin_katholisch..ogg",
+    "definitions": [
+      "I'm a Catholic"
+    ]
+  },
+  "ich bin Christ": {
+    "spelling": "ich bin Christ",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/De-Ich_bin_Christ..ogg",
+    "definitions": [
+      "I'm a Christian"
+    ]
+  },
+  "ich bin Christin": {
+    "spelling": "ich bin Christin",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/69/De-Ich_bin_Christin..ogg",
+    "definitions": [
+      "I'm a Christian"
+    ]
+  },
+  "bist du gläubig": {
+    "spelling": "bist du gläubig",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/87/De-Bist_du_gläubig?.ogg",
+    "definitions": [
+      "are you religious?"
+    ]
+  },
+  "glauben Sie an Gott": {
+    "spelling": "glauben Sie an Gott",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/80/De-Glauben_Sie_an_Gott?.ogg",
+    "definitions": [
+      "do you believe in God"
+    ]
+  },
+  "glaubst du an Gott": {
+    "spelling": "glaubst du an Gott",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/eb/De-Glaubst_du_an_Gott?.ogg",
+    "definitions": [
+      "do you believe in God?"
+    ]
+  },
+  "ich bin Buddhist": {
+    "spelling": "ich bin Buddhist",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/77/De-Ich_bin_Buddhist..ogg",
+    "definitions": [
+      "I'm a Buddhist"
+    ]
+  },
+  "ich bin Buddhistin": {
+    "spelling": "ich bin Buddhistin",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/43/De-Ich_bin_Buddhistin..ogg",
+    "definitions": [
+      "I'm a Buddhist"
+    ]
+  },
+  "ich bin Muslim": {
+    "spelling": "ich bin Muslim",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/14/De-Ich_bin_Muslim..ogg",
+    "definitions": [
+      "I'm a Muslim"
+    ]
+  },
+  "ich bin Muslima": {
+    "spelling": "ich bin Muslima",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9c/De-Ich_bin_Muslima..ogg",
+    "definitions": [
+      "I'm a Muslim"
+    ]
+  },
+  "ich bin Agnostiker": {
+    "spelling": "ich bin Agnostiker",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/58/De-Ich_bin_Agnostiker..ogg",
+    "definitions": [
+      "I'm agnostic"
+    ]
+  },
+  "ich bin Agnostikerin": {
+    "spelling": "ich bin Agnostikerin",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8b/De-Ich_bin_Agnostikerin..ogg",
+    "definitions": [
+      "I'm agnostic"
+    ]
+  },
+  "ich bin Atheist": {
+    "spelling": "ich bin Atheist",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2c/De-Ich_bin_Atheist..ogg",
+    "definitions": [
+      "I'm an atheist"
+    ]
+  },
+  "ich bin Atheistin": {
+    "spelling": "ich bin Atheistin",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/95/De-Ich_bin_Atheistin..ogg",
+    "definitions": [
+      "I'm an atheist"
+    ]
+  },
+  "ich bin Jude": {
+    "spelling": "ich bin Jude",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/58/De-Ich_bin_Jude..ogg",
+    "definitions": [
+      "I'm Jewish"
+    ]
+  },
+  "ich bin Jüdin": {
+    "spelling": "ich bin Jüdin",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/52/De-Ich_bin_Jüdin..ogg",
+    "definitions": [
+      "I'm Jewish"
+    ]
+  },
+  "ich bin evangelisch": {
+    "spelling": "ich bin evangelisch",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ab/De-Ich_bin_evangelisch..ogg",
+    "definitions": [
+      "I'm a Protestant"
+    ]
+  },
+  "fröhliche Weihnachten": {
+    "spelling": "fröhliche Weihnachten",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ˈfʁøːlɪçə ˈvaɪ̯naxtn̩/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4d/De-Fröhliche_Weihnachten!.ogg",
+    "definitions": [
+      "merry Christmas"
+    ]
+  },
+  "ich brauche eine Karte": {
+    "spelling": "ich brauche eine Karte",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e4/De-Ich_brauche_eine_Karte..ogg",
+    "definitions": [
+      "I need a map"
+    ]
+  },
+  "ich brauche ein Taxi": {
+    "spelling": "ich brauche ein Taxi",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e8/De-Ich_brauche_ein_Taxi..ogg",
+    "definitions": [
+      "I need a taxi"
+    ]
+  },
+  "ich benötige ein Taxi": {
+    "spelling": "ich benötige ein Taxi",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/33/De-Ich_benötige_ein_Taxi..ogg",
+    "definitions": [
+      "I need a taxi"
+    ]
+  },
+  "ich brauche einen Fremdenführer": {
+    "spelling": "ich brauche einen Fremdenführer",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/De-Ich_brauche_einen_Fremdenführer..ogg",
+    "definitions": [
+      "I need a guide"
+    ]
+  },
+  "gibt es hier einen Lebensmittelladen": {
+    "spelling": "gibt es hier einen Lebensmittelladen",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/14/De-Gibt_es_hier_einen_Lebensmittelladen?.ogg",
+    "definitions": [
+      "is there a grocery store nearby?"
+    ]
+  },
+  "das ist mir egal": {
+    "spelling": "das ist mir egal",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b7/De-das_ist_mir_egal.ogg",
+    "definitions": [
+      "I don't care"
+    ]
+  },
+  "ich bin Deutscher": {
+    "spelling": "ich bin Deutscher",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ɪç bɪn ˈdɔɪ̯t͡ʃɐ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/35/De-ich_bin_Deutscher.ogg",
+    "definitions": [
+      "I am German"
+    ]
+  },
+  "ich bin Deutsche": {
+    "spelling": "ich bin Deutsche",
+    "language": "German",
+    "romanization": null,
+    "ipa": "/ɪç bɪn ˈdɔɪ̯t͡ʃə/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d3/De-ich_bin_Deutsche.ogg",
+    "definitions": [
+      "I am German"
+    ]
+  },
+  "da nicht für": {
+    "spelling": "da nicht für",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/27/De-da_nicht_für.ogg",
+    "definitions": [
+      "you're welcome:"
+    ]
+  },
+  "es kommt darauf an": {
+    "spelling": "es kommt darauf an",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "it depends"
+    ]
+  },
+  "ich bin ... Jahre alt": {
+    "spelling": "ich bin ... Jahre alt",
+    "language": "German",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I'm ... year(s) old"
+    ]
+  },
+  "ciao": {
+    "spelling": "ciao",
+    "language": "Italian",
+    "romanization": "tshau",
+    "ipa": "/t͡ʃaʊ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bd/LL-Q1860_(eng)-Vealhurl-ciao.wav",
+    "definitions": [
+      "hello!"
+    ]
+  },
+  "pronto": {
+    "spelling": "pronto",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": "/ˈpɹɒntəʊ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/dc/LL-Q1860_(eng)-Vealhurl-pronto.wav",
+    "definitions": [
+      "ready, prepared"
+    ]
+  },
+  "ave": {
+    "spelling": "ave",
+    "language": "Italian",
+    "romanization": "ḥawe",
+    "ipa": "/ˈɑːveɪ/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/67/LL-Q1860_(eng)-Vealhurl-ave.wav",
+    "definitions": [
+      "hail"
+    ]
+  },
+  "salve": {
+    "spelling": "salve",
+    "language": "Italian",
+    "romanization": "sarpís",
+    "ipa": "/sɑːv/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c3/en-us-salve.ogg",
+    "definitions": [
+      "hello!; hi!; hail!"
+    ]
+  },
+  "buongiorno": {
+    "spelling": "buongiorno",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "good day"
+    ]
+  },
+  "felice anno nuovo": {
+    "spelling": "felice anno nuovo",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "Happy New Year"
+    ]
+  },
+  "benvenuto": {
+    "spelling": "benvenuto",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "welcome"
+    ]
+  },
+  "come stai": {
+    "spelling": "come stai",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "how are you, how are you getting along"
+    ]
+  },
+  "buon anno": {
+    "spelling": "buon anno",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "happy New Year!"
+    ]
+  },
+  "come butta": {
+    "spelling": "come butta",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "what's up?"
+    ]
+  },
+  "addio": {
+    "spelling": "addio",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "goodbye, farewell"
+    ]
+  },
+  "arrivederla": {
+    "spelling": "arrivederla",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "goodbye"
+    ]
+  },
+  "amen": {
+    "spelling": "amen",
+    "language": "Italian",
+    "romanization": "ʾāmēn",
+    "ipa": "/(ˌ)ɑːˈmɛn/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9f/LL-Q1860_(eng)-Vealhurl-amen.wav",
+    "definitions": [
+      "; so be it"
+    ]
+  },
+  "alleluia": {
+    "spelling": "alleluia",
+    "language": "Italian",
+    "romanization": "hālìlùyà",
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/ca/LL-Q1860_(eng)-Flame,_not_lame-alleluia.wav",
+    "definitions": [
+      "\"hallelujah\"! \"God be praised\"!"
+    ]
+  },
+  "aló": {
+    "spelling": "aló",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": "/aˈlo/",
+    "audioUrl": null,
+    "definitions": [
+      "let's go"
+    ]
+  },
+  "accidenti": {
+    "spelling": "accidenti",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "; damn it!"
+    ]
+  },
+  "alt": {
+    "spelling": "alt",
+    "language": "Italian",
+    "romanization": "alt",
+    "ipa": "/ɔːlt/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ef/LL-Q1860_(eng)-Vealhurl-alt.wav",
+    "definitions": [
+      "stop!"
+    ]
+  },
+  "aiuto": {
+    "spelling": "aiuto",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "help, assistance, aid"
+    ]
+  },
+  "abbasso": {
+    "spelling": "abbasso",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "down"
+    ]
+  },
+  "allegria": {
+    "spelling": "allegria",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "cheerfulness, high spirits, gaiety, mirth"
+    ]
+  },
+  "ammazza": {
+    "spelling": "ammazza",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "; damn!, goddamn!"
+    ]
+  },
+  "ahimè": {
+    "spelling": "ahimè",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "alas!, woe is me!"
+    ]
+  },
+  "accipicchia": {
+    "spelling": "accipicchia",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "; darn!"
+    ]
+  },
+  "alla salute": {
+    "spelling": "alla salute",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "cheers! (toast when drinking)"
+    ]
+  },
+  "a più tardi": {
+    "spelling": "a più tardi",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "see you later"
+    ]
+  },
+  "altolà": {
+    "spelling": "altolà",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "stop there!"
+    ]
+  },
+  "a presto": {
+    "spelling": "a presto",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "see you soon!"
+    ]
+  },
+  "accidempoli": {
+    "spelling": "accidempoli",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "an expression of astonishment"
+    ]
+  },
+  "acciderba": {
+    "spelling": "acciderba",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "an expression of astonishment"
+    ]
+  },
+  "alé": {
+    "spelling": "alé",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": "/ˈa.le/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/LL-Q2701322_(osi)-Nurholipah_(Dinda_Anggun)-alé.wav",
+    "definitions": [
+      "let's go!, come on!"
+    ]
+  },
+  "affare fatto": {
+    "spelling": "affare fatto",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0c/LL-Q652_(ita)-LangPao-affare_fatto.wav",
+    "definitions": [
+      "agreed!; it's a deal!; sure!; OK!"
+    ]
+  },
+  "a mai più rivederci": {
+    "spelling": "a mai più rivederci",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "goodbye, farewell"
+    ]
+  },
+  "a dopo": {
+    "spelling": "a dopo",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "see you later!"
+    ]
+  },
+  "alla faccia": {
+    "spelling": "alla faccia",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "crikey, gee, blimey"
+    ]
+  },
+  "affé": {
+    "spelling": "affé",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "forsooth!, in truth!"
+    ]
+  },
+  "all'arme": {
+    "spelling": "all'arme",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      ": to arms!"
+    ]
+  },
+  "accorruomo": {
+    "spelling": "accorruomo",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "help!"
+    ]
+  },
+  "ahm": {
+    "spelling": "ahm",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "yum!"
+    ]
+  },
+  "acqua in bocca": {
+    "spelling": "acqua in bocca",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "mum's the word;under one's hat"
+    ]
+  },
+  "ahó": {
+    "spelling": "ahó",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "hey!"
+    ]
+  },
+  "al ladro": {
+    "spelling": "al ladro",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "stop thief"
+    ]
+  },
+  "al diavolo": {
+    "spelling": "al diavolo",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "to hell with"
+    ]
+  },
+  "che sarà, sarà": {
+    "spelling": "che sarà, sarà",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "che sara sara; whatever happens, happens"
+    ]
+  },
+  "non lo so": {
+    "spelling": "non lo so",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I don't know"
+    ]
+  },
+  "per non dimenticare": {
+    "spelling": "per non dimenticare",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "\"do not forget\""
+    ]
+  },
+  "buon Natale": {
+    "spelling": "buon Natale",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "merry Christmas!"
+    ]
+  },
+  "punto di vista": {
+    "spelling": "punto di vista",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "point of view, viewpoint"
+    ]
+  },
+  "buona Pasqua": {
+    "spelling": "buona Pasqua",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "happy Easter"
+    ]
+  },
+  "se Dio vuole": {
+    "spelling": "se Dio vuole",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "God willing, please God, ''Deo volente''"
+    ]
+  },
+  "grazie mille": {
+    "spelling": "grazie mille",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "thank you very much, thanks a lot"
+    ]
+  },
+  "scusi": {
+    "spelling": "scusi",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "excuse me, pardon me"
+    ]
+  },
+  "buon appetito": {
+    "spelling": "buon appetito",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "bon appétit, enjoy your meal"
+    ]
+  },
+  "bella figura": {
+    "spelling": "bella figura",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "\"fine appearance or impression\"; a sense of fashion.<ref>[http://www.constant-content.com/article/4543/Conducting-Business,-Italian-Style!/ Conducting Business, Italian Style]</ref>"
+    ]
+  },
+  "ci vediamo": {
+    "spelling": "ci vediamo",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "until we meet again, see you!"
+    ]
+  },
+  "ci penso io": {
+    "spelling": "ci penso io",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I'll deal with it, I'll handle it"
+    ]
+  },
+  "come sta": {
+    "spelling": "come sta",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "how are you"
+    ]
+  },
+  "da dove vieni": {
+    "spelling": "da dove vieni",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "where are you from?"
+    ]
+  },
+  "da dove viene": {
+    "spelling": "da dove viene",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "where are you from?"
+    ]
+  },
+  "parli inglese": {
+    "spelling": "parli inglese",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "do you speak English?"
+    ]
+  },
+  "parla inglese": {
+    "spelling": "parla inglese",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "do you speak English?"
+    ]
+  },
+  "non capisco": {
+    "spelling": "non capisco",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I don't understand"
+    ]
+  },
+  "buon Natale e felice anno nuovo": {
+    "spelling": "buon Natale e felice anno nuovo",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "Merry Christmas and a Happy New Year!"
+    ]
+  },
+  "come ti chiami": {
+    "spelling": "come ti chiami",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "What is your name?"
+    ]
+  },
+  "mi chiamo": {
+    "spelling": "mi chiamo",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "my name is..."
+    ]
+  },
+  "buon compleanno": {
+    "spelling": "buon compleanno",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "happy birthday"
+    ]
+  },
+  "che ora è": {
+    "spelling": "che ora è",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "what time is it?"
+    ]
+  },
+  "che ore sono": {
+    "spelling": "che ore sono",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "what time is it?"
+    ]
+  },
+  "mi manchi": {
+    "spelling": "mi manchi",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I miss you"
+    ]
+  },
+  "sciuscià": {
+    "spelling": "sciuscià",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "shoeshine"
+    ]
+  },
+  "non c'è di che": {
+    "spelling": "non c'è di che",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "don't mention it, no problem, not at all (conventional reply to an expression of gratitude)"
+    ]
+  },
+  "ho una domanda": {
+    "spelling": "ho una domanda",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I have a question"
+    ]
+  },
+  "come si chiama": {
+    "spelling": "come si chiama",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "what's your name?"
+    ]
+  },
+  "pensaci tu": {
+    "spelling": "pensaci tu",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "you deal with it; do it yourself"
+    ]
+  },
+  "a buon rendere": {
+    "spelling": "a buon rendere",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "thank you very much; I owe you one"
+    ]
+  },
+  "non parlo italiano": {
+    "spelling": "non parlo italiano",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I don't speak Italian"
+    ]
+  },
+  "io non parlo italiano": {
+    "spelling": "io non parlo italiano",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I don't speak Italian"
+    ]
+  },
+  "non parlo inglese": {
+    "spelling": "non parlo inglese",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I don't speak English"
+    ]
+  },
+  "io non parlo inglese": {
+    "spelling": "io non parlo inglese",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I don't speak English"
+    ]
+  },
+  "penso di sì": {
+    "spelling": "penso di sì",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I think so"
+    ]
+  },
+  "non se ne parla": {
+    "spelling": "non se ne parla",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "it is not talked about"
+    ]
+  },
+  "non si sa mai": {
+    "spelling": "non si sa mai",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "you never know"
+    ]
+  },
+  "come ti pare": {
+    "spelling": "come ti pare",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "as you like; as you please; as you wish"
+    ]
+  },
+  "mi piaci": {
+    "spelling": "mi piaci",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "I like you"
+    ]
+  },
+  "cercasi personale": {
+    "spelling": "cercasi personale",
+    "language": "Italian",
+    "romanization": null,
+    "ipa": null,
+    "audioUrl": null,
+    "definitions": [
+      "help wanted"
+    ]
+  }
+}
