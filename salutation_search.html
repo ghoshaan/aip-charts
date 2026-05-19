@@ -313,16 +313,16 @@
                 return;
             }
             
-            container.innerHTML = words.map(word => `
+            container.innerHTML = words
+                .filter(word => word.audioUrl !== null && word.audioUrl !== undefined && word.audioUrl !== '')
+                .map(word => `
                 <div class="card">
                     <div class="meta-row">
                         <span class="lang-tag">${word.language}</span>
                         ${word.ipa ? `<span class="ipa">/${word.ipa}/</span>` : ''}
-                        ${word.audioUrl ? `
-                            <button class="play-btn" onclick="playAudio('${word.audioUrl}')">
-                                <svg width="18" height="18" viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
-                            </button>
-                        ` : ''}
+                        <button class="play-btn" onclick="playAudio('${word.audioUrl}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                        </button>
                     </div>
                     <div class="card-title">
                         ${word.spelling}${word.romanization ? `<span class="romanization">(${word.romanization})</span>` : ''}
