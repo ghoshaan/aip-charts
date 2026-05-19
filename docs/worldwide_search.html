@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worldwide SID/STAR Search</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-hover: #1c2128;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-dim: #7d8590;
+            --accent: #79b8ff;
+            --accent-glow: rgba(121, 184, 255, 0.15);
+            --warning: #d29922;
+        }
+        
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb-separator { opacity: 0.5; }
+        
+        header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.02em;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+        
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        .search-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-wrapper { position: relative; margin-bottom: 1.5rem; }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+        }
+
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.4rem 0.8rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-dim);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg);
+            font-weight: 600;
+        }
+
+        .results-info {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .airport-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .airport-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        
+        .airport-icao {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1.2;
+        }
+        
+        .airport-meta {
+            text-align: right;
+        }
+
+        .airport-country {
+            font-size: 0.875rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .airport-region {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .procedure-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .procedure-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .procedure-list {
+            list-style: none;
+            font-size: 0.85rem;
+        }
+        
+        .procedure-item {
+            padding: 0.35rem 0.5rem;
+            border-radius: 4px;
+            background: var(--bg);
+            margin-bottom: 0.25rem;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .procedure-item:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .procedure-item.match {
+            border-color: var(--warning);
+            background: rgba(210, 153, 34, 0.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-dim);
+        }
+        
+        .no-procedures {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .procedure-section { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>Worldwide Search</span>
+        </div>
+        
+        <header>
+            <h1>🌍 SID/STAR Search</h1>
+            <div class="subtitle">Search 24,000+ procedures worldwide from Navigraph data</div>
+        </header>
+        
+        <div class="search-section">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" 
+                       placeholder="Enter ICAO, Country, Airport or Procedure (e.g. EGLL, France, Heathrow, ALEXY)..." autocomplete="off" autofocus>
+            </div>
+
+            <div class="filters" id="regionFilters">
+                <button class="filter-btn active" data-region="All">All Regions</button>
+                <button class="filter-btn" data-region="Africa">Africa</button>
+                <button class="filter-btn" data-region="Asia">Asia</button>
+                <button class="filter-btn" data-region="Europe">Europe</button>
+                <button class="filter-btn" data-region="North America">North America</button>
+                <button class="filter-btn" data-region="South America">South America</button>
+                <button class="filter-btn" data-region="Oceania">Oceania</button>
+            </div>
+        </div>
+        
+        <div id="resultsInfo" class="results-info" style="display: none;">
+            <span id="resultsCount"></span>
+            <span id="filterStatus"></span>
+        </div>
+        
+        <div id="results"></div>
+        
+        <div id="emptyState" class="empty-state">
+            <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
+            <p>Start typing to search for airports or procedures...</p>
+        </div>
+    </div>
+
+    <script>
+        let searchIndex = [];
+        let fuse = null;
+        let selectedRegion = 'All';
+
+        const searchInput = document.getElementById('searchInput');
+        const resultsEl = document.getElementById('results');
+        const emptyState = document.getElementById('emptyState');
+        const resultsInfo = document.getElementById('resultsInfo');
+        const resultsCount = document.getElementById('resultsCount');
+        const regionFilters = document.getElementById('regionFilters');
+
+        // Load data
+        fetch('navigraph_search.json')
+            .then(res => res.json())
+            .then(data => {
+                searchIndex = data;
+                fuse = new Fuse(searchIndex, {
+                    keys: [
+                        { name: 'icao', weight: 2 },
+                        { name: 'name', weight: 1.5 },
+                        { name: 'country', weight: 1 },
+                        { name: 'sids', weight: 0.5 },
+                        { name: 'stars', weight: 0.5 }
+                    ],
+                    threshold: 0.2,
+                    limit: 30,
+                    ignoreLocation: true
+                });
+                
+                // If there's a hash, search for it
+                const hash = window.location.hash.substring(1);
+                if (hash) {
+                    searchInput.value = decodeURIComponent(hash);
+                    performSearch(searchInput.value);
+                }
+            });
+
+        searchInput.addEventListener('input', (e) => {
+            performSearch(e.target.value.trim());
+        });
+
+        regionFilters.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                selectedRegion = e.target.getAttribute('data-region');
+                performSearch(searchInput.value.trim());
+            }
+        });
+
+        function performSearch(query) {
+            if (query.length < 2) {
+                resultsEl.innerHTML = '';
+                resultsInfo.style.display = 'none';
+                emptyState.style.display = 'block';
+                emptyState.innerHTML = '<div style="font-size: 3rem; opacity: 0.3;">🔍</div><p>Start typing to search for airports or procedures...</p>';
+                return;
+            }
+
+            if (!fuse) return;
+
+            let results = fuse.search(query);
+            
+            // Filter by region
+            if (selectedRegion !== 'All') {
+                results = results.filter(r => r.item.region === selectedRegion);
+            }
+
+            if (results.length === 0) {
+                resultsEl.innerHTML = '';
+                resultsInfo.style.display = 'none';
+                emptyState.style.display = 'block';
+                emptyState.innerHTML = '<div style="font-size: 3rem; opacity: 0.3;">🔍</div><p>No matches found in ' + selectedRegion + ' matching "' + query + '"</p>';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            resultsInfo.style.display = 'flex';
+            resultsCount.textContent = `Found ${results.length} airports`;
+            document.getElementById('filterStatus').textContent = selectedRegion !== 'All' ? `Filtering by ${selectedRegion}` : '';
+            
+            renderResults(results, query);
+        }
+
+        function renderResults(results, query) {
+            resultsEl.innerHTML = '';
+            const queryLower = query.toLowerCase();
+            
+            results.forEach(result => {
+                const airport = result.item;
+                const card = document.createElement('div');
+                card.className = 'airport-card';
+                
+                // Highlight matches in procedures
+                const renderProcedure = (p) => {
+                    const isMatch = p.toLowerCase().includes(queryLower);
+                    return `<li class="procedure-item ${isMatch ? 'match' : ''}">${p}</li>`;
+                };
+
+                let sidsHtml = airport.sids.length > 0 
+                    ? airport.sids.map(renderProcedure).join('')
+                    : '<li class="no-procedures">No SIDs found</li>';
+                    
+                let starsHtml = airport.stars.length > 0 
+                    ? airport.stars.map(renderProcedure).join('')
+                    : '<li class="no-procedures">No STARs found</li>';
+
+                card.innerHTML = `
+                    <div class="airport-header">
+                        <div>
+                            <div class="airport-icao">${airport.icao}</div>
+                            <div style="font-size: 0.9rem; font-weight: 600; color: var(--text);">${airport.name || ''}</div>
+                        </div>
+                        <div class="airport-meta">
+                            <div class="airport-country">${airport.country}</div>
+                            <div class="airport-region">${airport.region}</div>
+                        </div>
+                    </div>
+                    <div class="procedure-section">
+                        <div>
+                            <div class="procedure-title">🛫 SIDs (${airport.sids.length})</div>
+                            <ul class="procedure-list">${sidsHtml}</ul>
+                        </div>
+                        <div>
+                            <div class="procedure-title">🛬 STARs (${airport.stars.length})</div>
+                            <ul class="procedure-list">${starsHtml}</ul>
+                        </div>
+                    </div>
+                `;
+                resultsEl.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>

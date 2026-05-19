@@ -822,7 +822,14 @@ def generate_index_page(hierarchy):
         json.dump(global_search_index, f)
 
     # Pre-build region cards to avoid nested f-string bracket issues on Python < 3.12
-    region_cards_html = ''
+    region_cards_html = f'''
+                <a href="worldwide_search.html" class="region-card" style="border-color: var(--accent); background: var(--accent-glow);">
+                    <span class="card-icon">🌍</span>
+                    <div class="card-title">Worldwide Search</div>
+                    <div class="card-count">
+                        Search <strong>24,000+</strong> SID/STAR procedures
+                    </div>
+                </a>'''
     for r in regions:
         region_cards_html += f'''
                 <a href="{r['slug']}.html" class="region-card">

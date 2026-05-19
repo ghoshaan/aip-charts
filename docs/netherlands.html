@@ -654,12 +654,14 @@
     </div>
     
     <script>
+        
         const PINS_KEY = 'atc_pins';
         function getPins() {
             try { return JSON.parse(localStorage.getItem(PINS_KEY)) || {airports: [], charts: []}; }
             catch(e) { return {airports: [], charts: []}; }
         }
         function savePins(p) { localStorage.setItem(PINS_KEY, JSON.stringify(p)); }
+        
         function toggleAirportPin(airport) {
             let pins = getPins();
             let idx = pins.airports.findIndex(a => a.slug === airport.slug);
@@ -667,6 +669,7 @@
             else pins.airports.push({...airport, pinnedAt: Date.now()});
             savePins(pins);
         }
+        
         function toggleChartPin(chart) {
             let pins = getPins();
             let idx = pins.charts.findIndex(c => c.url === chart.url);
@@ -674,11 +677,13 @@
             else pins.charts.push({...chart, pinnedAt: Date.now()});
             savePins(pins);
         }
+
         function clearAllPins() {
             savePins({airports: [], charts: []});
             if (typeof renderPins === 'function') renderPins();
             else if (typeof renderPinned === 'function') renderPinned();
         }
+    
         const airports = [
         {
                 "icao": "EHAL",
@@ -856,7 +861,7 @@
                 "fileCount": 9
         }
 ];
-        
+
         const fuse = new Fuse(airports, {
             keys: ['icao', 'name', 'displayName'],
             threshold: 0.3,

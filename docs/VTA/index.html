@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATC Charts Directory</title>
-    <link rel="icon" type="image/png" href="favicon.png">
+    <title>VTA charts - ATC Charts</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
     <style>
@@ -560,199 +560,88 @@
         }
         
         
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
+        .file-count {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
         }
         
-        .region-card {
+        .file-list {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 2rem;
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.2s;
-            position: relative;
-            display: block;
-        }
-        
-        .region-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--accent);
-            transform: scaleY(0);
-            transition: transform 0.2s;
-        }
-        
-        .region-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.15);
-        }
-        
-        .region-card:hover::before {
-            transform: scaleY(1);
-        }
-        
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-        
-        .card-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
         
-        .card-count {
-            font-size: 0.875rem;
-            color: var(--text-dim);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .card-count strong {
-            color: var(--accent);
-        }
+        .file-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: #ffffff; transition: all 0.15s; min-width: 0; }
 
-        /* Global Search Styles */
-        .results-section {
-            margin-top: 2rem;
-        }
+        .file-item:last-child { border-bottom: none; }
 
-        .search-result-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text); border-bottom: 1px solid var(--border); transition: all 0.2s; min-width: 0; flex: 1; }
-
-        .search-result-item:hover {
-            border-color: var(--accent);
+        .file-item:hover {
             background: var(--surface-hover);
-            transform: translateX(4px);
+            padding-left: 1.5rem;
         }
 
-        .result-icon { font-size: 1.25rem; flex-shrink: 0; }
-        .result-info { flex: 1; min-width: 0; }
-        .result-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .result-meta { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .result-type { 
-            font-size: 0.6rem; 
-            text-transform: uppercase; 
-            background: var(--bg); 
-            padding: 0.2rem 0.5rem; 
+        .file-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .file-name { flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; color: #ffffff; }
+
+        .file-type {
+            font-size: 0.65rem;            color: var(--text-dim);
+            background: var(--bg);
+            padding: 0.3rem 0.6rem;
             border-radius: 3px;
-            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-weight: 600;
             flex-shrink: 0;
         }
+    
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="breadcrumb">
+            <a href="../index.html">Home</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="../canada.html">CANADA</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>VTA charts</span>
+        </div>
+        
         <header>
             <div class="header-content">
-                <h1>ATC Charts Directory</h1>
-                <div class="subtitle">Search airports, charts, or browse regions</div>
+                <h1>VTA charts</h1>
+                <div class="subtitle">Charts and procedures</div>
             </div>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
         </header>
         
-        <div id="pinnedSection" class="pinned-section" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <div class="subtitle" style="color: var(--accent); margin-bottom: 0;">📌 Pinned Items</div>
-                <button onclick="clearAllPins()" class="clear-all-btn">Clear all</button>
-            </div>
-            <div id="pinnedGrid" class="pinned-grid"></div>
-        </div>
-
-        <div class="stats">
-            <div class="stat">
-                <span class="stat-value">4</span>
-                <span class="stat-label">Regions</span>
-            </div>
-            <div class="stat">
-                <span class="stat-value">417</span>
-                <span class="stat-label">Airports</span>
-            </div>
-            <div class="stat">
-                <span class="stat-value">3404</span>
-                <span class="stat-label">Total Files</span>
-            </div>
-        </div>
-
         <div class="search-section">
             <div class="search-wrapper">
                 <span class="search-icon">🔍</span>
                 <input type="text" id="searchInput" class="search-input" 
-                       placeholder="Search global directory (e.g. Dublin, star, EHAM)..." autocomplete="off">
+                       placeholder="Search charts..." autocomplete="off">
+            </div>
+            <div class="search-help">
+                <strong>Examples:</strong> <code>star</code> &bull; <code>RWY 04</code> &bull; <code>ILS</code>
             </div>
         </div>
         
-        <div id="searchResults" class="results-section" style="display: none;">
-            <div class="subtitle" style="margin-bottom: 1rem;">Search Results</div>
-            <div id="resultsList"></div>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pdf">PDF</button>
+            <button class="filter-btn" data-filter="image">Images</button>
         </div>
-
-        <div id="defaultView">
-            <div class="subtitle" style="margin-bottom: 1rem;">Browse Regions</div>
-            <div class="card-grid">
-                
-                <a href="worldwide_search.html" class="region-card" style="border-color: var(--accent); background: var(--accent-glow);">
-                    <span class="card-icon">🌍</span>
-                    <div class="card-title">Worldwide Search</div>
-                    <div class="card-count">
-                        Search <strong>24,000+</strong> SID/STAR procedures
-                    </div>
-                </a>
-                <a href="canada.html" class="region-card">
-                    <span class="card-icon">🇨🇦</span>
-                    <div class="card-title">CANADA</div>
-                    <div class="card-count">
-                        <strong>369</strong> airports &bull;
-                        <strong>2853</strong> files
-                    </div>
-                </a>
-                <a href="ireland.html" class="region-card">
-                    <span class="card-icon">🇮🇪</span>
-                    <div class="card-title">Ireland</div>
-                    <div class="card-count">
-                        <strong>10</strong> airports &bull;
-                        <strong>144</strong> files
-                    </div>
-                </a>
-                <a href="netherlands.html" class="region-card">
-                    <span class="card-icon">🇳🇱</span>
-                    <div class="card-title">Netherlands</div>
-                    <div class="card-count">
-                        <strong>25</strong> airports &bull;
-                        <strong>221</strong> files
-                    </div>
-                </a>
-                <a href="switzerland.html" class="region-card">
-                    <span class="card-icon">🇨🇭</span>
-                    <div class="card-title">Switzerland</div>
-                    <div class="card-count">
-                        <strong>13</strong> airports &bull;
-                        <strong>186</strong> files
-                    </div>
-                </a>
-            </div>
-        </div>
-
+        
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+        
+        <div class="file-count" id="fileCount">Showing 13 files</div>
+        <div class="file-list" id="fileList"></div>
         <div id="emptyState" class="empty-state" style="display: none;">
             <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
-            <p>No results found.</p>
+            <p>No files found.</p>
         </div>
     </div>
-
+    
     
         <!-- PDF.js library -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -1202,287 +1091,275 @@
             document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
             document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
-        let searchIndex = [];
-        let fuse = null;
+        
+        const airportCtx = {
+            slug: 'VTA',
+            name: 'VTA charts',
+            icao: 'VTA',
+            region: 'CANADA'
+        };
 
-        // Load search index asynchronously
-        fetch('search_data.json')
-            .then(res => res.json())
-            .then(data => {
-                searchIndex = data;
-                fuse = new Fuse(searchIndex, {
-                    keys: [
-                        { name: 'name', weight: 2 },
-                        { name: 'code', weight: 2 },
-                        { name: 'airport', weight: 1 },
-                        { name: 'region', weight: 1 }
-                    ],
-                    threshold: 0.3,
-                    includeMatches: true,
-                    limit: 50
-                });
-                renderPins(); 
-            });
-
-        function renderPins() {
+        const pinAirportBtn = document.getElementById('pinAirportBtn');
+        const updateAirportPinState = () => {
             const pins = getPins();
-            const section = document.getElementById('pinnedSection');
-            const grid = document.getElementById('pinnedGrid');
+            const isPinned = pins.airports.some(a => a.slug === airportCtx.slug);
+            pinAirportBtn.classList.toggle('pinned', isPinned);
+            pinAirportBtn.title = isPinned ? 'Unpin from homepage' : 'Pin to homepage';
+        };
 
-            if (pins.airports.length === 0 && pins.charts.length === 0) {
-                section.style.display = 'none';
-                return;
-            }
+        pinAirportBtn.onclick = () => {
+            toggleAirportPin(airportCtx);
+            updateAirportPinState();
+        };
+        updateAirportPinState();
 
-            section.style.display = 'block';
-            grid.innerHTML = '';
-
-            pins.airports.forEach(a => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'pin-card-wrapper';
-                wrapper.style.display = 'flex';
-                wrapper.style.alignItems = 'center';
-                wrapper.style.background = 'var(--surface)';
-                wrapper.style.border = '1px solid var(--border)';
-                wrapper.style.borderRadius = '6px';
-                wrapper.style.transition = 'all 0.2s';
-
-                const card = document.createElement('a');
-                card.className = 'pin-card';
-                card.href = a.slug + '/';
-                card.style.border = 'none';
-                card.style.flex = '1';
-                card.style.minWidth = '0';
-                card.innerHTML = `
-                    <span style="font-size: 1.25rem;">✈️</span>
-                    <div class="pin-info">
-                        <div class="pin-name">${a.name}</div>
-                        <div class="pin-meta">${a.region}</div>
-                    </div>
-                `;
-
-                const unpinBtn = document.createElement('button');
-                unpinBtn.className = 'unpin-btn';
-                unpinBtn.innerHTML = '✕';
-                unpinBtn.title = 'Unpin';
-                unpinBtn.onclick = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleAirportPin(a);
-                    renderPins();
-                };
-
-                wrapper.appendChild(card);
-                wrapper.appendChild(unpinBtn);
-                grid.appendChild(wrapper);
-            });
-
-            pins.charts.forEach(c => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'pin-card-wrapper';
-                wrapper.style.display = 'flex';
-                wrapper.style.alignItems = 'center';
-                wrapper.style.background = 'var(--surface)';
-                wrapper.style.border = '1px solid var(--border)';
-                wrapper.style.borderRadius = '6px';
-                wrapper.style.transition = 'all 0.2s';
-
-                const card = document.createElement('a');
-                card.className = 'pin-card';
-                card.style.border = 'none';
-                card.style.flex = '1';
-                card.style.minWidth = '0';
-
-                // Robust recovery for old pins
-                let id = c.id;
-                let localUrl = c.localUrl;
-                let driveUrl = c.url;
-                let name = c.name;
-
-                if ((!id || !localUrl) && typeof searchIndex !== 'undefined') {
-                    const found = searchIndex.find(item => 
-                        (c.id && item.id === c.id) || 
-                        (c.url && item.url.split('?')[0] === c.url.split('?')[0]) ||
-                        (item.name === c.name && item.airport === c.airport)
-                    );
-                    if (found) {
-                        id = id || found.id;
-                        localUrl = localUrl || found.localUrl;
-                        driveUrl = driveUrl || found.url;
-                        console.log('🔄 Recovered pin data for:', name);
-                    }
-                }
-
-                if (localUrl && localUrl !== '#') {
-                    card.href = `#view=${id}`;
-                    card.onclick = (e) => { 
-                        e.preventDefault(); 
-                        openViewer(id, name, driveUrl, localUrl, false, c.airport);
-                    };
-                } else {
-                    console.warn('⚠️ Pin missing localUrl, falling back to Drive:', name);
-                    card.href = driveUrl || '#';
-                    card.target = '_blank';
-                }
-                card.innerHTML = `
-                    <span style="font-size: 1.25rem;">📄</span>
-                    <div class="pin-info">
-                        <div class="pin-name">${c.name}</div>
-                        <div class="pin-meta">${c.airport} &bull; ${c.region}</div>
-                    </div>
-                `;
-
-                wrapper.appendChild(card);
-
-                if (localUrl && localUrl !== '#') {
-                    const newTabBtn = document.createElement('a');
-                    newTabBtn.className = 'new-tab-btn';
-                    newTabBtn.href = `${c.pageUrl}#view=${id}`;
-                    newTabBtn.target = '_blank';
-                    newTabBtn.title = 'Open in new tab';
-                    newTabBtn.innerHTML = '↗️';
-                    newTabBtn.style.marginRight = '0.5rem';
-                    wrapper.appendChild(newTabBtn);
-                }
-
-                const unpinBtn = document.createElement('button');
-                unpinBtn.className = 'unpin-btn';
-                unpinBtn.innerHTML = '✕';
-                unpinBtn.title = 'Unpin';
-                unpinBtn.onclick = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleChartPin(c);
-                    renderPins();
-                };
-
-                wrapper.appendChild(unpinBtn);
-                grid.appendChild(wrapper);
-            });
+        const files = [
+        {
+                "id": "vancouver-back.pdf",
+                "name": "VANCOUVER BACK.pdf",
+                "url": "../charts_data/canada/vta-charts/vancouver-back.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/vancouver-back.pdf",
+                "driveId": "185qLYNdNfiIyTEWJvfSxlkOzy5CQn1-e",
+                "driveUrl": "https://drive.google.com/file/d/185qLYNdNfiIyTEWJvfSxlkOzy5CQn1-e/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/vancouver-back.pdf"
+        },
+        {
+                "id": "yt_vfr_terminal_procedures_05-14-2026.pdf",
+                "name": "YT_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/yt_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/yt_vfr_terminal_procedures_05-14-2026.pdf",
+                "driveId": "114gr1yJGc70t7VODB1LlK7knlCnQoc8C",
+                "driveUrl": "https://drive.google.com/file/d/114gr1yJGc70t7VODB1LlK7knlCnQoc8C/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/yt_vfr_terminal_procedures_05-14-2026.pdf"
+        },
+        {
+                "id": "sk_vfr_terminal_procedures_05-14-2026.pdf",
+                "name": "SK_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/sk_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/sk_vfr_terminal_procedures_05-14-2026.pdf",
+                "driveId": "1RJLgjAuCfABGVO5qcuaxkJVB43V1Jx_I",
+                "driveUrl": "https://drive.google.com/file/d/1RJLgjAuCfABGVO5qcuaxkJVB43V1Jx_I/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/sk_vfr_terminal_procedures_05-14-2026.pdf"
+        },
+        {
+                "id": "qc_vfr_terminal_procedures_05-14-2026.pdf",
+                "name": "QC_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/qc_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/qc_vfr_terminal_procedures_05-14-2026.pdf",
+                "driveId": "1gO-ldc0W5sMwf91hRDtjpyXtup3eSvre",
+                "driveUrl": "https://drive.google.com/file/d/1gO-ldc0W5sMwf91hRDtjpyXtup3eSvre/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/qc_vfr_terminal_procedures_05-14-2026.pdf"
+        },
+        {
+                "id": "on_vfr_terminal_procedures_05-14-2026.pdf",
+                "name": "ON_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/on_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/on_vfr_terminal_procedures_05-14-2026.pdf",
+                "driveId": "1AAE3NM2sXAmNfZqHzaSAQ7i6I9SZzTEI",
+                "driveUrl": "https://drive.google.com/file/d/1AAE3NM2sXAmNfZqHzaSAQ7i6I9SZzTEI/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/on_vfr_terminal_procedures_05-14-2026.pdf"
+        },
+        {
+                "id": "nt_vfr_terminal_procedures_05-14-2026.pdf",
+                "name": "NT_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/nt_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/nt_vfr_terminal_procedures_05-14-2026.pdf",
+                "driveId": "1GlFO2cM_r7yQDoguqngLzYRj1xcaf6oj",
+                "driveUrl": "https://drive.google.com/file/d/1GlFO2cM_r7yQDoguqngLzYRj1xcaf6oj/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/nt_vfr_terminal_procedures_05-14-2026.pdf"
+        },
+        {
+                "id": "ns_vfr_terminal_procedures_05-14-2026.pdf",
+                "name": "NS_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/ns_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/ns_vfr_terminal_procedures_05-14-2026.pdf",
+                "driveId": "1PVn7PNnqEUFO5nvYkngo_zejPGy512Ga",
+                "driveUrl": "https://drive.google.com/file/d/1PVn7PNnqEUFO5nvYkngo_zejPGy512Ga/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/ns_vfr_terminal_procedures_05-14-2026.pdf"
+        },
+        {
+                "id": "nl_vfr_terminal_procedures_05-14-2026.pdf",
+                "name": "NL_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/nl_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/nl_vfr_terminal_procedures_05-14-2026.pdf",
+                "driveId": "1gt50TFh0msiefDTnmVT5ULiFzbHoUost",
+                "driveUrl": "https://drive.google.com/file/d/1gt50TFh0msiefDTnmVT5ULiFzbHoUost/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/nl_vfr_terminal_procedures_05-14-2026.pdf"
+        },
+        {
+                "id": "nb_vfr_terminal_procedures_05-14-2026.pdf",
+                "name": "NB_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/nb_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/nb_vfr_terminal_procedures_05-14-2026.pdf",
+                "driveId": "1ef03PIW5MG_8il7b-PFjspDpZlzNxWAg",
+                "driveUrl": "https://drive.google.com/file/d/1ef03PIW5MG_8il7b-PFjspDpZlzNxWAg/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/nb_vfr_terminal_procedures_05-14-2026.pdf"
+        },
+        {
+                "id": "mb_vfr_terminal_procedures_05-14-2026.pdf",
+                "name": "MB_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/mb_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/mb_vfr_terminal_procedures_05-14-2026.pdf",
+                "driveId": "1r0syN_0Pg8JBPp4BYTHAcIwht5SjVyKY",
+                "driveUrl": "https://drive.google.com/file/d/1r0syN_0Pg8JBPp4BYTHAcIwht5SjVyKY/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/mb_vfr_terminal_procedures_05-14-2026.pdf"
+        },
+        {
+                "id": "bc_vfr_terminal_procedures_05-14-2026.pdf",
+                "name": "BC_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/bc_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/bc_vfr_terminal_procedures_05-14-2026.pdf",
+                "driveId": "1Xi_m80AK3EzOuokgcUzuoIJVBPApAPmX",
+                "driveUrl": "https://drive.google.com/file/d/1Xi_m80AK3EzOuokgcUzuoIJVBPApAPmX/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/bc_vfr_terminal_procedures_05-14-2026.pdf"
+        },
+        {
+                "id": "ab_vfr_terminal_procedures_05-14-2026.pdf",
+                "name": "AB_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/ab_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/ab_vfr_terminal_procedures_05-14-2026.pdf",
+                "driveId": "13qJe37Cg5ySh2Qk7aegNIfpLCeuDxwUy",
+                "driveUrl": "https://drive.google.com/file/d/13qJe37Cg5ySh2Qk7aegNIfpLCeuDxwUy/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/ab_vfr_terminal_procedures_05-14-2026.pdf"
+        },
+        {
+                "id": "cfsvfrterminalprocedures_05-14-2026.pdf",
+                "name": "CFSVFRTERMINALPROCEDURES_05-14-2026.pdf",
+                "url": "../charts_data/canada/vta-charts/cfsvfrterminalprocedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/cfsvfrterminalprocedures_05-14-2026.pdf",
+                "driveId": "1H2jwVTgto7qjVuvG8hhL8duqNbUfLEJx",
+                "driveUrl": "https://drive.google.com/file/d/1H2jwVTgto7qjVuvG8hhL8duqNbUfLEJx/view?usp=drivesdk",
+                "type": "pdf",
+                "rootUrl": "charts_data/canada/vta-charts/cfsvfrterminalprocedures_05-14-2026.pdf"
         }
-
-        renderPins();
-
-        const searchInput = document.getElementById('searchInput');
-        const searchResults = document.getElementById('searchResults');
-        const resultsList = document.getElementById('resultsList');
-        const defaultView = document.getElementById('defaultView');
-        const emptyState = document.getElementById('emptyState');
-
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.trim();
-            const pinnedSection = document.getElementById('pinnedSection');
-
-            if (query.length < 2) {
-                searchResults.style.display = 'none';
-                defaultView.style.display = 'block';
-                emptyState.style.display = 'none';
-                renderPins(); // Refresh pins when returning to default view
-                return;
-            }
-
-            if (!fuse) return;
-            pinnedSection.style.display = 'none';
-            const results = fuse.search(query);
-
-            defaultView.style.display = 'none';
+];
+        const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
+        let currentFilter = 'all';
+        
+        const fuse = new Fuse(files, {
+            keys: ['name'],
+            threshold: 0.4,
+            includeMatches: true
+        });
+        
+        function renderFiles(results = null) {
+            const listEl = document.getElementById('fileList');
+            const emptyState = document.getElementById('emptyState');
+            const fileCount = document.getElementById('fileCount');
             
-            if (results.length === 0) {
-                searchResults.style.display = 'none';
+            listEl.innerHTML = '';
+            
+            let filesToShow = results ? results.map(r => ({...r.item, matches: r.matches})) : files;
+            
+            if (currentFilter !== 'all') {
+                filesToShow = filesToShow.filter(f => f.type === currentFilter);
+            }
+            
+            if (filesToShow.length === 0) {
+                listEl.style.display = 'none';
                 emptyState.style.display = 'block';
+                fileCount.textContent = 'No files found';
                 return;
             }
-
+            
+            listEl.style.display = 'block';
             emptyState.style.display = 'none';
-            searchResults.style.display = 'block';
-            resultsList.innerHTML = '';
-
-            results.forEach(result => {
-                const item = result.item;
+            fileCount.textContent = `Showing ${filesToShow.length} of ${files.length} files`;
+            
+            filesToShow.forEach(file => {
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
-                wrapper.style.gap = '0.5rem';
+                wrapper.style.borderBottom = '1px solid var(--border)';
+                wrapper.style.minWidth = '0';
 
-                const div = document.createElement('a');
-                div.className = 'search-result-item';
-                div.style.flex = '1';
-                div.style.marginBottom = '0';
-                div.style.minWidth = '0';
-
-                if (item.type === 'chart') {
-                    div.href = `#view=${item.id}`;
-                    div.onclick = (e) => {
-                        e.preventDefault();
-                        openViewer(item.id, item.name, item.driveUrl || '#', item.localUrl, false, item.airport);
-                    };
-                } else {
-                    div.href = item.url;
-                }
-
-                const meta = item.type === 'airport'
-                    ? `${item.region}` 
-                    : `${item.airport} &bull; ${item.region}`;
-
-                div.innerHTML = `
-                    <span class="result-icon">${item.icon}</span>
-                    <div class="result-info">
-                        <div class="result-name">${item.name}</div>
-                        <div class="result-meta">${meta}</div>
-                    </div>
-                    <span class="result-type">${item.type}</span>
+                const item = document.createElement('a');
+                item.className = 'file-item';
+                item.style.minWidth = '0';
+                item.href = `#view=${file.id}`;
+                item.onclick = (e) => {
+                    e.preventDefault();
+                    openViewer(file.id, file.name, file.driveUrl || '#', file.localUrl, false, airportCtx.icao);
+                };
+                item.style.borderBottom = 'none';
+                item.style.flex = '1';
+                const pagesBadge = file.pages && file.pages.length > 1
+                    ? `<span class="file-type">${file.pages.length} pages</span>`
+                    : `<span class="file-type">${file.type}</span>`;
+                item.innerHTML = `
+                    <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
+                    <span class="file-name">${file.name}</span>
+                    ${pagesBadge}
                 `;
 
-                wrapper.appendChild(div);
-
-                if (item.type === 'chart') {
-                    const newTabBtn = document.createElement('a');
-                    newTabBtn.className = 'new-tab-btn';
-                    newTabBtn.href = `${item.pageUrl}#view=${item.id}`;
-                    newTabBtn.target = '_blank';
-                    newTabBtn.title = 'Open in new tab';
-                    newTabBtn.innerHTML = '↗️';
-                    newTabBtn.style.marginRight = '0.5rem';
-                    wrapper.appendChild(newTabBtn);
-                }
-
-                const pinBtn = document.createElement('button');
-                pinBtn.className = 'pin-btn';
                 const pins = getPins();
-                const isPinned = item.type === 'airport'
-                    ? pins.airports.some(a => a.slug === item.code)
-                    : pins.charts.some(c => c.url === item.url);
-
-                if (isPinned) pinBtn.classList.add('pinned');
+                const isPinned = pins.charts.some(c => c.url === file.rootUrl);
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'pin-btn' + (isPinned ? ' pinned' : '');
+                pinBtn.style.marginRight = '1rem';
+                pinBtn.title = isPinned ? 'Unpin from homepage' : 'Pin to homepage';
                 pinBtn.innerHTML = '📌';
                 pinBtn.onclick = (e) => {
                     e.preventDefault();
-                    e.stopPropagation();
-                    if (item.type === 'airport') {
-                        toggleAirportPin({
-                            slug: item.code,
-                            name: item.name,
-                            region: item.region
-                        });
-                    } else {
-                        toggleChartPin({
-                            id: item.id,
-                            name: item.name,
-                            url: item.url,
-                            localUrl: item.localUrl,
-                            type: item.icon === '📄' ? 'pdf' : 'image',
-                            airport: item.airport,
-                            region: item.region,
-                            pageUrl: item.pageUrl
-                        });
-                    }
+                    toggleChartPin({
+                        id: file.id,
+                        name: file.name,
+                        url: file.rootUrl,
+                        localUrl: file.rootUrl,
+                        type: file.type,
+                        airport: airportCtx.name,
+                        region: airportCtx.region,
+                        pageUrl: `${airportCtx.slug}/`
+                    });
                     pinBtn.classList.toggle('pinned');
+                    pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
                 };
 
+                wrapper.appendChild(item);
+
+                const newTabBtn = document.createElement('a');
+                newTabBtn.className = 'new-tab-btn';
+                newTabBtn.href = `#view=${file.id}`;
+                newTabBtn.target = '_blank';
+                newTabBtn.title = 'Open in new tab';
+                newTabBtn.innerHTML = '↗️';
+                newTabBtn.style.marginRight = '0.5rem';
+                wrapper.appendChild(newTabBtn);
+
                 wrapper.appendChild(pinBtn);
-                resultsList.appendChild(wrapper);
+                listEl.appendChild(wrapper);
+            });
+        }
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            renderFiles(query ? fuse.search(query) : null);
+        });
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                
+                const query = document.getElementById('searchInput').value.trim();
+                renderFiles(query ? fuse.search(query) : null);
             });
         });
+        
+        renderFiles();
     </script>
 </body>
 </html>
