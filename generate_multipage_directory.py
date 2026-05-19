@@ -2876,79 +2876,13 @@ def main():
     
     # Final save for airport hashes
     save_manifest(manifest)
-    
-    # Update legacy single-page files
-    update_legacy_single_page_files(hierarchy)
-    
+
     print("\n" + "="*70)
     print("  🎉 SUCCESS!")
     print("="*70)
     print(f"\n📁 Site updated in: {OUTPUT_DIR}/")
     print(f"📄 Open: {OUTPUT_DIR}/index.html")
     print("\n" + "="*70 + "\n")
-
-
-def update_legacy_single_page_files(hierarchy):
-    """Update legacy single-page HTML files in the root directory"""
-    print("📄 Updating legacy single-page files...")
-    
-    directory_data = []
-    for region, airports in hierarchy.items():
-        region_name = region.capitalize()
-        for airport_slug, files in airports.items():
-            icao = airport_slug.split()[0].upper()
-            name = AIRPORT_NAMES.get(icao, icao)
-            
-            # Use original Drive files structure for legacy compatibility
-            legacy_files = []
-            for f in files:
-                legacy_files.append({
-                    "name": f['name'],
-                    "url": f['url'],
-                    "type": f['type'],
-                    "id": f.get('id', ''),
-                    "localUrl": f.get('localUrl', ''),
-                    "driveId": f.get('driveId', ''),
-                    "driveUrl": f.get('driveUrl', '#')
-                })
-            
-            directory_data.append({
-                "name": f"{region_name}/{icao}",
-                "icon": "✈️",
-                "files": sorted(legacy_files, key=lambda x: x['name'])
-            })
-    
-    directory_data.sort(key=lambda x: x['name'])
-    
-    legacy_files = ['atc-charts-directory.html', 'atc_directory_improved.html']
-    for filename in legacy_files:
-        if os.path.exists(filename):
-            try:
-                with open(filename, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                
-                start_marker = 'const directoryData = ['
-                end_marker = '];'
-                start_idx = content.find(start_marker)
-                end_idx = content.find(end_marker, start_idx)
-                
-                if start_idx != -1 and end_idx != -1:
-                    # Find the correct closing bracket
-                    # We look for the next ]; after the start_marker
-                    end_idx = content.find(end_marker, start_idx) + 2
-                    
-                    new_content = content[:start_idx + len(start_marker)] + "\n"
-                    for i, item in enumerate(directory_data):
-                        new_content += "            " + json.dumps(item)
-                        if i < len(directory_data) - 1: new_content += ","
-                        new_content += "\n"
-                    new_content += "        " + content[end_idx:]
-                    
-                    with open(filename, 'w', encoding='utf-8') as f:
-                        f.write(new_content)
-                    print(f"   ✅ Updated: {filename}")
-            except Exception as e:
-                print(f"   ⚠️  Failed to update {filename}: {e}")
 
 
 if __name__ == '__main__':
