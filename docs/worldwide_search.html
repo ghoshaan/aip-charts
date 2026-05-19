@@ -438,22 +438,40 @@
                 const card = document.createElement('div');
                 card.className = 'airport-card';
                 
+                // Helper to check if a procedure matches the query
+                const isMatch = (p) => highlightQuery && p.toLowerCase().includes(highlightQuery);
+
                 // Highlight matches in procedures
                 const renderProcedure = (p) => {
-                    const isMatch = highlightQuery && p.toLowerCase().includes(highlightQuery);
-                    return `<li class="procedure-item ${isMatch ? 'match' : ''}">${p}</li>`;
+                    return `<li class="procedure-item ${isMatch(p) ? 'match' : ''}">${p}</li>`;
                 };
 
-                let sidsHtml = airport.sids.length > 0 
-                    ? airport.sids.map(renderProcedure).join('')
+                // Sort procedures to put matches at the top
+                const sortProcedures = (list) => {
+                    if (!list) return [];
+                    return [...list].sort((a, b) => {
+                        const aM = isMatch(a);
+                        const bM = isMatch(b);
+                        if (aM && !bM) return -1;
+                        if (!aM && bM) return 1;
+                        return 0;
+                    });
+                };
+
+                const sortedSids = sortProcedures(airport.sids);
+                const sortedStars = sortProcedures(airport.stars);
+                const sortedIaps = sortProcedures(airport.iaps);
+
+                let sidsHtml = sortedSids.length > 0 
+                    ? sortedSids.map(renderProcedure).join('')
                     : '<li class="no-procedures">No SIDs found</li>';
                     
-                let starsHtml = airport.stars.length > 0 
-                    ? airport.stars.map(renderProcedure).join('')
+                let starsHtml = sortedStars.length > 0 
+                    ? sortedStars.map(renderProcedure).join('')
                     : '<li class="no-procedures">No STARs found</li>';
 
-                let iapsHtml = airport.iaps && airport.iaps.length > 0 
-                    ? airport.iaps.map(renderProcedure).join('')
+                let iapsHtml = sortedIaps.length > 0 
+                    ? sortedIaps.map(renderProcedure).join('')
                     : '<li class="no-procedures">No IAPs found</li>';
 
                 card.innerHTML = `
