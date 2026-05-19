@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Worldwide SID/STAR Search</title>
+    <title>Worldwide Procedure Search</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
@@ -46,7 +46,7 @@
             z-index: 0;
         }
         
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
         
         .breadcrumb {
             display: flex;
@@ -89,8 +89,15 @@
             padding: 1.5rem;
             margin-bottom: 2rem;
         }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
         
-        .search-wrapper { position: relative; margin-bottom: 1.5rem; }
+        .search-wrapper { position: relative; }
         
         .search-input {
             width: 100%;
@@ -202,7 +209,7 @@
         
         .procedure-section {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 1.5rem;
         }
         
@@ -254,7 +261,12 @@
             font-style: italic;
         }
 
+        @media (max-width: 1024px) {
+            .procedure-section { grid-template-columns: 1fr 1fr; }
+        }
+
         @media (max-width: 768px) {
+            .search-grid { grid-template-columns: 1fr; }
             .procedure-section { grid-template-columns: 1fr; }
         }
     </style>
@@ -268,15 +280,22 @@
         </div>
         
         <header>
-            <h1>🌍 SID/STAR Search</h1>
-            <div class="subtitle">Search 24,000+ procedures worldwide from Navigraph data</div>
+            <h1>🌍 Procedure Search</h1>
+            <div class="subtitle">Search 24,000+ SIDs, STARs, and IAPs worldwide from Navigraph data</div>
         </header>
         
         <div class="search-section">
-            <div class="search-wrapper">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" class="search-input" 
-                       placeholder="Enter ICAO, Country, Airport or Procedure (e.g. EGLL, France, Heathrow, ALEXY)..." autocomplete="off" autofocus>
+            <div class="search-grid">
+                <div class="search-wrapper">
+                    <span class="search-icon">📍</span>
+                    <input type="text" id="locationInput" class="search-input" 
+                           placeholder="Location (ICAO, Country, Airport)..." autocomplete="off" autofocus>
+                </div>
+                <div class="search-wrapper">
+                    <span class="search-icon">✈️</span>
+                    <input type="text" id="chartInput" class="search-input" 
+                           placeholder="Chart Name (SID, STAR, IAP)..." autocomplete="off">
+                </div>
             </div>
 
             <div class="filters" id="regionFilters">
@@ -308,7 +327,8 @@
         let fuse = null;
         let selectedRegion = 'All';
 
-        const searchInput = document.getElementById('searchInput');
+        const locationInput = document.getElementById('locationInput');
+        const chartInput = document.getElementById('chartInput');
         const resultsEl = document.getElementById('results');
         const emptyState = document.getElementById('emptyState');
         const resultsInfo = document.getElementById('resultsInfo');
@@ -326,23 +346,25 @@
                         { name: 'name', weight: 1.5 },
                         { name: 'country', weight: 1 },
                         { name: 'sids', weight: 0.5 },
-                        { name: 'stars', weight: 0.5 }
+                        { name: 'stars', weight: 0.5 },
+                        { name: 'iaps', weight: 0.5 }
                     ],
                     threshold: 0.2,
                     limit: 30,
-                    ignoreLocation: true
+                    ignoreLocation: true,
+                    useExtendedSearch: true
                 });
                 
                 // If there's a hash, search for it
                 const hash = window.location.hash.substring(1);
                 if (hash) {
-                    searchInput.value = decodeURIComponent(hash);
-                    performSearch(searchInput.value);
+                    locationInput.value = decodeURIComponent(hash);
+                    performSearch();
                 }
             });
 
-        searchInput.addEventListener('input', (e) => {
-            performSearch(e.target.value.trim());
+        [locationInput, chartInput].forEach(input => {
+            input.addEventListener('input', () => performSearch());
         });
 
         regionFilters.addEventListener('click', (e) => {
@@ -350,12 +372,15 @@
                 document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
                 e.target.classList.add('active');
                 selectedRegion = e.target.getAttribute('data-region');
-                performSearch(searchInput.value.trim());
+                performSearch();
             }
         });
 
-        function performSearch(query) {
-            if (query.length < 2) {
+        function performSearch() {
+            const locQ = locationInput.value.trim();
+            const chartQ = chartInput.value.trim();
+
+            if (locQ.length < 2 && chartQ.length < 2) {
                 resultsEl.innerHTML = '';
                 resultsInfo.style.display = 'none';
                 emptyState.style.display = 'block';
@@ -365,7 +390,23 @@
 
             if (!fuse) return;
 
-            let results = fuse.search(query);
+            let results;
+            if (locQ && chartQ) {
+                results = fuse.search({
+                    $and: [
+                        { $or: [{ icao: locQ }, { name: locQ }, { country: locQ }] },
+                        { $or: [{ sids: chartQ }, { stars: chartQ }, { iaps: chartQ }] }
+                    ]
+                });
+            } else if (locQ) {
+                results = fuse.search({
+                    $or: [{ icao: locQ }, { name: locQ }, { country: locQ }]
+                });
+            } else {
+                results = fuse.search({
+                    $or: [{ sids: chartQ }, { stars: chartQ }, { iaps: chartQ }]
+                });
+            }
             
             // Filter by region
             if (selectedRegion !== 'All') {
@@ -376,7 +417,7 @@
                 resultsEl.innerHTML = '';
                 resultsInfo.style.display = 'none';
                 emptyState.style.display = 'block';
-                emptyState.innerHTML = '<div style="font-size: 3rem; opacity: 0.3;">🔍</div><p>No matches found in ' + selectedRegion + ' matching "' + query + '"</p>';
+                emptyState.innerHTML = '<div style="font-size: 3rem; opacity: 0.3;">🔍</div><p>No matches found in ' + selectedRegion + ' matching your search</p>';
                 return;
             }
 
@@ -385,12 +426,12 @@
             resultsCount.textContent = `Found ${results.length} airports`;
             document.getElementById('filterStatus').textContent = selectedRegion !== 'All' ? `Filtering by ${selectedRegion}` : '';
             
-            renderResults(results, query);
+            renderResults(results, locQ, chartQ);
         }
 
-        function renderResults(results, query) {
+        function renderResults(results, locQ, chartQ) {
             resultsEl.innerHTML = '';
-            const queryLower = query.toLowerCase();
+            const highlightQuery = (chartQ || locQ).toLowerCase();
             
             results.forEach(result => {
                 const airport = result.item;
@@ -399,7 +440,7 @@
                 
                 // Highlight matches in procedures
                 const renderProcedure = (p) => {
-                    const isMatch = p.toLowerCase().includes(queryLower);
+                    const isMatch = highlightQuery && p.toLowerCase().includes(highlightQuery);
                     return `<li class="procedure-item ${isMatch ? 'match' : ''}">${p}</li>`;
                 };
 
@@ -410,6 +451,10 @@
                 let starsHtml = airport.stars.length > 0 
                     ? airport.stars.map(renderProcedure).join('')
                     : '<li class="no-procedures">No STARs found</li>';
+
+                let iapsHtml = airport.iaps && airport.iaps.length > 0 
+                    ? airport.iaps.map(renderProcedure).join('')
+                    : '<li class="no-procedures">No IAPs found</li>';
 
                 card.innerHTML = `
                     <div class="airport-header">
@@ -430,6 +475,10 @@
                         <div>
                             <div class="procedure-title">🛬 STARs (${airport.stars.length})</div>
                             <ul class="procedure-list">${starsHtml}</ul>
+                        </div>
+                        <div>
+                            <div class="procedure-title">🎯 IAPs (${airport.iaps ? airport.iaps.length : 0})</div>
+                            <ul class="procedure-list">${iapsHtml}</ul>
                         </div>
                     </div>
                 `;

@@ -827,7 +827,7 @@ def generate_index_page(hierarchy):
                     <span class="card-icon">🌍</span>
                     <div class="card-title">Worldwide Search</div>
                     <div class="card-count">
-                        Search <strong>24,000+</strong> SID/STAR procedures
+                        Search <strong>24,000+</strong> SIDs, STARs, and IAPs
                     </div>
                 </a>'''
     for r in regions:
@@ -2828,6 +2828,79 @@ def get_file_list_styles():
     '''
 
 
+def process_sid_star_data():
+    """Convert Navigraph CSV to JSON for global search"""
+    csv_file = 'navigraph_charts.csv'
+    json_file = f"{OUTPUT_DIR}/navigraph_search.json"
+    names_file = 'airport_names.json'
+    regions_file = 'regions.json'
+
+    if not os.path.exists(csv_file):
+        print(f"⚠️  {csv_file} not found, skipping SID/STAR processing.")
+        return
+
+    print(f"📊 Processing {csv_file}...")
+
+    # Load airport names
+    airport_names_map = {}
+    if os.path.exists(names_file):
+        try:
+            with open(names_file, mode='r', encoding='utf-8') as f:
+                airport_names_map = json.load(f)
+                # print(f"   Loaded {len(airport_names_map)} airport names.")
+        except Exception as e:
+            print(f"   ⚠️  Error loading names: {e}")
+
+    # Load regions
+    region_map_codes = {
+        "AF": "Africa", "AS": "Asia", "EU": "Europe", "OC": "Oceania",
+        "SA": "South America", "CA": "North America", "NA": "North America", "OTHER": "Other"
+    }
+    country_to_region = {}
+    if os.path.exists(regions_file):
+        try:
+            with open(regions_file, mode='r', encoding='utf-8') as f:
+                raw_regions = json.load(f)
+                for country, code in raw_regions.items():
+                    country_to_region[country.upper()] = region_map_codes.get(code, code)
+        except Exception as e:
+            print(f"   ⚠️  Error loading regions: {e}")
+
+    airports_data = {}
+    import csv
+    with open(csv_file, mode='r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            icao = row['ICAO']
+            country = row['Country']
+            type_proc = row['Type']
+            procedure = row['Procedure']
+            
+            if icao not in airports_data:
+                region = country_to_region.get(country.upper(), "Unknown")
+                airports_data[icao] = {
+                    'icao': icao,
+                    'name': airport_names_map.get(icao, ""),
+                    'country': country,
+                    'region': region,
+                    'sids': [],
+                    'stars': [],
+                    'iaps': []
+                }
+            
+            if type_proc == 'SID':
+                airports_data[icao]['sids'].append(procedure)
+            elif type_proc == 'STAR':
+                airports_data[icao]['stars'].append(procedure)
+            elif type_proc == 'IAP':
+                airports_data[icao]['iaps'].append(procedure)
+
+    airports_list = list(airports_data.values())
+    with open(json_file, mode='w', encoding='utf-8') as f:
+        json.dump(airports_list, f, indent=2)
+    print(f"   ✅ Processed {len(airports_list)} airports with SID/STAR/IAP data.")
+
+
 # ============================================================================
 # MAIN
 # ============================================================================
@@ -2863,6 +2936,9 @@ def main():
     
     # Save manifest after downloads
     save_manifest(manifest)
+
+    # Process SID/STAR global search data
+    process_sid_star_data()
     
     # Generate pages
     print("🎨 Generating pages...\n")
