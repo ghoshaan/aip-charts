@@ -176,7 +176,7 @@
         "localAudioPath": "data/audio/german/danke.mp3"
     },
     "guten Tag": {
-        "spelling": "guten Tag",
+        "spelling": "guten tag",
         "language": "German",
         "romanization": null,
         "ipa": "/ˌɡuːtn̩ ˈtaːk/",
@@ -198,7 +198,7 @@
         "localAudioPath": "data/audio/german/bitte.mp3"
     },
     "auf Wiedersehen": {
-        "spelling": "auf Wiedersehen",
+        "spelling": "auf wiedersehen",
         "language": "German",
         "romanization": null,
         "ipa": "/aʊ̯f ˈviːdɐˌzeː(ə)n/",
@@ -231,7 +231,7 @@
         "localAudioPath": "data/audio/german/tschüss.mp3"
     },
     "guten Abend": {
-        "spelling": "guten Abend",
+        "spelling": "guten abend",
         "language": "German",
         "romanization": null,
         "ipa": "/ɡuːtən ʔaːbənt/",
@@ -242,7 +242,7 @@
         "localAudioPath": "data/audio/german/guten_Abend.mp3"
     },
     "auf Wiederhören": {
-        "spelling": "auf Wiederhoeren",
+        "spelling": "auf wiederhoeren",
         "language": "German",
         "romanization": null,
         "ipa": null,
@@ -264,7 +264,7 @@
         "localAudioPath": "data/audio/german/es_tut_mir_leid.mp3"
     },
     "guten Morgen": {
-        "spelling": "guten Morgen",
+        "spelling": "guten morgen",
         "language": "German",
         "romanization": null,
         "ipa": "/ˈɡuːtən ˈmɔʁɡən/",
@@ -275,7 +275,7 @@
         "localAudioPath": "data/audio/german/guten_Morgen.mp3"
     },
     "grüß Gott": {
-        "spelling": "gruess Gott",
+        "spelling": "gruess gott",
         "language": "German",
         "romanization": null,
         "ipa": "/ɡʁyːs ɡɔt/",
