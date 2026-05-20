@@ -848,12 +848,31 @@ def generate_index_page(hierarchy):
         json.dump(global_search_index, f)
 
     # Pre-build region cards to avoid nested f-string bracket issues on Python < 3.12
+    # Count salutation entries that have audio (these are the ones shown on the public page)
+    sal_count, sal_langs = 0, 0
+    try:
+        with open(f"{OUTPUT_DIR}/data/wiktionary_dictionary.json", 'r', encoding='utf-8') as _f:
+            _sal = json.load(_f)
+        _with_audio = [v for v in _sal.values() if v.get('audioUrl')]
+        sal_count = len(_with_audio)
+        sal_langs = len({v.get('language') for v in _with_audio if v.get('language')})
+    except Exception:
+        pass
+
     region_cards_html = f'''
                 <a href="worldwide_search.html" class="region-card" style="border-color: var(--accent); background: var(--accent-glow);">
                     <span class="card-icon">🌍</span>
                     <div class="card-title">Worldwide Search</div>
                     <div class="card-count">
                         Search <strong>24,000+</strong> SIDs, STARs, and IAPs
+                    </div>
+                </a>
+                <a href="salutation_search.html" class="region-card" style="border-color: var(--accent); background: var(--accent-glow);">
+                    <span class="card-icon">👋</span>
+                    <div class="card-title">Salutation Search</div>
+                    <div class="card-count">
+                        <strong>{sal_count}</strong> greetings &bull;
+                        <strong>{sal_langs}</strong> languages with audio
                     </div>
                 </a>'''
     for r in regions:
