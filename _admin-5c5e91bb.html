@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<!--
+  Salutation Admin — hidden editor.
+  This page is intentionally not linked from anywhere on the public site.
+  Password is checked client-side (obscurity, not real security).
+  Edits are written directly to your local copy of the JSON file via the
+  browser's File System Access API; you then commit via GitHub Desktop.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>— admin —</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2128;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-dim: #7d8590;
+  --accent: #79b8ff;
+  --accent-glow: rgba(121, 184, 255, 0.15);
+  --warning: #d29922;
+  --danger: #f85149;
+  --ok: #3fb950;
+}
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+.container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+h1 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+header .sub { color: var(--text-dim); font-size: 0.85rem; }
+.banner {
+  border: 1px solid var(--warning);
+  background: rgba(210, 153, 34, 0.06);
+  color: var(--warning);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+input[type=text], input[type=password], textarea, select {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+textarea { resize: vertical; min-height: 80px; }
+button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: 0.15s;
+}
+button:hover { background: var(--surface-hover); border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+button.primary:hover { filter: brightness(1.1); }
+button.danger { border-color: var(--danger); color: var(--danger); }
+button.danger:hover { background: rgba(248, 81, 73, 0.1); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.row { display: flex; gap: 0.75rem; align-items: end; flex-wrap: wrap; }
+.row > * { flex: 1 1 180px; }
+.row > .narrow { flex: 0 0 auto; }
+.gate {
+  max-width: 380px;
+  margin: 6rem auto;
+  text-align: center;
+}
+.gate .panel { padding: 2rem; }
+.toolbar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.toolbar .search { flex: 1; min-width: 240px; }
+.toolbar .meta { color: var(--text-dim); font-size: 0.8rem; }
+table { width: 100%; border-collapse: collapse; }
+th, td {
+  text-align: left;
+  padding: 0.55rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  vertical-align: top;
+}
+th { color: var(--text-dim); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; font-weight: 600; background: var(--surface); position: sticky; top: 0; }
+td.actions { white-space: nowrap; text-align: right; }
+td.actions button { padding: 0.3rem 0.6rem; font-size: 0.75rem; margin-left: 0.3rem; }
+tbody tr:hover { background: var(--surface-hover); }
+.lang-tag { background: var(--accent-glow); color: var(--accent); padding: 0.1rem 0.45rem; border-radius: 4px; font-size: 0.7rem; }
+.no-audio { color: var(--warning); }
+.has-audio { color: var(--ok); }
+.file-info { color: var(--text-dim); font-size: 0.8rem; word-break: break-all; }
+.file-info code { background: var(--bg); padding: 0.1rem 0.4rem; border-radius: 4px; color: var(--accent); }
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 100;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: min(640px, 92vw);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+.modal h2 { font-family: 'Rajdhani', sans-serif; color: var(--accent); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.modal .field { margin-bottom: 0.85rem; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 6px;
+  padding: 0.8rem 1.2rem;
+  font-size: 0.85rem;
+  max-width: 380px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: 0.2s;
+  pointer-events: none;
+  z-index: 200;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.ok { border-left-color: var(--ok); }
+.toast.err { border-left-color: var(--danger); }
+.toast.warn { border-left-color: var(--warning); }
+.sticky-save {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  display: none;
+  gap: 0.75rem;
+  align-items: center;
+  z-index: 50;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.sticky-save.show { display: flex; }
+.sticky-save .changes { color: var(--warning); font-size: 0.85rem; }
+.hidden { display: none !important; }
+.muted { color: var(--text-dim); font-size: 0.8rem; }
+</style>
+</head>
+<body>
+
+<!-- ====== GATE ====== -->
+<div id="gate" class="gate">
+  <div class="panel">
+    <h1 style="margin-bottom: 1rem;">— admin —</h1>
+    <p class="muted" style="margin-bottom: 1.25rem;">Restricted area.</p>
+    <div class="field" style="margin-bottom: 1rem;">
+      <input type="password" id="gate-pw" placeholder="passphrase" autocomplete="off" autofocus>
+    </div>
+    <button class="primary" id="gate-btn" style="width: 100%;">Unlock</button>
+    <p id="gate-err" class="muted" style="margin-top: 0.75rem; color: var(--danger); display: none;">Wrong passphrase.</p>
+  </div>
+</div>
+
+<!-- ====== EDITOR (hidden until unlock) ====== -->
+<div id="app" class="container hidden">
+
+  <header>
+    <div>
+      <h1>Salutation Admin</h1>
+      <div class="sub">Edits go straight to your local <code>docs/data/wiktionary_dictionary.json</code> — commit via GitHub Desktop.</div>
+    </div>
+    <div>
+      <button id="logout-btn">Lock</button>
+    </div>
+  </header>
+
+  <div class="banner">
+    <strong>How this works:</strong> Pick the file <code>docs/data/wiktionary_dictionary.json</code> in your local <code>aip-charts</code> repo. The page reads and writes it directly on disk. After you save, switch to GitHub Desktop, review the diff, commit, and push. Nothing is uploaded from this page.
+  </div>
+
+  <!-- file picker / status -->
+  <div class="panel" id="file-panel">
+    <div class="row">
+      <div style="flex: 1 1 300px;">
+        <label>Local file</label>
+        <div class="file-info" id="file-info">No file selected yet.</div>
+      </div>
+      <div class="narrow">
+        <button class="primary" id="pick-btn">Pick dictionary file</button>
+      </div>
+      <div class="narrow">
+        <button id="reload-btn" disabled>Reload from disk</button>
+      </div>
+      <div class="narrow">
+        <button id="forget-btn" disabled>Forget file</button>
+      </div>
+    </div>
+    <p class="muted" id="fs-support-note" style="margin-top: 0.6rem; display: none;">
+      Heads up: your browser doesn't support direct file writes. The editor will work in <em>download mode</em> — load a file by uploading it, save by downloading the updated JSON and replacing the original on disk yourself. Chrome or Edge supports direct writes.
+    </p>
+    <input type="file" id="upload-input" accept=".json,application/json" class="hidden">
+  </div>
+
+  <!-- toolbar + table -->
+  <div id="editor" class="hidden">
+    <div class="toolbar">
+      <input type="text" id="filter" class="search" placeholder="Filter entries (spelling / language / definition)...">
+      <div class="meta" id="count-meta">—</div>
+      <button class="primary" id="add-btn">+ Add new</button>
+    </div>
+
+    <div class="panel" style="padding: 0; overflow: hidden;">
+      <div style="max-height: 60vh; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Spelling</th>
+              <th>Language</th>
+              <th>Romanization</th>
+              <th>Audio</th>
+              <th>Definition (first)</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== EDIT MODAL ====== -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">Edit entry</h2>
+    <div class="field">
+      <label for="m-spelling">Spelling (also used as the entry key)</label>
+      <input type="text" id="m-spelling" autocomplete="off">
+    </div>
+    <div class="row">
+      <div class="field" style="flex: 1 1 200px;">
+        <label for="m-language">Language</label>
+        <input type="text" id="m-language" autocomplete="off">
+      </div>
+      <div class="field" style="flex: 1 1 200px;">
+        <label for="m-romanization">Romanization / native script (shown in italics)</label>
+        <input type="text" id="m-romanization" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <label for="m-ipa">IPA (without slashes — they're added by the page)</label>
+      <input type="text" id="m-ipa" autocomplete="off" placeholder="e.g. koɴ.ɲi.tɕi.wa">
+    </div>
+    <div class="field">
+      <label for="m-audio">Audio URL (entries without this won't appear on the public page)</label>
+      <input type="text" id="m-audio" autocomplete="off" placeholder="https://upload.wikimedia.org/...">
+    </div>
+    <div class="field">
+      <label for="m-defs">Definitions (one per line)</label>
+      <textarea id="m-defs" rows="4"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button id="m-cancel">Cancel</button>
+      <button class="primary" id="m-save">Save in editor</button>
+    </div>
+    <p class="muted" style="margin-top: 0.5rem;">"Save in editor" stages the change. Click the green "Save to file" button below to write to disk.</p>
+  </div>
+</div>
+
+<!-- ====== STICKY SAVE BAR ====== -->
+<div class="sticky-save" id="save-bar">
+  <span class="changes" id="changes-count">Unsaved changes</span>
+  <button id="discard-btn">Discard</button>
+  <button class="primary" id="commit-btn">Save to file</button>
+</div>
+
+<!-- ====== TOAST ====== -->
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ---------- CONFIG ----------
+const PW_HASH = '7e62a080df72fd82cb465e05a8dc5f2eaea9ec801dae9fbcce2d1a3ee74165fb';
+const FS_SUPPORTED = 'showOpenFilePicker' in window;
+const IDB_NAME = 'admin-fs-handles';
+const IDB_STORE = 'handles';
+const IDB_KEY = 'dict-file';
+
+// ---------- STATE ----------
+let dict = null;        // object keyed by entry key
+let dirty = false;      // unsaved changes flag
+let editingKey = null;  // entry currently in modal (null = adding new)
+let fileHandle = null;  // FileSystemFileHandle (when FS API supported)
+let fileName = null;    // for display + download fallback
+
+// ---------- UTIL ----------
+async function sha256hex(s) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function $(id) { return document.getElementById(id); }
+function toast(msg, kind='ok', ms=3000) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + kind;
+  setTimeout(() => t.className = 'toast ' + kind, ms);
+}
+function setDirty(d) {
+  dirty = d;
+  $('save-bar').classList.toggle('show', d);
+}
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---------- IndexedDB for file handle persistence ----------
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const r = indexedDB.open(IDB_NAME, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore(IDB_STORE);
+    r.onsuccess = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+  });
+}
+async function idbGet(key) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(IDB_STORE, 'readonly').objectStore(IDB_STORE).get(key);
+    tx.onsuccess = () => res(tx.result);
+    tx.onerror = () => rej(tx.error);
+  });
+}
+async function idbSet(key, val) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite').objectStore(IDB_STORE).put(val, key);
+    tx.onsuccess = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+}
+async function idbDel(key) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite').objectStore(IDB_STORE).delete(key);
+    tx.onsuccess = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+// ---------- GATE ----------
+async function tryUnlock() {
+  const pw = $('gate-pw').value;
+  const h = await sha256hex(pw);
+  if (h === PW_HASH) {
+    sessionStorage.setItem('admin-unlocked', '1');
+    showApp();
+  } else {
+    $('gate-err').style.display = 'block';
+    $('gate-pw').value = '';
+  }
+}
+async function showApp() {
+  $('gate').classList.add('hidden');
+  $('app').classList.remove('hidden');
+
+  if (!FS_SUPPORTED) {
+    $('fs-support-note').style.display = 'block';
+    $('pick-btn').textContent = 'Upload dictionary file';
+  } else {
+    // Try rehydrating a previously-picked file handle
+    try {
+      const stored = await idbGet(IDB_KEY);
+      if (stored) {
+        fileHandle = stored;
+        fileName = stored.name;
+        const perm = await stored.queryPermission({ mode: 'readwrite' });
+        if (perm === 'granted') {
+          await loadFromHandle();
+        } else {
+          $('file-info').innerHTML = `Previously picked: <code>${esc(stored.name)}</code> — <em>permission needed</em>`;
+          $('pick-btn').textContent = 'Re-grant access';
+        }
+        $('forget-btn').disabled = false;
+      }
+    } catch (e) { /* ignore */ }
+  }
+}
+$('gate-btn').addEventListener('click', tryUnlock);
+$('gate-pw').addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+$('logout-btn').addEventListener('click', () => {
+  if (dirty && !confirm('You have unsaved changes. Lock anyway?')) return;
+  sessionStorage.removeItem('admin-unlocked');
+  location.reload();
+});
+if (sessionStorage.getItem('admin-unlocked') === '1') showApp();
+
+// ---------- FILE LOAD ----------
+async function pickAndLoad() {
+  if (!FS_SUPPORTED) {
+    // Fallback: trigger upload input
+    $('upload-input').click();
+    return;
+  }
+  // If we have a stored handle but no permission, request it now
+  if (fileHandle) {
+    const perm = await fileHandle.queryPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') {
+      const req = await fileHandle.requestPermission({ mode: 'readwrite' });
+      if (req === 'granted') { await loadFromHandle(); return; }
+      // permission denied — fall through to fresh pick
+    }
+  }
+  try {
+    const [h] = await window.showOpenFilePicker({
+      types: [{ description: 'Salutation dictionary JSON', accept: { 'application/json': ['.json'] } }],
+      multiple: false,
+      excludeAcceptAllOption: false
+    });
+    // Ask up-front for read+write so we don't re-prompt on save
+    const perm = await h.requestPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') {
+      toast('Read/write permission denied. Try again and click "Allow editing".', 'err', 6000);
+      return;
+    }
+    fileHandle = h;
+    fileName = h.name;
+    await idbSet(IDB_KEY, h);
+    $('forget-btn').disabled = false;
+    await loadFromHandle();
+  } catch (e) {
+    if (e.name !== 'AbortError') toast(e.message || String(e), 'err', 6000);
+  }
+}
+
+async function loadFromHandle() {
+  try {
+    const f = await fileHandle.getFile();
+    const text = await f.text();
+    dict = JSON.parse(text);
+    if (typeof dict !== 'object' || Array.isArray(dict)) throw new Error('JSON root is not an object.');
+    setDirty(false);
+    renderRows();
+    $('editor').classList.remove('hidden');
+    $('reload-btn').disabled = false;
+    $('pick-btn').textContent = 'Change file';
+    $('file-info').innerHTML = `<code>${esc(fileName)}</code> — ${Object.keys(dict).length} entries loaded.`;
+    toast(`Loaded ${Object.keys(dict).length} entries from ${fileName}.`, 'ok');
+  } catch (e) {
+    toast(`Load failed: ${e.message}`, 'err', 6000);
+  }
+}
+
+// Fallback (no FS API): upload-then-download
+$('upload-input').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    dict = JSON.parse(text);
+    fileName = file.name;
+    setDirty(false);
+    renderRows();
+    $('editor').classList.remove('hidden');
+    $('pick-btn').textContent = 'Upload different file';
+    $('file-info').innerHTML = `<code>${esc(fileName)}</code> — ${Object.keys(dict).length} entries (download-mode).`;
+    $('commit-btn').textContent = 'Download updated JSON';
+    toast(`Loaded ${Object.keys(dict).length} entries.`, 'ok');
+  } catch (err) {
+    toast(`Could not parse file: ${err.message}`, 'err', 6000);
+  }
+});
+
+$('pick-btn').addEventListener('click', pickAndLoad);
+$('reload-btn').addEventListener('click', async () => {
+  if (dirty && !confirm('Discard unsaved changes and reload from disk?')) return;
+  if (fileHandle) await loadFromHandle();
+  else $('upload-input').click();
+});
+$('forget-btn').addEventListener('click', async () => {
+  if (dirty && !confirm('Discard unsaved changes and forget this file?')) return;
+  await idbDel(IDB_KEY);
+  fileHandle = null;
+  fileName = null;
+  dict = null;
+  setDirty(false);
+  $('editor').classList.add('hidden');
+  $('file-info').textContent = 'No file selected yet.';
+  $('pick-btn').textContent = FS_SUPPORTED ? 'Pick dictionary file' : 'Upload dictionary file';
+  $('reload-btn').disabled = true;
+  $('forget-btn').disabled = true;
+  toast('File handle forgotten.', 'ok');
+});
+
+// ---------- TABLE RENDER ----------
+function renderRows() {
+  if (!dict) return;
+  const filter = $('filter').value.trim().toLowerCase();
+  const entries = Object.entries(dict).sort(([a],[b]) => a.localeCompare(b));
+  const filtered = filter
+    ? entries.filter(([k, v]) =>
+        k.toLowerCase().includes(filter) ||
+        (v.spelling||'').toLowerCase().includes(filter) ||
+        (v.language||'').toLowerCase().includes(filter) ||
+        (v.romanization||'').toLowerCase().includes(filter) ||
+        (v.definitions||[]).join(' ').toLowerCase().includes(filter))
+    : entries;
+  $('count-meta').textContent =
+    filter
+      ? `${filtered.length} of ${entries.length} entries`
+      : `${entries.length} entries`;
+  const tbody = $('rows');
+  tbody.innerHTML = filtered.map(([key, v]) => `
+    <tr>
+      <td><strong>${esc(v.spelling || key)}</strong></td>
+      <td><span class="lang-tag">${esc(v.language || '')}</span></td>
+      <td>${esc(v.romanization || '')}</td>
+      <td class="${v.audioUrl ? 'has-audio' : 'no-audio'}">${v.audioUrl ? '✓' : '✗ none'}</td>
+      <td>${esc((v.definitions && v.definitions[0]) || '')}</td>
+      <td class="actions">
+        <button data-edit="${esc(key)}">Edit</button>
+        <button data-del="${esc(key)}" class="danger">Delete</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="6" style="text-align:center; padding: 2rem; color: var(--text-dim);">No matches.</td></tr>';
+}
+$('filter').addEventListener('input', renderRows);
+
+document.addEventListener('click', e => {
+  const editKey = e.target.dataset.edit;
+  const delKey  = e.target.dataset.del;
+  if (editKey !== undefined) openModal(editKey);
+  if (delKey !== undefined)  deleteEntry(delKey);
+});
+
+// ---------- ADD / EDIT MODAL ----------
+function openModal(key) {
+  editingKey = key;
+  const v = key ? dict[key] : { spelling: '', language: '', romanization: '', ipa: '', audioUrl: '', definitions: [''] };
+  $('modal-title').textContent = key ? `Edit: ${v.spelling || key}` : 'Add new entry';
+  $('m-spelling').value     = v.spelling || '';
+  $('m-language').value     = v.language || '';
+  $('m-romanization').value = v.romanization || '';
+  $('m-ipa').value          = (v.ipa || '').replace(/^\/|\/$/g, '');
+  $('m-audio').value        = v.audioUrl || '';
+  $('m-defs').value         = (v.definitions || []).join('\n');
+  $('modal').classList.add('open');
+  setTimeout(() => $('m-spelling').focus(), 50);
+}
+function closeModal() { $('modal').classList.remove('open'); editingKey = null; }
+$('add-btn').addEventListener('click', () => openModal(null));
+$('m-cancel').addEventListener('click', closeModal);
+$('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+$('m-save').addEventListener('click', () => {
+  const spelling = $('m-spelling').value.trim();
+  if (!spelling) { toast('Spelling is required.', 'warn'); return; }
+  const language = $('m-language').value.trim();
+  const romanization = $('m-romanization').value.trim() || null;
+  const ipaRaw = $('m-ipa').value.trim();
+  const ipa = ipaRaw ? `/${ipaRaw.replace(/^\/|\/$/g, '')}/` : '';
+  const audioUrl = $('m-audio').value.trim() || null;
+  const defs = $('m-defs').value.split('\n').map(s => s.trim()).filter(Boolean);
+
+  const newKey = spelling;
+  const entry = { spelling, language, romanization, ipa, audioUrl, definitions: defs.length ? defs : [''] };
+
+  if (editingKey && editingKey !== newKey) delete dict[editingKey];
+  if ((!editingKey || editingKey !== newKey) && Object.prototype.hasOwnProperty.call(dict, newKey)) {
+    if (!confirm(`An entry with key "${newKey}" already exists. Overwrite it?`)) return;
+  }
+  dict[newKey] = entry;
+  setDirty(true);
+  renderRows();
+  closeModal();
+  toast(editingKey ? 'Entry updated (not yet saved to file).' : 'Entry added (not yet saved to file).', 'ok');
+});
+
+function deleteEntry(key) {
+  if (!confirm(`Delete entry "${key}"? Not written to disk until you click Save.`)) return;
+  delete dict[key];
+  setDirty(true);
+  renderRows();
+  toast(`Deleted "${key}" (not yet saved to file).`, 'warn');
+}
+
+// ---------- SAVE ----------
+async function saveToFile() {
+  const text = JSON.stringify(dict, null, 2);
+  if (fileHandle) {
+    // Direct write via File System Access API
+    try {
+      // Ensure permission is still granted (it can expire across long sessions)
+      const perm = await fileHandle.queryPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') {
+        const req = await fileHandle.requestPermission({ mode: 'readwrite' });
+        if (req !== 'granted') throw new Error('Write permission denied.');
+      }
+      const writable = await fileHandle.createWritable();
+      await writable.write(text);
+      await writable.close();
+      setDirty(false);
+      toast(`Saved ${Object.keys(dict).length} entries to ${fileName}. Commit via GitHub Desktop.`, 'ok', 5000);
+    } catch (e) {
+      toast(`Save failed: ${e.message}`, 'err', 6000);
+    }
+  } else {
+    // Fallback: download
+    const blob = new Blob([text], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName || 'wiktionary_dictionary.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    setDirty(false);
+    toast('Downloaded. Replace docs/data/wiktionary_dictionary.json and commit via GitHub Desktop.', 'ok', 6000);
+  }
+}
+$('commit-btn').addEventListener('click', saveToFile);
+$('discard-btn').addEventListener('click', async () => {
+  if (!confirm('Discard unsaved changes and reload from disk?')) return;
+  if (fileHandle) await loadFromHandle();
+  else if (fileName) { /* download-mode: re-upload to discard */ $('upload-input').click(); }
+});
+
+// warn on page unload if dirty
+window.addEventListener('beforeunload', e => {
+  if (dirty) { e.preventDefault(); e.returnValue = ''; }
+});
+</script>
+</body>
+</html>

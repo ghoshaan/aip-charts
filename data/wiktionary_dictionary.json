@@ -2948,5 +2948,35 @@
     "definitions": [
       "help wanted"
     ]
+  },
+  "Konnichiwa": {
+    "spelling": "Konnichiwa",
+    "language": "Japanese",
+    "romanization": "こんにちは",
+    "ipa": "/koɴ.ɲi.tɕi.wa/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/db/Ja-konnichiwa.ogg",
+    "definitions": [
+      "Hello; good afternoon (used roughly between mid-morning and late afternoon)."
+    ]
+  },
+  "assalamu alaikum": {
+    "spelling": "assalamu alaikum",
+    "language": "Arabic",
+    "romanization": "السلام عليكم",
+    "ipa": "/as.sa.laː.mu ʕa.laj.kum/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Ar-%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85_%D8%B9%D9%84%D9%8A%D9%83%D9%85.oga",
+    "definitions": [
+      "Peace be upon you — common Arabic and Islamic greeting."
+    ]
+  },
+  "walaikum assalam": {
+    "spelling": "walaikum assalam",
+    "language": "Arabic",
+    "romanization": "وعليكم السلام",
+    "ipa": "/wa.ʕa.laj.ku.mu‿s.sa.laːm/",
+    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Ar-%D9%88%D8%B9%D9%84%D9%8A%D9%83%D9%85_%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85.oga",
+    "definitions": [
+      "And upon you be peace — standard reply to assalamu alaikum."
+    ]
   }
 }
