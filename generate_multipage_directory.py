@@ -47,6 +47,7 @@ SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 
 DOWNLOAD_CHARTS = os.environ.get('DOWNLOAD_CHARTS', 'true').lower() == 'true'
 APPS_SCRIPT_URL = os.environ.get('APPS_SCRIPT_URL', '')
+GENERATOR_VERSION = 'v2'
 
 # Region icons (add more as needed)
 REGION_ICONS = {
@@ -1506,8 +1507,8 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
     airport_slug = airport_code.split()[0]
 
     # Check if we can skip regeneration
-    # We use a simple hash of the files list
-    airport_data_hash = hashlib.md5(json.dumps(files, sort_keys=True).encode()).hexdigest()
+    # We use a simple hash of the files list and the generator version
+    airport_data_hash = hashlib.md5((json.dumps(files, sort_keys=True) + GENERATOR_VERSION).encode()).hexdigest()
     if manifest['airports'].get(airport_slug) == airport_data_hash and os.path.exists(f"{OUTPUT_DIR}/{airport_slug}/index.html"):
         return airport_slug
 
