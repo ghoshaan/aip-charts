@@ -853,7 +853,7 @@ def generate_index_page(hierarchy):
     try:
         with open(f"{OUTPUT_DIR}/data/wiktionary_dictionary.json", 'r', encoding='utf-8') as _f:
             _sal = json.load(_f)
-        _with_audio = [v for v in _sal.values() if v.get('audioUrl')]
+        _with_audio = [v for v in _sal.values() if v.get('audioUrl') or v.get('localAudioPath')]
         sal_count = len(_with_audio)
         sal_langs = len({v.get('language') for v in _with_audio if v.get('language')})
     except Exception:
