@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYZV Sept-Iles - ATC Charts</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+    <style>
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-hover: #1c2128;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-dim: #7d8590;
+            --accent: #79b8ff;
+            --accent-glow: rgba(121, 184, 255, 0.15);
+            --warning: #d29922;
+        }
+        
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb-separator { opacity: 0.5; }
+        
+        header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .header-content { flex: 1; min-width: 0; }
+
+        h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.02em;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .new-tab-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            opacity: 0.4;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 4px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .new-tab-btn:hover { opacity: 1; background: var(--accent-glow); color: var(--accent); }
+        
+        .search-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-wrapper { position: relative; margin-bottom: 0.5rem; }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+        }
+        
+        .search-help {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+        
+        .search-help code {
+            background: var(--bg);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            color: var(--accent);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-dim);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-dim);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        
+        .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+        .filter-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+        /* Favicon-like icon styling */
+        img[src*="favicon"] {
+            border-radius: 20%;
+        }
+
+        /* Pinning System Styles */
+        .pin-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            opacity: 0.25;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            border-radius: 4px;
+        }
+        .pin-btn:hover { opacity: 0.8; background: var(--accent-glow); }
+        .pin-btn.pinned { opacity: 1; color: var(--accent); }
+
+        .unpin-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            padding: 0.4rem;
+            opacity: 0.6;
+            transition: all 0.2s;
+            line-height: 1;
+            margin-left: auto;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .unpin-btn:hover { 
+            opacity: 1; 
+            color: var(--warning); 
+            background: rgba(210, 153, 34, 0.1);
+        }
+
+        .pinned-section {
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+        }
+
+        .pinned-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .pin-card-wrapper {
+            min-width: 0;
+        }
+
+        .pin-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+            min-width: 0;
+        }
+
+        .pin-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .pin-info { flex: 1; min-width: 0; }
+        .pin-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pin-meta { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .clear-all-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 0.65rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .clear-all-btn:hover {
+            border-color: var(--warning);
+            color: var(--warning);
+            background: rgba(210, 153, 34, 0.1);
+            transform: translateY(-1px);
+        }
+        .clear-all-btn::before {
+            content: '🗑️';
+            font-size: 0.8rem;
+        }
+
+        /* Pro Viewer Modal */
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.98);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            backdrop-filter: blur(4px);
+        }
+
+        .viewer-header {
+            padding: 0.75rem 1.5rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1001;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .viewer-title {
+            flex: 1;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 1.1rem;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.4rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateY(-1px);
+        }
+
+        .control-btn.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        .viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #05070a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #pdfViewerContainer {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            background: #05070a;
+            scroll-behavior: smooth;
+        }
+
+        #pdfViewer {
+            position: relative;
+            transform-origin: top center;
+            transition: transform 0.1s ease-out;
+        }
+
+        .pdf-page-container {
+            margin: 20px 0;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            position: relative;
+            background: white;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+        }
+
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 1; /* Keep visible for Ctrl+F */
+            line-height: 1.0;
+            pointer-events: none; /* Let clicks pass through to canvas if needed, but spans will have pointer-events: auto */
+        }
+
+        .textLayer > span {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+            pointer-events: auto;
+        }
+
+        ::selection {
+            background: rgba(88, 166, 255, 0.3);
+        }
+
+        .viewer-tip {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            z-index: 20;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .viewer-tip b { color: var(--accent); }
+        
+        
+        .file-count {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+        
+        .file-list {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .file-item {{ display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); transition: all 0.15s; min-width: 0; }}
+        
+        .file-item:last-child {{ border-bottom: none; }}
+        
+        .file-item:hover {{
+            background: var(--surface-hover);
+            padding-left: 1.5rem;
+        }}
+        
+        .file-icon {{ font-size: 1.2rem; flex-shrink: 0; }}
+        .file-name {{ flex: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }}
+
+        .file-type {
+            font-size: 0.65rem;            color: var(--text-dim);
+            background: var(--bg);
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+    
+    
+        /* Viewer sidebar */
+        .viewer-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.25s ease;
+            overflow: hidden;
+        }
+
+        .viewer-sidebar.collapsed {
+            width: 0;
+        }
+
+        .sidebar-header {
+            padding: 0.6rem 1rem;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .sidebar-list::-webkit-scrollbar { width: 4px; }
+        .sidebar-list::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .sidebar-item {
+            padding: 0.65rem 1rem 0.65rem 1.1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            transition: all 0.12s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-left: 2px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-left-color: var(--accent);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="canada.html">CANADA</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>CYZV Sept-Iles</span>
+        </div>
+        
+        <header>
+            <div class="header-content">
+                <h1>CYZV Sept-Iles</h1>
+                <div class="subtitle">Charts and procedures</div>
+            </div>
+            <button id="pinAirportBtn" class="pin-btn" title="Pin airport to homepage">📌</button>
+        </header>
+        
+        <div class="search-section">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" 
+                       placeholder="Search charts..." autocomplete="off">
+            </div>
+            <div class="search-help">
+                <strong>Examples:</strong> <code>star</code> • <code>RWY 04</code> • <code>ILS</code>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pdf">PDF</button>
+            <button class="filter-btn" data-filter="image">Images</button>
+        </div>
+        
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+        
+        <div class="file-count" id="fileCount">Showing 11 files</div>
+        <div class="file-list" id="fileList"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
+            <p>No files found.</p>
+        </div>
+    </div>
+    
+    
+        <!-- PDF.js library -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+
+        <div id="viewerModal" class="viewer-modal">
+            <div class="viewer-header">
+                <div class="viewer-title" id="viewerTitle">Chart Viewer</div>
+
+                <div class="viewer-controls">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
+                        <span style="font-size: 0.6rem; color: var(--text-dim); font-weight: 600;">ZOOM</span>
+                        <input type="range" id="zoomRange" class="zoom-slider" min="0.5" max="4" step="0.1" value="1.5">
+                        <span id="zoomValue" style="font-size: 0.7rem; color: var(--accent); min-width: 30px;">1.5x</span>
+                    </div>
+
+                    <button class="control-btn" id="rotateBtn" title="Rotate Chart">
+                        <span>🔄</span> ROTATE
+                    </button>
+
+                    <button class="control-btn" id="copyLinkBtn" title="Copy Link to this Chart">
+                        <span>🔗</span> COPY LINK
+                    </button>
+
+                    <button class="control-btn" id="resetBtn" title="Reset View">
+                        <span>🏠</span> RESET
+                    </button>
+
+                    
+                    <button class="control-btn" id="sidebarToggle" title="Toggle chart list">
+                        <span>&#9776;</span> CHARTS
+                    </button>
+
+<button class="control-btn" id="closeViewer" style="border-color: var(--warning); color: var(--warning);">
+                        <span>✖</span> CLOSE
+                    </button>                </div>
+            </div>
+            <div class="viewer-body">
+                <div class="viewer-sidebar" id="viewerSidebar">
+                    <div class="sidebar-header">
+                        <span>ALL CHARTS</span>
+                        <span id="sidebarCount" style="opacity: 0.5; font-size: 0.6rem;"></span>
+                    </div>
+                    <div class="sidebar-list" id="sidebarList"></div>
+                </div>
+                <div class="viewer-content" id="viewerContent">
+                <div id="viewerLoader" class="viewer-loader">
+                    <div class="spinner"></div>
+                    <div id="loaderStatus" style="font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace;">INITIALIZING PDF ENGINE...</div>
+                </div>
+
+                <div id="pdfViewerContainer">
+                    <div id="pdfViewer"></div>
+                </div>
+
+                <div class="viewer-tip">
+                    <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                </div>
+            </div>
+        </div>
+        
+
+    <script>
+        
+        const PINS_KEY = 'atc_pins';
+        function getPins() {
+            try { return JSON.parse(localStorage.getItem(PINS_KEY)) || {airports: [], charts: []}; }
+            catch(e) { return {airports: [], charts: []}; }
+        }
+        function savePins(p) { localStorage.setItem(PINS_KEY, JSON.stringify(p)); }
+        
+        function toggleAirportPin(airport) {
+            let pins = getPins();
+            let idx = pins.airports.findIndex(a => a.slug === airport.slug);
+            if (idx >= 0) pins.airports.splice(idx, 1);
+            else pins.airports.push({...airport, pinnedAt: Date.now()});
+            savePins(pins);
+        }
+        
+        function toggleChartPin(chart) {
+            let pins = getPins();
+            let idx = pins.charts.findIndex(c => c.url === chart.url);
+            if (idx >= 0) pins.charts.splice(idx, 1);
+            else pins.charts.push({...chart, pinnedAt: Date.now()});
+            savePins(pins);
+        }
+
+        function clearAllPins() {
+            savePins({airports: [], charts: []});
+            if (typeof renderPins === 'function') renderPins();
+            else if (typeof renderPinned === 'function') renderPinned();
+        }
+    
+        
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+            let currentPdf = null;
+            let currentRotation = 0;
+            let currentZoom = 1.5;
+            let visualScale = 1.0;
+            let isOpeningFromHash = false;
+            let originalPageTitle = document.title;
+            let currentFileId = null;
+
+            const SIDEBAR_KEY = 'atc_sidebar_open';
+            let sidebarOpen = localStorage.getItem(SIDEBAR_KEY) !== 'false';
+
+            function applySidebarState() {
+                const sidebar = document.getElementById('viewerSidebar');
+                const toggleBtn = document.getElementById('sidebarToggle');
+                if (!sidebar) return;
+                if (sidebarOpen) {
+                    sidebar.classList.remove('collapsed');
+                    if (toggleBtn) toggleBtn.classList.add('active');
+                } else {
+                    sidebar.classList.add('collapsed');
+                    if (toggleBtn) toggleBtn.classList.remove('active');
+                }
+            }
+
+            function populateSidebar(activeId) {
+                const sidebarList = document.getElementById('sidebarList');
+                const sidebarCount = document.getElementById('sidebarCount');
+                const sidebar = document.getElementById('viewerSidebar');
+                if (!sidebarList) return;
+
+                if (typeof files === 'undefined' || files.length === 0) {
+                    if (sidebar) sidebar.style.display = 'none';
+                    const toggleBtn = document.getElementById('sidebarToggle');
+                    if (toggleBtn) toggleBtn.style.display = 'none';
+                    return;
+                }
+
+                if (sidebar) sidebar.style.display = '';
+                const toggleBtn = document.getElementById('sidebarToggle');
+                if (toggleBtn) toggleBtn.style.display = '';
+
+                const chartFiles = files.filter(f => f.type === 'pdf' || f.type === 'image');
+                if (sidebarCount) sidebarCount.textContent = chartFiles.length;
+
+                sidebarList.innerHTML = '';
+                chartFiles.forEach(file => {
+                    const item = document.createElement('div');
+                    item.className = 'sidebar-item' + (file.id === activeId ? ' active' : '');
+                    item.title = file.name;
+                    item.textContent = file.name.replace(/\.[^.]+$/, '');
+                    item.onclick = () => {
+                        if (file.id !== currentFileId) {
+                            openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false,
+                                typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
+                        }
+                    };
+                    sidebarList.appendChild(item);
+                });
+
+                const activeItem = sidebarList.querySelector('.sidebar-item.active');
+                if (activeItem) activeItem.scrollIntoView({ block: 'nearest' });
+            }
+
+            document.getElementById('sidebarToggle').onclick = () => {
+                sidebarOpen = !sidebarOpen;
+                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
+                applySidebarState();
+            };
+
+
+            async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
+                currentFileId = id;
+                const modal = document.getElementById('viewerModal');
+                const title = document.getElementById('viewerTitle');
+                const loader = document.getElementById('viewerLoader');
+                const loaderStatus = document.getElementById('loaderStatus');
+                const container = document.getElementById('pdfViewer');
+
+                // Update page title
+                const displayIcao = icao || (typeof airportCtx !== 'undefined' ? airportCtx.icao : null);
+                if (displayIcao) {
+                    document.title = `${displayIcao} - ${name}`;
+                } else {
+                    document.title = name;
+                }
+
+                // Update hash for deep linking - now much shorter!
+                if (!skipHash) {
+                    isOpeningFromHash = true;
+                    window.location.hash = `view=${id}`;
+                    setTimeout(() => isOpeningFromHash = false, 100);
+                }
+
+                // Reset state
+                currentRotation = 0;
+                currentZoom = 1.5;
+                visualScale = 1.0;
+                document.getElementById('zoomRange').value = 1.5;
+                document.getElementById('zoomValue').textContent = '1.5x';
+                title.textContent = name;
+                container.innerHTML = '';
+                container.style.transform = 'scale(1)';
+
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                populateSidebar(id);
+                applySidebarState();
+                loader.style.display = 'flex';
+                loaderStatus.textContent = 'LOADING LOCAL PDF...';
+
+                try {
+                    const loadingTask = pdfjsLib.getDocument(localUrl);
+                    currentPdf = await loadingTask.promise;
+                    loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
+                    await renderAllPages();
+                    loader.style.display = 'none';
+                } catch (err) {
+                    console.error('PDF Error:', err);
+                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING DRIVE...';
+                    setTimeout(() => {
+                        window.open(driveUrl, '_blank');
+                        closeViewer();
+                    }, 2000);
+                }
+            }
+
+            async function checkHash() {
+                const hash = window.location.hash;
+                if (hash.startsWith('#view=') && !isOpeningFromHash) {
+                    try {
+                        const hashValue = hash.substring(6);
+                        let found = null;
+                        
+                        // 1. Try to find in local 'files' array (for airport pages)
+                        if (typeof files !== 'undefined') {
+                            found = files.find(f => f.id === hashValue);
+                        }
+                        
+                        // 2. Try to find in global 'searchIndex' (for home page)
+                        if (!found && typeof searchIndex !== 'undefined') {
+                            found = searchIndex.find(item => item.id === hashValue);
+                        }
+                        
+                        if (found) {
+                            await openViewer(found.id, found.name, found.driveUrl || "#", found.localUrl, true);
+                        } else {
+                            // 3. Fallback: Check if it's a legacy Base64 encoded JSON
+                            try {
+                                const chartData = JSON.parse(decodeURIComponent(atob(hashValue)));
+                                if (chartData && chartData.localUrl) {
+                                    await openViewer(chartData.id, chartData.name, chartData.driveUrl, chartData.localUrl, true);
+                                }
+                            } catch (e) {
+                                // Not a legacy hash, just not found
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Hash parse error:', e);
+                    }
+                } else if (!hash && document.getElementById('viewerModal').style.display === 'flex') {
+                    closeViewer(true);
+                }
+            }
+
+            window.addEventListener('hashchange', checkHash);
+            window.addEventListener('DOMContentLoaded', () => setTimeout(checkHash, 500));
+
+            async function renderAllPages() {
+                const container = document.getElementById('pdfViewer');
+                container.innerHTML = '';
+
+                for (let i = 1; i <= currentPdf.numPages; i++) {
+                    const pageContainer = document.createElement('div');
+                    pageContainer.className = 'pdf-page-container';
+                    pageContainer.id = `page-${i}`;
+                    container.appendChild(pageContainer);
+                    await renderPage(i, pageContainer);
+                }
+                applyVisualTransform();
+            }
+
+            async function renderPage(pageNum, container) {
+                const page = await currentPdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale: currentZoom, rotation: currentRotation });
+
+                container.style.width = `${viewport.width}px`;
+                container.style.height = `${viewport.height}px`;
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                container.appendChild(canvas);
+
+                const textLayerDiv = document.createElement('div');
+                textLayerDiv.className = 'textLayer';
+                container.appendChild(textLayerDiv);
+
+                // Render visual content
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+                // Render text content for Ctrl+F
+                const textContent = await page.getTextContent();
+                await pdfjsLib.renderTextLayer({
+                    textContent: textContent,
+                    container: textLayerDiv,
+                    viewport: viewport,
+                    textDivs: []
+                }).promise;
+            }
+
+            function applyVisualTransform() {
+                const container = document.getElementById('pdfViewer');
+                container.style.transform = `scale(${visualScale})`;
+            }
+
+            function closeViewer(skipHash = false) {
+                const modal = document.getElementById('viewerModal');
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                currentPdf = null;
+                
+                // Restore original title
+                document.title = originalPageTitle;
+
+                if (!skipHash && window.location.hash.startsWith('#view=')) {
+                    history.pushState("", document.title, window.location.pathname + window.location.search);
+                }
+            }
+
+            async function updateZoomQuality() {
+                await renderAllPages();
+                visualScale = 1.0;
+                applyVisualTransform();
+            }
+
+            document.getElementById('zoomRange').oninput = (e) => {
+                const newZoom = parseFloat(e.target.value);
+                visualScale = newZoom / currentZoom;
+                applyVisualTransform();
+                document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+            };
+
+            document.getElementById('zoomRange').onchange = async (e) => {
+                currentZoom = parseFloat(e.target.value);
+                await updateZoomQuality();
+            };
+
+            document.getElementById('rotateBtn').onclick = async () => {
+                currentRotation = (currentRotation + 90) % 360;
+                await renderAllPages();
+            };
+
+            document.getElementById('copyLinkBtn').onclick = () => {
+                const url = window.location.href;
+                navigator.clipboard.writeText(url).then(() => {
+                    const btn = document.getElementById('copyLinkBtn');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<span>✅</span> COPIED!';
+                    setTimeout(() => btn.innerHTML = originalText, 2000);
+                });
+            };
+
+            document.getElementById('resetBtn').onclick = async () => {
+                currentRotation = 0;
+                currentZoom = 1.5;
+                visualScale = 1.0;
+                document.getElementById('zoomRange').value = 1.5;
+                document.getElementById('zoomValue').textContent = '1.5x';
+                await renderAllPages();
+            };
+
+            document.getElementById('closeViewer').onclick = closeViewer;
+
+            document.getElementById('pdfViewerContainer').onwheel = (e) => {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                    const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
+
+                    visualScale = newZoom / currentZoom;
+                    applyVisualTransform();
+
+                    document.getElementById('zoomRange').value = newZoom;
+                    document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                    clearTimeout(window.zoomTimeout);
+                    window.zoomTimeout = setTimeout(async () => {
+                        currentZoom = newZoom;
+                        await updateZoomQuality();
+                    }, 500);
+                }
+            };
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeViewer();
+            });
+        
+        
+        const airportCtx = {
+            slug: 'canada-cyzv-sept-iles',
+            name: 'CYZV Sept-Iles',
+            icao: 'CYZV Sept-Iles',
+            region: 'CANADA'
+        };
+
+        const pinAirportBtn = document.getElementById('pinAirportBtn');
+        const updateAirportPinState = () => {
+            const pins = getPins();
+            const isPinned = pins.airports.some(a => a.slug === airportCtx.slug);
+            pinAirportBtn.classList.toggle('pinned', isPinned);
+            pinAirportBtn.title = isPinned ? 'Unpin from homepage' : 'Pin to homepage';
+        };
+
+        pinAirportBtn.onclick = () => {
+            toggleAirportPin(airportCtx);
+            updateAirportPinState();
+        };
+        updateAirportPinState();
+
+        const files = [
+        {
+                "id": "sept-iles_4_dep_vector_pg_02.pdf",
+                "name": "SEPT-ILES_4_DEP_VECTOR_PG_02.pdf",
+                "url": "charts_data/canada/cyzv-sept-iles/sept-iles_4_dep_vector_pg_02.pdf",
+                "localUrl": "charts_data/canada/cyzv-sept-iles/sept-iles_4_dep_vector_pg_02.pdf",
+                "type": "pdf"
+, "driveId": "1Yv5oYnJ5m1YIW-PkQKL3xIXFvm-ZtjXv", "driveUrl": "https://drive.google.com/file/d/1Yv5oYnJ5m1YIW-PkQKL3xIXFvm-ZtjXv/view?usp=drivesdk" },
+        {
+                "id": "sept-iles_4_dep_vector.pdf",
+                "name": "SEPT-ILES_4_DEP_VECTOR.pdf",
+                "url": "charts_data/canada/cyzv-sept-iles/sept-iles_4_dep_vector.pdf",
+                "localUrl": "charts_data/canada/cyzv-sept-iles/sept-iles_4_dep_vector.pdf",
+                "type": "pdf"
+, "driveId": "1UqaH-6zh4SCBG5kIOwSaevY0HDWesrST", "driveUrl": "https://drive.google.com/file/d/1UqaH-6zh4SCBG5kIOwSaevY0HDWesrST/view?usp=drivesdk" },
+        {
+                "id": "parking_areas_procedures_pg_02.pdf",
+                "name": "PARKING_AREAS_PROCEDURES_PG_02.pdf",
+                "url": "charts_data/canada/cyzv-sept-iles/parking_areas_procedures_pg_02.pdf",
+                "localUrl": "charts_data/canada/cyzv-sept-iles/parking_areas_procedures_pg_02.pdf",
+                "type": "pdf"
+, "driveId": "1QSEwWB9BUqS5nDmdp4brBEfAgKwB52vy", "driveUrl": "https://drive.google.com/file/d/1QSEwWB9BUqS5nDmdp4brBEfAgKwB52vy/view?usp=drivesdk" },
+        {
+                "id": "parking_areas_procedures.pdf",
+                "name": "PARKING_AREAS_PROCEDURES.pdf",
+                "url": "charts_data/canada/cyzv-sept-iles/parking_areas_procedures.pdf",
+                "localUrl": "charts_data/canada/cyzv-sept-iles/parking_areas_procedures.pdf",
+                "type": "pdf"
+, "driveId": "1PbEOP3Qn4LbKMy15dQahb90pl_HmsGwr", "driveUrl": "https://drive.google.com/file/d/1PbEOP3Qn4LbKMy15dQahb90pl_HmsGwr/view?usp=drivesdk" },
+        {
+                "id": "parking_areas.pdf",
+                "name": "PARKING_AREAS.pdf",
+                "url": "charts_data/canada/cyzv-sept-iles/parking_areas.pdf",
+                "localUrl": "charts_data/canada/cyzv-sept-iles/parking_areas.pdf",
+                "type": "pdf"
+, "driveId": "1JhObvUxLCom4srm30f82fT5U4G45WPCR", "driveUrl": "https://drive.google.com/file/d/1JhObvUxLCom4srm30f82fT5U4G45WPCR/view?usp=drivesdk" },
+        {
+                "id": "aerodrome_chart.pdf",
+                "name": "AERODROME_CHART.pdf",
+                "url": "charts_data/canada/cyzv-sept-iles/aerodrome_chart.pdf",
+                "localUrl": "charts_data/canada/cyzv-sept-iles/aerodrome_chart.pdf",
+                "type": "pdf"
+, "driveId": "1kIf0odCFbjs37Mm3VK9AGg0_nZ7eKesy", "driveUrl": "https://drive.google.com/file/d/1kIf0odCFbjs37Mm3VK9AGg0_nZ7eKesy/view?usp=drivesdk" },
+        {
+                "id": "rnav_gnss_rwy_31.pdf",
+                "name": "RNAV_GNSS_RWY_31.pdf",
+                "url": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_31.pdf",
+                "localUrl": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_31.pdf",
+                "type": "pdf"
+, "driveId": "1WPl0Znko-rTCqtSJRqm-8ZvabWuEsrg_", "driveUrl": "https://drive.google.com/file/d/1WPl0Znko-rTCqtSJRqm-8ZvabWuEsrg_/view?usp=drivesdk" },
+        {
+                "id": "rnav_gnss_rwy_13.pdf",
+                "name": "RNAV_GNSS_RWY_13.pdf",
+                "url": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_13.pdf",
+                "localUrl": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_13.pdf",
+                "type": "pdf"
+, "driveId": "1aaiwmEOkU6N5fHB_mqk0Q1nxXntGfaIo", "driveUrl": "https://drive.google.com/file/d/1aaiwmEOkU6N5fHB_mqk0Q1nxXntGfaIo/view?usp=drivesdk" },
+        {
+                "id": "rnav_gnss_rwy_27.pdf",
+                "name": "RNAV_GNSS_RWY_27.pdf",
+                "url": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_27.pdf",
+                "localUrl": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_27.pdf",
+                "type": "pdf"
+, "driveId": "1h8C7MhaJx9Hv2h2BmnPO1VLv9K6pugI_", "driveUrl": "https://drive.google.com/file/d/1h8C7MhaJx9Hv2h2BmnPO1VLv9K6pugI_/view?usp=drivesdk" },
+        {
+                "id": "ils_rwy_09.pdf",
+                "name": "ILS_RWY_09.pdf",
+                "url": "charts_data/canada/cyzv-sept-iles/ils_rwy_09.pdf",
+                "localUrl": "charts_data/canada/cyzv-sept-iles/ils_rwy_09.pdf",
+                "type": "pdf"
+, "driveId": "1GTy_rR5qip2TkNk559HWHK8LVwhYzMH-", "driveUrl": "https://drive.google.com/file/d/1GTy_rR5qip2TkNk559HWHK8LVwhYzMH-/view?usp=drivesdk" },
+        {
+                "id": "rnav_gnss_rwy_09.pdf",
+                "name": "RNAV_GNSS_RWY_09.pdf",
+                "url": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_09.pdf",
+                "localUrl": "charts_data/canada/cyzv-sept-iles/rnav_gnss_rwy_09.pdf",
+                "type": "pdf"
+, "driveId": "1bR6M5Fca2xSa3L_4APnx5ymFRvX3EupO", "driveUrl": "https://drive.google.com/file/d/1bR6M5Fca2xSa3L_4APnx5ymFRvX3EupO/view?usp=drivesdk" }
+];
+        const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
+        let currentFilter = 'all';
+        
+        const fuse = new Fuse(files, {
+            keys: ['name'],
+            threshold: 0.4,
+            includeMatches: true
+        });
+        
+        function renderFiles(results = null) {
+            const listEl = document.getElementById('fileList');
+            const emptyState = document.getElementById('emptyState');
+            const fileCount = document.getElementById('fileCount');
+            
+            listEl.innerHTML = '';
+            
+            let filesToShow = results ? results.map(r => ({...r.item, matches: r.matches})) : files;
+            
+            if (currentFilter !== 'all') {
+                filesToShow = filesToShow.filter(f => f.type === currentFilter);
+            }
+            
+            if (filesToShow.length === 0) {
+                listEl.style.display = 'none';
+                emptyState.style.display = 'block';
+                fileCount.textContent = 'No files found';
+                return;
+            }
+            
+            listEl.style.display = 'block';
+            emptyState.style.display = 'none';
+            fileCount.textContent = `Showing ${filesToShow.length} of ${files.length} files`;
+            
+            filesToShow.forEach(file => {
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.borderBottom = '1px solid var(--border)';
+                wrapper.style.minWidth = '0';
+
+                const item = document.createElement('a');
+                item.className = 'file-item';
+                item.style.minWidth = '0';
+                item.href = `#view=${file.id}`;
+                item.onclick = (e) => {
+                    e.preventDefault();
+                    openViewer(file.id, file.name, file.driveUrl || "#", file.localUrl, false, airportCtx.icao);
+                };
+                item.style.borderBottom = 'none';
+                item.style.flex = '1';
+                item.innerHTML = `
+                    <span class="file-icon">${fileIcons[file.type] || '📄'}</span>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-type">${file.type}</span>
+                `;
+
+                const pins = getPins();
+                const isPinned = pins.charts.some(c => c.url === file.url);
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'pin-btn' + (isPinned ? ' pinned' : '');
+                pinBtn.style.marginRight = '1rem';
+                pinBtn.title = isPinned ? 'Unpin from homepage' : 'Pin to homepage';
+                pinBtn.innerHTML = '📌';
+                pinBtn.onclick = (e) => {
+                    e.preventDefault();
+                    toggleChartPin({
+                        id: file.id,
+                        name: file.name,
+                        url: file.url,
+                        localUrl: file.localUrl,
+                        type: file.type,
+                        airport: airportCtx.name,
+                        region: airportCtx.region,
+                        pageUrl: `${airportCtx.slug}.html`
+                    });
+                    pinBtn.classList.toggle('pinned');
+                    pinBtn.title = pinBtn.classList.contains('pinned') ? 'Unpin from homepage' : 'Pin to homepage';
+                };
+
+                wrapper.appendChild(item);
+
+                const newTabBtn = document.createElement('a');
+                newTabBtn.className = 'new-tab-btn';
+                newTabBtn.href = `#view=${file.id}`;
+                newTabBtn.target = '_blank';
+                newTabBtn.title = 'Open in new tab';
+                newTabBtn.innerHTML = '↗️';
+                newTabBtn.style.marginRight = '0.5rem';
+                wrapper.appendChild(newTabBtn);
+
+                wrapper.appendChild(pinBtn);
+                listEl.appendChild(wrapper);
+            });
+        }
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            renderFiles(query ? fuse.search(query) : null);
+        });
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                
+                const query = document.getElementById('searchInput').value.trim();
+                renderFiles(query ? fuse.search(query) : null);
+            });
+        });
+        
+        renderFiles();
+    </script>
+</body>
+</html>

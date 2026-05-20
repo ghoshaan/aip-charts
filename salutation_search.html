@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salutation Search - ATC Charts</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-hover: #1c2128;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-dim: #7d8590;
+            --accent: #79b8ff;
+            --accent-glow: rgba(121, 184, 255, 0.15);
+            --warning: #d29922;
+            --primary: #79b8ff;
+        }
+        
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, var(--border) 2px, var(--border) 3px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb-separator { opacity: 0.5; }
+        
+        header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .header-content { flex: 1; min-width: 0; }
+
+        h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.02em;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+        
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+
+        .controls { 
+            display: flex; 
+            gap: 1rem; 
+            margin: 2rem 0;
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .search-wrapper { position: relative; flex: 1; }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+        }
+
+        select { 
+            padding: 0.875rem 1rem; 
+            border-radius: 6px; 
+            border: 1px solid var(--border); 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem; 
+            outline: none; 
+            cursor: pointer;
+            transition: 0.3s; 
+            min-width: 200px;
+        }
+        select:focus { border-color: var(--accent); }
+
+        .word-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+        
+        .card { 
+            background: var(--surface); 
+            border: 1px solid var(--border);
+            border-radius: 8px; 
+            padding: 1.5rem; 
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleY(0);
+            transition: transform 0.2s;
+        }
+
+        .card:hover { 
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            background: var(--surface-hover);
+            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.1);
+        }
+        
+        .card:hover::before { transform: scaleY(1); }
+        
+        .meta-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        
+        .lang-tag { 
+            background: var(--accent-glow); 
+            color: var(--accent); 
+            padding: 0.2rem 0.6rem; 
+            border-radius: 4px; 
+            font-size: 0.7rem; 
+            font-weight: 600; 
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid var(--accent);
+        }
+        
+        .ipa { color: var(--text-dim); font-size: 0.85rem; }
+        
+        .play-btn { 
+            background: var(--accent); 
+            border: none; 
+            border-radius: 4px; 
+            width: 32px; 
+            height: 32px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            fill: var(--bg); 
+            transition: 0.2s;
+        }
+        .play-btn:hover { transform: scale(1.1); background: var(--text); }
+        
+        .card-title { 
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0; 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            color: var(--text); 
+        }
+        
+        .romanization { 
+            font-style: italic; 
+            opacity: 0.6; 
+            font-size: 1.1rem; 
+            font-weight: 300; 
+            margin-left: 0.5rem; 
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        
+        .definition { 
+            line-height: 1.6; 
+            color: var(--text-dim); 
+            font-size: 0.9rem; 
+            margin-top: 1rem; 
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+        }
+        
+        .loading { text-align: center; font-size: 1.2rem; padding: 4rem; color: var(--text-dim); }
+        .error { color: var(--warning); text-align: center; padding: 2rem; border: 1px solid var(--warning); border-radius: 8px; background: rgba(210, 153, 34, 0.05); }
+
+        @media (max-width: 768px) {
+            .controls { flex-direction: column; align-items: stretch; }
+            select { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="breadcrumb-separator">/</span>
+            <span>Salutation Search</span>
+        </div>
+
+        <header>
+            <div class="header-content">
+                <h1>Salutation Search</h1>
+                <div class="subtitle">A systematic archive of global greetings and salutations.</div>
+            </div>
+        </header>
+
+        <div class="controls">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search" class="search-input" placeholder="Fuzzy search greetings..." autocomplete="off">
+            </div>
+            <select id="langFilter">
+                <option value="all">All Languages</option>
+            </select>
+        </div>
+
+        <main id="results" class="word-grid">
+            <div class="loading">Initializing database...</div>
+        </main>
+    </div>
+
+    <script>
+        let dictionary = [];
+        let fuse;
+
+        async function init() {
+            try {
+                const response = await fetch('data/wiktionary_dictionary.json');
+                if (!response.ok) throw new Error('Database not found. Please ensure the data directory is correctly populated.');
+                const data = await response.json();
+                // Filter dictionary to only include items with a valid audioUrl
+                dictionary = Object.values(data).filter(d => d.audioUrl !== null && d.audioUrl !== undefined);
+                
+                // Populate Language Filter
+                const langs = [...new Set(dictionary.map(d => d.language))].sort();
+                const select = document.getElementById('langFilter');
+                langs.forEach(l => {
+                    const opt = document.createElement('option');
+                    opt.value = l;
+                    opt.textContent = l;
+                    select.appendChild(opt);
+                });
+
+                // Initialize Fuse.js
+                fuse = new Fuse(dictionary, {
+                    keys: ['spelling', 'definitions', 'language'],
+                    threshold: 0.3
+                });
+
+                renderCards(dictionary);
+            } catch (err) {
+                document.getElementById('results').innerHTML = `<div class="error">${err.message}</div>`;
+            }
+        }
+
+        function renderCards(words) {
+            const container = document.getElementById('results');
+            if (words.length === 0) {
+                container.innerHTML = '<div class="loading">No matching greetings found.</div>';
+                return;
+            }
+            
+            container.innerHTML = words
+                .filter(word => word.audioUrl !== null && word.audioUrl !== undefined && word.audioUrl !== '')
+                .map(word => `
+                <div class="card">
+                    <div class="meta-row">
+                        <span class="lang-tag">${word.language}</span>
+                        ${word.ipa ? `<span class="ipa">/${word.ipa}/</span>` : ''}
+                        <button class="play-btn" onclick="playAudio('${word.audioUrl}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-title">
+                        ${word.spelling}${word.romanization ? `<span class="romanization">(${word.romanization})</span>` : ''}
+                    </div>
+                    <div class="definition">
+                        ${word.definitions[0]}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function playAudio(url) {
+            new Audio(url).play().catch(e => console.log('Audio playback failed', e));
+        }
+
+        function handleFilter() {
+            const term = document.getElementById('search').value;
+            const lang = document.getElementById('langFilter').value;
+            
+            // Filter dictionary to only include items with a valid audioUrl
+            let filtered = dictionary.filter(d => d.audioUrl !== null && d.audioUrl !== undefined);
+
+            if (lang !== 'all') {
+                filtered = filtered.filter(d => d.language === lang);
+            }
+
+            if (term.trim() !== '') {
+                const searchResults = fuse.search(term);
+                filtered = searchResults.map(r => r.item).filter(item => {
+                    return item.audioUrl !== null && item.audioUrl !== undefined && (lang === 'all' || item.language === lang);
+                });
+            }
+
+            renderCards(filtered);
+        }
+
+        document.getElementById('search').addEventListener('input', handleFilter);
+        document.getElementById('langFilter').addEventListener('change', handleFilter);
+
+        init();
+    </script>
+</body>
+</html>
