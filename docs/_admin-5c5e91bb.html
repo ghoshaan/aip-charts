@@ -258,6 +258,7 @@ tbody tr:hover { background: var(--surface-hover); }
     <div class="toolbar">
       <input type="text" id="filter" class="search" placeholder="Filter entries (spelling / language / definition)...">
       <div class="meta" id="count-meta">—</div>
+      <button id="translit-btn" title="Apply language-aware transliteration rules (ä→ae, ö→oe, ü→ue, ß→ss, æ→ae, ø→oe, å→aa, œ→oe) across all entries">Transliterate</button>
       <button class="primary" id="add-btn">+ Add new</button>
     </div>
 
@@ -635,6 +636,64 @@ function deleteEntry(key) {
   renderRows();
   toast(`Deleted "${key}" (not yet saved to file).`, 'warn');
 }
+
+// ---------- TRANSLITERATION ----------
+// Language-aware rules. Order matters: do multi-char (ß) before single chars
+// so they don't get partially matched, and lowercase before uppercase.
+const TRANSLIT_RULES = {
+  German:    [['ß','ss'],['ä','ae'],['ö','oe'],['ü','ue'],['Ä','Ae'],['Ö','Oe'],['Ü','Ue']],
+  Danish:    [['æ','ae'],['ø','oe'],['å','aa'],['Æ','Ae'],['Ø','Oe'],['Å','Aa']],
+  Norwegian: [['æ','ae'],['ø','oe'],['å','aa'],['Æ','Ae'],['Ø','Oe'],['Å','Aa']],
+  Swedish:   [['ä','ae'],['ö','oe'],['Ä','Ae'],['Ö','Oe']],
+  French:    [['œ','oe'],['æ','ae'],['Œ','Oe'],['Æ','Ae']],
+  Latin:     [['œ','oe'],['æ','ae'],['Œ','Oe'],['Æ','Ae']]
+};
+function translit(s, rules) {
+  let out = s;
+  for (const [from, to] of rules) out = out.split(from).join(to);
+  return out;
+}
+function applyTransliteration() {
+  if (!dict) { toast('Load a file first.', 'warn'); return; }
+  // Dry run: compute what would change
+  const newDict = {};
+  let changed = 0, collisions = [];
+  for (const [key, entry] of Object.entries(dict)) {
+    const rules = TRANSLIT_RULES[entry.language];
+    if (!rules) { newDict[key] = entry; continue; }
+    const origSpelling = entry.spelling ?? key;
+    const newSpelling = translit(origSpelling, rules);
+    if (newSpelling === origSpelling) { newDict[key] = entry; continue; }
+    const newKey = translit(key, rules);
+    if (Object.prototype.hasOwnProperty.call(newDict, newKey)) {
+      collisions.push(key);
+      newDict[key] = entry;
+      continue;
+    }
+    const newEntry = Object.assign({}, entry, { spelling: newSpelling });
+    if (!newEntry.romanization) newEntry.romanization = origSpelling;
+    newDict[newKey] = newEntry;
+    changed++;
+  }
+  if (changed === 0 && collisions.length === 0) {
+    toast('Already fully transliterated — nothing to do.', 'ok');
+    return;
+  }
+  const msg =
+    `Apply transliteration to ${changed} entr${changed === 1 ? 'y' : 'ies'}?` +
+    (collisions.length ? `\n\n${collisions.length} would collide with existing keys and will be skipped:\n  ${collisions.slice(0,5).join('\n  ')}${collisions.length > 5 ? '\n  ...' : ''}` : '') +
+    `\n\nOriginals will be moved into the romanization field where it was empty.\nClick Save to file afterward to write to disk.`;
+  if (!confirm(msg)) return;
+  dict = newDict;
+  setDirty(true);
+  renderRows();
+  toast(
+    `Transliterated ${changed} entr${changed === 1 ? 'y' : 'ies'}` +
+    (collisions.length ? ` (${collisions.length} skipped due to collisions)` : '') +
+    '. Click Save to file to write to disk.',
+    'ok', 5000);
+}
+document.getElementById('translit-btn').addEventListener('click', applyTransliteration);
 
 // ---------- SAVE ----------
 async function saveToFile() {

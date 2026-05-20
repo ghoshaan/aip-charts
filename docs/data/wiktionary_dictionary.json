@@ -999,10 +999,10 @@
       "I need ..."
     ]
   },
-  "avez-vous des frères et sœurs": {
-    "spelling": "avez-vous des frères et sœurs",
+  "avez-vous des frères et soeurs": {
+    "spelling": "avez-vous des frères et soeurs",
     "language": "French",
-    "romanization": null,
+    "romanization": "avez-vous des frères et sœurs",
     "ipa": null,
     "audioUrl": null,
     "definitions": [
@@ -1039,10 +1039,10 @@
       "oh my God!"
     ]
   },
-  "as-tu des frères et sœurs": {
-    "spelling": "as-tu des frères et sœurs",
+  "as-tu des frères et soeurs": {
+    "spelling": "as-tu des frères et soeurs",
     "language": "French",
-    "romanization": null,
+    "romanization": "as-tu des frères et sœurs",
     "ipa": null,
     "audioUrl": null,
     "definitions": [
@@ -1149,10 +1149,10 @@
       "good morning"
     ]
   },
-  "grüß Gott": {
-    "spelling": "grüß Gott",
+  "gruess Gott": {
+    "spelling": "gruess Gott",
     "language": "German",
-    "romanization": null,
+    "romanization": "grüß Gott",
     "ipa": "/ɡʁyːs ɡɔt/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b9/De-grüß_Gott.ogg",
     "definitions": [
@@ -1169,20 +1169,20 @@
       "Happy New Year"
     ]
   },
-  "grüezi": {
-    "spelling": "grüezi",
+  "grueezi": {
+    "spelling": "grueezi",
     "language": "German",
-    "romanization": null,
+    "romanization": "grüezi",
     "ipa": "/ˈɡ̊ryə̯t͡si/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Gsw-züritüütsch-Grüezi.ogg",
     "definitions": [
       "hello"
     ]
   },
-  "hallöchen": {
-    "spelling": "hallöchen",
+  "halloechen": {
+    "spelling": "halloechen",
     "language": "German",
-    "romanization": null,
+    "romanization": "hallöchen",
     "ipa": "/haˈløːçən/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/aa/De-hallöchen.ogg",
     "definitions": [
@@ -1249,20 +1249,20 @@
       "good night"
     ]
   },
-  "tschüss": {
-    "spelling": "tschüss",
+  "tschuess": {
+    "spelling": "tschuess",
     "language": "German",
-    "romanization": null,
+    "romanization": "tschüss",
     "ipa": "/t͡ʃʏs/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/De-tschüss.ogg",
     "definitions": [
       "bye, cheers, ciao"
     ]
   },
-  "bis später": {
-    "spelling": "bis später",
+  "bis spaeter": {
+    "spelling": "bis spaeter",
     "language": "German",
-    "romanization": null,
+    "romanization": "bis später",
     "ipa": null,
     "audioUrl": null,
     "definitions": [
@@ -1389,10 +1389,10 @@
       "moment, instant, blink of an eye"
     ]
   },
-  "äh": {
-    "spelling": "äh",
+  "aeh": {
+    "spelling": "aeh",
     "language": "German",
-    "romanization": null,
+    "romanization": "äh",
     "ipa": "/ɛː/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/30/De-äh.ogg",
     "definitions": [
@@ -1419,10 +1419,10 @@
       "ouch"
     ]
   },
-  "auf Wiederhören": {
-    "spelling": "auf Wiederhören",
+  "auf Wiederhoeren": {
+    "spelling": "auf Wiederhoeren",
     "language": "German",
-    "romanization": null,
+    "romanization": "auf Wiederhören",
     "ipa": null,
     "audioUrl": null,
     "definitions": [
@@ -1439,10 +1439,10 @@
       "ah, oh, I see;"
     ]
   },
-  "'türlich": {
-    "spelling": "'türlich",
+  "'tuerlich": {
+    "spelling": "'tuerlich",
     "language": "German",
-    "romanization": null,
+    "romanization": "'türlich",
     "ipa": "/ˈtyːɐ̯lɪç/",
     "audioUrl": null,
     "definitions": [
@@ -1589,30 +1589,30 @@
       "all right; okay"
     ]
   },
-  "ätschibätschi": {
-    "spelling": "ätschibätschi",
+  "aetschibaetschi": {
+    "spelling": "aetschibaetschi",
     "language": "German",
-    "romanization": null,
+    "romanization": "ätschibätschi",
     "ipa": "/ˈɛːt͡ʃiˌbɛːt͡ʃi/",
     "audioUrl": null,
     "definitions": [
       "; na-na na-na boo-boo"
     ]
   },
-  "ab dafür": {
-    "spelling": "ab dafür",
+  "ab dafuer": {
+    "spelling": "ab dafuer",
     "language": "German",
-    "romanization": null,
+    "romanization": "ab dafür",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/De-ab_dafür.ogg",
     "definitions": [
       "go, let's go"
     ]
   },
-  "am Arsch hängt der Hammer": {
-    "spelling": "am Arsch hängt der Hammer",
+  "am Arsch haengt der Hammer": {
+    "spelling": "am Arsch haengt der Hammer",
     "language": "German",
-    "romanization": null,
+    "romanization": "am Arsch hängt der Hammer",
     "ipa": null,
     "audioUrl": null,
     "definitions": [
@@ -1629,10 +1629,10 @@
       "decampment, return"
     ]
   },
-  "ähm": {
-    "spelling": "ähm",
+  "aehm": {
+    "spelling": "aehm",
     "language": "German",
-    "romanization": null,
+    "romanization": "ähm",
     "ipa": null,
     "audioUrl": null,
     "definitions": [
@@ -1689,10 +1689,10 @@
       "please, if you please"
     ]
   },
-  "danke schön": {
-    "spelling": "danke schön",
+  "danke schoen": {
+    "spelling": "danke schoen",
     "language": "German",
-    "romanization": null,
+    "romanization": "danke schön",
     "ipa": "[ˈdaŋkə ʃøːn]",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6e/De-danke_schön.ogg",
     "definitions": [
@@ -1749,20 +1749,20 @@
       "bon appétit, enjoy your meal"
     ]
   },
-  "bitte schön": {
-    "spelling": "bitte schön",
+  "bitte schoen": {
+    "spelling": "bitte schoen",
     "language": "German",
-    "romanization": null,
+    "romanization": "bitte schön",
     "ipa": "/ˈbɪtə ʃøːn/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/13/De-bitte_schön.ogg",
     "definitions": [
       "; usually not translated into English}} don't mention it, not at all, you're welcome"
     ]
   },
-  "ich bin nicht religiös": {
-    "spelling": "ich bin nicht religiös",
+  "ich bin nicht religioes": {
+    "spelling": "ich bin nicht religioes",
     "language": "German",
-    "romanization": null,
+    "romanization": "ich bin nicht religiös",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d3/De-Ich_bin_nicht_religiös.ogg",
     "definitions": [
@@ -1849,10 +1849,10 @@
       "I'm a Christian"
     ]
   },
-  "bist du gläubig": {
-    "spelling": "bist du gläubig",
+  "bist du glaeubig": {
+    "spelling": "bist du glaeubig",
     "language": "German",
-    "romanization": null,
+    "romanization": "bist du gläubig",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/87/De-Bist_du_gläubig?.ogg",
     "definitions": [
@@ -1969,10 +1969,10 @@
       "I'm Jewish"
     ]
   },
-  "ich bin Jüdin": {
-    "spelling": "ich bin Jüdin",
+  "ich bin Juedin": {
+    "spelling": "ich bin Juedin",
     "language": "German",
-    "romanization": null,
+    "romanization": "ich bin Jüdin",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/52/De-Ich_bin_Jüdin..ogg",
     "definitions": [
@@ -1989,10 +1989,10 @@
       "I'm a Protestant"
     ]
   },
-  "fröhliche Weihnachten": {
-    "spelling": "fröhliche Weihnachten",
+  "froehliche Weihnachten": {
+    "spelling": "froehliche Weihnachten",
     "language": "German",
-    "romanization": null,
+    "romanization": "fröhliche Weihnachten",
     "ipa": "/ˈfʁøːlɪçə ˈvaɪ̯naxtn̩/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4d/De-Fröhliche_Weihnachten!.ogg",
     "definitions": [
@@ -2019,20 +2019,20 @@
       "I need a taxi"
     ]
   },
-  "ich benötige ein Taxi": {
-    "spelling": "ich benötige ein Taxi",
+  "ich benoetige ein Taxi": {
+    "spelling": "ich benoetige ein Taxi",
     "language": "German",
-    "romanization": null,
+    "romanization": "ich benötige ein Taxi",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/33/De-Ich_benötige_ein_Taxi..ogg",
     "definitions": [
       "I need a taxi"
     ]
   },
-  "ich brauche einen Fremdenführer": {
-    "spelling": "ich brauche einen Fremdenführer",
+  "ich brauche einen Fremdenfuehrer": {
+    "spelling": "ich brauche einen Fremdenfuehrer",
     "language": "German",
-    "romanization": null,
+    "romanization": "ich brauche einen Fremdenführer",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/De-Ich_brauche_einen_Fremdenführer..ogg",
     "definitions": [
@@ -2079,10 +2079,10 @@
       "I am German"
     ]
   },
-  "da nicht für": {
-    "spelling": "da nicht für",
+  "da nicht fuer": {
+    "spelling": "da nicht fuer",
     "language": "German",
-    "romanization": null,
+    "romanization": "da nicht für",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/27/De-da_nicht_für.ogg",
     "definitions": [
