@@ -659,7 +659,11 @@
                     </div>
 
                     <button class="control-btn" id="rotateBtn" title="Rotate Chart">
-                        <span>🔄</span> ROTATE
+                        <span>↻</span> ROTATE
+                    </button>
+
+                    <button class="control-btn" id="refreshBtn" title="Force Refresh/Bypass Cache">
+                        <span>🔄</span> REFRESH
                     </button>
 
                     <button class="control-btn" id="copyLinkBtn" title="Copy Link to this Chart">
@@ -757,6 +761,101 @@
 
             const SIDEBAR_KEY = 'atc_sidebar_open';
             let sidebarOpen = localStorage.getItem(SIDEBAR_KEY) !== 'false';
+
+            // IndexedDB Cache utility for charts
+            const DB_NAME = 'atc_charts_cache';
+            const DB_VERSION = 1;
+            const STORE_NAME = 'charts';
+
+            function openCacheDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains(STORE_NAME)) {
+                            db.createObjectStore(STORE_NAME);
+                        }
+                    };
+                    request.onsuccess = (e) => resolve(e.target.result);
+                    request.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            async function getCachedChart(id) {
+                try {
+                    const db = await openCacheDB();
+                    return new Promise((resolve, reject) => {
+                        const tx = db.transaction(STORE_NAME, 'readonly');
+                        const store = tx.objectStore(STORE_NAME);
+                        const request = store.get(id);
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(request.error);
+                    });
+                } catch (e) {
+                    console.error('IndexedDB get error:', e);
+                    return null;
+                }
+            }
+
+            async function setCachedChart(id, bytes) {
+                try {
+                    const db = await openCacheDB();
+                    return new Promise((resolve, reject) => {
+                        const tx = db.transaction(STORE_NAME, 'readwrite');
+                        const store = tx.objectStore(STORE_NAME);
+                        const request = store.put(bytes, id);
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => reject(request.error);
+                    });
+                } catch (e) {
+                    console.error('IndexedDB put error:', e);
+                }
+            }
+
+            async function getPdfData(id, driveId, localUrl, loaderStatus) {
+                const cacheKey = driveId || localUrl || id;
+                try {
+                    const cachedData = await getCachedChart(cacheKey);
+                    if (cachedData) {
+                        loaderStatus.textContent = 'LOADING FROM CACHE...';
+                        return { data: cachedData };
+                    }
+                } catch (e) {
+                    console.warn('Cache read error:', e);
+                }
+
+                let pdfData;
+                if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
+                    loaderStatus.textContent = 'FETCHING LOCAL PDF...';
+                    try {
+                        const response = await fetch(localUrl);
+                        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                        const arrayBuffer = await response.arrayBuffer();
+                        pdfData = new Uint8Array(arrayBuffer);
+                        try {
+                            await setCachedChart(cacheKey, pdfData);
+                        } catch (e) {
+                            console.warn('Cache write error:', e);
+                        }
+                        return { data: pdfData };
+                    } catch (err) {
+                        console.warn('Local fetch failed, loading via URL:', err);
+                        return localUrl;
+                    }
+                } else {
+                    if (!driveId) {
+                        throw new Error("No URL or Drive ID available.");
+                    }
+                    loaderStatus.textContent = 'FETCHING PDF FROM DRIVE...';
+                    pdfData = await fetchPdfFromProxy(driveId);
+                    try {
+                        await setCachedChart(cacheKey, pdfData);
+                    } catch (e) {
+                        console.warn('Cache write error:', e);
+                    }
+                    return { data: pdfData };
+                }
+            }
 
             function applySidebarState() {
                 const sidebar = document.getElementById('viewerSidebar');
@@ -883,22 +982,18 @@
                 loader.style.display = 'flex';
 
                 try {
-                    let pdfData;
-                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
-                        loaderStatus.textContent = 'LOADING LOCAL PDF...';
-                        const loadingTask = pdfjsLib.getDocument(localUrl);
-                        currentPdf = await loadingTask.promise;
+                    const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
+                    const loadResult = await getPdfData(id, embedId, localUrl, loaderStatus);
+                    
+                    loaderStatus.textContent = 'LOADING PDF...';
+                    let loadingTask;
+                    if (typeof loadResult === 'string') {
+                        loadingTask = pdfjsLib.getDocument(loadResult);
                     } else {
-                        const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
-                        if (!embedId) {
-                            throw new Error("No Drive ID available for on-demand fetch.");
-                        }
-                        loaderStatus.textContent = 'FETCHING PDF FROM DRIVE...';
-                        pdfData = await fetchPdfFromProxy(embedId);
-                        loaderStatus.textContent = 'LOADING PDF...';
-                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
-                        currentPdf = await loadingTask.promise;
+                        loadingTask = pdfjsLib.getDocument({ data: loadResult.data });
                     }
+                    
+                    currentPdf = await loadingTask.promise;
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
@@ -945,21 +1040,16 @@
                 currentRotation = 0;
                 
                 try {
-                    let pdfData;
-                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
-                        const loadingTask = pdfjsLib.getDocument(page.localUrl);
-                        currentPdf = await loadingTask.promise;
+                    const cacheKey = page.driveId || page.localUrl || `${currentFileId}_page_${newIndex}`;
+                    const loadResult = await getPdfData(cacheKey, page.driveId, page.localUrl, loaderStatus);
+                    
+                    let loadingTask;
+                    if (typeof loadResult === 'string') {
+                        loadingTask = pdfjsLib.getDocument(loadResult);
                     } else {
-                        const embedId = page.driveId;
-                        if (!embedId) {
-                            throw new Error("No Drive ID available for page on-demand fetch.");
-                        }
-                        loaderStatus.textContent = 'FETCHING PAGE FROM DRIVE...';
-                        pdfData = await fetchPdfFromProxy(embedId);
-                        loaderStatus.textContent = 'LOADING PAGE...';
-                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
-                        currentPdf = await loadingTask.promise;
+                        loadingTask = pdfjsLib.getDocument({ data: loadResult.data });
                     }
+                    currentPdf = await loadingTask.promise;
                     await renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
@@ -1144,6 +1234,66 @@
             document.getElementById('rotateBtn').onclick = async () => {
                 currentRotation = (currentRotation + 90) % 360;
                 await renderAllPages();
+            };
+
+            document.getElementById('refreshBtn').onclick = async () => {
+                if (currentFileId) {
+                    const loader = document.getElementById('viewerLoader');
+                    const loaderStatus = document.getElementById('loaderStatus');
+                    loader.style.display = 'flex';
+                    loaderStatus.textContent = 'FORCE REFRESHING...';
+                    document.getElementById('pdfViewer').innerHTML = '';
+                    currentRotation = 0;
+                    
+                    try {
+                        let fileObj = null;
+                        if (typeof files !== 'undefined') {
+                            fileObj = files.find(f => f.id === currentFileId);
+                        } else if (typeof searchIndex !== 'undefined') {
+                            fileObj = searchIndex.find(f => f.id === currentFileId);
+                        }
+                        
+                        let localUrl = fileObj ? fileObj.localUrl : '#';
+                        const driveId = fileObj ? fileObj.driveId : null;
+                        
+                        if (currentFilePages) {
+                            localUrl = currentFilePages[currentFilePageIndex].localUrl;
+                        }
+                        
+                        const cacheKey = (currentFilePages && currentFilePages[currentFilePageIndex].driveId) || 
+                                         (currentFilePages && currentFilePages[currentFilePageIndex].localUrl) ||
+                                         driveId || localUrl || currentFileId;
+                        
+                        let pdfData;
+                        if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
+                            loaderStatus.textContent = 'FETCHING FRESH LOCAL PDF...';
+                            const response = await fetch(localUrl, { cache: 'reload' });
+                            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                            const arrayBuffer = await response.arrayBuffer();
+                            pdfData = new Uint8Array(arrayBuffer);
+                        } else {
+                            if (!driveId) throw new Error("No Drive ID available.");
+                            loaderStatus.textContent = 'FETCHING FRESH PDF FROM DRIVE...';
+                            pdfData = await fetchPdfFromProxy(driveId);
+                        }
+                        
+                        try {
+                            await setCachedChart(cacheKey, pdfData);
+                        } catch (e) {
+                            console.warn('Cache write error:', e);
+                        }
+                        
+                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        currentPdf = await loadingTask.promise;
+                        await renderAllPages();
+                        loader.style.display = 'none';
+                        updatePageNav();
+                    } catch (err) {
+                        console.error('Refresh error:', err);
+                        loaderStatus.textContent = 'REFRESH ERROR.';
+                        setTimeout(() => loader.style.display = 'none', 1500);
+                    }
+                }
             };
 
             document.getElementById('copyLinkBtn').onclick = () => {
