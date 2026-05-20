@@ -376,6 +376,16 @@
             }
         });
 
+        function icaoPrefixMatches(locQ) {
+            const upper = locQ.toUpperCase();
+            return searchIndex.filter(a => a.icao.startsWith(upper)).map(item => ({ item }));
+        }
+
+        function mergeResults(primary, additional) {
+            const seen = new Set(primary.map(r => r.item.icao));
+            return [...primary, ...additional.filter(r => !seen.has(r.item.icao))];
+        }
+
         function performSearch() {
             const locQ = locationInput.value.trim();
             const chartQ = chartInput.value.trim();
@@ -392,22 +402,31 @@
 
             let results;
             if (locQ && chartQ) {
-                results = fuse.search({
+                const fuseResults = fuse.search({
                     $and: [
                         { $or: [{ icao: locQ }, { name: locQ }, { country: locQ }] },
                         { $or: [{ sids: chartQ }, { stars: chartQ }, { iaps: chartQ }] }
                     ]
                 });
+                const chartLower = chartQ.toLowerCase();
+                const prefixWithChart = icaoPrefixMatches(locQ).filter(r => {
+                    const a = r.item;
+                    return (a.sids && a.sids.some(s => s.toLowerCase().includes(chartLower))) ||
+                           (a.stars && a.stars.some(s => s.toLowerCase().includes(chartLower))) ||
+                           (a.iaps && a.iaps.some(s => s.toLowerCase().includes(chartLower)));
+                });
+                results = mergeResults(fuseResults, prefixWithChart);
             } else if (locQ) {
-                results = fuse.search({
+                const fuseResults = fuse.search({
                     $or: [{ icao: locQ }, { name: locQ }, { country: locQ }]
                 });
+                results = mergeResults(fuseResults, icaoPrefixMatches(locQ));
             } else {
                 results = fuse.search({
                     $or: [{ sids: chartQ }, { stars: chartQ }, { iaps: chartQ }]
                 });
             }
-            
+
             // Filter by region
             if (selectedRegion !== 'All') {
                 results = results.filter(r => r.item.region === selectedRegion);
