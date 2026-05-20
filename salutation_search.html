@@ -337,7 +337,7 @@
                         </button>
                     </div>
                     <div class="card-title">
-                        ${word.spelling}
+                        ${word.spelling}${hasNonAscii(word.spelling) ? ' ❌' : ''}
                     </div>
                     <div class="definition">
                         ${word.definitions[0]}
