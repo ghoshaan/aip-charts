@@ -21,6 +21,8 @@
             --accent-glow: rgba(121, 184, 255, 0.15);
             --warning: #d29922;
             --primary: #79b8ff;
+            --danger: #f85149;
+            --danger-glow: rgba(248, 81, 73, 0.12);
         }
         
         body {
@@ -175,6 +177,13 @@
         }
         
         .card:hover::before { transform: scaleY(1); }
+
+        .card.non-ascii {
+            border-color: rgba(248, 81, 73, 0.5);
+            background: var(--danger-glow);
+        }
+        .card.non-ascii::before { background: var(--danger); }
+        .card.non-ascii:hover { border-color: var(--danger); box-shadow: 0 8px 24px rgba(248, 81, 73, 0.15); }
         
         .meta-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
         
@@ -305,6 +314,10 @@
             }
         }
 
+        function hasNonAscii(spelling) {
+            return /[^a-zA-Z\s\-']/.test(spelling);
+        }
+
         function renderCards(words) {
             const container = document.getElementById('results');
             if (words.length === 0) {
@@ -315,7 +328,7 @@
             container.innerHTML = words
                 .filter(word => word.localAudioPath || word.audioUrl)
                 .map(word => `
-                <div class="card">
+                <div class="card${hasNonAscii(word.spelling) ? ' non-ascii' : ''}">
                     <div class="meta-row">
                         <span class="lang-tag">${word.language}</span>
                         ${word.ipa ? `<span class="ipa">/${word.ipa}/</span>` : ''}
