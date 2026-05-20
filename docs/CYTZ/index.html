@@ -742,6 +742,7 @@
         }
     
         
+            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -809,9 +810,38 @@
                 if (activeItem) activeItem.scrollIntoView({ block: 'nearest' });
             }
 
+            async function fetchPdfFromProxy(driveId) {
+                if (!APPS_SCRIPT_URL) {
+                    throw new Error("Apps Script URL is not configured.");
+                }
+                const response = await fetch(`${APPS_SCRIPT_URL}?id=${driveId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const json = await response.json();
+                if (json.error) {
+                    throw new Error(json.error);
+                }
+                if (!json.data) {
+                    throw new Error("No data returned from proxy.");
+                }
+                const binaryString = atob(json.data);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes;
+            }
+
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
-                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                let fileObj = null;
+                if (typeof files !== 'undefined') {
+                    fileObj = files.find(f => f.id === id);
+                } else if (typeof searchIndex !== 'undefined') {
+                    fileObj = searchIndex.find(f => f.id === id);
+                }
                 currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
                 currentFilePageIndex = 0;
                 if (currentFilePages) localUrl = currentFilePages[0].localUrl;
@@ -829,7 +859,7 @@
                     document.title = name;
                 }
 
-                // Update hash for deep linking - now much shorter!
+                // Update hash for deep linking
                 if (!skipHash) {
                     isOpeningFromHash = true;
                     window.location.hash = `view=${id}`;
@@ -851,26 +881,36 @@
                 populateSidebar(id);
                 applySidebarState();
                 loader.style.display = 'flex';
-                loaderStatus.textContent = 'LOADING LOCAL PDF...';
 
                 try {
-                    const loadingTask = pdfjsLib.getDocument(localUrl);
-                    currentPdf = await loadingTask.promise;
+                    let pdfData;
+                    if (localUrl && localUrl !== '#') {
+                        loaderStatus.textContent = 'LOADING LOCAL PDF...';
+                        const loadingTask = pdfjsLib.getDocument(localUrl);
+                        currentPdf = await loadingTask.promise;
+                    } else {
+                        const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
+                        if (!embedId) {
+                            throw new Error("No Drive ID available for on-demand fetch.");
+                        }
+                        loaderStatus.textContent = 'FETCHING PDF FROM DRIVE...';
+                        pdfData = await fetchPdfFromProxy(embedId);
+                        loaderStatus.textContent = 'LOADING PDF...';
+                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        currentPdf = await loadingTask.promise;
+                    }
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
-                    // Local file unavailable — embed Drive preview iframe
-                    const fileObj2 = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
-                    const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
-                    if (embedId) {
-                        loader.style.display = 'none';
-                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${embedId}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
-                    } else if (driveUrl && driveUrl !== '#') {
-                        loaderStatus.textContent = 'OPENING IN DRIVE...';
-                        setTimeout(() => { window.open(driveUrl, '_blank'); closeViewer(); }, 1000);
+                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING IN DRIVE...';
+                    const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
+                    if (driveUrl && driveUrl !== '#') {
+                        setTimeout(() => { window.open(driveUrl, '_blank'); closeViewer(); }, 1500);
+                    } else if (embedId) {
+                        setTimeout(() => { window.open(`https://drive.google.com/file/d/${embedId}/view`, '_blank'); closeViewer(); }, 1500);
                     } else {
                         loaderStatus.textContent = 'PDF NOT AVAILABLE.';
                     }
@@ -903,11 +943,30 @@
                 loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
                 document.getElementById('pdfViewer').innerHTML = '';
                 currentRotation = 0;
-                const loadingTask = pdfjsLib.getDocument(page.localUrl);
-                currentPdf = await loadingTask.promise;
-                await renderAllPages();
-                loader.style.display = 'none';
-                updatePageNav();
+                
+                try {
+                    let pdfData;
+                    if (page.localUrl && page.localUrl !== '#') {
+                        const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                        currentPdf = await loadingTask.promise;
+                    } else {
+                        const embedId = page.driveId;
+                        if (!embedId) {
+                            throw new Error("No Drive ID available for page on-demand fetch.");
+                        }
+                        loaderStatus.textContent = 'FETCHING PAGE FROM DRIVE...';
+                        pdfData = await fetchPdfFromProxy(embedId);
+                        loaderStatus.textContent = 'LOADING PAGE...';
+                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        currentPdf = await loadingTask.promise;
+                    }
+                    await renderAllPages();
+                    loader.style.display = 'none';
+                    updatePageNav();
+                } catch (err) {
+                    console.error('Error loading page:', err);
+                    loaderStatus.textContent = 'ERROR LOADING PAGE.';
+                }
             }
 
             async function checkHash() {
@@ -917,12 +976,10 @@
                         const hashValue = hash.substring(6);
                         let found = null;
                         
-                        // 1. Try to find in local 'files' array (for airport pages)
                         if (typeof files !== 'undefined') {
                             found = files.find(f => f.id === hashValue);
                         }
                         
-                        // 2. Try to find in global 'searchIndex' (for home page)
                         if (!found && typeof searchIndex !== 'undefined') {
                             found = searchIndex.find(item => item.id === hashValue);
                         }
@@ -930,15 +987,12 @@
                         if (found) {
                             await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
-                            // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
                                 const chartData = JSON.parse(decodeURIComponent(atob(hashValue)));
                                 if (chartData && chartData.localUrl) {
                                     await openViewer(chartData.id, chartData.name, chartData.driveUrl, chartData.localUrl, true);
                                 }
-                            } catch (e) {
-                                // Not a legacy hash, just not found
-                            }
+                            } catch(e) {}
                         }
                     } catch (e) {
                         console.error('Hash parse error:', e);
@@ -985,52 +1039,107 @@
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
 
-                // Render text content for Ctrl+F
-                const textContent = await page.getTextContent();
-                await pdfjsLib.renderTextLayer({
-                    textContent: textContent,
-                    container: textLayerDiv,
-                    viewport: viewport,
-                    textDivs: []
-                }).promise;
+                // Render text layer
+                try {
+                    const textContent = await page.getTextContent();
+                    pdfjsLib.renderTextLayer({
+                        textContent: textContent,
+                        container: textLayerDiv,
+                        viewport: viewport,
+                        textDivs: []
+                    });
+                } catch (textErr) {
+                    console.error('Text layer render error:', textErr);
+                }
             }
 
             function applyVisualTransform() {
                 const container = document.getElementById('pdfViewer');
                 container.style.transform = `scale(${visualScale})`;
+                container.style.transformOrigin = 'top center';
+            }
+
+            async function updateZoomQuality() {
+                const container = document.getElementById('pdfViewer');
+                const scrollPos = document.getElementById('pdfViewerContainer').scrollTop;
+                
+                // Re-render all pages at new high-quality zoom
+                for (let i = 1; i <= currentPdf.numPages; i++) {
+                    const pageContainer = document.getElementById(`page-${i}`);
+                    if (pageContainer) {
+                        pageContainer.innerHTML = '';
+                        await renderPage(i, pageContainer);
+                    }
+                }
+                
+                visualScale = 1.0;
+                applyVisualTransform();
+                document.getElementById('pdfViewerContainer').scrollTop = scrollPos;
             }
 
             function closeViewer(skipHash = false) {
                 const modal = document.getElementById('viewerModal');
                 modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-                currentPdf = null;
-                
-                // Restore original title
+                document.body.style.overflow = '';
                 document.title = originalPageTitle;
+                
+                if (currentPdf) {
+                    currentPdf.destroy();
+                    currentPdf = null;
+                }
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentFileId = null;
 
-                if (!skipHash && window.location.hash.startsWith('#view=')) {
-                    history.pushState("", document.title, window.location.pathname + window.location.search);
+                if (!skipHash) {
+                    isOpeningFromHash = true;
+                    window.location.hash = '';
+                    setTimeout(() => isOpeningFromHash = false, 100);
                 }
             }
 
-            async function updateZoomQuality() {
-                await renderAllPages();
-                visualScale = 1.0;
-                applyVisualTransform();
-            }
-
+            document.getElementById('closeViewer').onclick = () => closeViewer();
+            
             document.getElementById('zoomRange').oninput = (e) => {
-                const newZoom = parseFloat(e.target.value);
+                const targetZoom = parseFloat(e.target.value);
+                const delta = targetZoom - (currentZoom * visualScale);
+                adjustZoom(delta);
+            };
+
+            function adjustZoom(delta) {
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
                 visualScale = newZoom / currentZoom;
                 applyVisualTransform();
+
+                document.getElementById('zoomRange').value = newZoom;
                 document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
+
+            document.getElementById('pdfViewerContainer').onwheel = (e) => {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                    adjustZoom(delta);
+                }
             };
 
-            document.getElementById('zoomRange').onchange = async (e) => {
-                currentZoom = parseFloat(e.target.value);
-                await updateZoomQuality();
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeViewer();
+            });
+
+            document.getElementById('sidebarToggle').onclick = () => {
+                sidebarOpen = !sidebarOpen;
+                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
+                applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
 
             document.getElementById('rotateBtn').onclick = async () => {
                 currentRotation = (currentRotation + 90) % 360;
@@ -1056,40 +1165,9 @@
                 await renderAllPages();
             };
 
-            document.getElementById('closeViewer').onclick = closeViewer;
-
-            document.getElementById('pdfViewerContainer').onwheel = (e) => {
-                if (e.ctrlKey) {
-                    e.preventDefault();
-                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                    const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
-
-                    visualScale = newZoom / currentZoom;
-                    applyVisualTransform();
-
-                    document.getElementById('zoomRange').value = newZoom;
-                    document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
-
-                    clearTimeout(window.zoomTimeout);
-                    window.zoomTimeout = setTimeout(async () => {
-                        currentZoom = newZoom;
-                        await updateZoomQuality();
-                    }, 500);
-                }
+            document.getElementById('viewerModal').onclick = (e) => {
+                if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeViewer();
-            });
-
-            document.getElementById('sidebarToggle').onclick = () => {
-                sidebarOpen = !sidebarOpen;
-                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
-                applySidebarState();
-            };
-
-            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
-            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
         
         const airportCtx = {
@@ -1117,484 +1195,484 @@
         {
                 "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "../charts_data/canada/cytz-toronto-island/.DS_Store",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/.DS_Store",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1GC3P8a-NZ6hZbTTPOmGDIC4-e7_CeY_M",
                 "driveUrl": "https://drive.google.com/file/d/1GC3P8a-NZ6hZbTTPOmGDIC4-e7_CeY_M/view?usp=drivesdk",
                 "type": "doc",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/.DS_Store"
+                "rootUrl": "#"
         },
         {
                 "id": "cytz_perlo_4_dep_rnav.pdf",
                 "name": "CYTZ_PERLO_4_DEP_RNAV",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "100UjaAOuecLuwGhXPNUWVzfvcgIZs6A3",
                 "driveUrl": "https://drive.google.com/file/d/100UjaAOuecLuwGhXPNUWVzfvcgIZs6A3/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cytz_perlo_4_dep_rnav.pdf",
                                 "name": "CYTZ_PERLO_4_DEP_RNAV.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "100UjaAOuecLuwGhXPNUWVzfvcgIZs6A3",
                                 "driveUrl": "https://drive.google.com/file/d/100UjaAOuecLuwGhXPNUWVzfvcgIZs6A3/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_perlo_4_dep_rnav_pg_02.pdf",
                                 "name": "CYTZ_PERLO_4_DEP_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1zfOVvu-vYlkKZ9B4ichbFQnXzjkUOeE5",
                                 "driveUrl": "https://drive.google.com/file/d/1zfOVvu-vYlkKZ9B4ichbFQnXzjkUOeE5/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_perlo_4_dep_rnav_pg_03.pdf",
                                 "name": "CYTZ_PERLO_4_DEP_RNAV_PG_03.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav_pg_03.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav_pg_03.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1Urzc-8ZbY6dVA7R41hb-0VB40Ir_uv3i",
                                 "driveUrl": "https://drive.google.com/file/d/1Urzc-8ZbY6dVA7R41hb-0VB40Ir_uv3i/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_perlo_4_dep_rnav_pg_03.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cytz_oakvl_3_dep_rnav.pdf",
                 "name": "CYTZ_OAKVL_3_DEP_RNAV",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1jNT3KUhZcobtBoOvBY2ejLZCiWsF7rOI",
                 "driveUrl": "https://drive.google.com/file/d/1jNT3KUhZcobtBoOvBY2ejLZCiWsF7rOI/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cytz_oakvl_3_dep_rnav.pdf",
                                 "name": "CYTZ_OAKVL_3_DEP_RNAV.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1jNT3KUhZcobtBoOvBY2ejLZCiWsF7rOI",
                                 "driveUrl": "https://drive.google.com/file/d/1jNT3KUhZcobtBoOvBY2ejLZCiWsF7rOI/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_oakvl_3_dep_rnav_pg_02.pdf",
                                 "name": "CYTZ_OAKVL_3_DEP_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1_9NNEXSpg8w3Q86rgFjGebZXtwOtIrQ6",
                                 "driveUrl": "https://drive.google.com/file/d/1_9NNEXSpg8w3Q86rgFjGebZXtwOtIrQ6/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_oakvl_3_dep_rnav_pg_03.pdf",
                                 "name": "CYTZ_OAKVL_3_DEP_RNAV_PG_03.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav_pg_03.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav_pg_03.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1Eth0G_gN-iZVhMiUqlLMBqzgi3uyTnll",
                                 "driveUrl": "https://drive.google.com/file/d/1Eth0G_gN-iZVhMiUqlLMBqzgi3uyTnll/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_oakvl_3_dep_rnav_pg_03.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cytz_tevad_2_dep_rnav.pdf",
                 "name": "CYTZ_TEVAD_2_DEP_RNAV",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_tevad_2_dep_rnav.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_tevad_2_dep_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1tB6bStmiOX5Ut639lylItNmWOFl84WC2",
                 "driveUrl": "https://drive.google.com/file/d/1tB6bStmiOX5Ut639lylItNmWOFl84WC2/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_tevad_2_dep_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cytz_tevad_2_dep_rnav.pdf",
                                 "name": "CYTZ_TEVAD_2_DEP_RNAV.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_tevad_2_dep_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_tevad_2_dep_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1tB6bStmiOX5Ut639lylItNmWOFl84WC2",
                                 "driveUrl": "https://drive.google.com/file/d/1tB6bStmiOX5Ut639lylItNmWOFl84WC2/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_tevad_2_dep_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_tevad_2_dep_rnav_pg_02.pdf",
                                 "name": "CYTZ_TEVAD_2_DEP_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_tevad_2_dep_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_tevad_2_dep_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "18JReNxjeM_eaT_TpodNZ-b4ZPECJZ69c",
                                 "driveUrl": "https://drive.google.com/file/d/18JReNxjeM_eaT_TpodNZ-b4ZPECJZ69c/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_tevad_2_dep_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cytz_aerodrome_chart.pdf",
                 "name": "CYTZ_AERODROME_CHART.pdf",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_aerodrome_chart.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_aerodrome_chart.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1uUMwj3QJYSks-RhClzKoZwUuVz7s6cMq",
                 "driveUrl": "https://drive.google.com/file/d/1uUMwj3QJYSks-RhClzKoZwUuVz7s6cMq/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_aerodrome_chart.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cytz_dusom_2_dep_rnav.pdf",
                 "name": "CYTZ_DUSOM_2_DEP_RNAV",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1FzWeod_-SyB-PhVVS4e_ndFzG-m_Djed",
                 "driveUrl": "https://drive.google.com/file/d/1FzWeod_-SyB-PhVVS4e_ndFzG-m_Djed/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cytz_dusom_2_dep_rnav.pdf",
                                 "name": "CYTZ_DUSOM_2_DEP_RNAV.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1FzWeod_-SyB-PhVVS4e_ndFzG-m_Djed",
                                 "driveUrl": "https://drive.google.com/file/d/1FzWeod_-SyB-PhVVS4e_ndFzG-m_Djed/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_dusom_2_dep_rnav_pg_02.pdf",
                                 "name": "CYTZ_DUSOM_2_DEP_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1uPKRBu6txeJNBvxn1opNpAigPD_WgsX4",
                                 "driveUrl": "https://drive.google.com/file/d/1uPKRBu6txeJNBvxn1opNpAigPD_WgsX4/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_dusom_2_dep_rnav_pg_03.pdf",
                                 "name": "CYTZ_DUSOM_2_DEP_RNAV_PG_03.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav_pg_03.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav_pg_03.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1OevAh8LPr3rXYAengCS1TVyqqbY5I6wb",
                                 "driveUrl": "https://drive.google.com/file/d/1OevAh8LPr3rXYAengCS1TVyqqbY5I6wb/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_dusom_2_dep_rnav_pg_03.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cytz_rnav_gnss_z_rwy_08.pdf",
                 "name": "CYTZ_RNAV_GNSS_Z_RWY_08.pdf",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_rnav_gnss_z_rwy_08.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_rnav_gnss_z_rwy_08.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "10R7ag_pSZ932gdqtust7U1UjzDjt5WKQ",
                 "driveUrl": "https://drive.google.com/file/d/10R7ag_pSZ932gdqtust7U1UjzDjt5WKQ/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_rnav_gnss_z_rwy_08.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cytz_loc_rwy_08.pdf",
                 "name": "CYTZ_LOC_RWY_08.pdf",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_loc_rwy_08.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_loc_rwy_08.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1PPwVm5mzf-JbSsnYm8WNS8_3FHiLndz1",
                 "driveUrl": "https://drive.google.com/file/d/1PPwVm5mzf-JbSsnYm8WNS8_3FHiLndz1/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_loc_rwy_08.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cytz_islnd_1_dep_rnav.pdf",
                 "name": "CYTZ_ISLND_1_DEP_RNAV",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_islnd_1_dep_rnav.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_islnd_1_dep_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1F9i5ztIHdHpKPNFZmbomQJDjjCV6evBK",
                 "driveUrl": "https://drive.google.com/file/d/1F9i5ztIHdHpKPNFZmbomQJDjjCV6evBK/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_islnd_1_dep_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cytz_islnd_1_dep_rnav.pdf",
                                 "name": "CYTZ_ISLND_1_DEP_RNAV.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_islnd_1_dep_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_islnd_1_dep_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1F9i5ztIHdHpKPNFZmbomQJDjjCV6evBK",
                                 "driveUrl": "https://drive.google.com/file/d/1F9i5ztIHdHpKPNFZmbomQJDjjCV6evBK/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_islnd_1_dep_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_islnd_1_dep_rnav_pg_02.pdf",
                                 "name": "CYTZ_ISLND_1_DEP_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_islnd_1_dep_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_islnd_1_dep_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1U9SONGaARPd7HjF8ubpuE7kATA2O46-I",
                                 "driveUrl": "https://drive.google.com/file/d/1U9SONGaARPd7HjF8ubpuE7kATA2O46-I/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_islnd_1_dep_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cytz_restricted_rnav_gnss_x_rwy_26.pdf",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_26",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_26.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_26.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1dCiEgUBvZ8Si2WNC2tTPfSQtNYbwCvJg",
                 "driveUrl": "https://drive.google.com/file/d/1dCiEgUBvZ8Si2WNC2tTPfSQtNYbwCvJg/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_26.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cytz_restricted_rnav_gnss_x_rwy_26.pdf",
                                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_26.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_26.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_26.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1dCiEgUBvZ8Si2WNC2tTPfSQtNYbwCvJg",
                                 "driveUrl": "https://drive.google.com/file/d/1dCiEgUBvZ8Si2WNC2tTPfSQtNYbwCvJg/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_26.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_restricted_rnav_gnss_x_rwy_26_pg_02.pdf",
                                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_26_PG_02.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_26_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_26_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1cCXzTXYDIs1S6AVVDTMleACFOgFjv89_",
                                 "driveUrl": "https://drive.google.com/file/d/1cCXzTXYDIs1S6AVVDTMleACFOgFjv89_/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_26_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cytz_takeoff_minimums.pdf",
                 "name": "CYTZ_TAKEOFF_MINIMUMS.pdf",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_takeoff_minimums.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_takeoff_minimums.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1wZuV0-P-SfdY8nlHHpBS3M_v8a6kVE76",
                 "driveUrl": "https://drive.google.com/file/d/1wZuV0-P-SfdY8nlHHpBS3M_v8a6kVE76/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_takeoff_minimums.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cytz_bomet_7_dep_rnav.pdf",
                 "name": "CYTZ_BOMET_7_DEP_RNAV",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1u0hWcNyf8VLIkQ4q852-KGLEbyQlZAjZ",
                 "driveUrl": "https://drive.google.com/file/d/1u0hWcNyf8VLIkQ4q852-KGLEbyQlZAjZ/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cytz_bomet_7_dep_rnav.pdf",
                                 "name": "CYTZ_BOMET_7_DEP_RNAV.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1u0hWcNyf8VLIkQ4q852-KGLEbyQlZAjZ",
                                 "driveUrl": "https://drive.google.com/file/d/1u0hWcNyf8VLIkQ4q852-KGLEbyQlZAjZ/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_bomet_7_dep_rnav_pg_02.pdf",
                                 "name": "CYTZ_BOMET_7_DEP_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1XklTb7N9gH-69fpdzYAbr_93FRWx-0mo",
                                 "driveUrl": "https://drive.google.com/file/d/1XklTb7N9gH-69fpdzYAbr_93FRWx-0mo/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_bomet_7_dep_rnav_pg_03.pdf",
                                 "name": "CYTZ_BOMET_7_DEP_RNAV_PG_03.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav_pg_03.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav_pg_03.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1jFK5sWe81pU9CnGEwK9VInbOKRB3kNpK",
                                 "driveUrl": "https://drive.google.com/file/d/1jFK5sWe81pU9CnGEwK9VInbOKRB3kNpK/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_bomet_7_dep_rnav_pg_03.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cytz_rnav_rnp_y_rwy_08.pdf",
                 "name": "CYTZ_RNAV_RNP_Y_RWY_08.pdf",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_rnav_rnp_y_rwy_08.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_rnav_rnp_y_rwy_08.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1D5TRbnYEbX1JZ3P7Tletsdl2lLes1xAl",
                 "driveUrl": "https://drive.google.com/file/d/1D5TRbnYEbX1JZ3P7Tletsdl2lLes1xAl/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_rnav_rnp_y_rwy_08.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cytz_mavan_2_dep_rnav.pdf",
                 "name": "CYTZ_MAVAN_2_DEP_RNAV",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_mavan_2_dep_rnav.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_mavan_2_dep_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1HvTocZ8uHG1QMo7W0JCZPLYRtg8uc1ub",
                 "driveUrl": "https://drive.google.com/file/d/1HvTocZ8uHG1QMo7W0JCZPLYRtg8uc1ub/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_mavan_2_dep_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cytz_mavan_2_dep_rnav.pdf",
                                 "name": "CYTZ_MAVAN_2_DEP_RNAV.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_mavan_2_dep_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_mavan_2_dep_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1HvTocZ8uHG1QMo7W0JCZPLYRtg8uc1ub",
                                 "driveUrl": "https://drive.google.com/file/d/1HvTocZ8uHG1QMo7W0JCZPLYRtg8uc1ub/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_mavan_2_dep_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_mavan_2_dep_rnav_pg_02.pdf",
                                 "name": "CYTZ_MAVAN_2_DEP_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_mavan_2_dep_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_mavan_2_dep_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1Ud1-Wys_qf1eU8XZpO95RBcGlGGCm2Gh",
                                 "driveUrl": "https://drive.google.com/file/d/1Ud1-Wys_qf1eU8XZpO95RBcGlGGCm2Gh/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_mavan_2_dep_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cytz_restricted_rnav_gnss_x_rwy_08.pdf",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_08",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_08.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_08.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1CAlvK7cUcmMLw1V7_2GCJJxiUwhOps-I",
                 "driveUrl": "https://drive.google.com/file/d/1CAlvK7cUcmMLw1V7_2GCJJxiUwhOps-I/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_08.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cytz_restricted_rnav_gnss_x_rwy_08.pdf",
                                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_08.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_08.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_08.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1CAlvK7cUcmMLw1V7_2GCJJxiUwhOps-I",
                                 "driveUrl": "https://drive.google.com/file/d/1CAlvK7cUcmMLw1V7_2GCJJxiUwhOps-I/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_08.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_restricted_rnav_gnss_x_rwy_08_pg_02.pdf",
                                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_X_RWY_08_PG_02.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_08_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_08_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1n5jR6MQbAAPqeWd3wuZHbP98hppt4R85",
                                 "driveUrl": "https://drive.google.com/file/d/1n5jR6MQbAAPqeWd3wuZHbP98hppt4R85/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_x_rwy_08_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cytz_loc_rwy_26.pdf",
                 "name": "CYTZ_LOC_RWY_26.pdf",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_loc_rwy_26.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_loc_rwy_26.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1KxaIuGZnH3_CYvRPtF7pt2fo5w0kiK7L",
                 "driveUrl": "https://drive.google.com/file/d/1KxaIuGZnH3_CYvRPtF7pt2fo5w0kiK7L/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_loc_rwy_26.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cytz_restricted_rnav_gnss_w_rwy_08.pdf",
                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_W_RWY_08",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_w_rwy_08.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_w_rwy_08.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1nflzHoVg8tcH6Hg7f0R9c89lozvN7hdq",
                 "driveUrl": "https://drive.google.com/file/d/1nflzHoVg8tcH6Hg7f0R9c89lozvN7hdq/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_w_rwy_08.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cytz_restricted_rnav_gnss_w_rwy_08.pdf",
                                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_W_RWY_08.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_w_rwy_08.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_w_rwy_08.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1nflzHoVg8tcH6Hg7f0R9c89lozvN7hdq",
                                 "driveUrl": "https://drive.google.com/file/d/1nflzHoVg8tcH6Hg7f0R9c89lozvN7hdq/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_w_rwy_08.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_restricted_rnav_gnss_w_rwy_08_pg_02.pdf",
                                 "name": "CYTZ_RESTRICTED_RNAV_GNSS_W_RWY_08_PG_02.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_w_rwy_08_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_w_rwy_08_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1odU69gLG2N-riNGJUT3lPm2X8xsilE-w",
                                 "driveUrl": "https://drive.google.com/file/d/1odU69gLG2N-riNGJUT3lPm2X8xsilE-w/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_restricted_rnav_gnss_w_rwy_08_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cytz_ils_rwy_08.pdf",
                 "name": "CYTZ_ILS_RWY_08.pdf",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_ils_rwy_08.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_ils_rwy_08.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "15BvTRqUpYzuvUc6_BQDm3LTYanK-t1xk",
                 "driveUrl": "https://drive.google.com/file/d/15BvTRqUpYzuvUc6_BQDm3LTYanK-t1xk/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_ils_rwy_08.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cytz_ilixu_1_arr_rnav.pdf",
                 "name": "CYTZ_ILIXU_1_ARR_RNAV",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_ilixu_1_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_ilixu_1_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1jWmefPcayb0lz7XDzVrW6qT-q-j2I5Aa",
                 "driveUrl": "https://drive.google.com/file/d/1jWmefPcayb0lz7XDzVrW6qT-q-j2I5Aa/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_ilixu_1_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cytz_ilixu_1_arr_rnav.pdf",
                                 "name": "CYTZ_ILIXU_1_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_ilixu_1_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_ilixu_1_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1jWmefPcayb0lz7XDzVrW6qT-q-j2I5Aa",
                                 "driveUrl": "https://drive.google.com/file/d/1jWmefPcayb0lz7XDzVrW6qT-q-j2I5Aa/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_ilixu_1_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cytz_ilixu_1_arr_rnav_pg_02.pdf",
                                 "name": "CYTZ_ILIXU_1_ARR_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cytz-toronto-island/cytz_ilixu_1_arr_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_ilixu_1_arr_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1IcAbQyor1AbLhFDpyYtmKcs26UzUP4iP",
                                 "driveUrl": "https://drive.google.com/file/d/1IcAbQyor1AbLhFDpyYtmKcs26UzUP4iP/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_ilixu_1_arr_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cytz_kaxol_2_arr_rnav.pdf",
                 "name": "CYTZ_KAXOL_2_ARR_RNAV.pdf",
-                "url": "../charts_data/canada/cytz-toronto-island/cytz_kaxol_2_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cytz-toronto-island/cytz_kaxol_2_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1-yICL4xT0IKIm_oa41wZ0lI8ILXu2YNa",
                 "driveUrl": "https://drive.google.com/file/d/1-yICL4xT0IKIm_oa41wZ0lI8ILXu2YNa/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cytz-toronto-island/cytz_kaxol_2_arr_rnav.pdf"
+                "rootUrl": "#"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -1670,6 +1748,8 @@
                         name: file.name,
                         url: file.rootUrl,
                         localUrl: file.rootUrl,
+                        driveId: file.driveId || '',
+                        driveUrl: file.driveUrl || '#',
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region,

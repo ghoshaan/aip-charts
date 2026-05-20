@@ -742,6 +742,7 @@
         }
     
         
+            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -809,9 +810,38 @@
                 if (activeItem) activeItem.scrollIntoView({ block: 'nearest' });
             }
 
+            async function fetchPdfFromProxy(driveId) {
+                if (!APPS_SCRIPT_URL) {
+                    throw new Error("Apps Script URL is not configured.");
+                }
+                const response = await fetch(`${APPS_SCRIPT_URL}?id=${driveId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const json = await response.json();
+                if (json.error) {
+                    throw new Error(json.error);
+                }
+                if (!json.data) {
+                    throw new Error("No data returned from proxy.");
+                }
+                const binaryString = atob(json.data);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes;
+            }
+
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
-                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                let fileObj = null;
+                if (typeof files !== 'undefined') {
+                    fileObj = files.find(f => f.id === id);
+                } else if (typeof searchIndex !== 'undefined') {
+                    fileObj = searchIndex.find(f => f.id === id);
+                }
                 currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
                 currentFilePageIndex = 0;
                 if (currentFilePages) localUrl = currentFilePages[0].localUrl;
@@ -829,7 +859,7 @@
                     document.title = name;
                 }
 
-                // Update hash for deep linking - now much shorter!
+                // Update hash for deep linking
                 if (!skipHash) {
                     isOpeningFromHash = true;
                     window.location.hash = `view=${id}`;
@@ -851,26 +881,36 @@
                 populateSidebar(id);
                 applySidebarState();
                 loader.style.display = 'flex';
-                loaderStatus.textContent = 'LOADING LOCAL PDF...';
 
                 try {
-                    const loadingTask = pdfjsLib.getDocument(localUrl);
-                    currentPdf = await loadingTask.promise;
+                    let pdfData;
+                    if (localUrl && localUrl !== '#') {
+                        loaderStatus.textContent = 'LOADING LOCAL PDF...';
+                        const loadingTask = pdfjsLib.getDocument(localUrl);
+                        currentPdf = await loadingTask.promise;
+                    } else {
+                        const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
+                        if (!embedId) {
+                            throw new Error("No Drive ID available for on-demand fetch.");
+                        }
+                        loaderStatus.textContent = 'FETCHING PDF FROM DRIVE...';
+                        pdfData = await fetchPdfFromProxy(embedId);
+                        loaderStatus.textContent = 'LOADING PDF...';
+                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        currentPdf = await loadingTask.promise;
+                    }
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
-                    // Local file unavailable — embed Drive preview iframe
-                    const fileObj2 = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
-                    const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
-                    if (embedId) {
-                        loader.style.display = 'none';
-                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${embedId}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
-                    } else if (driveUrl && driveUrl !== '#') {
-                        loaderStatus.textContent = 'OPENING IN DRIVE...';
-                        setTimeout(() => { window.open(driveUrl, '_blank'); closeViewer(); }, 1000);
+                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING IN DRIVE...';
+                    const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
+                    if (driveUrl && driveUrl !== '#') {
+                        setTimeout(() => { window.open(driveUrl, '_blank'); closeViewer(); }, 1500);
+                    } else if (embedId) {
+                        setTimeout(() => { window.open(`https://drive.google.com/file/d/${embedId}/view`, '_blank'); closeViewer(); }, 1500);
                     } else {
                         loaderStatus.textContent = 'PDF NOT AVAILABLE.';
                     }
@@ -903,11 +943,30 @@
                 loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
                 document.getElementById('pdfViewer').innerHTML = '';
                 currentRotation = 0;
-                const loadingTask = pdfjsLib.getDocument(page.localUrl);
-                currentPdf = await loadingTask.promise;
-                await renderAllPages();
-                loader.style.display = 'none';
-                updatePageNav();
+                
+                try {
+                    let pdfData;
+                    if (page.localUrl && page.localUrl !== '#') {
+                        const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                        currentPdf = await loadingTask.promise;
+                    } else {
+                        const embedId = page.driveId;
+                        if (!embedId) {
+                            throw new Error("No Drive ID available for page on-demand fetch.");
+                        }
+                        loaderStatus.textContent = 'FETCHING PAGE FROM DRIVE...';
+                        pdfData = await fetchPdfFromProxy(embedId);
+                        loaderStatus.textContent = 'LOADING PAGE...';
+                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        currentPdf = await loadingTask.promise;
+                    }
+                    await renderAllPages();
+                    loader.style.display = 'none';
+                    updatePageNav();
+                } catch (err) {
+                    console.error('Error loading page:', err);
+                    loaderStatus.textContent = 'ERROR LOADING PAGE.';
+                }
             }
 
             async function checkHash() {
@@ -917,12 +976,10 @@
                         const hashValue = hash.substring(6);
                         let found = null;
                         
-                        // 1. Try to find in local 'files' array (for airport pages)
                         if (typeof files !== 'undefined') {
                             found = files.find(f => f.id === hashValue);
                         }
                         
-                        // 2. Try to find in global 'searchIndex' (for home page)
                         if (!found && typeof searchIndex !== 'undefined') {
                             found = searchIndex.find(item => item.id === hashValue);
                         }
@@ -930,15 +987,12 @@
                         if (found) {
                             await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
-                            // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
                                 const chartData = JSON.parse(decodeURIComponent(atob(hashValue)));
                                 if (chartData && chartData.localUrl) {
                                     await openViewer(chartData.id, chartData.name, chartData.driveUrl, chartData.localUrl, true);
                                 }
-                            } catch (e) {
-                                // Not a legacy hash, just not found
-                            }
+                            } catch(e) {}
                         }
                     } catch (e) {
                         console.error('Hash parse error:', e);
@@ -985,52 +1039,107 @@
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
 
-                // Render text content for Ctrl+F
-                const textContent = await page.getTextContent();
-                await pdfjsLib.renderTextLayer({
-                    textContent: textContent,
-                    container: textLayerDiv,
-                    viewport: viewport,
-                    textDivs: []
-                }).promise;
+                // Render text layer
+                try {
+                    const textContent = await page.getTextContent();
+                    pdfjsLib.renderTextLayer({
+                        textContent: textContent,
+                        container: textLayerDiv,
+                        viewport: viewport,
+                        textDivs: []
+                    });
+                } catch (textErr) {
+                    console.error('Text layer render error:', textErr);
+                }
             }
 
             function applyVisualTransform() {
                 const container = document.getElementById('pdfViewer');
                 container.style.transform = `scale(${visualScale})`;
+                container.style.transformOrigin = 'top center';
+            }
+
+            async function updateZoomQuality() {
+                const container = document.getElementById('pdfViewer');
+                const scrollPos = document.getElementById('pdfViewerContainer').scrollTop;
+                
+                // Re-render all pages at new high-quality zoom
+                for (let i = 1; i <= currentPdf.numPages; i++) {
+                    const pageContainer = document.getElementById(`page-${i}`);
+                    if (pageContainer) {
+                        pageContainer.innerHTML = '';
+                        await renderPage(i, pageContainer);
+                    }
+                }
+                
+                visualScale = 1.0;
+                applyVisualTransform();
+                document.getElementById('pdfViewerContainer').scrollTop = scrollPos;
             }
 
             function closeViewer(skipHash = false) {
                 const modal = document.getElementById('viewerModal');
                 modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-                currentPdf = null;
-                
-                // Restore original title
+                document.body.style.overflow = '';
                 document.title = originalPageTitle;
+                
+                if (currentPdf) {
+                    currentPdf.destroy();
+                    currentPdf = null;
+                }
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentFileId = null;
 
-                if (!skipHash && window.location.hash.startsWith('#view=')) {
-                    history.pushState("", document.title, window.location.pathname + window.location.search);
+                if (!skipHash) {
+                    isOpeningFromHash = true;
+                    window.location.hash = '';
+                    setTimeout(() => isOpeningFromHash = false, 100);
                 }
             }
 
-            async function updateZoomQuality() {
-                await renderAllPages();
-                visualScale = 1.0;
-                applyVisualTransform();
-            }
-
+            document.getElementById('closeViewer').onclick = () => closeViewer();
+            
             document.getElementById('zoomRange').oninput = (e) => {
-                const newZoom = parseFloat(e.target.value);
+                const targetZoom = parseFloat(e.target.value);
+                const delta = targetZoom - (currentZoom * visualScale);
+                adjustZoom(delta);
+            };
+
+            function adjustZoom(delta) {
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
                 visualScale = newZoom / currentZoom;
                 applyVisualTransform();
+
+                document.getElementById('zoomRange').value = newZoom;
                 document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
+
+            document.getElementById('pdfViewerContainer').onwheel = (e) => {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                    adjustZoom(delta);
+                }
             };
 
-            document.getElementById('zoomRange').onchange = async (e) => {
-                currentZoom = parseFloat(e.target.value);
-                await updateZoomQuality();
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeViewer();
+            });
+
+            document.getElementById('sidebarToggle').onclick = () => {
+                sidebarOpen = !sidebarOpen;
+                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
+                applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
 
             document.getElementById('rotateBtn').onclick = async () => {
                 currentRotation = (currentRotation + 90) % 360;
@@ -1056,40 +1165,9 @@
                 await renderAllPages();
             };
 
-            document.getElementById('closeViewer').onclick = closeViewer;
-
-            document.getElementById('pdfViewerContainer').onwheel = (e) => {
-                if (e.ctrlKey) {
-                    e.preventDefault();
-                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                    const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
-
-                    visualScale = newZoom / currentZoom;
-                    applyVisualTransform();
-
-                    document.getElementById('zoomRange').value = newZoom;
-                    document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
-
-                    clearTimeout(window.zoomTimeout);
-                    window.zoomTimeout = setTimeout(async () => {
-                        currentZoom = newZoom;
-                        await updateZoomQuality();
-                    }, 500);
-                }
+            document.getElementById('viewerModal').onclick = (e) => {
+                if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeViewer();
-            });
-
-            document.getElementById('sidebarToggle').onclick = () => {
-                sidebarOpen = !sidebarOpen;
-                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
-                applySidebarState();
-            };
-
-            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
-            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
         
         const airportCtx = {
@@ -1117,460 +1195,460 @@
         {
                 "id": "cyeg_mipot_1_dep_rnav.pdf",
                 "name": "CYEG_MIPOT_1_DEP_RNAV",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_mipot_1_dep_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_mipot_1_dep_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "16VoFjh_ck6c6I3K0kGGOTuf7uaYZ0gHr",
                 "driveUrl": "https://drive.google.com/file/d/16VoFjh_ck6c6I3K0kGGOTuf7uaYZ0gHr/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_mipot_1_dep_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyeg_mipot_1_dep_rnav.pdf",
                                 "name": "CYEG_MIPOT_1_DEP_RNAV.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_mipot_1_dep_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_mipot_1_dep_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "16VoFjh_ck6c6I3K0kGGOTuf7uaYZ0gHr",
                                 "driveUrl": "https://drive.google.com/file/d/16VoFjh_ck6c6I3K0kGGOTuf7uaYZ0gHr/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_mipot_1_dep_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyeg_mipot_1_dep_rnav_pg_02.pdf",
                                 "name": "CYEG_MIPOT_1_DEP_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_mipot_1_dep_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_mipot_1_dep_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1o9WDaTTZERL15yT3R0AahiY6sXE8eiEt",
                                 "driveUrl": "https://drive.google.com/file/d/1o9WDaTTZERL15yT3R0AahiY6sXE8eiEt/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_mipot_1_dep_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyeg_gabet_1_dep_rnav.pdf",
                 "name": "CYEG_GABET_1_DEP_RNAV",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_gabet_1_dep_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_gabet_1_dep_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "19uUpXHD-ckVVX6vbnhRk7N9UjXZ4Qx5q",
                 "driveUrl": "https://drive.google.com/file/d/19uUpXHD-ckVVX6vbnhRk7N9UjXZ4Qx5q/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_gabet_1_dep_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyeg_gabet_1_dep_rnav.pdf",
                                 "name": "CYEG_GABET_1_DEP_RNAV.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_gabet_1_dep_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_gabet_1_dep_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "19uUpXHD-ckVVX6vbnhRk7N9UjXZ4Qx5q",
                                 "driveUrl": "https://drive.google.com/file/d/19uUpXHD-ckVVX6vbnhRk7N9UjXZ4Qx5q/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_gabet_1_dep_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyeg_gabet_1_dep_rnav_pg_02.pdf",
                                 "name": "CYEG_GABET_1_DEP_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_gabet_1_dep_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_gabet_1_dep_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1coimsQkqz8cI3STmH1aForVv2-qdgztk",
                                 "driveUrl": "https://drive.google.com/file/d/1coimsQkqz8cI3STmH1aForVv2-qdgztk/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_gabet_1_dep_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyeg_hampo_2_dep_rnav.pdf",
                 "name": "CYEG_HAMPO_2_DEP_RNAV",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_hampo_2_dep_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_hampo_2_dep_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1jbNReK3WqKuYdyPeJwDOWSR5wypBgnzC",
                 "driveUrl": "https://drive.google.com/file/d/1jbNReK3WqKuYdyPeJwDOWSR5wypBgnzC/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_hampo_2_dep_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyeg_hampo_2_dep_rnav.pdf",
                                 "name": "CYEG_HAMPO_2_DEP_RNAV.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_hampo_2_dep_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_hampo_2_dep_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1jbNReK3WqKuYdyPeJwDOWSR5wypBgnzC",
                                 "driveUrl": "https://drive.google.com/file/d/1jbNReK3WqKuYdyPeJwDOWSR5wypBgnzC/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_hampo_2_dep_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyeg_hampo_2_dep_rnav_pg_02.pdf",
                                 "name": "CYEG_HAMPO_2_DEP_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_hampo_2_dep_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_hampo_2_dep_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1W2O51WWhtHbSt1MiiEfJnA4FnJkotHi-",
                                 "driveUrl": "https://drive.google.com/file/d/1W2O51WWhtHbSt1MiiEfJnA4FnJkotHi-/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_hampo_2_dep_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyeg_jevon_1_dep_rnav.pdf",
                 "name": "CYEG_JEVON_1_DEP_RNAV",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_jevon_1_dep_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_jevon_1_dep_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "18Q4xPhSoN4LKnVxIV9-lRBRkN7Gp5x6X",
                 "driveUrl": "https://drive.google.com/file/d/18Q4xPhSoN4LKnVxIV9-lRBRkN7Gp5x6X/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_jevon_1_dep_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyeg_jevon_1_dep_rnav.pdf",
                                 "name": "CYEG_JEVON_1_DEP_RNAV.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_jevon_1_dep_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_jevon_1_dep_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "18Q4xPhSoN4LKnVxIV9-lRBRkN7Gp5x6X",
                                 "driveUrl": "https://drive.google.com/file/d/18Q4xPhSoN4LKnVxIV9-lRBRkN7Gp5x6X/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_jevon_1_dep_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyeg_jevon_1_dep_rnav_pg_02.pdf",
                                 "name": "CYEG_JEVON_1_DEP_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_jevon_1_dep_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_jevon_1_dep_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1UWFQnJB9F2nWqyqgDd4IpRJLHZTZGeRp",
                                 "driveUrl": "https://drive.google.com/file/d/1UWFQnJB9F2nWqyqgDd4IpRJLHZTZGeRp/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_jevon_1_dep_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyeg_de-icing_operations.pdf",
                 "name": "CYEG_DE-ICING_OPERATIONS.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_de-icing_operations.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_de-icing_operations.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1-eyQw3hA7xNWfbRHUq06E3vDHX6OCm7N",
                 "driveUrl": "https://drive.google.com/file/d/1-eyQw3hA7xNWfbRHUq06E3vDHX6OCm7N/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_de-icing_operations.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_rnav_rnp_y_rwy_20.pdf",
                 "name": "CYEG_RNAV_RNP_Y_RWY_20.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_20.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_20.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1v_4ALxw3E6mBOh4TDLBbhVMHFExoU8Fu",
                 "driveUrl": "https://drive.google.com/file/d/1v_4ALxw3E6mBOh4TDLBbhVMHFExoU8Fu/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_20.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_rnav_rnp_y_rwy_30.pdf",
                 "name": "CYEG_RNAV_RNP_Y_RWY_30.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_30.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_30.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "16zqyVZlhE5ekBTE13YZDkwryyiYmTfyt",
                 "driveUrl": "https://drive.google.com/file/d/16zqyVZlhE5ekBTE13YZDkwryyiYmTfyt/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_30.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_rnav_gnss_z_rwy_12.pdf",
                 "name": "CYEG_RNAV_GNSS_Z_RWY_12.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_12.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_12.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1oJCk94nyx6WWNGv_Qjt21V00FROzUZwR",
                 "driveUrl": "https://drive.google.com/file/d/1oJCk94nyx6WWNGv_Qjt21V00FROzUZwR/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_12.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_rnav_gnss_z_rwy_30.pdf",
                 "name": "CYEG_RNAV_GNSS_Z_RWY_30.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_30.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_30.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1CtpOUfxA74IjOG00h5jbZO0cybHTVUwQ",
                 "driveUrl": "https://drive.google.com/file/d/1CtpOUfxA74IjOG00h5jbZO0cybHTVUwQ/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_30.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_ils_rwy_30.pdf",
                 "name": "CYEG_ILS_RWY_30.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_ils_rwy_30.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_ils_rwy_30.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1vv-jrkO7eAXeCcWGL_cIRFQR8AQzIGEe",
                 "driveUrl": "https://drive.google.com/file/d/1vv-jrkO7eAXeCcWGL_cIRFQR8AQzIGEe/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_ils_rwy_30.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_ils_rwy_02.pdf",
                 "name": "CYEG_ILS_RWY_02.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_ils_rwy_02.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_ils_rwy_02.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1shHVOPeq5uDY_sKG2W69hbA8_JmdLqeG",
                 "driveUrl": "https://drive.google.com/file/d/1shHVOPeq5uDY_sKG2W69hbA8_JmdLqeG/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_ils_rwy_02.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_rnav_rnp_y_rwy_02.pdf",
                 "name": "CYEG_RNAV_RNP_Y_RWY_02.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_02.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_02.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1PSSgGgv9vPd69HyGWXVuqUMqhnw8MI9V",
                 "driveUrl": "https://drive.google.com/file/d/1PSSgGgv9vPd69HyGWXVuqUMqhnw8MI9V/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_02.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_aerodrome_chart.pdf",
                 "name": "CYEG_AERODROME_CHART.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_aerodrome_chart.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_aerodrome_chart.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1ys5gZ2uC3PuZVQhAQNFB0pJj86S39-qG",
                 "driveUrl": "https://drive.google.com/file/d/1ys5gZ2uC3PuZVQhAQNFB0pJj86S39-qG/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_aerodrome_chart.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_ils_rwy_12.pdf",
                 "name": "CYEG_ILS_RWY_12.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_ils_rwy_12.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_ils_rwy_12.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "16DhfKuuIzzAbgYay8Qc2e6ah6Lj9RsuP",
                 "driveUrl": "https://drive.google.com/file/d/16DhfKuuIzzAbgYay8Qc2e6ah6Lj9RsuP/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_ils_rwy_12.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_rnav_rnp_y_rwy_12.pdf",
                 "name": "CYEG_RNAV_RNP_Y_RWY_12.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_12.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_12.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1SrdKn7PR6w_NfMJRyLvQ5AlzF6DHAhl-",
                 "driveUrl": "https://drive.google.com/file/d/1SrdKn7PR6w_NfMJRyLvQ5AlzF6DHAhl-/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_rnav_rnp_y_rwy_12.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_rnav_gnss_z_rwy_20.pdf",
                 "name": "CYEG_RNAV_GNSS_Z_RWY_20.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_20.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_20.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1WPQFCdUaKv-bV76jmMLQAgRQXQi78hYE",
                 "driveUrl": "https://drive.google.com/file/d/1WPQFCdUaKv-bV76jmMLQAgRQXQi78hYE/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_20.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_rnav_gnss_z_rwy_02.pdf",
                 "name": "CYEG_RNAV_GNSS_Z_RWY_02.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_02.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_02.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1VFsvbPsH5IUQebCJF3EkkNp3zb6lN4QE",
                 "driveUrl": "https://drive.google.com/file/d/1VFsvbPsH5IUQebCJF3EkkNp3zb6lN4QE/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_rnav_gnss_z_rwy_02.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_reduced_visibility_procedures.pdf",
                 "name": "CYEG_REDUCED_VISIBILITY_PROCEDURES.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_reduced_visibility_procedures.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_reduced_visibility_procedures.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1L-boXbJTYjuy15mnacqbxkvFF9uc6tzA",
                 "driveUrl": "https://drive.google.com/file/d/1L-boXbJTYjuy15mnacqbxkvFF9uc6tzA/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_reduced_visibility_procedures.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_tetag_2_arr_rnav.pdf",
                 "name": "CYEG_TETAG_2_ARR_RNAV",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_tetag_2_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_tetag_2_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1FQdSL512HVJWG-TVHuL4RLaFNAKbmq1Y",
                 "driveUrl": "https://drive.google.com/file/d/1FQdSL512HVJWG-TVHuL4RLaFNAKbmq1Y/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_tetag_2_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyeg_tetag_2_arr_rnav.pdf",
                                 "name": "CYEG_TETAG_2_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_tetag_2_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_tetag_2_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1FQdSL512HVJWG-TVHuL4RLaFNAKbmq1Y",
                                 "driveUrl": "https://drive.google.com/file/d/1FQdSL512HVJWG-TVHuL4RLaFNAKbmq1Y/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_tetag_2_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyeg_tetag_2_arr_rnav_pg_02.pdf",
                                 "name": "CYEG_TETAG_2_ARR_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_tetag_2_arr_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_tetag_2_arr_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1nZeNeaCi-gUDvpFTGT6VQZRj3dwKxOf-",
                                 "driveUrl": "https://drive.google.com/file/d/1nZeNeaCi-gUDvpFTGT6VQZRj3dwKxOf-/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_tetag_2_arr_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyeg_noise_abatement_procedures.pdf",
                 "name": "CYEG_NOISE_ABATEMENT_PROCEDURES.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_noise_abatement_procedures.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_noise_abatement_procedures.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1I-mT-9xTf8i-76QBCH7-4NrlRQhAYWi5",
                 "driveUrl": "https://drive.google.com/file/d/1I-mT-9xTf8i-76QBCH7-4NrlRQhAYWi5/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_noise_abatement_procedures.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_parking_areas_apron_1.pdf",
                 "name": "CYEG_PARKING_AREAS_APRON_1.pdf",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_parking_areas_apron_1.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_parking_areas_apron_1.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1jLB9N5SJVkqb2Dmm6-9oyTgYZ9P3LweY",
                 "driveUrl": "https://drive.google.com/file/d/1jLB9N5SJVkqb2Dmm6-9oyTgYZ9P3LweY/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_parking_areas_apron_1.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyeg_ellks_3_arr_rnav.pdf",
                 "name": "CYEG_ELLKS_3_ARR_RNAV",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_ellks_3_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_ellks_3_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1ZZElHJ-C90e7ZVWom5osfGlnSR_v3huV",
                 "driveUrl": "https://drive.google.com/file/d/1ZZElHJ-C90e7ZVWom5osfGlnSR_v3huV/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_ellks_3_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyeg_ellks_3_arr_rnav.pdf",
                                 "name": "CYEG_ELLKS_3_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_ellks_3_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_ellks_3_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1ZZElHJ-C90e7ZVWom5osfGlnSR_v3huV",
                                 "driveUrl": "https://drive.google.com/file/d/1ZZElHJ-C90e7ZVWom5osfGlnSR_v3huV/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_ellks_3_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyeg_ellks_3_arr_rnav_pg_02.pdf",
                                 "name": "CYEG_ELLKS_3_ARR_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_ellks_3_arr_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_ellks_3_arr_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1cUCt9nzZ1v7vtu3GTsjXEGXQ2_8V1fTy",
                                 "driveUrl": "https://drive.google.com/file/d/1cUCt9nzZ1v7vtu3GTsjXEGXQ2_8V1fTy/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_ellks_3_arr_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyeg_resax_1_arr_rnav.pdf",
                 "name": "CYEG_RESAX_1_ARR_RNAV",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_resax_1_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_resax_1_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1pWKOnAhuaG_HCEVSWws-BGWzFqoQBfDG",
                 "driveUrl": "https://drive.google.com/file/d/1pWKOnAhuaG_HCEVSWws-BGWzFqoQBfDG/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_resax_1_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyeg_resax_1_arr_rnav.pdf",
                                 "name": "CYEG_RESAX_1_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_resax_1_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_resax_1_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1pWKOnAhuaG_HCEVSWws-BGWzFqoQBfDG",
                                 "driveUrl": "https://drive.google.com/file/d/1pWKOnAhuaG_HCEVSWws-BGWzFqoQBfDG/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_resax_1_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyeg_resax_1_arr_rnav_pg_02.pdf",
                                 "name": "CYEG_RESAX_1_ARR_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_resax_1_arr_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_resax_1_arr_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1OgfpwVl-PHQ7jPcSEp-XuRV4cZrvXvZE",
                                 "driveUrl": "https://drive.google.com/file/d/1OgfpwVl-PHQ7jPcSEp-XuRV4cZrvXvZE/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_resax_1_arr_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyeg_igsox_3_arr_rnav.pdf",
                 "name": "CYEG_IGSOX_3_ARR_RNAV",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_igsox_3_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_igsox_3_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1l0lKdNPXo8NAKc4RS-FJv9bZnVp0x61z",
                 "driveUrl": "https://drive.google.com/file/d/1l0lKdNPXo8NAKc4RS-FJv9bZnVp0x61z/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_igsox_3_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyeg_igsox_3_arr_rnav.pdf",
                                 "name": "CYEG_IGSOX_3_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_igsox_3_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_igsox_3_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1l0lKdNPXo8NAKc4RS-FJv9bZnVp0x61z",
                                 "driveUrl": "https://drive.google.com/file/d/1l0lKdNPXo8NAKc4RS-FJv9bZnVp0x61z/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_igsox_3_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyeg_igsox_3_arr_rnav_pg_02.pdf",
                                 "name": "CYEG_IGSOX_3_ARR_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_igsox_3_arr_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_igsox_3_arr_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1JqWIHiBhug-ggfHYlodARjAnaXGd3Il-",
                                 "driveUrl": "https://drive.google.com/file/d/1JqWIHiBhug-ggfHYlodARjAnaXGd3Il-/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_igsox_3_arr_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyeg_oilrs_2_arr_rnav.pdf",
                 "name": "CYEG_OILRS_2_ARR_RNAV",
-                "url": "../charts_data/canada/cyeg-edmonton/cyeg_oilrs_2_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_oilrs_2_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1xz8f-hP44VobMQ3hbh0WWrG_GYGfLP6y",
                 "driveUrl": "https://drive.google.com/file/d/1xz8f-hP44VobMQ3hbh0WWrG_GYGfLP6y/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_oilrs_2_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyeg_oilrs_2_arr_rnav.pdf",
                                 "name": "CYEG_OILRS_2_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_oilrs_2_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_oilrs_2_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1xz8f-hP44VobMQ3hbh0WWrG_GYGfLP6y",
                                 "driveUrl": "https://drive.google.com/file/d/1xz8f-hP44VobMQ3hbh0WWrG_GYGfLP6y/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_oilrs_2_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyeg_oilrs_2_arr_rnav_pg_02.pdf",
                                 "name": "CYEG_OILRS_2_ARR_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyeg-edmonton/cyeg_oilrs_2_arr_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyeg-edmonton/cyeg_oilrs_2_arr_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1gC2ZYipr7Dn65D3pNbJyHnMpp3YHdAG_",
                                 "driveUrl": "https://drive.google.com/file/d/1gC2ZYipr7Dn65D3pNbJyHnMpp3YHdAG_/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyeg-edmonton/cyeg_oilrs_2_arr_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "../charts_data/canada/cyeg-edmonton/.DS_Store",
-                "localUrl": "../charts_data/canada/cyeg-edmonton/.DS_Store",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1odfxIYlFpPc7Lgr1xUagR4GCgCO6JjDT",
                 "driveUrl": "https://drive.google.com/file/d/1odfxIYlFpPc7Lgr1xUagR4GCgCO6JjDT/view?usp=drivesdk",
                 "type": "doc",
-                "rootUrl": "charts_data/canada/cyeg-edmonton/.DS_Store"
+                "rootUrl": "#"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -1646,6 +1724,8 @@
                         name: file.name,
                         url: file.rootUrl,
                         localUrl: file.rootUrl,
+                        driveId: file.driveId || '',
+                        driveUrl: file.driveUrl || '#',
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region,

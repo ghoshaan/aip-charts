@@ -742,6 +742,7 @@
         }
     
         
+            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -809,9 +810,38 @@
                 if (activeItem) activeItem.scrollIntoView({ block: 'nearest' });
             }
 
+            async function fetchPdfFromProxy(driveId) {
+                if (!APPS_SCRIPT_URL) {
+                    throw new Error("Apps Script URL is not configured.");
+                }
+                const response = await fetch(`${APPS_SCRIPT_URL}?id=${driveId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const json = await response.json();
+                if (json.error) {
+                    throw new Error(json.error);
+                }
+                if (!json.data) {
+                    throw new Error("No data returned from proxy.");
+                }
+                const binaryString = atob(json.data);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes;
+            }
+
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
-                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                let fileObj = null;
+                if (typeof files !== 'undefined') {
+                    fileObj = files.find(f => f.id === id);
+                } else if (typeof searchIndex !== 'undefined') {
+                    fileObj = searchIndex.find(f => f.id === id);
+                }
                 currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
                 currentFilePageIndex = 0;
                 if (currentFilePages) localUrl = currentFilePages[0].localUrl;
@@ -829,7 +859,7 @@
                     document.title = name;
                 }
 
-                // Update hash for deep linking - now much shorter!
+                // Update hash for deep linking
                 if (!skipHash) {
                     isOpeningFromHash = true;
                     window.location.hash = `view=${id}`;
@@ -851,26 +881,36 @@
                 populateSidebar(id);
                 applySidebarState();
                 loader.style.display = 'flex';
-                loaderStatus.textContent = 'LOADING LOCAL PDF...';
 
                 try {
-                    const loadingTask = pdfjsLib.getDocument(localUrl);
-                    currentPdf = await loadingTask.promise;
+                    let pdfData;
+                    if (localUrl && localUrl !== '#') {
+                        loaderStatus.textContent = 'LOADING LOCAL PDF...';
+                        const loadingTask = pdfjsLib.getDocument(localUrl);
+                        currentPdf = await loadingTask.promise;
+                    } else {
+                        const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
+                        if (!embedId) {
+                            throw new Error("No Drive ID available for on-demand fetch.");
+                        }
+                        loaderStatus.textContent = 'FETCHING PDF FROM DRIVE...';
+                        pdfData = await fetchPdfFromProxy(embedId);
+                        loaderStatus.textContent = 'LOADING PDF...';
+                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        currentPdf = await loadingTask.promise;
+                    }
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
-                    // Local file unavailable — embed Drive preview iframe
-                    const fileObj2 = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
-                    const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
-                    if (embedId) {
-                        loader.style.display = 'none';
-                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${embedId}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
-                    } else if (driveUrl && driveUrl !== '#') {
-                        loaderStatus.textContent = 'OPENING IN DRIVE...';
-                        setTimeout(() => { window.open(driveUrl, '_blank'); closeViewer(); }, 1000);
+                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING IN DRIVE...';
+                    const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
+                    if (driveUrl && driveUrl !== '#') {
+                        setTimeout(() => { window.open(driveUrl, '_blank'); closeViewer(); }, 1500);
+                    } else if (embedId) {
+                        setTimeout(() => { window.open(`https://drive.google.com/file/d/${embedId}/view`, '_blank'); closeViewer(); }, 1500);
                     } else {
                         loaderStatus.textContent = 'PDF NOT AVAILABLE.';
                     }
@@ -903,11 +943,30 @@
                 loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
                 document.getElementById('pdfViewer').innerHTML = '';
                 currentRotation = 0;
-                const loadingTask = pdfjsLib.getDocument(page.localUrl);
-                currentPdf = await loadingTask.promise;
-                await renderAllPages();
-                loader.style.display = 'none';
-                updatePageNav();
+                
+                try {
+                    let pdfData;
+                    if (page.localUrl && page.localUrl !== '#') {
+                        const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                        currentPdf = await loadingTask.promise;
+                    } else {
+                        const embedId = page.driveId;
+                        if (!embedId) {
+                            throw new Error("No Drive ID available for page on-demand fetch.");
+                        }
+                        loaderStatus.textContent = 'FETCHING PAGE FROM DRIVE...';
+                        pdfData = await fetchPdfFromProxy(embedId);
+                        loaderStatus.textContent = 'LOADING PAGE...';
+                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        currentPdf = await loadingTask.promise;
+                    }
+                    await renderAllPages();
+                    loader.style.display = 'none';
+                    updatePageNav();
+                } catch (err) {
+                    console.error('Error loading page:', err);
+                    loaderStatus.textContent = 'ERROR LOADING PAGE.';
+                }
             }
 
             async function checkHash() {
@@ -917,12 +976,10 @@
                         const hashValue = hash.substring(6);
                         let found = null;
                         
-                        // 1. Try to find in local 'files' array (for airport pages)
                         if (typeof files !== 'undefined') {
                             found = files.find(f => f.id === hashValue);
                         }
                         
-                        // 2. Try to find in global 'searchIndex' (for home page)
                         if (!found && typeof searchIndex !== 'undefined') {
                             found = searchIndex.find(item => item.id === hashValue);
                         }
@@ -930,15 +987,12 @@
                         if (found) {
                             await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
-                            // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
                                 const chartData = JSON.parse(decodeURIComponent(atob(hashValue)));
                                 if (chartData && chartData.localUrl) {
                                     await openViewer(chartData.id, chartData.name, chartData.driveUrl, chartData.localUrl, true);
                                 }
-                            } catch (e) {
-                                // Not a legacy hash, just not found
-                            }
+                            } catch(e) {}
                         }
                     } catch (e) {
                         console.error('Hash parse error:', e);
@@ -985,52 +1039,107 @@
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
 
-                // Render text content for Ctrl+F
-                const textContent = await page.getTextContent();
-                await pdfjsLib.renderTextLayer({
-                    textContent: textContent,
-                    container: textLayerDiv,
-                    viewport: viewport,
-                    textDivs: []
-                }).promise;
+                // Render text layer
+                try {
+                    const textContent = await page.getTextContent();
+                    pdfjsLib.renderTextLayer({
+                        textContent: textContent,
+                        container: textLayerDiv,
+                        viewport: viewport,
+                        textDivs: []
+                    });
+                } catch (textErr) {
+                    console.error('Text layer render error:', textErr);
+                }
             }
 
             function applyVisualTransform() {
                 const container = document.getElementById('pdfViewer');
                 container.style.transform = `scale(${visualScale})`;
+                container.style.transformOrigin = 'top center';
+            }
+
+            async function updateZoomQuality() {
+                const container = document.getElementById('pdfViewer');
+                const scrollPos = document.getElementById('pdfViewerContainer').scrollTop;
+                
+                // Re-render all pages at new high-quality zoom
+                for (let i = 1; i <= currentPdf.numPages; i++) {
+                    const pageContainer = document.getElementById(`page-${i}`);
+                    if (pageContainer) {
+                        pageContainer.innerHTML = '';
+                        await renderPage(i, pageContainer);
+                    }
+                }
+                
+                visualScale = 1.0;
+                applyVisualTransform();
+                document.getElementById('pdfViewerContainer').scrollTop = scrollPos;
             }
 
             function closeViewer(skipHash = false) {
                 const modal = document.getElementById('viewerModal');
                 modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-                currentPdf = null;
-                
-                // Restore original title
+                document.body.style.overflow = '';
                 document.title = originalPageTitle;
+                
+                if (currentPdf) {
+                    currentPdf.destroy();
+                    currentPdf = null;
+                }
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentFileId = null;
 
-                if (!skipHash && window.location.hash.startsWith('#view=')) {
-                    history.pushState("", document.title, window.location.pathname + window.location.search);
+                if (!skipHash) {
+                    isOpeningFromHash = true;
+                    window.location.hash = '';
+                    setTimeout(() => isOpeningFromHash = false, 100);
                 }
             }
 
-            async function updateZoomQuality() {
-                await renderAllPages();
-                visualScale = 1.0;
-                applyVisualTransform();
-            }
-
+            document.getElementById('closeViewer').onclick = () => closeViewer();
+            
             document.getElementById('zoomRange').oninput = (e) => {
-                const newZoom = parseFloat(e.target.value);
+                const targetZoom = parseFloat(e.target.value);
+                const delta = targetZoom - (currentZoom * visualScale);
+                adjustZoom(delta);
+            };
+
+            function adjustZoom(delta) {
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
                 visualScale = newZoom / currentZoom;
                 applyVisualTransform();
+
+                document.getElementById('zoomRange').value = newZoom;
                 document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
+
+            document.getElementById('pdfViewerContainer').onwheel = (e) => {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                    adjustZoom(delta);
+                }
             };
 
-            document.getElementById('zoomRange').onchange = async (e) => {
-                currentZoom = parseFloat(e.target.value);
-                await updateZoomQuality();
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeViewer();
+            });
+
+            document.getElementById('sidebarToggle').onclick = () => {
+                sidebarOpen = !sidebarOpen;
+                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
+                applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
 
             document.getElementById('rotateBtn').onclick = async () => {
                 currentRotation = (currentRotation + 90) % 360;
@@ -1056,40 +1165,9 @@
                 await renderAllPages();
             };
 
-            document.getElementById('closeViewer').onclick = closeViewer;
-
-            document.getElementById('pdfViewerContainer').onwheel = (e) => {
-                if (e.ctrlKey) {
-                    e.preventDefault();
-                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                    const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
-
-                    visualScale = newZoom / currentZoom;
-                    applyVisualTransform();
-
-                    document.getElementById('zoomRange').value = newZoom;
-                    document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
-
-                    clearTimeout(window.zoomTimeout);
-                    window.zoomTimeout = setTimeout(async () => {
-                        currentZoom = newZoom;
-                        await updateZoomQuality();
-                    }, 500);
-                }
+            document.getElementById('viewerModal').onclick = (e) => {
+                if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeViewer();
-            });
-
-            document.getElementById('sidebarToggle').onclick = () => {
-                sidebarOpen = !sidebarOpen;
-                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
-                applySidebarState();
-            };
-
-            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
-            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
         
         const airportCtx = {
@@ -1117,622 +1195,622 @@
         {
                 "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "../charts_data/canada/cyul-montreal/.DS_Store",
-                "localUrl": "../charts_data/canada/cyul-montreal/.DS_Store",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1A9NNfaFULNz7D9CJrOd5Qel8vzxDVZFI",
                 "driveUrl": "https://drive.google.com/file/d/1A9NNfaFULNz7D9CJrOd5Qel8vzxDVZFI/view?usp=drivesdk",
                 "type": "doc",
-                "rootUrl": "charts_data/canada/cyul-montreal/.DS_Store"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_takeoff_minimums.pdf",
                 "name": "CYUL_TAKEOFF_MINIMUMS.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_takeoff_minimums.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_takeoff_minimums.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1rNfAt03t0ooIm7PR9l74tn17mpku_FWA",
                 "driveUrl": "https://drive.google.com/file/d/1rNfAt03t0ooIm7PR9l74tn17mpku_FWA/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_takeoff_minimums.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_montreal_5_dep_vector.pdf",
                 "name": "CYUL_MONTREAL_5_DEP_VECTOR",
-                "url": "../charts_data/canada/cyul-montreal/cyul_montreal_5_dep_vector.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_montreal_5_dep_vector.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "17O4ORO5TjNZVE4v2aGeH35CFHOsWwhSF",
                 "driveUrl": "https://drive.google.com/file/d/17O4ORO5TjNZVE4v2aGeH35CFHOsWwhSF/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_montreal_5_dep_vector.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyul_montreal_5_dep_vector.pdf",
                                 "name": "CYUL_MONTREAL_5_DEP_VECTOR.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_montreal_5_dep_vector.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_montreal_5_dep_vector.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "17O4ORO5TjNZVE4v2aGeH35CFHOsWwhSF",
                                 "driveUrl": "https://drive.google.com/file/d/17O4ORO5TjNZVE4v2aGeH35CFHOsWwhSF/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_montreal_5_dep_vector.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_montreal_5_dep_vector_pg_02.pdf",
                                 "name": "CYUL_MONTREAL_5_DEP_VECTOR_PG_02.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_montreal_5_dep_vector_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_montreal_5_dep_vector_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1jzEyvOVyShFLcRIgnmafX-lDBwQRMRh4",
                                 "driveUrl": "https://drive.google.com/file/d/1jzEyvOVyShFLcRIgnmafX-lDBwQRMRh4/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_montreal_5_dep_vector_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyul_plan_of_operations_in_the_absence_of_apron_control.pdf",
                 "name": "CYUL_PLAN_OF_OPERATIONS_IN_THE_ABSENCE_OF_APRON_CONTROL.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_plan_of_operations_in_the_absence_of_apron_control.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_plan_of_operations_in_the_absence_of_apron_control.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1xLmoJh-MUyqXKW1MY5WN1qVTAtdsPTSO",
                 "driveUrl": "https://drive.google.com/file/d/1xLmoJh-MUyqXKW1MY5WN1qVTAtdsPTSO/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_plan_of_operations_in_the_absence_of_apron_control.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_start_boxes.pdf",
                 "name": "CYUL_START_BOXES.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_start_boxes.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_start_boxes.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1HKY6b3noSuAo0SN3BZYHoEpSfYrY1R4Q",
                 "driveUrl": "https://drive.google.com/file/d/1HKY6b3noSuAo0SN3BZYHoEpSfYrY1R4Q/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_start_boxes.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_taxi_chart.pdf",
                 "name": "CYUL_TAXI_CHART",
-                "url": "../charts_data/canada/cyul-montreal/cyul_taxi_chart.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_taxi_chart.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1QUOcGXjjnpQNw2lGIQYNM_rskuT0rvQV",
                 "driveUrl": "https://drive.google.com/file/d/1QUOcGXjjnpQNw2lGIQYNM_rskuT0rvQV/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_taxi_chart.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyul_taxi_chart.pdf",
                                 "name": "CYUL_TAXI_CHART.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_taxi_chart.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_taxi_chart.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1QUOcGXjjnpQNw2lGIQYNM_rskuT0rvQV",
                                 "driveUrl": "https://drive.google.com/file/d/1QUOcGXjjnpQNw2lGIQYNM_rskuT0rvQV/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_taxi_chart.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_taxi_chart_pg_02.pdf",
                                 "name": "CYUL_TAXI_CHART_PG_02.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_taxi_chart_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_taxi_chart_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1S7RbFIcGfK0wJtK0Cy3d_UBh-G9eBaCW",
                                 "driveUrl": "https://drive.google.com/file/d/1S7RbFIcGfK0wJtK0Cy3d_UBh-G9eBaCW/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_taxi_chart_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyul_aerodrome_chart_pg_02_reduced_take-off_runs.pdf",
                 "name": "CYUL_AERODROME_CHART_PG_02_REDUCED_TAKE-OFF_RUNS.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_aerodrome_chart_pg_02_reduced_take-off_runs.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_aerodrome_chart_pg_02_reduced_take-off_runs.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1dCq82z1vXP07uRNSlCYgglGSD1jcI3P5",
                 "driveUrl": "https://drive.google.com/file/d/1dCq82z1vXP07uRNSlCYgglGSD1jcI3P5/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_aerodrome_chart_pg_02_reduced_take-off_runs.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_engine_fan_blade_ice_shedding_procedures.pdf",
                 "name": "CYUL_ENGINE_FAN_BLADE_ICE_SHEDDING_PROCEDURES",
-                "url": "../charts_data/canada/cyul-montreal/cyul_engine_fan_blade_ice_shedding_procedures.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_engine_fan_blade_ice_shedding_procedures.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1-y3xLa3j1t28zG80ccBWVsvzrj94ty62",
                 "driveUrl": "https://drive.google.com/file/d/1-y3xLa3j1t28zG80ccBWVsvzrj94ty62/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_engine_fan_blade_ice_shedding_procedures.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyul_engine_fan_blade_ice_shedding_procedures.pdf",
                                 "name": "CYUL_ENGINE_FAN_BLADE_ICE_SHEDDING_PROCEDURES.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_engine_fan_blade_ice_shedding_procedures.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_engine_fan_blade_ice_shedding_procedures.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1-y3xLa3j1t28zG80ccBWVsvzrj94ty62",
                                 "driveUrl": "https://drive.google.com/file/d/1-y3xLa3j1t28zG80ccBWVsvzrj94ty62/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_engine_fan_blade_ice_shedding_procedures.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_engine_fan_blade_ice_shedding_procedures_pg_02.pdf",
                                 "name": "CYUL_ENGINE_FAN_BLADE_ICE_SHEDDING_PROCEDURES_PG_02.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_engine_fan_blade_ice_shedding_procedures_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_engine_fan_blade_ice_shedding_procedures_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "125tYtjPu4tAfiWPEiZK9KwM_P2M9dq66",
                                 "driveUrl": "https://drive.google.com/file/d/125tYtjPu4tAfiWPEiZK9KwM_P2M9dq66/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_engine_fan_blade_ice_shedding_procedures_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyul_aerodrome_chart.pdf",
                 "name": "CYUL_AERODROME_CHART.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_aerodrome_chart.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_aerodrome_chart.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1qVr6Nwj4aui3e_Sx5hsTVOejgr2lE_sg",
                 "driveUrl": "https://drive.google.com/file/d/1qVr6Nwj4aui3e_Sx5hsTVOejgr2lE_sg/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_aerodrome_chart.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_rnav_gnss_z_rwy_06r.pdf",
                 "name": "CYUL_RNAV_GNSS_Z_RWY_06R.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_06r.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_06r.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "196kWNK_ZnoXnjmpzF3fKHVyUUI2vPnvx",
                 "driveUrl": "https://drive.google.com/file/d/196kWNK_ZnoXnjmpzF3fKHVyUUI2vPnvx/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_06r.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_low_visibility_taxi_chart.pdf",
                 "name": "CYUL_LOW_VISIBILITY_TAXI_CHART.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_low_visibility_taxi_chart.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_low_visibility_taxi_chart.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "16cVEBCIe_EO7TjmE0gX17ZLy6Bz3doif",
                 "driveUrl": "https://drive.google.com/file/d/16cVEBCIe_EO7TjmE0gX17ZLy6Bz3doif/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_low_visibility_taxi_chart.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_parking_areas.pdf",
                 "name": "CYUL_PARKING_AREAS.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_parking_areas.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_parking_areas.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1az5ZJZgROlyzRrNSajCZpS92uWK078IR",
                 "driveUrl": "https://drive.google.com/file/d/1az5ZJZgROlyzRrNSajCZpS92uWK078IR/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_parking_areas.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_low_visibility_procedures.pdf",
                 "name": "CYUL_LOW_VISIBILITY_PROCEDURES",
-                "url": "../charts_data/canada/cyul-montreal/cyul_low_visibility_procedures.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_low_visibility_procedures.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1o-PlCx_IeO-hLPx-UyqGVPGULI9YmrEO",
                 "driveUrl": "https://drive.google.com/file/d/1o-PlCx_IeO-hLPx-UyqGVPGULI9YmrEO/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_low_visibility_procedures.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyul_low_visibility_procedures.pdf",
                                 "name": "CYUL_LOW_VISIBILITY_PROCEDURES.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_low_visibility_procedures.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_low_visibility_procedures.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1o-PlCx_IeO-hLPx-UyqGVPGULI9YmrEO",
                                 "driveUrl": "https://drive.google.com/file/d/1o-PlCx_IeO-hLPx-UyqGVPGULI9YmrEO/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_low_visibility_procedures.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_low_visibility_procedures_pg_02.pdf",
                                 "name": "CYUL_LOW_VISIBILITY_PROCEDURES_PG_02.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_low_visibility_procedures_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_low_visibility_procedures_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "12lxGYuW2tdWqJboaBEGAkrTiwSGujddT",
                                 "driveUrl": "https://drive.google.com/file/d/12lxGYuW2tdWqJboaBEGAkrTiwSGujddT/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_low_visibility_procedures_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyul_parking_centre_areas_and_de-icing_positions_and_procedures.pdf",
                 "name": "CYUL_PARKING_CENTRE_AREAS_AND_DE-ICING_POSITIONS_AND_PROCEDURES.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_parking_centre_areas_and_de-icing_positions_and_procedures.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_parking_centre_areas_and_de-icing_positions_and_procedures.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1pDXEJz5578Yymrj6k09KmmOuzWYZkrlB",
                 "driveUrl": "https://drive.google.com/file/d/1pDXEJz5578Yymrj6k09KmmOuzWYZkrlB/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_parking_centre_areas_and_de-icing_positions_and_procedures.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_rnav_gnss_z_rwy_24r.pdf",
                 "name": "CYUL_RNAV_GNSS_Z_RWY_24R.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_24r.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_24r.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1qgo3rNHyYtKYYygVfMmzNCdt8yOiuLvn",
                 "driveUrl": "https://drive.google.com/file/d/1qgo3rNHyYtKYYygVfMmzNCdt8yOiuLvn/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_24r.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_rnav_gnss_z_rwy_24l.pdf",
                 "name": "CYUL_RNAV_GNSS_Z_RWY_24L.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_24l.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_24l.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "13oyUjayulSa2oCcSUbC3iDLUlJK7t56k",
                 "driveUrl": "https://drive.google.com/file/d/13oyUjayulSa2oCcSUbC3iDLUlJK7t56k/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_24l.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_noise_abatement_procedures.pdf",
                 "name": "CYUL_NOISE_ABATEMENT_PROCEDURES",
-                "url": "../charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1wUXgrtm9Ex_7NENxWMAm35vIx7ow4BDF",
                 "driveUrl": "https://drive.google.com/file/d/1wUXgrtm9Ex_7NENxWMAm35vIx7ow4BDF/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyul_noise_abatement_procedures.pdf",
                                 "name": "CYUL_NOISE_ABATEMENT_PROCEDURES.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1wUXgrtm9Ex_7NENxWMAm35vIx7ow4BDF",
                                 "driveUrl": "https://drive.google.com/file/d/1wUXgrtm9Ex_7NENxWMAm35vIx7ow4BDF/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_noise_abatement_procedures_pg_02.pdf",
                                 "name": "CYUL_NOISE_ABATEMENT_PROCEDURES_PG_02.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "12I98HfE6C_P3fDPRR670ypPb1yP-USGD",
                                 "driveUrl": "https://drive.google.com/file/d/12I98HfE6C_P3fDPRR670ypPb1yP-USGD/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures_pg_02.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_noise_abatement_procedures_pg_03.pdf",
                                 "name": "CYUL_NOISE_ABATEMENT_PROCEDURES_PG_03.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures_pg_03.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures_pg_03.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "10eQ1p_0DkiJE4dFS0xLxSkNbV7fVuwnP",
                                 "driveUrl": "https://drive.google.com/file/d/10eQ1p_0DkiJE4dFS0xLxSkNbV7fVuwnP/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_noise_abatement_procedures_pg_03.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyul_north_parking_area.pdf",
                 "name": "CYUL_NORTH_PARKING_AREA.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_north_parking_area.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_north_parking_area.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1_H9zVHZVHeyt_jpYB6o607WLPBQunwDx",
                 "driveUrl": "https://drive.google.com/file/d/1_H9zVHZVHeyt_jpYB6o607WLPBQunwDx/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_north_parking_area.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_ils_rwy_24l.pdf",
                 "name": "CYUL_ILS_RWY_24L.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_ils_rwy_24l.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_ils_rwy_24l.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1gc6u6_tk2wVa5cz6cJWGnEll2B3QcS8D",
                 "driveUrl": "https://drive.google.com/file/d/1gc6u6_tk2wVa5cz6cJWGnEll2B3QcS8D/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_ils_rwy_24l.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_ils_cat_ii_rwy_06l.pdf",
                 "name": "CYUL_ILS_CAT_II_RWY_06L.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_ils_cat_ii_rwy_06l.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_ils_cat_ii_rwy_06l.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1__2vhlF4neeS5BwpIaovIAfk3KHDQ7tj",
                 "driveUrl": "https://drive.google.com/file/d/1__2vhlF4neeS5BwpIaovIAfk3KHDQ7tj/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_ils_cat_ii_rwy_06l.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_rnav_gnss_x_rwy_06l.pdf",
                 "name": "CYUL_RNAV_GNSS_X_RWY_06L.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_06l.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_06l.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1Hhbyxbfpp9UN_Pg2foyYFV2M8XFjCRII",
                 "driveUrl": "https://drive.google.com/file/d/1Hhbyxbfpp9UN_Pg2foyYFV2M8XFjCRII/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_06l.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_ils_rwy_06l.pdf",
                 "name": "CYUL_ILS_RWY_06L.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_ils_rwy_06l.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_ils_rwy_06l.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1IUOQ_bXYJ8VbQZLUEFgnJqZo-eK6pxBz",
                 "driveUrl": "https://drive.google.com/file/d/1IUOQ_bXYJ8VbQZLUEFgnJqZo-eK6pxBz/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_ils_rwy_06l.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_ils_rwy_06r.pdf",
                 "name": "CYUL_ILS_RWY_06R.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_ils_rwy_06r.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_ils_rwy_06r.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1q5M7D6mCtw7jj3AeWFM4yVqZnB70uiaL",
                 "driveUrl": "https://drive.google.com/file/d/1q5M7D6mCtw7jj3AeWFM4yVqZnB70uiaL/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_ils_rwy_06r.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_rnav_gnss_x_rwy_06r.pdf",
                 "name": "CYUL_RNAV_GNSS_X_RWY_06R.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_06r.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_06r.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1EP6EEqFg6fgjWRdgxAZAFVbuCCVoeG_-",
                 "driveUrl": "https://drive.google.com/file/d/1EP6EEqFg6fgjWRdgxAZAFVbuCCVoeG_-/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_06r.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_rocket_3_arr_rnav.pdf",
                 "name": "CYUL_ROCKET_3_ARR_RNAV",
-                "url": "../charts_data/canada/cyul-montreal/cyul_rocket_3_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_rocket_3_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1QYnafGiPCsjNfGBP620jLUUhVmPyyBe9",
                 "driveUrl": "https://drive.google.com/file/d/1QYnafGiPCsjNfGBP620jLUUhVmPyyBe9/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_rocket_3_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyul_rocket_3_arr_rnav.pdf",
                                 "name": "CYUL_ROCKET_3_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_rocket_3_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_rocket_3_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1QYnafGiPCsjNfGBP620jLUUhVmPyyBe9",
                                 "driveUrl": "https://drive.google.com/file/d/1QYnafGiPCsjNfGBP620jLUUhVmPyyBe9/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_rocket_3_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_rocket_3_arr_rnav_pg_02.pdf",
                                 "name": "CYUL_ROCKET_3_ARR_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_rocket_3_arr_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_rocket_3_arr_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1ZN_Phlw7Zcwl--ivvNUZSwbEKZOB_6Aw",
                                 "driveUrl": "https://drive.google.com/file/d/1ZN_Phlw7Zcwl--ivvNUZSwbEKZOB_6Aw/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_rocket_3_arr_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyul_rnav_gnss_z_rwy_06l.pdf",
                 "name": "CYUL_RNAV_GNSS_Z_RWY_06L.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_06l.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_06l.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1XEDgx85rtMJPdgTyER0RZkgDUoKxEr92",
                 "driveUrl": "https://drive.google.com/file/d/1XEDgx85rtMJPdgTyER0RZkgDUoKxEr92/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_z_rwy_06l.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_rnav_gnss_x_rwy_24r.pdf",
                 "name": "CYUL_RNAV_GNSS_X_RWY_24R.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_24r.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_24r.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1B0V2D3dnd0l45_6ObJoNV3AFsjgfYMe9",
                 "driveUrl": "https://drive.google.com/file/d/1B0V2D3dnd0l45_6ObJoNV3AFsjgfYMe9/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_24r.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_rnav_gnss_x_rwy_24l.pdf",
                 "name": "CYUL_RNAV_GNSS_X_RWY_24L.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_24l.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_24l.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1De_6RZ0BTopPlzjzTYzG1SsTrxLAKLvG",
                 "driveUrl": "https://drive.google.com/file/d/1De_6RZ0BTopPlzjzTYzG1SsTrxLAKLvG/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_rnav_gnss_x_rwy_24l.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_ils_rwy_24r.pdf",
                 "name": "CYUL_ILS_RWY_24R.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_ils_rwy_24r.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_ils_rwy_24r.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1BFBzEOWfTAngX0oBhFEFjptwsnrDJWsn",
                 "driveUrl": "https://drive.google.com/file/d/1BFBzEOWfTAngX0oBhFEFjptwsnrDJWsn/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_ils_rwy_24r.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_lafleur_7_arr_rnav.pdf",
                 "name": "CYUL_LAFLEUR_7_ARR_RNAV",
-                "url": "../charts_data/canada/cyul-montreal/cyul_lafleur_7_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_lafleur_7_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1LDt_U7d8jNbOaaMXwWucL3rE5LnEkeae",
                 "driveUrl": "https://drive.google.com/file/d/1LDt_U7d8jNbOaaMXwWucL3rE5LnEkeae/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_lafleur_7_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyul_lafleur_7_arr_rnav.pdf",
                                 "name": "CYUL_LAFLEUR_7_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_lafleur_7_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_lafleur_7_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1LDt_U7d8jNbOaaMXwWucL3rE5LnEkeae",
                                 "driveUrl": "https://drive.google.com/file/d/1LDt_U7d8jNbOaaMXwWucL3rE5LnEkeae/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_lafleur_7_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_lafleur_7_arr_rnav_pg_02.pdf",
                                 "name": "CYUL_LAFLEUR_7_ARR_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_lafleur_7_arr_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_lafleur_7_arr_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1ub_OlZxmp2lw4Tzpj8REzm0Y3CwruPlO",
                                 "driveUrl": "https://drive.google.com/file/d/1ub_OlZxmp2lw4Tzpj8REzm0Y3CwruPlO/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_lafleur_7_arr_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyul_impact_4_arr_rnav.pdf",
                 "name": "CYUL_IMPACT_4_ARR_RNAV",
-                "url": "../charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1y3xuNQtghr4aiSoC0WRh5LbjyN1UFS1W",
                 "driveUrl": "https://drive.google.com/file/d/1y3xuNQtghr4aiSoC0WRh5LbjyN1UFS1W/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyul_impact_4_arr_rnav.pdf",
                                 "name": "CYUL_IMPACT_4_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1y3xuNQtghr4aiSoC0WRh5LbjyN1UFS1W",
                                 "driveUrl": "https://drive.google.com/file/d/1y3xuNQtghr4aiSoC0WRh5LbjyN1UFS1W/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_impact_4_arr_rnav_pg_02.pdf",
                                 "name": "CYUL_IMPACT_4_ARR_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1vFKubtOzSNhEd5qYOxCwPsyOnS_xpBAa",
                                 "driveUrl": "https://drive.google.com/file/d/1vFKubtOzSNhEd5qYOxCwPsyOnS_xpBAa/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_impact_4_arr_rnav_pg_03.pdf",
                                 "name": "CYUL_IMPACT_4_ARR_RNAV_PG_03.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav_pg_03.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav_pg_03.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "16zBfpIopqPb2B9hBpHNpSG5jb_7TMHTA",
                                 "driveUrl": "https://drive.google.com/file/d/16zBfpIopqPb2B9hBpHNpSG5jb_7TMHTA/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_impact_4_arr_rnav_pg_03.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyul_carter_5_arr_rnav.pdf",
                 "name": "CYUL_CARTER_5_ARR_RNAV.pdf",
-                "url": "../charts_data/canada/cyul-montreal/cyul_carter_5_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_carter_5_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1u60kax-N5KuYYA4_gHhEGC7D4ieXgVa2",
                 "driveUrl": "https://drive.google.com/file/d/1u60kax-N5KuYYA4_gHhEGC7D4ieXgVa2/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_carter_5_arr_rnav.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "cyul_habbs_7_arr_rnav.pdf",
                 "name": "CYUL_HABBS_7_ARR_RNAV",
-                "url": "../charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1gEJtZtQs8VEHVPmZTvlqzm68w-DWqUKg",
                 "driveUrl": "https://drive.google.com/file/d/1gEJtZtQs8VEHVPmZTvlqzm68w-DWqUKg/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyul_habbs_7_arr_rnav.pdf",
                                 "name": "CYUL_HABBS_7_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1gEJtZtQs8VEHVPmZTvlqzm68w-DWqUKg",
                                 "driveUrl": "https://drive.google.com/file/d/1gEJtZtQs8VEHVPmZTvlqzm68w-DWqUKg/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_habbs_7_arr_rnav_pg_02.pdf",
                                 "name": "CYUL_HABBS_7_ARR_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1RDii3W5u9xNSvBMr_rifsE4gqGh5t5eq",
                                 "driveUrl": "https://drive.google.com/file/d/1RDii3W5u9xNSvBMr_rifsE4gqGh5t5eq/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_habbs_7_arr_rnav_pg_03.pdf",
                                 "name": "CYUL_HABBS_7_ARR_RNAV_PG_03.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav_pg_03.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav_pg_03.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "13Bn43OsLvJb24ciltxG19KelGBews3dH",
                                 "driveUrl": "https://drive.google.com/file/d/13Bn43OsLvJb24ciltxG19KelGBews3dH/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_habbs_7_arr_rnav_pg_03.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyul_aloet_4_arr_rnav.pdf",
                 "name": "CYUL_ALOET_4_ARR_RNAV",
-                "url": "../charts_data/canada/cyul-montreal/cyul_aloet_4_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyul_aloet_4_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1Dt8_cparD5kX6saIoJhH5Wc6SigZkgJp",
                 "driveUrl": "https://drive.google.com/file/d/1Dt8_cparD5kX6saIoJhH5Wc6SigZkgJp/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyul_aloet_4_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyul_aloet_4_arr_rnav.pdf",
                                 "name": "CYUL_ALOET_4_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_aloet_4_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_aloet_4_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1Dt8_cparD5kX6saIoJhH5Wc6SigZkgJp",
                                 "driveUrl": "https://drive.google.com/file/d/1Dt8_cparD5kX6saIoJhH5Wc6SigZkgJp/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_aloet_4_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyul_aloet_4_arr_rnav_pg_02.pdf",
                                 "name": "CYUL_ALOET_4_ARR_RNAV_PG_02.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyul_aloet_4_arr_rnav_pg_02.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyul_aloet_4_arr_rnav_pg_02.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1S2XO4296lNkTF7ynqpHn3oAKp6k1iP12",
                                 "driveUrl": "https://drive.google.com/file/d/1S2XO4296lNkTF7ynqpHn3oAKp6k1iP12/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyul_aloet_4_arr_rnav_pg_02.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         },
         {
                 "id": "cyyc_vesga_6_arr_rnav.pdf",
                 "name": "CYYC_VESGA_6_ARR_RNAV",
-                "url": "../charts_data/canada/cyul-montreal/cyyc_vesga_6_arr_rnav.pdf",
-                "localUrl": "../charts_data/canada/cyul-montreal/cyyc_vesga_6_arr_rnav.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1IFjGgXbUM4dIpqW9h8bODTqkzKrWu_bX",
                 "driveUrl": "https://drive.google.com/file/d/1IFjGgXbUM4dIpqW9h8bODTqkzKrWu_bX/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyul-montreal/cyyc_vesga_6_arr_rnav.pdf",
+                "rootUrl": "#",
                 "pages": [
                         {
                                 "id": "cyyc_vesga_6_arr_rnav.pdf",
                                 "name": "CYYC_VESGA_6_ARR_RNAV.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyyc_vesga_6_arr_rnav.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyyc_vesga_6_arr_rnav.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1IFjGgXbUM4dIpqW9h8bODTqkzKrWu_bX",
                                 "driveUrl": "https://drive.google.com/file/d/1IFjGgXbUM4dIpqW9h8bODTqkzKrWu_bX/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyyc_vesga_6_arr_rnav.pdf"
+                                "rootUrl": "#"
                         },
                         {
                                 "id": "cyyc_vesga_6_arr_rnav_pg_03.pdf",
                                 "name": "CYYC_VESGA_6_ARR_RNAV_PG_03.pdf",
-                                "url": "../charts_data/canada/cyul-montreal/cyyc_vesga_6_arr_rnav_pg_03.pdf",
-                                "localUrl": "../charts_data/canada/cyul-montreal/cyyc_vesga_6_arr_rnav_pg_03.pdf",
+                                "url": "../#",
+                                "localUrl": "../#",
                                 "driveId": "1KSQIbRSCdqZ2LXj1AAnWFS49c0-oQUJp",
                                 "driveUrl": "https://drive.google.com/file/d/1KSQIbRSCdqZ2LXj1AAnWFS49c0-oQUJp/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "charts_data/canada/cyul-montreal/cyyc_vesga_6_arr_rnav_pg_03.pdf"
+                                "rootUrl": "#"
                         }
                 ]
         }
@@ -1810,6 +1888,8 @@
                         name: file.name,
                         url: file.rootUrl,
                         localUrl: file.rootUrl,
+                        driveId: file.driveId || '',
+                        driveUrl: file.driveUrl || '#',
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region,

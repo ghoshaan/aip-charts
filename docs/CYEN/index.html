@@ -742,6 +742,7 @@
         }
     
         
+            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -809,9 +810,38 @@
                 if (activeItem) activeItem.scrollIntoView({ block: 'nearest' });
             }
 
+            async function fetchPdfFromProxy(driveId) {
+                if (!APPS_SCRIPT_URL) {
+                    throw new Error("Apps Script URL is not configured.");
+                }
+                const response = await fetch(`${APPS_SCRIPT_URL}?id=${driveId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const json = await response.json();
+                if (json.error) {
+                    throw new Error(json.error);
+                }
+                if (!json.data) {
+                    throw new Error("No data returned from proxy.");
+                }
+                const binaryString = atob(json.data);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes;
+            }
+
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
-                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                let fileObj = null;
+                if (typeof files !== 'undefined') {
+                    fileObj = files.find(f => f.id === id);
+                } else if (typeof searchIndex !== 'undefined') {
+                    fileObj = searchIndex.find(f => f.id === id);
+                }
                 currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
                 currentFilePageIndex = 0;
                 if (currentFilePages) localUrl = currentFilePages[0].localUrl;
@@ -829,7 +859,7 @@
                     document.title = name;
                 }
 
-                // Update hash for deep linking - now much shorter!
+                // Update hash for deep linking
                 if (!skipHash) {
                     isOpeningFromHash = true;
                     window.location.hash = `view=${id}`;
@@ -851,26 +881,36 @@
                 populateSidebar(id);
                 applySidebarState();
                 loader.style.display = 'flex';
-                loaderStatus.textContent = 'LOADING LOCAL PDF...';
 
                 try {
-                    const loadingTask = pdfjsLib.getDocument(localUrl);
-                    currentPdf = await loadingTask.promise;
+                    let pdfData;
+                    if (localUrl && localUrl !== '#') {
+                        loaderStatus.textContent = 'LOADING LOCAL PDF...';
+                        const loadingTask = pdfjsLib.getDocument(localUrl);
+                        currentPdf = await loadingTask.promise;
+                    } else {
+                        const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
+                        if (!embedId) {
+                            throw new Error("No Drive ID available for on-demand fetch.");
+                        }
+                        loaderStatus.textContent = 'FETCHING PDF FROM DRIVE...';
+                        pdfData = await fetchPdfFromProxy(embedId);
+                        loaderStatus.textContent = 'LOADING PDF...';
+                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        currentPdf = await loadingTask.promise;
+                    }
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
-                    // Local file unavailable — embed Drive preview iframe
-                    const fileObj2 = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
-                    const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
-                    if (embedId) {
-                        loader.style.display = 'none';
-                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${embedId}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
-                    } else if (driveUrl && driveUrl !== '#') {
-                        loaderStatus.textContent = 'OPENING IN DRIVE...';
-                        setTimeout(() => { window.open(driveUrl, '_blank'); closeViewer(); }, 1000);
+                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING IN DRIVE...';
+                    const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
+                    if (driveUrl && driveUrl !== '#') {
+                        setTimeout(() => { window.open(driveUrl, '_blank'); closeViewer(); }, 1500);
+                    } else if (embedId) {
+                        setTimeout(() => { window.open(`https://drive.google.com/file/d/${embedId}/view`, '_blank'); closeViewer(); }, 1500);
                     } else {
                         loaderStatus.textContent = 'PDF NOT AVAILABLE.';
                     }
@@ -903,11 +943,30 @@
                 loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
                 document.getElementById('pdfViewer').innerHTML = '';
                 currentRotation = 0;
-                const loadingTask = pdfjsLib.getDocument(page.localUrl);
-                currentPdf = await loadingTask.promise;
-                await renderAllPages();
-                loader.style.display = 'none';
-                updatePageNav();
+                
+                try {
+                    let pdfData;
+                    if (page.localUrl && page.localUrl !== '#') {
+                        const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                        currentPdf = await loadingTask.promise;
+                    } else {
+                        const embedId = page.driveId;
+                        if (!embedId) {
+                            throw new Error("No Drive ID available for page on-demand fetch.");
+                        }
+                        loaderStatus.textContent = 'FETCHING PAGE FROM DRIVE...';
+                        pdfData = await fetchPdfFromProxy(embedId);
+                        loaderStatus.textContent = 'LOADING PAGE...';
+                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        currentPdf = await loadingTask.promise;
+                    }
+                    await renderAllPages();
+                    loader.style.display = 'none';
+                    updatePageNav();
+                } catch (err) {
+                    console.error('Error loading page:', err);
+                    loaderStatus.textContent = 'ERROR LOADING PAGE.';
+                }
             }
 
             async function checkHash() {
@@ -917,12 +976,10 @@
                         const hashValue = hash.substring(6);
                         let found = null;
                         
-                        // 1. Try to find in local 'files' array (for airport pages)
                         if (typeof files !== 'undefined') {
                             found = files.find(f => f.id === hashValue);
                         }
                         
-                        // 2. Try to find in global 'searchIndex' (for home page)
                         if (!found && typeof searchIndex !== 'undefined') {
                             found = searchIndex.find(item => item.id === hashValue);
                         }
@@ -930,15 +987,12 @@
                         if (found) {
                             await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
-                            // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
                                 const chartData = JSON.parse(decodeURIComponent(atob(hashValue)));
                                 if (chartData && chartData.localUrl) {
                                     await openViewer(chartData.id, chartData.name, chartData.driveUrl, chartData.localUrl, true);
                                 }
-                            } catch (e) {
-                                // Not a legacy hash, just not found
-                            }
+                            } catch(e) {}
                         }
                     } catch (e) {
                         console.error('Hash parse error:', e);
@@ -985,52 +1039,107 @@
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
 
-                // Render text content for Ctrl+F
-                const textContent = await page.getTextContent();
-                await pdfjsLib.renderTextLayer({
-                    textContent: textContent,
-                    container: textLayerDiv,
-                    viewport: viewport,
-                    textDivs: []
-                }).promise;
+                // Render text layer
+                try {
+                    const textContent = await page.getTextContent();
+                    pdfjsLib.renderTextLayer({
+                        textContent: textContent,
+                        container: textLayerDiv,
+                        viewport: viewport,
+                        textDivs: []
+                    });
+                } catch (textErr) {
+                    console.error('Text layer render error:', textErr);
+                }
             }
 
             function applyVisualTransform() {
                 const container = document.getElementById('pdfViewer');
                 container.style.transform = `scale(${visualScale})`;
+                container.style.transformOrigin = 'top center';
+            }
+
+            async function updateZoomQuality() {
+                const container = document.getElementById('pdfViewer');
+                const scrollPos = document.getElementById('pdfViewerContainer').scrollTop;
+                
+                // Re-render all pages at new high-quality zoom
+                for (let i = 1; i <= currentPdf.numPages; i++) {
+                    const pageContainer = document.getElementById(`page-${i}`);
+                    if (pageContainer) {
+                        pageContainer.innerHTML = '';
+                        await renderPage(i, pageContainer);
+                    }
+                }
+                
+                visualScale = 1.0;
+                applyVisualTransform();
+                document.getElementById('pdfViewerContainer').scrollTop = scrollPos;
             }
 
             function closeViewer(skipHash = false) {
                 const modal = document.getElementById('viewerModal');
                 modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-                currentPdf = null;
-                
-                // Restore original title
+                document.body.style.overflow = '';
                 document.title = originalPageTitle;
+                
+                if (currentPdf) {
+                    currentPdf.destroy();
+                    currentPdf = null;
+                }
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentFileId = null;
 
-                if (!skipHash && window.location.hash.startsWith('#view=')) {
-                    history.pushState("", document.title, window.location.pathname + window.location.search);
+                if (!skipHash) {
+                    isOpeningFromHash = true;
+                    window.location.hash = '';
+                    setTimeout(() => isOpeningFromHash = false, 100);
                 }
             }
 
-            async function updateZoomQuality() {
-                await renderAllPages();
-                visualScale = 1.0;
-                applyVisualTransform();
-            }
-
+            document.getElementById('closeViewer').onclick = () => closeViewer();
+            
             document.getElementById('zoomRange').oninput = (e) => {
-                const newZoom = parseFloat(e.target.value);
+                const targetZoom = parseFloat(e.target.value);
+                const delta = targetZoom - (currentZoom * visualScale);
+                adjustZoom(delta);
+            };
+
+            function adjustZoom(delta) {
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
                 visualScale = newZoom / currentZoom;
                 applyVisualTransform();
+
+                document.getElementById('zoomRange').value = newZoom;
                 document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
+
+            document.getElementById('pdfViewerContainer').onwheel = (e) => {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                    adjustZoom(delta);
+                }
             };
 
-            document.getElementById('zoomRange').onchange = async (e) => {
-                currentZoom = parseFloat(e.target.value);
-                await updateZoomQuality();
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeViewer();
+            });
+
+            document.getElementById('sidebarToggle').onclick = () => {
+                sidebarOpen = !sidebarOpen;
+                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
+                applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
 
             document.getElementById('rotateBtn').onclick = async () => {
                 currentRotation = (currentRotation + 90) % 360;
@@ -1056,40 +1165,9 @@
                 await renderAllPages();
             };
 
-            document.getElementById('closeViewer').onclick = closeViewer;
-
-            document.getElementById('pdfViewerContainer').onwheel = (e) => {
-                if (e.ctrlKey) {
-                    e.preventDefault();
-                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                    const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
-
-                    visualScale = newZoom / currentZoom;
-                    applyVisualTransform();
-
-                    document.getElementById('zoomRange').value = newZoom;
-                    document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
-
-                    clearTimeout(window.zoomTimeout);
-                    window.zoomTimeout = setTimeout(async () => {
-                        currentZoom = newZoom;
-                        await updateZoomQuality();
-                    }, 500);
-                }
+            document.getElementById('viewerModal').onclick = (e) => {
+                if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeViewer();
-            });
-
-            document.getElementById('sidebarToggle').onclick = () => {
-                sidebarOpen = !sidebarOpen;
-                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
-                applySidebarState();
-            };
-
-            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
-            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
         
         const airportCtx = {
@@ -1117,52 +1195,52 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../charts_data/canada/cyen-estevan-regional/aerodrome_chart.pdf",
-                "localUrl": "../charts_data/canada/cyen-estevan-regional/aerodrome_chart.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "13upi7bMaSSGrrMOzW9iz25YZHG06rPcE",
                 "driveUrl": "https://drive.google.com/file/d/13upi7bMaSSGrrMOzW9iz25YZHG06rPcE/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyen-estevan-regional/aerodrome_chart.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "rnav_gnss_rwy_33.pdf",
                 "name": "RNAV_GNSS_RWY_33.pdf",
-                "url": "../charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_33.pdf",
-                "localUrl": "../charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_33.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "10_Nk33r8cw-XwlBokunqQkHuDPJL8YaD",
                 "driveUrl": "https://drive.google.com/file/d/10_Nk33r8cw-XwlBokunqQkHuDPJL8YaD/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_33.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "rnav_gnss_rwy_26.pdf",
                 "name": "RNAV_GNSS_RWY_26.pdf",
-                "url": "../charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_26.pdf",
-                "localUrl": "../charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_26.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1ZmnoHa9_dIA1-TpIWR3r9QfERyaCe3iN",
                 "driveUrl": "https://drive.google.com/file/d/1ZmnoHa9_dIA1-TpIWR3r9QfERyaCe3iN/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_26.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "rnav_gnss_rwy_08.pdf",
                 "name": "RNAV_GNSS_RWY_08.pdf",
-                "url": "../charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_08.pdf",
-                "localUrl": "../charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_08.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "10sOV7AJtzAeVpttsv_7XajJSJvkA_BSp",
                 "driveUrl": "https://drive.google.com/file/d/10sOV7AJtzAeVpttsv_7XajJSJvkA_BSp/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_08.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "rnav_gnss_rwy_15.pdf",
                 "name": "RNAV_GNSS_RWY_15.pdf",
-                "url": "../charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_15.pdf",
-                "localUrl": "../charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_15.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1r5niphEB8umkAqVfAGaBQuD9gL-Gn-AA",
                 "driveUrl": "https://drive.google.com/file/d/1r5niphEB8umkAqVfAGaBQuD9gL-Gn-AA/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/canada/cyen-estevan-regional/rnav_gnss_rwy_15.pdf"
+                "rootUrl": "#"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -1238,6 +1316,8 @@
                         name: file.name,
                         url: file.rootUrl,
                         localUrl: file.rootUrl,
+                        driveId: file.driveId || '',
+                        driveUrl: file.driveUrl || '#',
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region,

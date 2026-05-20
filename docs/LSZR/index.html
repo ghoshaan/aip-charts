@@ -742,6 +742,7 @@
         }
     
         
+            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -809,9 +810,38 @@
                 if (activeItem) activeItem.scrollIntoView({ block: 'nearest' });
             }
 
+            async function fetchPdfFromProxy(driveId) {
+                if (!APPS_SCRIPT_URL) {
+                    throw new Error("Apps Script URL is not configured.");
+                }
+                const response = await fetch(`${APPS_SCRIPT_URL}?id=${driveId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const json = await response.json();
+                if (json.error) {
+                    throw new Error(json.error);
+                }
+                if (!json.data) {
+                    throw new Error("No data returned from proxy.");
+                }
+                const binaryString = atob(json.data);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes;
+            }
+
             async function openViewer(id, name, driveUrl, localUrl, skipHash = false, icao = null) {
                 currentFileId = id;
-                const fileObj = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
+                let fileObj = null;
+                if (typeof files !== 'undefined') {
+                    fileObj = files.find(f => f.id === id);
+                } else if (typeof searchIndex !== 'undefined') {
+                    fileObj = searchIndex.find(f => f.id === id);
+                }
                 currentFilePages = fileObj && fileObj.pages && fileObj.pages.length > 1 ? fileObj.pages : null;
                 currentFilePageIndex = 0;
                 if (currentFilePages) localUrl = currentFilePages[0].localUrl;
@@ -829,7 +859,7 @@
                     document.title = name;
                 }
 
-                // Update hash for deep linking - now much shorter!
+                // Update hash for deep linking
                 if (!skipHash) {
                     isOpeningFromHash = true;
                     window.location.hash = `view=${id}`;
@@ -851,26 +881,36 @@
                 populateSidebar(id);
                 applySidebarState();
                 loader.style.display = 'flex';
-                loaderStatus.textContent = 'LOADING LOCAL PDF...';
 
                 try {
-                    const loadingTask = pdfjsLib.getDocument(localUrl);
-                    currentPdf = await loadingTask.promise;
+                    let pdfData;
+                    if (localUrl && localUrl !== '#') {
+                        loaderStatus.textContent = 'LOADING LOCAL PDF...';
+                        const loadingTask = pdfjsLib.getDocument(localUrl);
+                        currentPdf = await loadingTask.promise;
+                    } else {
+                        const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
+                        if (!embedId) {
+                            throw new Error("No Drive ID available for on-demand fetch.");
+                        }
+                        loaderStatus.textContent = 'FETCHING PDF FROM DRIVE...';
+                        pdfData = await fetchPdfFromProxy(embedId);
+                        loaderStatus.textContent = 'LOADING PDF...';
+                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        currentPdf = await loadingTask.promise;
+                    }
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
                     await renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
                     console.error('PDF Error:', err);
-                    // Local file unavailable — embed Drive preview iframe
-                    const fileObj2 = typeof files !== 'undefined' ? files.find(f => f.id === id) : null;
-                    const embedId = fileObj2 && fileObj2.driveId ? fileObj2.driveId : null;
-                    if (embedId) {
-                        loader.style.display = 'none';
-                        container.innerHTML = `<iframe src="https://drive.google.com/file/d/${embedId}/preview" style="width:100%;height:80vh;border:none;" allow="autoplay"></iframe>`;
-                    } else if (driveUrl && driveUrl !== '#') {
-                        loaderStatus.textContent = 'OPENING IN DRIVE...';
-                        setTimeout(() => { window.open(driveUrl, '_blank'); closeViewer(); }, 1000);
+                    loaderStatus.textContent = 'ERROR LOADING PDF. OPENING IN DRIVE...';
+                    const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
+                    if (driveUrl && driveUrl !== '#') {
+                        setTimeout(() => { window.open(driveUrl, '_blank'); closeViewer(); }, 1500);
+                    } else if (embedId) {
+                        setTimeout(() => { window.open(`https://drive.google.com/file/d/${embedId}/view`, '_blank'); closeViewer(); }, 1500);
                     } else {
                         loaderStatus.textContent = 'PDF NOT AVAILABLE.';
                     }
@@ -903,11 +943,30 @@
                 loaderStatus.textContent = `LOADING PAGE ${newIndex + 1}...`;
                 document.getElementById('pdfViewer').innerHTML = '';
                 currentRotation = 0;
-                const loadingTask = pdfjsLib.getDocument(page.localUrl);
-                currentPdf = await loadingTask.promise;
-                await renderAllPages();
-                loader.style.display = 'none';
-                updatePageNav();
+                
+                try {
+                    let pdfData;
+                    if (page.localUrl && page.localUrl !== '#') {
+                        const loadingTask = pdfjsLib.getDocument(page.localUrl);
+                        currentPdf = await loadingTask.promise;
+                    } else {
+                        const embedId = page.driveId;
+                        if (!embedId) {
+                            throw new Error("No Drive ID available for page on-demand fetch.");
+                        }
+                        loaderStatus.textContent = 'FETCHING PAGE FROM DRIVE...';
+                        pdfData = await fetchPdfFromProxy(embedId);
+                        loaderStatus.textContent = 'LOADING PAGE...';
+                        const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                        currentPdf = await loadingTask.promise;
+                    }
+                    await renderAllPages();
+                    loader.style.display = 'none';
+                    updatePageNav();
+                } catch (err) {
+                    console.error('Error loading page:', err);
+                    loaderStatus.textContent = 'ERROR LOADING PAGE.';
+                }
             }
 
             async function checkHash() {
@@ -917,12 +976,10 @@
                         const hashValue = hash.substring(6);
                         let found = null;
                         
-                        // 1. Try to find in local 'files' array (for airport pages)
                         if (typeof files !== 'undefined') {
                             found = files.find(f => f.id === hashValue);
                         }
                         
-                        // 2. Try to find in global 'searchIndex' (for home page)
                         if (!found && typeof searchIndex !== 'undefined') {
                             found = searchIndex.find(item => item.id === hashValue);
                         }
@@ -930,15 +987,12 @@
                         if (found) {
                             await openViewer(found.id, found.name, found.driveUrl || '#', found.localUrl, true);
                         } else {
-                            // 3. Fallback: Check if it's a legacy Base64 encoded JSON
                             try {
                                 const chartData = JSON.parse(decodeURIComponent(atob(hashValue)));
                                 if (chartData && chartData.localUrl) {
                                     await openViewer(chartData.id, chartData.name, chartData.driveUrl, chartData.localUrl, true);
                                 }
-                            } catch (e) {
-                                // Not a legacy hash, just not found
-                            }
+                            } catch(e) {}
                         }
                     } catch (e) {
                         console.error('Hash parse error:', e);
@@ -985,52 +1039,107 @@
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
 
-                // Render text content for Ctrl+F
-                const textContent = await page.getTextContent();
-                await pdfjsLib.renderTextLayer({
-                    textContent: textContent,
-                    container: textLayerDiv,
-                    viewport: viewport,
-                    textDivs: []
-                }).promise;
+                // Render text layer
+                try {
+                    const textContent = await page.getTextContent();
+                    pdfjsLib.renderTextLayer({
+                        textContent: textContent,
+                        container: textLayerDiv,
+                        viewport: viewport,
+                        textDivs: []
+                    });
+                } catch (textErr) {
+                    console.error('Text layer render error:', textErr);
+                }
             }
 
             function applyVisualTransform() {
                 const container = document.getElementById('pdfViewer');
                 container.style.transform = `scale(${visualScale})`;
+                container.style.transformOrigin = 'top center';
+            }
+
+            async function updateZoomQuality() {
+                const container = document.getElementById('pdfViewer');
+                const scrollPos = document.getElementById('pdfViewerContainer').scrollTop;
+                
+                // Re-render all pages at new high-quality zoom
+                for (let i = 1; i <= currentPdf.numPages; i++) {
+                    const pageContainer = document.getElementById(`page-${i}`);
+                    if (pageContainer) {
+                        pageContainer.innerHTML = '';
+                        await renderPage(i, pageContainer);
+                    }
+                }
+                
+                visualScale = 1.0;
+                applyVisualTransform();
+                document.getElementById('pdfViewerContainer').scrollTop = scrollPos;
             }
 
             function closeViewer(skipHash = false) {
                 const modal = document.getElementById('viewerModal');
                 modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-                currentPdf = null;
-                
-                // Restore original title
+                document.body.style.overflow = '';
                 document.title = originalPageTitle;
+                
+                if (currentPdf) {
+                    currentPdf.destroy();
+                    currentPdf = null;
+                }
+                document.getElementById('pdfViewer').innerHTML = '';
+                currentFileId = null;
 
-                if (!skipHash && window.location.hash.startsWith('#view=')) {
-                    history.pushState("", document.title, window.location.pathname + window.location.search);
+                if (!skipHash) {
+                    isOpeningFromHash = true;
+                    window.location.hash = '';
+                    setTimeout(() => isOpeningFromHash = false, 100);
                 }
             }
 
-            async function updateZoomQuality() {
-                await renderAllPages();
-                visualScale = 1.0;
-                applyVisualTransform();
-            }
-
+            document.getElementById('closeViewer').onclick = () => closeViewer();
+            
             document.getElementById('zoomRange').oninput = (e) => {
-                const newZoom = parseFloat(e.target.value);
+                const targetZoom = parseFloat(e.target.value);
+                const delta = targetZoom - (currentZoom * visualScale);
+                adjustZoom(delta);
+            };
+
+            function adjustZoom(delta) {
+                const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
                 visualScale = newZoom / currentZoom;
                 applyVisualTransform();
+
+                document.getElementById('zoomRange').value = newZoom;
                 document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+
+                clearTimeout(window.zoomTimeout);
+                window.zoomTimeout = setTimeout(async () => {
+                    currentZoom = newZoom;
+                    await updateZoomQuality();
+                }, 500);
+            }
+
+            document.getElementById('pdfViewerContainer').onwheel = (e) => {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                    adjustZoom(delta);
+                }
             };
 
-            document.getElementById('zoomRange').onchange = async (e) => {
-                currentZoom = parseFloat(e.target.value);
-                await updateZoomQuality();
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeViewer();
+            });
+
+            document.getElementById('sidebarToggle').onclick = () => {
+                sidebarOpen = !sidebarOpen;
+                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
+                applySidebarState();
             };
+
+            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
+            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
 
             document.getElementById('rotateBtn').onclick = async () => {
                 currentRotation = (currentRotation + 90) % 360;
@@ -1056,40 +1165,9 @@
                 await renderAllPages();
             };
 
-            document.getElementById('closeViewer').onclick = closeViewer;
-
-            document.getElementById('pdfViewerContainer').onwheel = (e) => {
-                if (e.ctrlKey) {
-                    e.preventDefault();
-                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                    const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
-
-                    visualScale = newZoom / currentZoom;
-                    applyVisualTransform();
-
-                    document.getElementById('zoomRange').value = newZoom;
-                    document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
-
-                    clearTimeout(window.zoomTimeout);
-                    window.zoomTimeout = setTimeout(async () => {
-                        currentZoom = newZoom;
-                        await updateZoomQuality();
-                    }, 500);
-                }
+            document.getElementById('viewerModal').onclick = (e) => {
+                if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeViewer();
-            });
-
-            document.getElementById('sidebarToggle').onclick = () => {
-                sidebarOpen = !sidebarOpen;
-                localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
-                applySidebarState();
-            };
-
-            document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
-            document.getElementById('nextPageBtn').onclick = () => goToFilePage(1);
         
         
         const airportCtx = {
@@ -1117,152 +1195,152 @@
         {
                 "id": "atc_surveillance_minimum_altitude_chart.pdf",
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART.pdf",
-                "url": "../charts_data/switzerland/lszr/atc_surveillance_minimum_altitude_chart.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/atc_surveillance_minimum_altitude_chart.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1AoASh0K_20twEHpALU-r-NT1T5o8NKW1",
                 "driveUrl": "https://drive.google.com/file/d/1AoASh0K_20twEHpALU-r-NT1T5o8NKW1/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/atc_surveillance_minimum_altitude_chart.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "star_icao_sitor_-_zue_3h.pdf",
                 "name": "STAR_ICAO_SITOR_-_ZUE_3H.pdf",
-                "url": "../charts_data/switzerland/lszr/star_icao_sitor_-_zue_3h.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/star_icao_sitor_-_zue_3h.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1tJNM3E-r0dmxAgBtsOrLlWBhHKb3D_TU",
                 "driveUrl": "https://drive.google.com/file/d/1tJNM3E-r0dmxAgBtsOrLlWBhHKb3D_TU/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/star_icao_sitor_-_zue_3h.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "star_icao_rnav_sitor_22_-_garmo_1h_rolsa_3h.pdf",
                 "name": "STAR_ICAO_RNAV_SITOR_(22)_-_GARMO_1H_ROLSA_3H.pdf",
-                "url": "../charts_data/switzerland/lszr/star_icao_rnav_sitor_22_-_garmo_1h_rolsa_3h.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/star_icao_rnav_sitor_22_-_garmo_1h_rolsa_3h.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1bh1EUM2NiObQJweNOiAG652s-BC0iHOJ",
                 "driveUrl": "https://drive.google.com/file/d/1bh1EUM2NiObQJweNOiAG652s-BC0iHOJ/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/star_icao_rnav_sitor_22_-_garmo_1h_rolsa_3h.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "star_icao_rnav_sitor_12_-_kpt_4h.pdf",
                 "name": "STAR_ICAO_RNAV_SITOR_(12)_-_KPT_4H.pdf",
-                "url": "../charts_data/switzerland/lszr/star_icao_rnav_sitor_12_-_kpt_4h.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/star_icao_rnav_sitor_12_-_kpt_4h.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1xxeAUaujtSSvVj_gOaWq6-O-cj4qyLd6",
                 "driveUrl": "https://drive.google.com/file/d/1xxeAUaujtSSvVj_gOaWq6-O-cj4qyLd6/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/star_icao_rnav_sitor_12_-_kpt_4h.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "sid_icao_rnav_rwy_28_-_alago_4v_bemki_2v_tra_2v.pdf",
                 "name": "SID_ICAO_RNAV_RWY_28_-_ALAGO_4V_BEMKI_2V_TRA_2V.pdf",
-                "url": "../charts_data/switzerland/lszr/sid_icao_rnav_rwy_28_-_alago_4v_bemki_2v_tra_2v.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/sid_icao_rnav_rwy_28_-_alago_4v_bemki_2v_tra_2v.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1a4Croprjex805TkwfkI4zRUF7xyMofq8",
                 "driveUrl": "https://drive.google.com/file/d/1a4Croprjex805TkwfkI4zRUF7xyMofq8/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/sid_icao_rnav_rwy_28_-_alago_4v_bemki_2v_tra_2v.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "sid_icao_rnav_rwy_28_-_alago_5r_bemki_3r_kpt_4r_tra_3r.pdf",
                 "name": "SID_ICAO_RNAV_RWY_28_-_ALAGO_5R_BEMKI_3R_KPT_4R_TRA_3R.pdf",
-                "url": "../charts_data/switzerland/lszr/sid_icao_rnav_rwy_28_-_alago_5r_bemki_3r_kpt_4r_tra_3r.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/sid_icao_rnav_rwy_28_-_alago_5r_bemki_3r_kpt_4r_tra_3r.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1feXPbbIrS_m9OKvXnB3N2co5TcWOagQq",
                 "driveUrl": "https://drive.google.com/file/d/1feXPbbIrS_m9OKvXnB3N2co5TcWOagQq/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/sid_icao_rnav_rwy_28_-_alago_5r_bemki_3r_kpt_4r_tra_3r.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "sid_icao_rwy_10_-_amiki_1m_kpt_1m_sitor_1m.pdf",
                 "name": "SID_ICAO_RWY_10_-_AMIKI_1M_KPT_1M_SITOR_1M.pdf",
-                "url": "../charts_data/switzerland/lszr/sid_icao_rwy_10_-_amiki_1m_kpt_1m_sitor_1m.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/sid_icao_rwy_10_-_amiki_1m_kpt_1m_sitor_1m.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1OaTMeBYfPpT41KCv9iSXHQzhhazxONl_",
                 "driveUrl": "https://drive.google.com/file/d/1OaTMeBYfPpT41KCv9iSXHQzhhazxONl_/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/sid_icao_rwy_10_-_amiki_1m_kpt_1m_sitor_1m.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "sid_icao_rnav_rwy_10_-_alago_1m_bemki_1m_tra_1m.pdf",
                 "name": "SID_ICAO_RNAV_RWY_10_-_ALAGO_1M_BEMKI_1M_TRA_1M.pdf",
-                "url": "../charts_data/switzerland/lszr/sid_icao_rnav_rwy_10_-_alago_1m_bemki_1m_tra_1m.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/sid_icao_rnav_rwy_10_-_alago_1m_bemki_1m_tra_1m.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1dGyL75H_uHwHCOsEQY0aOR3ypQW_cuAB",
                 "driveUrl": "https://drive.google.com/file/d/1dGyL75H_uHwHCOsEQY0aOR3ypQW_cuAB/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/sid_icao_rnav_rwy_10_-_alago_1m_bemki_1m_tra_1m.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "sid_icao_rnav_rwy_10_-_alago_5l_bemki_3l_kpt_4l_tra_3l.pdf",
                 "name": "SID_ICAO_RNAV_RWY_10_-_ALAGO_5L_BEMKI_3L_KPT_4L_TRA_3L.pdf",
-                "url": "../charts_data/switzerland/lszr/sid_icao_rnav_rwy_10_-_alago_5l_bemki_3l_kpt_4l_tra_3l.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/sid_icao_rnav_rwy_10_-_alago_5l_bemki_3l_kpt_4l_tra_3l.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1qUtxY--iGqLd5PcIJZeKsZlLqJkD8knd",
                 "driveUrl": "https://drive.google.com/file/d/1qUtxY--iGqLd5PcIJZeKsZlLqJkD8knd/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/sid_icao_rnav_rwy_10_-_alago_5l_bemki_3l_kpt_4l_tra_3l.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "sid_icao_rwy_28_-_amiki_2v_kpt_3v_sitor_2v.pdf",
                 "name": "SID_ICAO_RWY_28_-_AMIKI_2V_KPT_3V_SITOR_2V.pdf",
-                "url": "../charts_data/switzerland/lszr/sid_icao_rwy_28_-_amiki_2v_kpt_3v_sitor_2v.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/sid_icao_rwy_28_-_amiki_2v_kpt_3v_sitor_2v.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1Ye9ohpE-eE4KMPnEBZUGVkYBeY9wsXNV",
                 "driveUrl": "https://drive.google.com/file/d/1Ye9ohpE-eE4KMPnEBZUGVkYBeY9wsXNV/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/sid_icao_rwy_28_-_amiki_2v_kpt_3v_sitor_2v.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_1028.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_1028.pdf",
-                "url": "../charts_data/switzerland/lszr/aerodrome_obstacle_chart_-_type_a_-_rwy_1028.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/aerodrome_obstacle_chart_-_type_a_-_rwy_1028.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1k2pdHEW5AXXf-oLwGFJqtMbBXlNgUdbg",
                 "driveUrl": "https://drive.google.com/file/d/1k2pdHEW5AXXf-oLwGFJqtMbBXlNgUdbg/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/aerodrome_obstacle_chart_-_type_a_-_rwy_1028.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../charts_data/switzerland/lszr/aerodrome_chart.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/aerodrome_chart.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1OKzeePUi_osfhS3V_dhGv7IMmYwdnkpW",
                 "driveUrl": "https://drive.google.com/file/d/1OKzeePUi_osfhS3V_dhGv7IMmYwdnkpW/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/aerodrome_chart.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "iac_icao_rnp_rwy_10.pdf",
                 "name": "IAC_ICAO_RNP_RWY_10.pdf",
-                "url": "../charts_data/switzerland/lszr/iac_icao_rnp_rwy_10.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/iac_icao_rnp_rwy_10.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1mnSAbEvIbQyAvl_BcYngs0TddYyVqp_x",
                 "driveUrl": "https://drive.google.com/file/d/1mnSAbEvIbQyAvl_BcYngs0TddYyVqp_x/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/iac_icao_rnp_rwy_10.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "iac_icao_loc_rwy_10.pdf",
                 "name": "IAC_ICAO_LOC_RWY_10.pdf",
-                "url": "../charts_data/switzerland/lszr/iac_icao_loc_rwy_10.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/iac_icao_loc_rwy_10.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1yOU2LER8rlt74wjxG_ufLoyTROrbsWdN",
                 "driveUrl": "https://drive.google.com/file/d/1yOU2LER8rlt74wjxG_ufLoyTROrbsWdN/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/iac_icao_loc_rwy_10.pdf"
+                "rootUrl": "#"
         },
         {
                 "id": "iac_icao_ils_rwy_10.pdf",
                 "name": "IAC_ICAO_ILS_RWY_10.pdf",
-                "url": "../charts_data/switzerland/lszr/iac_icao_ils_rwy_10.pdf",
-                "localUrl": "../charts_data/switzerland/lszr/iac_icao_ils_rwy_10.pdf",
+                "url": "../#",
+                "localUrl": "../#",
                 "driveId": "1M2XPyIMWxZnQ6aqcoavADAq3sVNLG975",
                 "driveUrl": "https://drive.google.com/file/d/1M2XPyIMWxZnQ6aqcoavADAq3sVNLG975/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "charts_data/switzerland/lszr/iac_icao_ils_rwy_10.pdf"
+                "rootUrl": "#"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
@@ -1338,6 +1416,8 @@
                         name: file.name,
                         url: file.rootUrl,
                         localUrl: file.rootUrl,
+                        driveId: file.driveId || '',
+                        driveUrl: file.driveUrl || '#',
                         type: file.type,
                         airport: airportCtx.name,
                         region: airportCtx.region,
