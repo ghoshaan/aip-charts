@@ -1512,7 +1512,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
         return airport_slug
 
     # Adjust file URLs for subdirectory context; rootUrl keeps the root-relative path for pin storage
-    adjusted_files = [dict(f, url='../' + f['url'], localUrl='../' + f['localUrl'], rootUrl=f['localUrl'], driveId=f.get('driveId',''), driveUrl=f.get('driveUrl','#')) for f in files]
+    adjusted_files = [dict(f, url='../' + f['url'] if f['url'] != '#' else '#', localUrl='../' + f['localUrl'] if f['localUrl'] != '#' else '#', rootUrl=f['localUrl'], driveId=f.get('driveId',''), driveUrl=f.get('driveUrl','#')) for f in files]
     adjusted_files = group_multipage_files(adjusted_files)
 
     html = f'''<!DOCTYPE html>
@@ -2504,7 +2504,7 @@ def get_viewer_js():
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -2566,7 +2566,7 @@ def get_viewer_js():
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
