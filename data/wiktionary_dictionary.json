@@ -2,7 +2,6 @@
     "bonjour": {
         "spelling": "bonjour",
         "language": "French",
-        "romanization": null,
         "ipa": "/bɒnˈʒʊə/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7f/LL-Q1860_(eng)-Vealhurl-bonjour.wav",
         "definitions": [
@@ -13,7 +12,6 @@
     "adieu": {
         "spelling": "adieu",
         "language": "French",
-        "romanization": "alvidā",
         "ipa": "/əˈdju/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4a/en-us-adieu.ogg",
         "definitions": [
@@ -24,7 +22,6 @@
     "pardon": {
         "spelling": "pardon",
         "language": "Dutch",
-        "romanization": "yuánliàng",
         "ipa": "/ˈpɑːdn̩/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/54/En-us-pardon.ogg",
         "definitions": [
@@ -35,7 +32,6 @@
     "s'il vous plaît": {
         "spelling": "s'il vous plaît",
         "language": "French",
-        "romanization": null,
         "ipa": "/ˌsi(l)vuˈplɛ/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/33/Nl-s'il_vous_plaît.ogg",
         "definitions": [
@@ -46,7 +42,6 @@
     "au revoir": {
         "spelling": "au revoir",
         "language": "French",
-        "romanization": "zoi3 gin3",
         "ipa": "/ˌəʊ.ɹə ˈvwɑː/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/eb/LL-Q1860_(eng)-Persent101-au_revoir.wav",
         "definitions": [
@@ -57,7 +52,6 @@
     "bonsoir": {
         "spelling": "bonsoir",
         "language": "French",
-        "romanization": null,
         "ipa": "[bõ.swaːʁ]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Fr-bonsoir.ogg",
         "definitions": [
@@ -68,7 +62,6 @@
     "excusez-moi": {
         "spelling": "excusez-moi",
         "language": "French",
-        "romanization": null,
         "ipa": "/e(k)ˈskjuzəmwɑ/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/59/LL-Q150_(fra)-LoquaxFR-excusez-moi.wav",
         "definitions": [
@@ -79,7 +72,6 @@
     "merci": {
         "spelling": "merci",
         "language": "French",
-        "romanization": "mersī",
         "ipa": "/mɛːˈsiː/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b0/LL-Q2941602-Brunnaiz-merci.wav",
         "definitions": [
@@ -90,7 +82,6 @@
     "salut": {
         "spelling": "salut",
         "language": "Romanian",
-        "romanization": null,
         "ipa": "/salut/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f5/LL-Q7026_(cat)-Unjoanqualsevol-salut.wav",
         "definitions": [
@@ -101,7 +92,6 @@
     "bonne journée": {
         "spelling": "bonne journée",
         "language": "French",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/LL-Q150_(fra)-LoquaxFR-bonne_journée.wav",
         "definitions": [
@@ -112,7 +102,6 @@
     "bonne soirée": {
         "spelling": "bonne soirée",
         "language": "French",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2e/LL-Q150_(fra)-LoquaxFR-bonne_soirée.wav",
         "definitions": [
@@ -123,7 +112,6 @@
     "désolé": {
         "spelling": "désolé",
         "language": "French",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Fr-désolé.ogg",
         "definitions": [
@@ -134,7 +122,6 @@
     "je vous en prie": {
         "spelling": "je vous en prie",
         "language": "French",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b0/LL-Q150_(fra)-LoquaxFR-je_vous_en_prie.wav",
         "definitions": [
@@ -145,7 +132,6 @@
     "servus": {
         "spelling": "servus",
         "language": "German",
-        "romanization": "hir",
         "ipa": "/ˈse̞ɐ̯vus/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/74/De-servus.ogg",
         "definitions": [
@@ -156,7 +142,6 @@
     "hallo": {
         "spelling": "hallo",
         "language": "Dutch",
-        "romanization": "haló",
         "ipa": "/həˈləʊ/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/12/LL-Q1860_(eng)-Vealhurl-hallo.wav",
         "definitions": [
@@ -167,7 +152,6 @@
     "danke": {
         "spelling": "danke",
         "language": "German",
-        "romanization": "danke Online Hunsrik Dictionary]\n\n==Plautdietsch==\n\n===Etymology===\nFrom {{inh",
         "ipa": "[ˈdaŋkə]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/42/Nl-danke.ogg",
         "definitions": [
@@ -178,7 +162,6 @@
     "guten Tag": {
         "spelling": "guten tag",
         "language": "German",
-        "romanization": null,
         "ipa": "/ˌɡuːtn̩ ˈtaːk/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6b/De-Guten_Tag_2.oga",
         "definitions": [
@@ -189,7 +172,6 @@
     "bitte": {
         "spelling": "bitte",
         "language": "German",
-        "romanization": null,
         "ipa": "/ˈbɪtə/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Fr-bitte.ogg",
         "definitions": [
@@ -200,7 +182,6 @@
     "auf Wiedersehen": {
         "spelling": "auf wiedersehen",
         "language": "German",
-        "romanization": null,
         "ipa": "/aʊ̯f ˈviːdɐˌzeː(ə)n/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/De-auf_Wiedersehen.oga",
         "definitions": [
@@ -211,7 +192,6 @@
     "danke schön": {
         "spelling": "danke schoen",
         "language": "German",
-        "romanization": null,
         "ipa": "[ˈdaŋkə ʃøːn]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6e/De-danke_schön.ogg",
         "definitions": [
@@ -222,7 +202,6 @@
     "tschüss": {
         "spelling": "tschuess",
         "language": "German",
-        "romanization": null,
         "ipa": "/t͡ʃʏs/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/De-tschüss.ogg",
         "definitions": [
@@ -233,7 +212,6 @@
     "guten Abend": {
         "spelling": "guten abend",
         "language": "German",
-        "romanization": null,
         "ipa": "/ɡuːtən ʔaːbənt/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/56/De-Guten_Abend.oga",
         "definitions": [
@@ -244,7 +222,6 @@
     "auf Wiederhören": {
         "spelling": "auf wiederhoeren",
         "language": "German",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -255,7 +232,6 @@
     "es tut mir leid": {
         "spelling": "es tut mir leid",
         "language": "German",
-        "romanization": null,
         "ipa": "/ˌʔɛs ˈtuːt ˌmiːɐ ˈlaɪ̯t/",
         "audioUrl": null,
         "definitions": [
@@ -266,7 +242,6 @@
     "guten Morgen": {
         "spelling": "guten morgen",
         "language": "German",
-        "romanization": null,
         "ipa": "/ˈɡuːtən ˈmɔʁɡən/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b7/De-guten_Morgen.ogg",
         "definitions": [
@@ -277,7 +252,6 @@
     "grüß Gott": {
         "spelling": "gruess gott",
         "language": "German",
-        "romanization": null,
         "ipa": "/ɡʁyːs ɡɔt/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b9/De-grüß_Gott.ogg",
         "definitions": [
@@ -288,7 +262,6 @@
     "grazie": {
         "spelling": "grazie",
         "language": "Italian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -299,7 +272,6 @@
     "ciao": {
         "spelling": "ciao",
         "language": "Italian",
-        "romanization": "tshau",
         "ipa": "/t͡ʃaʊ/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bd/LL-Q1860_(eng)-Vealhurl-ciao.wav",
         "definitions": [
@@ -310,7 +282,6 @@
     "prego": {
         "spelling": "prego",
         "language": "Italian",
-        "romanization": null,
         "ipa": "/ˈpɾɛɣo̝/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0b/LL-Q5146_(por)-MedK1-prego.wav",
         "definitions": [
@@ -321,7 +292,6 @@
     "buonasera": {
         "spelling": "buonasera",
         "language": "Italian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -332,7 +302,6 @@
     "salve": {
         "spelling": "salve",
         "language": "Italian",
-        "romanization": "sarpís",
         "ipa": "/sɑːv/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c3/en-us-salve.ogg",
         "definitions": [
@@ -343,7 +312,6 @@
     "buongiorno": {
         "spelling": "buongiorno",
         "language": "Italian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -354,7 +322,6 @@
     "arrivederci": {
         "spelling": "arrivederci",
         "language": "Italian",
-        "romanization": "aribederuchi",
         "ipa": "/əˌɹiːvəˈdɛətʃi/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/62/LL-Q150_(fra)-LoquaxFR-arrivederci.wav",
         "definitions": [
@@ -365,7 +332,6 @@
     "scusa": {
         "spelling": "scusa",
         "language": "Italian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -376,7 +342,6 @@
     "per favore": {
         "spelling": "per favore",
         "language": "Italian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -387,7 +352,6 @@
     "arrivederla": {
         "spelling": "arrivederla",
         "language": "Italian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -398,7 +362,6 @@
     "mi scusi": {
         "spelling": "mi scusi",
         "language": "Italian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -409,7 +372,6 @@
     "buona giornata": {
         "spelling": "buona giornata",
         "language": "Italian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -420,7 +382,6 @@
     "hello": {
         "spelling": "hello",
         "language": "English",
-        "romanization": "halo",
         "ipa": "/hɛˈloʊ/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/48/En-uk-hello.ogg",
         "definitions": [
@@ -431,7 +392,6 @@
     "goodbye": {
         "spelling": "goodbye",
         "language": "English",
-        "romanization": "b-es-slāma",
         "ipa": "/ɡʊdˈbaɪ/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/32/En-us-goodbye.ogg",
         "definitions": [
@@ -442,7 +402,6 @@
     "thank you": {
         "spelling": "thank you",
         "language": "English",
-        "romanization": "feng{{sup",
         "ipa": "/ˈθæŋk ˌju/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/96/En-uk-thank_you.ogg",
         "definitions": [
@@ -453,7 +412,6 @@
     "sorry": {
         "spelling": "sorry",
         "language": "English",
-        "romanization": "āsif",
         "ipa": "/ˈsɒɹi/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2f/LL-Q1860_(eng)-Back_ache-sorry.wav",
         "definitions": [
@@ -464,7 +422,6 @@
     "please": {
         "spelling": "please",
         "language": "English",
-        "romanization": "tǎohǎo",
         "ipa": "/pliːz/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/81/en-uk-please.ogg",
         "definitions": [
@@ -475,7 +432,6 @@
     "thanks": {
         "spelling": "thanks",
         "language": "English",
-        "romanization": "šukran",
         "ipa": "/ˈθæŋks/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e1/en-us-thanks.ogg",
         "definitions": [
@@ -486,7 +442,6 @@
     "good morning": {
         "spelling": "good morning",
         "language": "English",
-        "romanization": "irankarapte",
         "ipa": "/ˌɡʊd ˈmɔːnɪŋ/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2d/En-uk-good_morning.ogg",
         "definitions": [
@@ -497,7 +452,6 @@
     "good afternoon": {
         "spelling": "good afternoon",
         "language": "English",
-        "romanization": "ng5 on1",
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/95/en-us-good_afternoon.ogg",
         "definitions": [
@@ -508,7 +462,6 @@
     "have a nice day": {
         "spelling": "have a nice day",
         "language": "English",
-        "romanization": "zhù nǐ jīntiān guò de yúkuài",
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f1/LL-Q1860_(eng)-Vealhurl-have_a_nice_day.wav",
         "definitions": [
@@ -519,7 +472,6 @@
     "excuse me": {
         "spelling": "excuse me",
         "language": "English",
-        "romanization": "marra ṯāniya, min faḍlika?",
         "ipa": "/ɛksˈkjuːz mi/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/57/LL-Q1860_(eng)-Vealhurl-excuse_me.wav",
         "definitions": [
@@ -530,7 +482,6 @@
     "gracias": {
         "spelling": "gracias",
         "language": "Spanish",
-        "romanization": null,
         "ipa": "/ˈɡɹɑ.θi.əs/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bb/LL-Q1860_(eng)-Persent101-gracias.wav",
         "definitions": [
@@ -541,7 +492,6 @@
     "hola": {
         "spelling": "hola",
         "language": "Catalan",
-        "romanization": null,
         "ipa": "/ˈoʊlɑː/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e5/LL-Q7026_(cat)-Unjoanqualsevol-hola.wav",
         "definitions": [
@@ -552,7 +502,6 @@
     "por favor": {
         "spelling": "por favor",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/82/Pt_por_favor.ogg",
         "definitions": [
@@ -563,7 +512,6 @@
     "adiós": {
         "spelling": "adiós",
         "language": "Spanish",
-        "romanization": null,
         "ipa": "/a.diˈos/",
         "audioUrl": null,
         "definitions": [
@@ -574,7 +522,6 @@
     "de nada": {
         "spelling": "de nada",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": "/deɪ ˈnɑdə/",
         "audioUrl": null,
         "definitions": [
@@ -585,7 +532,6 @@
     "disculpe": {
         "spelling": "disculpe",
         "language": "Spanish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -596,7 +542,6 @@
     "buenos días": {
         "spelling": "buenos días",
         "language": "Spanish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -607,7 +552,6 @@
     "perdón": {
         "spelling": "perdón",
         "language": "Spanish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -618,7 +562,6 @@
     "buenas tardes": {
         "spelling": "buenas tardes",
         "language": "Spanish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -629,7 +572,6 @@
     "buenas noches": {
         "spelling": "buenas noches",
         "language": "Spanish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -640,7 +582,6 @@
     "lo siento": {
         "spelling": "lo siento",
         "language": "Spanish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -651,7 +592,6 @@
     "hasta luego": {
         "spelling": "hasta luego",
         "language": "Spanish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -662,7 +602,6 @@
     "buen día": {
         "spelling": "buen día",
         "language": "Spanish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -673,7 +612,6 @@
     "धन्यवाद": {
         "spelling": "धन्यवाद",
         "language": "Hindi",
-        "romanization": "dhanya-vād",
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -684,7 +622,6 @@
     "नमस्ते": {
         "spelling": "नमस्ते",
         "language": "Hindi",
-        "romanization": "námas",
         "ipa": "/nə.məs.t̪eː/",
         "audioUrl": null,
         "definitions": [
@@ -695,7 +632,6 @@
     "कृपया": {
         "spelling": "कृपया",
         "language": "Hindi",
-        "romanization": "kŕpayā",
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -706,7 +642,6 @@
     "अलविदा": {
         "spelling": "अलविदा",
         "language": "Hindi",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -717,7 +652,6 @@
     "terima kasih": {
         "spelling": "terima kasih",
         "language": "Malay",
-        "romanization": "tərimɔ kaseh",
         "ipa": "[ma.seh]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e3/LL-Q9237_(msa)-GinormousBuildings-terima_kasih_(SV).wav",
         "definitions": [
@@ -728,7 +662,6 @@
     "halo": {
         "spelling": "halo",
         "language": "Indonesian",
-        "romanization": "yùn",
         "ipa": "/ˈheɪ̯ləʊ̯/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/LL-Q1860_(eng)-Vealhurl-halo.wav",
         "definitions": [
@@ -739,7 +672,6 @@
     "tolong": {
         "spelling": "tolong",
         "language": "Malay",
-        "romanization": "tō-long; tō͘-lông",
         "ipa": "[ˈtɔlɔŋ]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Ms-MY-tolong.ogg",
         "definitions": [
@@ -750,7 +682,6 @@
     "permisi": {
         "spelling": "permisi",
         "language": "Indonesian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -761,7 +692,6 @@
     "sama-sama": {
         "spelling": "sama-sama",
         "language": "Malay",
-        "romanization": null,
         "ipa": "/ˈsamaˌsama/",
         "audioUrl": null,
         "definitions": [
@@ -772,7 +702,6 @@
     "maaf": {
         "spelling": "maaf",
         "language": "Malay",
-        "romanization": null,
         "ipa": "[ma.ʔaf]",
         "audioUrl": null,
         "definitions": [
@@ -783,7 +712,6 @@
     "selamat malam": {
         "spelling": "selamat malam",
         "language": "Indonesian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/60/LL-Q9240_(ind)-Xbypass-selamat_malam.wav",
         "definitions": [
@@ -794,7 +722,6 @@
     "selamat siang": {
         "spelling": "selamat siang",
         "language": "Indonesian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -805,7 +732,6 @@
     "selamat pagi": {
         "spelling": "selamat pagi",
         "language": "Malay",
-        "romanization": null,
         "ipa": "/səlamat paɡi/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e6/LL-Q9240_(ind)-Xbypass-selamat_pagi.wav",
         "definitions": [
@@ -816,7 +742,6 @@
     "selamat sore": {
         "spelling": "selamat sore",
         "language": "Indonesian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -827,7 +752,6 @@
     "selamat tinggal": {
         "spelling": "selamat tinggal",
         "language": "Indonesian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -838,7 +762,6 @@
     "sampai jumpa": {
         "spelling": "sampai jumpa",
         "language": "Indonesian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -849,7 +772,6 @@
     "さようなら": {
         "spelling": "さようなら",
         "language": "Japanese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -860,7 +782,6 @@
     "ありがとうございます": {
         "spelling": "ありがとうございます",
         "language": "Japanese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -871,7 +792,6 @@
     "すみません": {
         "spelling": "すみません",
         "language": "Japanese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -882,7 +802,6 @@
     "おはようございます": {
         "spelling": "おはようございます",
         "language": "Japanese",
-        "romanization": "ohayō",
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -893,7 +812,6 @@
     "안녕하세요": {
         "spelling": "안녕하세요",
         "language": "Korean",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -904,7 +822,6 @@
     "안녕하십니까": {
         "spelling": "안녕하십니까",
         "language": "Korean",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -915,7 +832,6 @@
     "천만에요": {
         "spelling": "천만에요",
         "language": "Korean",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -926,7 +842,6 @@
     "감사합니다": {
         "spelling": "감사합니다",
         "language": "Korean",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -937,7 +852,6 @@
     "안녕히 계세요": {
         "spelling": "안녕히 계세요",
         "language": "Korean",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -948,7 +862,6 @@
     "안녕히 가세요": {
         "spelling": "안녕히 가세요",
         "language": "Korean",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -959,7 +872,6 @@
     "부탁합니다": {
         "spelling": "부탁합니다",
         "language": "Korean",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -970,7 +882,6 @@
     "graag gedaan": {
         "spelling": "graag gedaan",
         "language": "Dutch",
-        "romanization": null,
         "ipa": "[ˈɣraːxəˈdaːn]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/94/Nl-graag_gedaan.ogg",
         "definitions": [
@@ -981,7 +892,6 @@
     "alstublieft": {
         "spelling": "alstublieft",
         "language": "Dutch",
-        "romanization": null,
         "ipa": "/ˌɑ(l)styˈblift/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/66/Nl-alstublieft.ogg",
         "definitions": [
@@ -992,7 +902,6 @@
     "tot ziens": {
         "spelling": "tot ziens",
         "language": "Dutch",
-        "romanization": null,
         "ipa": "[tɔtˈsins]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Nl-tot_ziens.ogg",
         "definitions": [
@@ -1003,7 +912,6 @@
     "dank u wel": {
         "spelling": "dank u wel",
         "language": "Dutch",
-        "romanization": null,
         "ipa": "/ˌdɑŋk y ˈʋɛl/",
         "audioUrl": null,
         "definitions": [
@@ -1014,7 +922,6 @@
     "goedemorgen": {
         "spelling": "goedemorgen",
         "language": "Dutch",
-        "romanization": null,
         "ipa": "/ˌɣu.dəˈmɔr.ɣə(n)/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Nl-goedemorgen.ogg",
         "definitions": [
@@ -1025,7 +932,6 @@
     "goedemiddag": {
         "spelling": "goedemiddag",
         "language": "Dutch",
-        "romanization": null,
         "ipa": "/ˌɣu.dəˈmɪ.dɑx/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/74/Nl-goedemiddag.ogg",
         "definitions": [
@@ -1036,7 +942,6 @@
     "goedenavond": {
         "spelling": "goedenavond",
         "language": "Dutch",
-        "romanization": null,
         "ipa": "/ˌɣu.dəˈnaː.vɔnt/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Nl-goedenavond.ogg",
         "definitions": [
@@ -1047,7 +952,6 @@
     "het spijt me": {
         "spelling": "het spijt me",
         "language": "Dutch",
-        "romanization": null,
         "ipa": "/(ɦ)ət ˈspɛi̯t mə/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Nl-het_spijt_me.ogg",
         "definitions": [
@@ -1058,7 +962,6 @@
     "dzień dobry": {
         "spelling": "dzień dobry",
         "language": "Polish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1069,7 +972,6 @@
     "do widzenia": {
         "spelling": "do widzenia",
         "language": "Polish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1080,7 +982,6 @@
     "dobry wieczór": {
         "spelling": "dobry wieczór",
         "language": "Polish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1091,7 +992,6 @@
     "dziękuję": {
         "spelling": "dziękuję",
         "language": "Polish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1102,7 +1002,6 @@
     "proszę": {
         "spelling": "proszę",
         "language": "Polish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1113,7 +1012,6 @@
     "przepraszam": {
         "spelling": "przepraszam",
         "language": "Polish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1124,7 +1022,6 @@
     "nie ma za co": {
         "spelling": "nie ma za co",
         "language": "Polish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1135,7 +1032,6 @@
     "witam": {
         "spelling": "witam",
         "language": "Polish",
-        "romanization": null,
         "ipa": "[ˈvʲitam]",
         "audioUrl": null,
         "definitions": [
@@ -1146,7 +1042,6 @@
     "obrigado": {
         "spelling": "obrigado",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/59/LL-Q5146_(por)-Juliano_P._Junho_(Jjunho)-obrigado.wav",
         "definitions": [
@@ -1157,7 +1052,6 @@
     "olá": {
         "spelling": "olá",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": "/ɔ.ˈla/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/50/Pt-olá.oga",
         "definitions": [
@@ -1168,7 +1062,6 @@
     "adeus": {
         "spelling": "adeus",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": "[aˈðeʊ̯s]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/92/Pt_adeus.ogg",
         "definitions": [
@@ -1179,7 +1072,6 @@
     "bom dia": {
         "spelling": "bom dia",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": "/bõⁿ ˈdiɐ/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/de/Pt-bom_dia.ogg",
         "definitions": [
@@ -1190,7 +1082,6 @@
     "boa noite": {
         "spelling": "boa noite",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Pt_boa_noite.ogg",
         "definitions": [
@@ -1201,7 +1092,6 @@
     "tchau": {
         "spelling": "tchau",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/19/LL-Q5146_(por)-Cathodography-tchau.wav",
         "definitions": [
@@ -1212,7 +1102,6 @@
     "boa tarde": {
         "spelling": "boa tarde",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8c/Pt_boa_tarde.ogg",
         "definitions": [
@@ -1223,7 +1112,6 @@
     "perdão": {
         "spelling": "perdão",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": "/pɛʁˈdɐ̃w̃/ [pɛɦˈdɐ̃ʊ̯̃]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1b/LL-Q5146_(por)-Santamarcanda-perdão.wav",
         "definitions": [
@@ -1234,7 +1122,6 @@
     "com licença": {
         "spelling": "com licença",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1245,7 +1132,6 @@
     "boa viagem": {
         "spelling": "boa viagem",
         "language": "Portuguese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1256,7 +1142,6 @@
     "спасибо": {
         "spelling": "спасибо",
         "language": "Russian",
-        "romanization": "ıṣpaṣıbo",
         "ipa": "[spaˈsʲibo]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Ru-спасибо.ogg",
         "definitions": [
@@ -1267,7 +1152,6 @@
     "до свидания": {
         "spelling": "до свидания",
         "language": "Russian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Ru-до_свидания.ogg",
         "definitions": [
@@ -1278,7 +1162,6 @@
     "пожалуйста": {
         "spelling": "пожалуйста",
         "language": "Russian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Пожалуста.wav",
         "definitions": [
@@ -1289,7 +1172,6 @@
     "здравствуйте": {
         "spelling": "здравствуйте",
         "language": "Russian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/16/Ru-здравствуйте.ogg",
         "definitions": [
@@ -1300,7 +1182,6 @@
     "добрый день": {
         "spelling": "добрый день",
         "language": "Russian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9b/LL-Q7737_(rus)-Tatiana_Kerbush-добрый_день.wav",
         "definitions": [
@@ -1311,7 +1192,6 @@
     "доброе утро": {
         "spelling": "доброе утро",
         "language": "Russian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0d/LL-Q7737_(rus)-DoctorandusManhattan-доброе_утро.wav",
         "definitions": [
@@ -1322,7 +1202,6 @@
     "добрый вечер": {
         "spelling": "добрый вечер",
         "language": "Russian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8f/Ru-добрый_вечер.ogg",
         "definitions": [
@@ -1333,7 +1212,6 @@
     "всего доброго": {
         "spelling": "всего доброго",
         "language": "Russian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1344,7 +1222,6 @@
     "извините": {
         "spelling": "извините",
         "language": "Russian",
-        "romanization": null,
         "ipa": "[izvʲiˈnʲitʲə]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/76/Ru-извините.ogg",
         "definitions": [
@@ -1355,7 +1232,6 @@
     "你好": {
         "spelling": "你好",
         "language": "Chinese",
-        "romanization": "wéi",
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1366,7 +1242,6 @@
     "再見": {
         "spelling": "再見",
         "language": "Chinese",
-        "romanization": "tsaichen",
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1377,7 +1252,6 @@
     "早上好": {
         "spelling": "早上好",
         "language": "Chinese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1388,7 +1262,6 @@
     "早晨": {
         "spelling": "早晨",
         "language": "Chinese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1399,7 +1272,6 @@
     "晚上好": {
         "spelling": "晚上好",
         "language": "Chinese",
-        "romanization": "wǎnshànghǎo",
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1410,7 +1282,6 @@
     "慢走": {
         "spelling": "慢走",
         "language": "Chinese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1421,7 +1292,6 @@
     "下午好": {
         "spelling": "下午好",
         "language": "Chinese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1432,7 +1302,6 @@
     "مرحبا": {
         "spelling": "مرحبا",
         "language": "Arabic",
-        "romanization": "marḥba",
         "ipa": "/mar.ħa.ba/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cb/LL-Q55633582_(ajp)-AdrianAbdulBaha-مرحبا.wav",
         "definitions": [
@@ -1443,7 +1312,6 @@
     "مع السلامة": {
         "spelling": "مع السلامة",
         "language": "Arabic",
-        "romanization": "salām",
         "ipa": "/maʕ asːaˈlaːma/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1b/مع_السلامة.ogg",
         "definitions": [
@@ -1454,7 +1322,6 @@
     "صباح الخير": {
         "spelling": "صباح الخير",
         "language": "Arabic",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Ṣabāḥ_al-kháyr2.ogg",
         "definitions": [
@@ -1465,7 +1332,6 @@
     "مساء الخير": {
         "spelling": "مساء الخير",
         "language": "Arabic",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1476,7 +1342,6 @@
     "آسف": {
         "spelling": "آسف",
         "language": "Arabic",
-        "romanization": "ʔāsif",
         "ipa": "/ʔaː.sif/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6d/LL-Q55633582_(ajp)-MahmoudM_(AdrianAbdulBaha)-آسف.wav",
         "definitions": [
@@ -1487,7 +1352,6 @@
     "благодаря": {
         "spelling": "благодаря",
         "language": "Bulgarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Ru-благодаря.ogg",
         "definitions": [
@@ -1498,7 +1362,6 @@
     "моля": {
         "spelling": "моля",
         "language": "Bulgarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1509,7 +1372,6 @@
     "добър вечер": {
         "spelling": "добър вечер",
         "language": "Bulgarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1520,7 +1382,6 @@
     "здравей": {
         "spelling": "здравей",
         "language": "Bulgarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1531,7 +1392,6 @@
     "довиждане": {
         "spelling": "довиждане",
         "language": "Bulgarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1542,7 +1402,6 @@
     "добро утро": {
         "spelling": "добро утро",
         "language": "Bulgarian",
-        "romanization": null,
         "ipa": "[ˈdɔbrɔ ˈutrɔ]",
         "audioUrl": null,
         "definitions": [
@@ -1553,7 +1412,6 @@
     "съжалявам": {
         "spelling": "съжалявам",
         "language": "Bulgarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1564,7 +1422,6 @@
     "извинете": {
         "spelling": "извинете",
         "language": "Bulgarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1575,7 +1432,6 @@
     "bon dia": {
         "spelling": "bon dia",
         "language": "Catalan",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f1/LL-Q7026_(cat)-Unjoanqualsevol-bon_dia.wav",
         "definitions": [
@@ -1586,7 +1442,6 @@
     "gràcies": {
         "spelling": "gràcies",
         "language": "Catalan",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/77/ca-gràcies.ogg",
         "definitions": [
@@ -1597,7 +1452,6 @@
     "si us plau": {
         "spelling": "si us plau",
         "language": "Catalan",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b4/LL-Q7026_(cat)-Marvives-si_us_plau.wav",
         "definitions": [
@@ -1608,7 +1462,6 @@
     "bona tarda": {
         "spelling": "bona tarda",
         "language": "Catalan",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/17/LL-Q7026_(cat)-Marvives-bona_tarda.wav",
         "definitions": [
@@ -1619,7 +1472,6 @@
     "bona nit": {
         "spelling": "bona nit",
         "language": "Catalan",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/eb/LL-Q7026_(cat)-Marvives-bona_nit.wav",
         "definitions": [
@@ -1630,7 +1482,6 @@
     "de res": {
         "spelling": "de res",
         "language": "Catalan",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/73/LL-Q7026_(cat)-Marvives-de_res.wav",
         "definitions": [
@@ -1641,7 +1492,6 @@
     "prosím": {
         "spelling": "prosím",
         "language": "Slovak",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/22/Cs-prosím.ogg",
         "definitions": [
@@ -1652,7 +1502,6 @@
     "ahoj": {
         "spelling": "ahoj",
         "language": "Slovak",
-        "romanization": null,
         "ipa": "/aˈɦoj/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Cs-ahoj.oga",
         "definitions": [
@@ -1663,7 +1512,6 @@
     "promiňte": {
         "spelling": "promiňte",
         "language": "Czech",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d1/LL-Q9056_(ces)-Ghost4Man-promiňte.wav",
         "definitions": [
@@ -1674,7 +1522,6 @@
     "děkuji": {
         "spelling": "děkuji",
         "language": "Czech",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/60/Cs-děkuji.ogg",
         "definitions": [
@@ -1685,7 +1532,6 @@
     "dobrý den": {
         "spelling": "dobrý den",
         "language": "Czech",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1a/LL-Q9056_(ces)-Ghost4Man-dobrý_den.wav",
         "definitions": [
@@ -1696,7 +1542,6 @@
     "není zač": {
         "spelling": "není zač",
         "language": "Czech",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/47/LL-Q9056_(ces)-Ghost4Man-{{pagename",
         "definitions": [
@@ -1707,7 +1552,6 @@
     "dobrý večer": {
         "spelling": "dobrý večer",
         "language": "Slovak",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b0/LL-Q9056_(ces)-Ghost4Man-dobrý_večer.wav",
         "definitions": [
@@ -1718,7 +1562,6 @@
     "na shledanou": {
         "spelling": "na shledanou",
         "language": "Czech",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/07/LL-Q9056_(ces)-Ghost4Man-na_shledanou.wav",
         "definitions": [
@@ -1729,7 +1572,6 @@
     "dobré ráno": {
         "spelling": "dobré ráno",
         "language": "Slovak",
-        "romanization": null,
         "ipa": "/ˈdɔbrɛː raːnɔ/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e6/LL-Q9056_(ces)-Ghost4Man-dobré_ráno.wav",
         "definitions": [
@@ -1740,7 +1582,6 @@
     "tak": {
         "spelling": "tak",
         "language": "Danish",
-        "romanization": "tak",
         "ipa": "/tæk/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/77/en-us-tack.ogg",
         "definitions": [
@@ -1751,7 +1592,6 @@
     "goddag": {
         "spelling": "goddag",
         "language": "Swedish",
-        "romanization": null,
         "ipa": "/ɡoˈdaːˀɣ/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/61/Sv-God_dag_1.ogg",
         "definitions": [
@@ -1762,7 +1602,6 @@
     "hej": {
         "spelling": "hej",
         "language": "Swedish",
-        "romanization": null,
         "ipa": "/hɑj/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Da-hej.ogg",
         "definitions": [
@@ -1773,7 +1612,6 @@
     "mange tak": {
         "spelling": "mange tak",
         "language": "Danish",
-        "romanization": null,
         "ipa": "/manɡə tak/",
         "audioUrl": null,
         "definitions": [
@@ -1784,7 +1622,6 @@
     "farvel": {
         "spelling": "farvel",
         "language": "Danish",
-        "romanization": null,
         "ipa": "/fɑːˈvɛl/",
         "audioUrl": null,
         "definitions": [
@@ -1795,7 +1632,6 @@
     "undskyld": {
         "spelling": "undskyld",
         "language": "Danish",
-        "romanization": null,
         "ipa": "/ˈonˌsɡylˀ/",
         "audioUrl": null,
         "definitions": [
@@ -1806,7 +1642,6 @@
     "godmorgen": {
         "spelling": "godmorgen",
         "language": "Danish",
-        "romanization": null,
         "ipa": "/ɡo.ˈmɒː.ən/",
         "audioUrl": null,
         "definitions": [
@@ -1817,7 +1652,6 @@
     "godaften": {
         "spelling": "godaften",
         "language": "Danish",
-        "romanization": null,
         "ipa": "/ɡoˈɑftən/",
         "audioUrl": null,
         "definitions": [
@@ -1828,7 +1662,6 @@
     "beklager": {
         "spelling": "beklager",
         "language": "Norwegian",
-        "romanization": null,
         "ipa": "/bəˈklɑːɡəɾ/",
         "audioUrl": null,
         "definitions": [
@@ -1839,7 +1672,6 @@
     "selv tak": {
         "spelling": "selv tak",
         "language": "Danish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1850,7 +1682,6 @@
     "ευχαριστώ": {
         "spelling": "ευχαριστώ",
         "language": "Greek",
-        "romanization": null,
         "ipa": "/ef.xa.ɾiˈsto/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a4/EL-ευχαριστώ.ogg",
         "definitions": [
@@ -1861,7 +1692,6 @@
     "συγγνώμη": {
         "spelling": "συγγνώμη",
         "language": "Greek",
-        "romanization": null,
         "ipa": "/siŋˈɣno.mi/",
         "audioUrl": null,
         "definitions": [
@@ -1872,7 +1702,6 @@
     "καλημέρα": {
         "spelling": "καλημέρα",
         "language": "Greek",
-        "romanization": null,
         "ipa": "/kaliˈmera/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4f/EL-καλημέρα.ogg",
         "definitions": [
@@ -1883,7 +1712,6 @@
     "καλησπέρα": {
         "spelling": "καλησπέρα",
         "language": "Greek",
-        "romanization": null,
         "ipa": "/kaliˈspera/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/50/EL-καλησπέρα.ogg",
         "definitions": [
@@ -1894,7 +1722,6 @@
     "αντίο": {
         "spelling": "αντίο",
         "language": "Greek",
-        "romanization": null,
         "ipa": "/aˈdio/",
         "audioUrl": null,
         "definitions": [
@@ -1905,7 +1732,6 @@
     "γεια σας": {
         "spelling": "γεια σας",
         "language": "Greek",
-        "romanization": null,
         "ipa": "/ˈʝasas/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b0/EL-γεια-σας.ogg",
         "definitions": [
@@ -1916,7 +1742,6 @@
     "παρακαλώ": {
         "spelling": "παρακαλώ",
         "language": "Greek",
-        "romanization": "-",
         "ipa": "/parakaˈlo/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c1/EL-παρακαλώ.ogg",
         "definitions": [
@@ -1927,7 +1752,6 @@
     "hei": {
         "spelling": "hei",
         "language": "Norwegian",
-        "romanization": null,
         "ipa": "/ɦɛi̯/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/24/Nl-hei.ogg",
         "definitions": [
@@ -1938,7 +1762,6 @@
     "kiitos": {
         "spelling": "kiitos",
         "language": "Finnish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1949,7 +1772,6 @@
     "näkemiin": {
         "spelling": "näkemiin",
         "language": "Finnish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1960,7 +1782,6 @@
     "anteeksi": {
         "spelling": "anteeksi",
         "language": "Finnish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1971,7 +1792,6 @@
     "ole hyvä": {
         "spelling": "ole hyvä",
         "language": "Finnish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1982,7 +1802,6 @@
     "hyvää huomenta": {
         "spelling": "hyvää huomenta",
         "language": "Finnish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -1993,7 +1812,6 @@
     "hyvää päivää": {
         "spelling": "hyvää päivää",
         "language": "Finnish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2004,7 +1822,6 @@
     "hyvää iltaa": {
         "spelling": "hyvää iltaa",
         "language": "Finnish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2015,7 +1832,6 @@
     "שלום": {
         "spelling": "שלום",
         "language": "Hebrew",
-        "romanization": "šālâ",
         "ipa": "/ʃaːˈloːm/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/29/He-Shalom.ogg",
         "definitions": [
@@ -2026,7 +1842,6 @@
     "תודה": {
         "spelling": "תודה",
         "language": "Hebrew",
-        "romanization": "y-d-",
         "ipa": "/toˈda/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d3/LL-Q9288_(heb)-Uziel302-תודה.wav",
         "definitions": [
@@ -2037,7 +1852,6 @@
     "בוקר טוב": {
         "spelling": "בוקר טוב",
         "language": "Hebrew",
-        "romanization": "bóker tov",
         "ipa": "/ˈbokeʁ tov/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8f/LL-Q9288_(heb)-Uziel302-בוקר_טוב.wav",
         "definitions": [
@@ -2048,7 +1862,6 @@
     "להתראות": {
         "spelling": "להתראות",
         "language": "Hebrew",
-        "romanization": "l'hitra'ót",
         "ipa": "/le(h)itʁaˈ(ʔ)ot/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0c/LL-Q9288_(heb)-YaronSh-להתראות.wav",
         "definitions": [
@@ -2059,7 +1872,6 @@
     "בבקשה": {
         "spelling": "בבקשה",
         "language": "Hebrew",
-        "romanization": "b'vakashá",
         "ipa": "/be.va.kaˈʃa/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/89/He-בְּבַקָּשָׁה.ogg",
         "definitions": [
@@ -2070,7 +1882,6 @@
     "ערב טוב": {
         "spelling": "ערב טוב",
         "language": "Hebrew",
-        "romanization": "érev tov",
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/93/LL-Q9288_(heb)-YaronSh-ערב_טוב.wav",
         "definitions": [
@@ -2081,7 +1892,6 @@
     "על לא דבר": {
         "spelling": "על לא דבר",
         "language": "Hebrew",
-        "romanization": "al lo davár",
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2092,7 +1902,6 @@
     "סליחה": {
         "spelling": "סליחה",
         "language": "Hebrew",
-        "romanization": "salákh",
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1d/LL-Q9288_(heb)-YaronSh-סליחה.wav",
         "definitions": [
@@ -2103,7 +1912,6 @@
     "szia": {
         "spelling": "szia",
         "language": "Hungarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/df/Hu-szia.ogg",
         "definitions": [
@@ -2114,7 +1922,6 @@
     "viszontlátásra": {
         "spelling": "viszontlátásra",
         "language": "Hungarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Hu-viszontlátásra.ogg",
         "definitions": [
@@ -2125,7 +1932,6 @@
     "szívesen": {
         "spelling": "szívesen",
         "language": "Hungarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Hu-szívesen.ogg",
         "definitions": [
@@ -2136,7 +1942,6 @@
     "jó napot": {
         "spelling": "jó napot",
         "language": "Hungarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2147,7 +1952,6 @@
     "jó estét": {
         "spelling": "jó estét",
         "language": "Hungarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2158,7 +1962,6 @@
     "jó reggelt": {
         "spelling": "jó reggelt",
         "language": "Hungarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2169,7 +1972,6 @@
     "köszönöm": {
         "spelling": "köszönöm",
         "language": "Hungarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Hu-köszönöm.ogg",
         "definitions": [
@@ -2180,7 +1982,6 @@
     "bocsánat": {
         "spelling": "bocsánat",
         "language": "Hungarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/53/Hu-bocsánat.ogg",
         "definitions": [
@@ -2191,7 +1992,6 @@
     "kérem": {
         "spelling": "kérem",
         "language": "Hungarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Hu-kérem.ogg",
         "definitions": [
@@ -2202,7 +2002,6 @@
     "elnézést": {
         "spelling": "elnézést",
         "language": "Hungarian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Hu-elnézést.ogg",
         "definitions": [
@@ -2213,7 +2012,6 @@
     "helo": {
         "spelling": "helo",
         "language": "Malay",
-        "romanization": null,
         "ipa": "/ˈhi.loʊ/",
         "audioUrl": null,
         "definitions": [
@@ -2224,7 +2022,6 @@
     "minta maaf": {
         "spelling": "minta maaf",
         "language": "Malay",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2235,7 +2032,6 @@
     "takk": {
         "spelling": "takk",
         "language": "Norwegian",
-        "romanization": null,
         "ipa": "/ˈtʰahk/",
         "audioUrl": null,
         "definitions": [
@@ -2246,7 +2042,6 @@
     "god morgen": {
         "spelling": "god morgen",
         "language": "Norwegian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fd/No-god_morgen.ogg",
         "definitions": [
@@ -2257,7 +2052,6 @@
     "tusen takk": {
         "spelling": "tusen takk",
         "language": "Norwegian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2268,7 +2062,6 @@
     "god kveld": {
         "spelling": "god kveld",
         "language": "Norwegian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2279,7 +2072,6 @@
     "ha det bra": {
         "spelling": "ha det bra",
         "language": "Norwegian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2290,7 +2082,6 @@
     "unnskyld": {
         "spelling": "unnskyld",
         "language": "Norwegian",
-        "romanization": null,
         "ipa": "/ˈʉnːˌʃʏl(d)/",
         "audioUrl": null,
         "definitions": [
@@ -2301,7 +2092,6 @@
     "vær så god": {
         "spelling": "vaer saa god",
         "language": "Norwegian",
-        "romanization": null,
         "ipa": "/ʋæːrsɔˈɡuː/",
         "audioUrl": null,
         "definitions": [
@@ -2312,7 +2102,6 @@
     "mulțumesc": {
         "spelling": "mulțumesc",
         "language": "Romanian",
-        "romanization": null,
         "ipa": "[mult͡suˈmesk]",
         "audioUrl": null,
         "definitions": [
@@ -2323,7 +2112,6 @@
     "cu plăcere": {
         "spelling": "cu plăcere",
         "language": "Romanian",
-        "romanization": null,
         "ipa": "/ˌku.pləˈt͡ʃe.re/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e9/LL-Q7913_(ron)-Andreea_Teodoraa-cu_plăcere.wav",
         "definitions": [
@@ -2334,7 +2122,6 @@
     "vă rog": {
         "spelling": "vă rog",
         "language": "Romanian",
-        "romanization": null,
         "ipa": "/və ˈroɡ/",
         "audioUrl": null,
         "definitions": [
@@ -2345,7 +2132,6 @@
     "bună ziua": {
         "spelling": "bună ziua",
         "language": "Romanian",
-        "romanization": null,
         "ipa": "[ˌbu.nə ˈzi.wa]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8a/Ro-bună_ziua.ogg",
         "definitions": [
@@ -2356,7 +2142,6 @@
     "îmi pare rău": {
         "spelling": "îmi pare rău",
         "language": "Romanian",
-        "romanization": null,
         "ipa": "/ɨmʲ ˌpare ˈrəw/",
         "audioUrl": null,
         "definitions": [
@@ -2367,7 +2152,6 @@
     "la revedere": {
         "spelling": "la revedere",
         "language": "Romanian",
-        "romanization": null,
         "ipa": "[ˌla re.veˈde.re]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8f/LL-Q7913_(ron)-KlaudiuMihaila-la_revedere.wav",
         "definitions": [
@@ -2378,7 +2162,6 @@
     "bună seara": {
         "spelling": "bună seara",
         "language": "Romanian",
-        "romanization": null,
         "ipa": "/ˌbu.nə ˈse̯a.ra/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c2/LL-Q7913_(ron)-Andreea_Teodoraa-bună_seara.wav",
         "definitions": [
@@ -2389,7 +2172,6 @@
     "bună dimineața": {
         "spelling": "bună dimineața",
         "language": "Romanian",
-        "romanization": null,
         "ipa": "/ˌbu.nə ˌdi.miˈne̯a.t͡sa/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Ro-bună_dimineața.ogg",
         "definitions": [
@@ -2400,7 +2182,6 @@
     "scuzați-mă": {
         "spelling": "scuzați-mă",
         "language": "Romanian",
-        "romanization": null,
         "ipa": "[skuˈzat͡simə]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3d/LL-Q7913_(ron)-Andreea_Teodoraa-scuzați-mă.wav",
         "definitions": [
@@ -2411,7 +2192,6 @@
     "dobrý deň": {
         "spelling": "dobrý deň",
         "language": "Slovak",
-        "romanization": null,
         "ipa": "/dɔbriː ɟɛɲ/",
         "audioUrl": null,
         "definitions": [
@@ -2422,7 +2202,6 @@
     "dovidenia": {
         "spelling": "dovidenia",
         "language": "Slovak",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2433,7 +2212,6 @@
     "ďakujem": {
         "spelling": "ďakujem",
         "language": "Slovak",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2444,7 +2222,6 @@
     "tack": {
         "spelling": "tack",
         "language": "Swedish",
-        "romanization": "náats",
         "ipa": "/tæk/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/77/en-us-tack.ogg",
         "definitions": [
@@ -2455,7 +2232,6 @@
     "god morgon": {
         "spelling": "god morgon",
         "language": "Swedish",
-        "romanization": null,
         "ipa": "/ɡʊˈmɔˌrɔn/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/0/04/Sv-God_morgon_1.ogg",
         "definitions": [
@@ -2466,7 +2242,6 @@
     "god kväll": {
         "spelling": "god kvaell",
         "language": "Swedish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2477,7 +2252,6 @@
     "adjö": {
         "spelling": "adjoe",
         "language": "Swedish",
-        "romanization": null,
         "ipa": "/aˈjøː/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/40/Sv-adjö.ogg",
         "definitions": [
@@ -2488,7 +2262,6 @@
     "förlåt": {
         "spelling": "foerlaat",
         "language": "Swedish",
-        "romanization": null,
         "ipa": "[ˌfœ̞ˈɭoːt]",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Sv-förlåt.ogg",
         "definitions": [
@@ -2499,7 +2272,6 @@
     "varsågod": {
         "spelling": "varsaagod",
         "language": "Swedish",
-        "romanization": null,
         "ipa": "/vɑːrsɔˈɡuːd/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Sv-varsågod.ogg",
         "definitions": [
@@ -2510,7 +2282,6 @@
     "ursäkta": {
         "spelling": "ursaekta",
         "language": "Swedish",
-        "romanization": null,
         "ipa": "/ʉ̟ːˈʂɛkta/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Sv-ursäkta.ogg",
         "definitions": [
@@ -2521,7 +2292,6 @@
     "tack så mycket": {
         "spelling": "tack saa mycket",
         "language": "Swedish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2532,7 +2302,6 @@
     "สวัสดี": {
         "spelling": "สวัสดี",
         "language": "Thai",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2543,7 +2312,6 @@
     "ขอบคุณ": {
         "spelling": "ขอบคุณ",
         "language": "Thai",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2554,7 +2322,6 @@
     "ไม่เป็นไร": {
         "spelling": "ไม่เป็นไร",
         "language": "Thai",
-        "romanization": "bɔɔ² pen¹ ɲaŋ¹",
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2565,7 +2332,6 @@
     "กรุณา": {
         "spelling": "กรุณา",
         "language": "Thai",
-        "romanization": "karuṇā",
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2576,7 +2342,6 @@
     "ขอโทษ": {
         "spelling": "ขอโทษ",
         "language": "Thai",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2587,7 +2352,6 @@
     "ลาก่อน": {
         "spelling": "ลาก่อน",
         "language": "Thai",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2598,7 +2362,6 @@
     "merhaba": {
         "spelling": "merhaba",
         "language": "Turkish",
-        "romanization": "merhaba",
         "ipa": "/mêrxaːba/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Merhaba.ogg",
         "definitions": [
@@ -2609,7 +2372,6 @@
     "teşekkür ederim": {
         "spelling": "teşekkür ederim",
         "language": "Turkish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2620,7 +2382,6 @@
     "lütfen": {
         "spelling": "lütfen",
         "language": "Turkish",
-        "romanization": "lutfen",
         "ipa": "/ˈlyt.fɛn/",
         "audioUrl": null,
         "definitions": [
@@ -2631,7 +2392,6 @@
     "güle güle": {
         "spelling": "güle güle",
         "language": "Turkish",
-        "romanization": null,
         "ipa": "/ɟyˈle.ɟy.le/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/52/LL-Q256_(tur)-ToprakM-güle_güle.wav",
         "definitions": [
@@ -2642,7 +2402,6 @@
     "günaydın": {
         "spelling": "günaydın",
         "language": "Turkish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3e/günaydın.ogg",
         "definitions": [
@@ -2653,7 +2412,6 @@
     "teşekkürler": {
         "spelling": "teşekkürler",
         "language": "Turkish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Teşekkürler.ogg",
         "definitions": [
@@ -2664,7 +2422,6 @@
     "iyi günler": {
         "spelling": "iyi günler",
         "language": "Turkish",
-        "romanization": null,
         "ipa": "/iˈji ɡynˈleɾ/",
         "audioUrl": null,
         "definitions": [
@@ -2675,7 +2432,6 @@
     "iyi akşamlar": {
         "spelling": "iyi akşamlar",
         "language": "Turkish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f6/İyi_akşamlar.ogg",
         "definitions": [
@@ -2686,7 +2442,6 @@
     "hoşça kal": {
         "spelling": "hoşça kal",
         "language": "Turkish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2697,7 +2452,6 @@
     "rica ederim": {
         "spelling": "rica ederim",
         "language": "Turkish",
-        "romanization": null,
         "ipa": "/ɾiˈd͡ʒaː ɛ.de.ɾim/",
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/98/Rica_ederim.ogg",
         "definitions": [
@@ -2708,7 +2462,6 @@
     "affedersiniz": {
         "spelling": "affedersiniz",
         "language": "Turkish",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2719,7 +2472,6 @@
     "до побачення": {
         "spelling": "до побачення",
         "language": "Ukrainian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Uk-до_побачення.ogg",
         "definitions": [
@@ -2730,7 +2482,6 @@
     "привіт": {
         "spelling": "привіт",
         "language": "Ukrainian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/51/Uk-привіт.ogg",
         "definitions": [
@@ -2741,7 +2492,6 @@
     "доброго ранку": {
         "spelling": "доброго ранку",
         "language": "Ukrainian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/69/Uk-доброго_ранку.ogg",
         "definitions": [
@@ -2752,7 +2502,6 @@
     "будь ласка": {
         "spelling": "будь ласка",
         "language": "Ukrainian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d7/Uk-будь_ласка.ogg",
         "definitions": [
@@ -2763,7 +2512,6 @@
     "вибачте": {
         "spelling": "вибачте",
         "language": "Ukrainian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2774,7 +2522,6 @@
     "дякую": {
         "spelling": "дякую",
         "language": "Ukrainian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/7/73/Uk-дякую.ogg",
         "definitions": [
@@ -2785,7 +2532,6 @@
     "нема за що": {
         "spelling": "нема за що",
         "language": "Ukrainian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/51/Uk-нема_за_що.ogg",
         "definitions": [
@@ -2796,7 +2542,6 @@
     "добрий вечір": {
         "spelling": "добрий вечір",
         "language": "Ukrainian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Uk-добрий_вечір.ogg",
         "definitions": [
@@ -2807,7 +2552,6 @@
     "добрий день": {
         "spelling": "добрий день",
         "language": "Ukrainian",
-        "romanization": null,
         "ipa": null,
         "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Uk-добрий_день.ogg",
         "definitions": [
@@ -2818,7 +2562,6 @@
     "xin chào": {
         "spelling": "xin chào",
         "language": "Vietnamese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2829,7 +2572,6 @@
     "tạm biệt": {
         "spelling": "tạm biệt",
         "language": "Vietnamese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2840,7 +2582,6 @@
     "chào buổi sáng": {
         "spelling": "chào buổi sáng",
         "language": "Vietnamese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2851,7 +2592,6 @@
     "xin lỗi": {
         "spelling": "xin lỗi",
         "language": "Vietnamese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2862,7 +2602,6 @@
     "không có chi": {
         "spelling": "không có chi",
         "language": "Vietnamese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
@@ -2873,7 +2612,6 @@
     "làm ơn": {
         "spelling": "làm ơn",
         "language": "Vietnamese",
-        "romanization": null,
         "ipa": null,
         "audioUrl": null,
         "definitions": [
