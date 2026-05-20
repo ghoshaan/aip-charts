@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "pemba_6_dep_rnav.pdf",
                 "name": "PEMBA_6_DEP_RNAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1qGuPe42la9jN8OgFU9OlLn-4flCuF4xT",
                 "driveUrl": "https://drive.google.com/file/d/1qGuPe42la9jN8OgFU9OlLn-4flCuF4xT/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
                         {
                                 "id": "pemba_6_dep_rnav.pdf",
                                 "name": "PEMBA_6_DEP_RNAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1qGuPe42la9jN8OgFU9OlLn-4flCuF4xT",
                                 "driveUrl": "https://drive.google.com/file/d/1qGuPe42la9jN8OgFU9OlLn-4flCuF4xT/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1215,8 +1215,8 @@
                         {
                                 "id": "pemba_6_dep_rnav_pg_02.pdf",
                                 "name": "PEMBA_6_DEP_RNAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1b3BJ2l7l4OsZym-R2Btnx55wiN8-8QYv",
                                 "driveUrl": "https://drive.google.com/file/d/1b3BJ2l7l4OsZym-R2Btnx55wiN8-8QYv/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1225,8 +1225,8 @@
                         {
                                 "id": "pemba_6_dep_rnav_pg_03.pdf",
                                 "name": "PEMBA_6_DEP_RNAV_PG_03.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1nUEBpMPACHHpT_yNbusUFh0elBNQr8xd",
                                 "driveUrl": "https://drive.google.com/file/d/1nUEBpMPACHHpT_yNbusUFh0elBNQr8xd/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1237,8 +1237,8 @@
         {
                 "id": "oakvl_3_dep_rnav.pdf",
                 "name": "OAKVL_3_DEP_RNAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "10UFwim4RMd1ZUSftyLnD3xHoOXMkzDod",
                 "driveUrl": "https://drive.google.com/file/d/10UFwim4RMd1ZUSftyLnD3xHoOXMkzDod/view?usp=drivesdk",
                 "type": "pdf",
@@ -1247,8 +1247,8 @@
                         {
                                 "id": "oakvl_3_dep_rnav.pdf",
                                 "name": "OAKVL_3_DEP_RNAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "10UFwim4RMd1ZUSftyLnD3xHoOXMkzDod",
                                 "driveUrl": "https://drive.google.com/file/d/10UFwim4RMd1ZUSftyLnD3xHoOXMkzDod/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1257,8 +1257,8 @@
                         {
                                 "id": "oakvl_3_dep_rnav_pg_02.pdf",
                                 "name": "OAKVL_3_DEP_RNAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1Wy4GwVa--QoaobQLSesqGMZvWCDMVxt9",
                                 "driveUrl": "https://drive.google.com/file/d/1Wy4GwVa--QoaobQLSesqGMZvWCDMVxt9/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1267,8 +1267,8 @@
                         {
                                 "id": "oakvl_3_dep_rnav_pg_03.pdf",
                                 "name": "OAKVL_3_DEP_RNAV_PG_03.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1Gmu0TbyjZIHPTbrxI2Y2USlPLF4WnXz0",
                                 "driveUrl": "https://drive.google.com/file/d/1Gmu0TbyjZIHPTbrxI2Y2USlPLF4WnXz0/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1279,8 +1279,8 @@
         {
                 "id": "mavan_2_dep_rnav.pdf",
                 "name": "MAVAN_2_DEP_RNAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1aG7QjVhgNEUIYIuNN3ZaCCFBUFr65UEf",
                 "driveUrl": "https://drive.google.com/file/d/1aG7QjVhgNEUIYIuNN3ZaCCFBUFr65UEf/view?usp=drivesdk",
                 "type": "pdf",
@@ -1289,8 +1289,8 @@
                         {
                                 "id": "mavan_2_dep_rnav.pdf",
                                 "name": "MAVAN_2_DEP_RNAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1aG7QjVhgNEUIYIuNN3ZaCCFBUFr65UEf",
                                 "driveUrl": "https://drive.google.com/file/d/1aG7QjVhgNEUIYIuNN3ZaCCFBUFr65UEf/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1299,8 +1299,8 @@
                         {
                                 "id": "mavan_2_dep_rnav_pg_02.pdf",
                                 "name": "MAVAN_2_DEP_RNAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1gQI3F_VKtaQoZakKmrzZD5NodmQ5UsqU",
                                 "driveUrl": "https://drive.google.com/file/d/1gQI3F_VKtaQoZakKmrzZD5NodmQ5UsqU/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1311,8 +1311,8 @@
         {
                 "id": "dusom_2_dep_rnav.pdf",
                 "name": "DUSOM_2_DEP_RNAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1toRcs3VFORzd4B9DV2TorepiPoBjNV6c",
                 "driveUrl": "https://drive.google.com/file/d/1toRcs3VFORzd4B9DV2TorepiPoBjNV6c/view?usp=drivesdk",
                 "type": "pdf",
@@ -1321,8 +1321,8 @@
                         {
                                 "id": "dusom_2_dep_rnav.pdf",
                                 "name": "DUSOM_2_DEP_RNAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1toRcs3VFORzd4B9DV2TorepiPoBjNV6c",
                                 "driveUrl": "https://drive.google.com/file/d/1toRcs3VFORzd4B9DV2TorepiPoBjNV6c/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1331,8 +1331,8 @@
                         {
                                 "id": "dusom_2_dep_rnav_pg_02.pdf",
                                 "name": "DUSOM_2_DEP_RNAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1iTsNFTTGRZGIoqtD3QCWFpS-2Mg-pMeD",
                                 "driveUrl": "https://drive.google.com/file/d/1iTsNFTTGRZGIoqtD3QCWFpS-2Mg-pMeD/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1341,8 +1341,8 @@
                         {
                                 "id": "dusom_2_dep_rnav_pg_03.pdf",
                                 "name": "DUSOM_2_DEP_RNAV_PG_03.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1TmVIEvnV9npP9ky5UXBRmQ2h3wfKYMAM",
                                 "driveUrl": "https://drive.google.com/file/d/1TmVIEvnV9npP9ky5UXBRmQ2h3wfKYMAM/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1353,8 +1353,8 @@
         {
                 "id": "rnav_gnss_rwy_32.pdf",
                 "name": "RNAV_GNSS_RWY_32.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1dTkQWOqFJvr6Ch-oBM0B-55DTEsSmZ89",
                 "driveUrl": "https://drive.google.com/file/d/1dTkQWOqFJvr6Ch-oBM0B-55DTEsSmZ89/view?usp=drivesdk",
                 "type": "pdf",
@@ -1363,8 +1363,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1lna7y13xgr5tqkpDC0ntOYUbSE-oo0QB",
                 "driveUrl": "https://drive.google.com/file/d/1lna7y13xgr5tqkpDC0ntOYUbSE-oo0QB/view?usp=drivesdk",
                 "type": "pdf",

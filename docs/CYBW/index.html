@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "cybw_springbank_4_dep_vector.pdf",
                 "name": "CYBW_SPRINGBANK_4_DEP_VECTOR",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1Um7Q2oGo35RK06BW5f2jmiZ5XJS9WSId",
                 "driveUrl": "https://drive.google.com/file/d/1Um7Q2oGo35RK06BW5f2jmiZ5XJS9WSId/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
                         {
                                 "id": "cybw_springbank_4_dep_vector.pdf",
                                 "name": "CYBW_SPRINGBANK_4_DEP_VECTOR.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1Um7Q2oGo35RK06BW5f2jmiZ5XJS9WSId",
                                 "driveUrl": "https://drive.google.com/file/d/1Um7Q2oGo35RK06BW5f2jmiZ5XJS9WSId/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1215,8 +1215,8 @@
                         {
                                 "id": "cybw_springbank_4_dep_vector_pg_02.pdf",
                                 "name": "CYBW_SPRINGBANK_4_DEP_VECTOR_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1LHvOAtwb6C7kN8vkiq4M3j6oGaBvnmmY",
                                 "driveUrl": "https://drive.google.com/file/d/1LHvOAtwb6C7kN8vkiq4M3j6oGaBvnmmY/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1227,8 +1227,8 @@
         {
                 "id": "cybw_takeoff_minimums.pdf",
                 "name": "CYBW_TAKEOFF_MINIMUMS.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1QijtjNiCHkjOmL1o7o35EeB6tArV6wkf",
                 "driveUrl": "https://drive.google.com/file/d/1QijtjNiCHkjOmL1o7o35EeB6tArV6wkf/view?usp=drivesdk",
                 "type": "pdf",
@@ -1237,8 +1237,8 @@
         {
                 "id": "cybw_reduced_visibility_taxi_chart.pdf",
                 "name": "CYBW_REDUCED_VISIBILITY_TAXI_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1oxkurcKW7pvmlCvYVHCVgZGDmkH4Efs5",
                 "driveUrl": "https://drive.google.com/file/d/1oxkurcKW7pvmlCvYVHCVgZGDmkH4Efs5/view?usp=drivesdk",
                 "type": "pdf",
@@ -1247,8 +1247,8 @@
         {
                 "id": "cybw_reduced_visibility_procedures.pdf",
                 "name": "CYBW_REDUCED_VISIBILITY_PROCEDURES.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1KgWyXwzeSaM8hXo9qrslUwufTuy3mCXd",
                 "driveUrl": "https://drive.google.com/file/d/1KgWyXwzeSaM8hXo9qrslUwufTuy3mCXd/view?usp=drivesdk",
                 "type": "pdf",
@@ -1257,8 +1257,8 @@
         {
                 "id": "cybw_noise_abatement_procedures.pdf",
                 "name": "CYBW_NOISE_ABATEMENT_PROCEDURES.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1biQnrASNRnWSLkfFuYKWlThMx2Mt-U9r",
                 "driveUrl": "https://drive.google.com/file/d/1biQnrASNRnWSLkfFuYKWlThMx2Mt-U9r/view?usp=drivesdk",
                 "type": "pdf",
@@ -1267,8 +1267,8 @@
         {
                 "id": "cybw_aerodrome_chart.pdf",
                 "name": "CYBW_AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1r8mraMHegzu7m0KeeIHPrrkX8SRvXlma",
                 "driveUrl": "https://drive.google.com/file/d/1r8mraMHegzu7m0KeeIHPrrkX8SRvXlma/view?usp=drivesdk",
                 "type": "pdf",
@@ -1277,8 +1277,8 @@
         {
                 "id": "cybw_rnav_gnss_rwy_35.pdf",
                 "name": "CYBW_RNAV_GNSS_RWY_35.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1GmGPCThVXBgnuxOKJdzOlJ3eL6xpD_5q",
                 "driveUrl": "https://drive.google.com/file/d/1GmGPCThVXBgnuxOKJdzOlJ3eL6xpD_5q/view?usp=drivesdk",
                 "type": "pdf",
@@ -1287,8 +1287,8 @@
         {
                 "id": "cybw_rnav_gnss_rwy_17.pdf",
                 "name": "CYBW_RNAV_GNSS_RWY_17.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1LVdONyN6-aUnCv86zHBTjP0qnPEiuFZJ",
                 "driveUrl": "https://drive.google.com/file/d/1LVdONyN6-aUnCv86zHBTjP0qnPEiuFZJ/view?usp=drivesdk",
                 "type": "pdf",
@@ -1297,8 +1297,8 @@
         {
                 "id": "cybw_ils_rwy_35.pdf",
                 "name": "CYBW_ILS_RWY_35.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1SDXzxAecL12BPvXjS0QtMEL8flrLnkz3",
                 "driveUrl": "https://drive.google.com/file/d/1SDXzxAecL12BPvXjS0QtMEL8flrLnkz3/view?usp=drivesdk",
                 "type": "pdf",
@@ -1307,8 +1307,8 @@
         {
                 "id": "cybw_madyn_3_arr_rnav.pdf",
                 "name": "CYBW_MADYN_3_ARR_RNAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1SNcXimja0keAlaECKdAZzIoxYujD12N2",
                 "driveUrl": "https://drive.google.com/file/d/1SNcXimja0keAlaECKdAZzIoxYujD12N2/view?usp=drivesdk",
                 "type": "pdf",
@@ -1317,8 +1317,8 @@
                         {
                                 "id": "cybw_madyn_3_arr_rnav.pdf",
                                 "name": "CYBW_MADYN_3_ARR_RNAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1SNcXimja0keAlaECKdAZzIoxYujD12N2",
                                 "driveUrl": "https://drive.google.com/file/d/1SNcXimja0keAlaECKdAZzIoxYujD12N2/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1327,8 +1327,8 @@
                         {
                                 "id": "cybw_madyn_3_arr_rnav_pg_02.pdf",
                                 "name": "CYBW_MADYN_3_ARR_RNAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1jWii02LUMGB4okWCDmrCq_J9y4uxzDKs",
                                 "driveUrl": "https://drive.google.com/file/d/1jWii02LUMGB4okWCDmrCq_J9y4uxzDKs/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1339,8 +1339,8 @@
         {
                 "id": "cybw_kipev_4_arr_rnav.pdf",
                 "name": "CYBW_KIPEV_4_ARR_RNAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "17spPZf5srTPqIaCOUTObCMWSzOgUaxTC",
                 "driveUrl": "https://drive.google.com/file/d/17spPZf5srTPqIaCOUTObCMWSzOgUaxTC/view?usp=drivesdk",
                 "type": "pdf",
@@ -1349,8 +1349,8 @@
                         {
                                 "id": "cybw_kipev_4_arr_rnav.pdf",
                                 "name": "CYBW_KIPEV_4_ARR_RNAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "17spPZf5srTPqIaCOUTObCMWSzOgUaxTC",
                                 "driveUrl": "https://drive.google.com/file/d/17spPZf5srTPqIaCOUTObCMWSzOgUaxTC/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1359,8 +1359,8 @@
                         {
                                 "id": "cybw_kipev_4_arr_rnav_pg_02.pdf",
                                 "name": "CYBW_KIPEV_4_ARR_RNAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1nJf2Kdo40tZx5gO0tHe2HJoKilO5NRxL",
                                 "driveUrl": "https://drive.google.com/file/d/1nJf2Kdo40tZx5gO0tHe2HJoKilO5NRxL/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1371,8 +1371,8 @@
         {
                 "id": "cybw_elbow_4_arr_rnav.pdf",
                 "name": "CYBW_ELBOW_4_ARR_RNAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1bs-1gVbRRCDnEFvy21hlx26Age_xIGfD",
                 "driveUrl": "https://drive.google.com/file/d/1bs-1gVbRRCDnEFvy21hlx26Age_xIGfD/view?usp=drivesdk",
                 "type": "pdf",
@@ -1381,8 +1381,8 @@
                         {
                                 "id": "cybw_elbow_4_arr_rnav.pdf",
                                 "name": "CYBW_ELBOW_4_ARR_RNAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1bs-1gVbRRCDnEFvy21hlx26Age_xIGfD",
                                 "driveUrl": "https://drive.google.com/file/d/1bs-1gVbRRCDnEFvy21hlx26Age_xIGfD/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1391,8 +1391,8 @@
                         {
                                 "id": "cybw_elbow_4_arr_rnav_pg_02.pdf",
                                 "name": "CYBW_ELBOW_4_ARR_RNAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1HdWsHxkSFG2Ut-_X2IpwmOcGKRNe_ZZr",
                                 "driveUrl": "https://drive.google.com/file/d/1HdWsHxkSFG2Ut-_X2IpwmOcGKRNe_ZZr/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1403,8 +1403,8 @@
         {
                 "id": "cybw_bragg_5_arr_rnav.pdf",
                 "name": "CYBW_BRAGG_5_ARR_RNAV.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1ZK4GnScfi_lA3mDgLI7RQqH-RlJyqz1M",
                 "driveUrl": "https://drive.google.com/file/d/1ZK4GnScfi_lA3mDgLI7RQqH-RlJyqz1M/view?usp=drivesdk",
                 "type": "pdf",

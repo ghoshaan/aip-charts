@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "rnav_gnss_c_true.pdf",
                 "name": "RNAV_GNSS_C_TRUE.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1Y52t96tAiq6QakNdIlMrmBCXWBxD3y4g",
                 "driveUrl": "https://drive.google.com/file/d/1Y52t96tAiq6QakNdIlMrmBCXWBxD3y4g/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1a6cNvJJFpPcf-ZLCJFyxqg3Bt3pBtaSR",
                 "driveUrl": "https://drive.google.com/file/d/1a6cNvJJFpPcf-ZLCJFyxqg3Bt3pBtaSR/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "rnav_gnss_b_true.pdf",
                 "name": "RNAV_GNSS_B_TRUE.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1IdnxUNrmq_mQxVIVgjL8DN4F6MZeoei4",
                 "driveUrl": "https://drive.google.com/file/d/1IdnxUNrmq_mQxVIVgjL8DN4F6MZeoei4/view?usp=drivesdk",
                 "type": "pdf",
@@ -1225,8 +1225,8 @@
         {
                 "id": "ndb_a_true.pdf",
                 "name": "NDB_A_TRUE.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "12sksBm0PRLL7E1xvr764pPzLnWLw0tBU",
                 "driveUrl": "https://drive.google.com/file/d/12sksBm0PRLL7E1xvr764pPzLnWLw0tBU/view?usp=drivesdk",
                 "type": "pdf",

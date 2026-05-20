@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "visual_approach_chartvfr_procedures.pdf",
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1VEjurAe_6UqOXP-AATUZAIDDXgTqpMff",
                 "driveUrl": "https://drive.google.com/file/d/1VEjurAe_6UqOXP-AATUZAIDDXgTqpMff/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1Vxp-3Qup13ys_WnlSY_ATRtFkj4agl77",
                 "driveUrl": "https://drive.google.com/file/d/1Vxp-3Qup13ys_WnlSY_ATRtFkj4agl77/view?usp=drivesdk",
                 "type": "pdf",

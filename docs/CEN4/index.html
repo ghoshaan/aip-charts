@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "cen4_itbot_4_dep_rnav.pdf",
                 "name": "CEN4_ITBOT_4_DEP_RNAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1N2mScBS0khzerUWaCkeyWyOKxc7Q3Ku8",
                 "driveUrl": "https://drive.google.com/file/d/1N2mScBS0khzerUWaCkeyWyOKxc7Q3Ku8/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
                         {
                                 "id": "cen4_itbot_4_dep_rnav.pdf",
                                 "name": "CEN4_ITBOT_4_DEP_RNAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1N2mScBS0khzerUWaCkeyWyOKxc7Q3Ku8",
                                 "driveUrl": "https://drive.google.com/file/d/1N2mScBS0khzerUWaCkeyWyOKxc7Q3Ku8/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1215,8 +1215,8 @@
                         {
                                 "id": "cen4_itbot_4_dep_rnav_pg_02.pdf",
                                 "name": "CEN4_ITBOT_4_DEP_RNAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1nZcZEOwL2oahQ9kM6lad1r2R10-fNFvo",
                                 "driveUrl": "https://drive.google.com/file/d/1nZcZEOwL2oahQ9kM6lad1r2R10-fNFvo/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1227,8 +1227,8 @@
         {
                 "id": "cen4_aerodrome_chart.pdf",
                 "name": "CEN4_AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1u7FoHKLj7qYLQ88SBzzbKNf1CozTkvP9",
                 "driveUrl": "https://drive.google.com/file/d/1u7FoHKLj7qYLQ88SBzzbKNf1CozTkvP9/view?usp=drivesdk",
                 "type": "pdf",
@@ -1237,8 +1237,8 @@
         {
                 "id": "cen4_rnav_gnss_rwy_25.pdf",
                 "name": "CEN4_RNAV_GNSS_RWY_25.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "10Lwti7C9aZkg2zEAmy3bAtkLtUGgLilW",
                 "driveUrl": "https://drive.google.com/file/d/10Lwti7C9aZkg2zEAmy3bAtkLtUGgLilW/view?usp=drivesdk",
                 "type": "pdf",
@@ -1247,8 +1247,8 @@
         {
                 "id": "cen4_rnav_gnss_rwy_07.pdf",
                 "name": "CEN4_RNAV_GNSS_RWY_07.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1LA1ftqU4MmTE3f5G4oOSPf4mM-u9m9b8",
                 "driveUrl": "https://drive.google.com/file/d/1LA1ftqU4MmTE3f5G4oOSPf4mM-u9m9b8/view?usp=drivesdk",
                 "type": "pdf",

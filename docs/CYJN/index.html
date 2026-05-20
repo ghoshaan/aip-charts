@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "takeoff_minimums.pdf",
                 "name": "TAKEOFF_MINIMUMS.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1w662hUm5Zk5EN1vlrYcykhordpPjMrv-",
                 "driveUrl": "https://drive.google.com/file/d/1w662hUm5Zk5EN1vlrYcykhordpPjMrv-/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "st-jean_6_dep_vector.pdf",
                 "name": "ST-JEAN_6_DEP_VECTOR",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1yTqS7jwO46DQeI9wqr986kIHBzOHkZpM",
                 "driveUrl": "https://drive.google.com/file/d/1yTqS7jwO46DQeI9wqr986kIHBzOHkZpM/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
                         {
                                 "id": "st-jean_6_dep_vector.pdf",
                                 "name": "ST-JEAN_6_DEP_VECTOR.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1yTqS7jwO46DQeI9wqr986kIHBzOHkZpM",
                                 "driveUrl": "https://drive.google.com/file/d/1yTqS7jwO46DQeI9wqr986kIHBzOHkZpM/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1225,8 +1225,8 @@
                         {
                                 "id": "st-jean_6_dep_vector_pg_02.pdf",
                                 "name": "ST-JEAN_6_DEP_VECTOR_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "18G9GZ3DHPpMeuxOjwNVh-yD60h9vlpUg",
                                 "driveUrl": "https://drive.google.com/file/d/18G9GZ3DHPpMeuxOjwNVh-yD60h9vlpUg/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1237,8 +1237,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1h6EcXpa3NCRMMREjZLb-MhrM4t1eZb2q",
                 "driveUrl": "https://drive.google.com/file/d/1h6EcXpa3NCRMMREjZLb-MhrM4t1eZb2q/view?usp=drivesdk",
                 "type": "pdf",
@@ -1247,8 +1247,8 @@
         {
                 "id": "rnav_gnss_rwy_29.pdf",
                 "name": "RNAV_GNSS_RWY_29.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1p0-C8zTnDmPtF1Bg5FNcs4rLvzcucv_H",
                 "driveUrl": "https://drive.google.com/file/d/1p0-C8zTnDmPtF1Bg5FNcs4rLvzcucv_H/view?usp=drivesdk",
                 "type": "pdf",
@@ -1257,8 +1257,8 @@
         {
                 "id": "rnav_gnss_rwy_24.pdf",
                 "name": "RNAV_GNSS_RWY_24.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "16uU0gr5Nda52zu5eUQjgFT179KMTH0Ie",
                 "driveUrl": "https://drive.google.com/file/d/16uU0gr5Nda52zu5eUQjgFT179KMTH0Ie/view?usp=drivesdk",
                 "type": "pdf",
@@ -1267,8 +1267,8 @@
         {
                 "id": "rnav_gnss_rwy_11.pdf",
                 "name": "RNAV_GNSS_RWY_11.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1FIYaQvfxH3b7PeiMG2p-meuaiUH1-GXU",
                 "driveUrl": "https://drive.google.com/file/d/1FIYaQvfxH3b7PeiMG2p-meuaiUH1-GXU/view?usp=drivesdk",
                 "type": "pdf",
@@ -1277,8 +1277,8 @@
         {
                 "id": "rnav_gnss_rwy_06.pdf",
                 "name": "RNAV_GNSS_RWY_06.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1p-zQaeItFP-s12uW03JtJiHCkk4xhiwA",
                 "driveUrl": "https://drive.google.com/file/d/1p-zQaeItFP-s12uW03JtJiHCkk4xhiwA/view?usp=drivesdk",
                 "type": "pdf",

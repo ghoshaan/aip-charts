@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1h0mvuslunpR3gK2-h76CF_x3OEmdnkLw",
                 "driveUrl": "https://drive.google.com/file/d/1h0mvuslunpR3gK2-h76CF_x3OEmdnkLw/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "rnav_gnss_rwy_33.pdf",
                 "name": "RNAV_GNSS_RWY_33.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1v2rvf6oehTejEuz2TSbqqm8fIDuK8Q-v",
                 "driveUrl": "https://drive.google.com/file/d/1v2rvf6oehTejEuz2TSbqqm8fIDuK8Q-v/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "rnav_gnss_rwy_15.pdf",
                 "name": "RNAV_GNSS_RWY_15.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1cNANWHXQKAqeQxlG5KalmDJ5uA24fV7K",
                 "driveUrl": "https://drive.google.com/file/d/1cNANWHXQKAqeQxlG5KalmDJ5uA24fV7K/view?usp=drivesdk",
                 "type": "pdf",

@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "heliport_chart.pdf",
                 "name": "HELIPORT_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1rGWpv3ZLJg4AX8JlwjQogJ-vzH35Q4Ie",
                 "driveUrl": "https://drive.google.com/file/d/1rGWpv3ZLJg4AX8JlwjQogJ-vzH35Q4Ie/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "visual_approach_chart.pdf",
                 "name": "VISUAL_APPROACH_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1Bulc2A1gA3CpccwXygMJn4P2DjkJn4H2",
                 "driveUrl": "https://drive.google.com/file/d/1Bulc2A1gA3CpccwXygMJn4P2DjkJn4H2/view?usp=drivesdk",
                 "type": "pdf",

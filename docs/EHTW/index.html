@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "aircraft_parking_docking_chart.pdf",
                 "name": "AIRCRAFT_PARKING_DOCKING_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1CeKXvdvXhiE3bZkN43fs1uCp9aBko37V",
                 "driveUrl": "https://drive.google.com/file/d/1CeKXvdvXhiE3bZkN43fs1uCp9aBko37V/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "15hzXPQjdrXVyBokCCQw77s_krsvsKYPi",
                 "driveUrl": "https://drive.google.com/file/d/15hzXPQjdrXVyBokCCQw77s_krsvsKYPi/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "visual_approach_chartvfr_procedures.pdf",
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "12r5fNTXwXA-Ig1vy3aVggW-BonKEBMV9",
                 "driveUrl": "https://drive.google.com/file/d/12r5fNTXwXA-Ig1vy3aVggW-BonKEBMV9/view?usp=drivesdk",
                 "type": "pdf",
@@ -1225,8 +1225,8 @@
         {
                 "id": "visual_approach_chart.pdf",
                 "name": "VISUAL_APPROACH_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1hXtwXQu6vWniAvcTFuAjuDHK55LD-xzm",
                 "driveUrl": "https://drive.google.com/file/d/1hXtwXQu6vWniAvcTFuAjuDHK55LD-xzm/view?usp=drivesdk",
                 "type": "pdf",

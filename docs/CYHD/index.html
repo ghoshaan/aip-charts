@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1P8cjOzF1nKjMQRfM0oXdt3rbHb40P4Bz",
                 "driveUrl": "https://drive.google.com/file/d/1P8cjOzF1nKjMQRfM0oXdt3rbHb40P4Bz/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "rnav_gnss_rwy_30.pdf",
                 "name": "RNAV_GNSS_RWY_30.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1lgaeY4vVlyqS4Zxw3ZHGishdOCJWC-XU",
                 "driveUrl": "https://drive.google.com/file/d/1lgaeY4vVlyqS4Zxw3ZHGishdOCJWC-XU/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "rnav_gnss_rwy_12.pdf",
                 "name": "RNAV_GNSS_RWY_12.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1LCrw1WPY3mSSjLlImhAGoALKtAscFFBB",
                 "driveUrl": "https://drive.google.com/file/d/1LCrw1WPY3mSSjLlImhAGoALKtAscFFBB/view?usp=drivesdk",
                 "type": "pdf",
@@ -1225,8 +1225,8 @@
         {
                 "id": "ils_z_rwy_12.pdf",
                 "name": "ILS_Z_RWY_12.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1ZQ3uETimuYfmTGcoajXbe82BcRa1KwI0",
                 "driveUrl": "https://drive.google.com/file/d/1ZQ3uETimuYfmTGcoajXbe82BcRa1KwI0/view?usp=drivesdk",
                 "type": "pdf",
@@ -1235,8 +1235,8 @@
         {
                 "id": "ils_y_rwy_12.pdf",
                 "name": "ILS_Y_RWY_12.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1fJO-7rTAvn4oy5ypIBFcey6qkUQjDqcz",
                 "driveUrl": "https://drive.google.com/file/d/1fJO-7rTAvn4oy5ypIBFcey6qkUQjDqcz/view?usp=drivesdk",
                 "type": "pdf",

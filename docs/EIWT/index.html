@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "aerodrome_obstacle_chart_-_icao.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_ICAO.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1XUpm6fN8aouBzvxIW_PQuKOZsIweaShc",
                 "driveUrl": "https://drive.google.com/file/d/1XUpm6fN8aouBzvxIW_PQuKOZsIweaShc/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "aerodrome_chart_-_icao.pdf",
                 "name": "AERODROME_CHART_-_ICAO.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1SG1EGpdzh5dQDUSshkuFvPyGTXR6_77e",
                 "driveUrl": "https://drive.google.com/file/d/1SG1EGpdzh5dQDUSshkuFvPyGTXR6_77e/view?usp=drivesdk",
                 "type": "pdf",

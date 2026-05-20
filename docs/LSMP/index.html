@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "iac_icao_rnp_z_rwy_23.pdf",
                 "name": "IAC_ICAO_RNP_Z_RWY_23.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1-DoEW2YUkLTyKMejmHGMJMH7hI7SpHoE",
                 "driveUrl": "https://drive.google.com/file/d/1-DoEW2YUkLTyKMejmHGMJMH7hI7SpHoE/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "iac_icao_ils_rwy_23.pdf",
                 "name": "IAC_ICAO_ILS_RWY_23.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1OkBvZYyZN6dwedr55QjF1B0DnHm6iJCH",
                 "driveUrl": "https://drive.google.com/file/d/1OkBvZYyZN6dwedr55QjF1B0DnHm6iJCH/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "iac_icao_ils_rwy_05.pdf",
                 "name": "IAC_ICAO_ILS_RWY_05.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1OqE_mcMbQDoHM9B0zUrpew0We7i-hT-o",
                 "driveUrl": "https://drive.google.com/file/d/1OqE_mcMbQDoHM9B0zUrpew0We7i-hT-o/view?usp=drivesdk",
                 "type": "pdf",
@@ -1225,8 +1225,8 @@
         {
                 "id": "star_icao_rnav_rwy_0523_-_fribu_1e_fribu_1v.pdf",
                 "name": "STAR_ICAO_RNAV_RWY_0523_-_FRIBU_1E_FRIBU_1V.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1fu29gCPVqNdMllcg0E3nd4Nj8MkNHsC_",
                 "driveUrl": "https://drive.google.com/file/d/1fu29gCPVqNdMllcg0E3nd4Nj8MkNHsC_/view?usp=drivesdk",
                 "type": "pdf",
@@ -1235,8 +1235,8 @@
         {
                 "id": "sid_icao_rnav_rwy_0523_-_fribu_1q_fribu_1r.pdf",
                 "name": "SID_ICAO_RNAV_RWY_0523_-_FRIBU_1Q_FRIBU_1R.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1DgUR8YWJfbVQQz39r2BM54wqgfcspf9Z",
                 "driveUrl": "https://drive.google.com/file/d/1DgUR8YWJfbVQQz39r2BM54wqgfcspf9Z/view?usp=drivesdk",
                 "type": "pdf",
@@ -1245,8 +1245,8 @@
         {
                 "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_23.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_23.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1U7X6s3FOKiIhKuFrVMSc6RzfyJg8G7Kk",
                 "driveUrl": "https://drive.google.com/file/d/1U7X6s3FOKiIhKuFrVMSc6RzfyJg8G7Kk/view?usp=drivesdk",
                 "type": "pdf",
@@ -1255,8 +1255,8 @@
         {
                 "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_05.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_05.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1Yug3LRunP-3CHHPaZTQkNYE01Zv_E_Ra",
                 "driveUrl": "https://drive.google.com/file/d/1Yug3LRunP-3CHHPaZTQkNYE01Zv_E_Ra/view?usp=drivesdk",
                 "type": "pdf",
@@ -1265,8 +1265,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1PuLrHe2maqCeckhcn5Ik4doOynRDiyHx",
                 "driveUrl": "https://drive.google.com/file/d/1PuLrHe2maqCeckhcn5Ik4doOynRDiyHx/view?usp=drivesdk",
                 "type": "pdf",

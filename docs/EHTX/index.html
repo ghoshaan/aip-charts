@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1ci4S-wRa6aJKgvlpvASu08ZScTDm-vDP",
                 "driveUrl": "https://drive.google.com/file/d/1ci4S-wRa6aJKgvlpvASu08ZScTDm-vDP/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "seasonal_vfr_departure_procedures_rwy_0321.pdf",
                 "name": "SEASONAL_VFR_DEPARTURE_PROCEDURES_RWY_0321.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1B9n3ef1DyvIMyVKPTwGA8O9HoMj9EgBj",
                 "driveUrl": "https://drive.google.com/file/d/1B9n3ef1DyvIMyVKPTwGA8O9HoMj9EgBj/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "seasonal_vfr_arrival_procedures_rwy_0321.pdf",
                 "name": "SEASONAL_VFR_ARRIVAL_PROCEDURES_RWY_0321.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "17e9JUOAe0DuRGqa7Y2CWcpkAVz_qeC6y",
                 "driveUrl": "https://drive.google.com/file/d/17e9JUOAe0DuRGqa7Y2CWcpkAVz_qeC6y/view?usp=drivesdk",
                 "type": "pdf",
@@ -1225,8 +1225,8 @@
         {
                 "id": "visual_approach_chartvfr_procedures.pdf",
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1GBh5TyxMSJQSveA1RPaSCh7TG7tB1YmL",
                 "driveUrl": "https://drive.google.com/file/d/1GBh5TyxMSJQSveA1RPaSCh7TG7tB1YmL/view?usp=drivesdk",
                 "type": "pdf",

@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "tagit_4_dep_rnav.pdf",
                 "name": "TAGIT_4_DEP_RNAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1wNt7xJW2C3jqbz0t2EyVmngO3EJ7VEwT",
                 "driveUrl": "https://drive.google.com/file/d/1wNt7xJW2C3jqbz0t2EyVmngO3EJ7VEwT/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
                         {
                                 "id": "tagit_4_dep_rnav.pdf",
                                 "name": "TAGIT_4_DEP_RNAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1wNt7xJW2C3jqbz0t2EyVmngO3EJ7VEwT",
                                 "driveUrl": "https://drive.google.com/file/d/1wNt7xJW2C3jqbz0t2EyVmngO3EJ7VEwT/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1215,8 +1215,8 @@
                         {
                                 "id": "tagit_4_dep_rnav_pg_02.pdf",
                                 "name": "TAGIT_4_DEP_RNAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1HCLo2u4mKCXsMrJqQhnA3Hqe7Yg7GN8p",
                                 "driveUrl": "https://drive.google.com/file/d/1HCLo2u4mKCXsMrJqQhnA3Hqe7Yg7GN8p/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1227,8 +1227,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1l-mszvxEFmrhAL_FzC-t5MudvXzbgwhs",
                 "driveUrl": "https://drive.google.com/file/d/1l-mszvxEFmrhAL_FzC-t5MudvXzbgwhs/view?usp=drivesdk",
                 "type": "pdf",
@@ -1237,8 +1237,8 @@
         {
                 "id": "rnav_gnss_rwy_17.pdf",
                 "name": "RNAV_GNSS_RWY_17.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "16RxFAXwcLqjBWhxBQrnthltTgUvbgVJX",
                 "driveUrl": "https://drive.google.com/file/d/16RxFAXwcLqjBWhxBQrnthltTgUvbgVJX/view?usp=drivesdk",
                 "type": "pdf",
@@ -1247,8 +1247,8 @@
         {
                 "id": "rnav_gnss_rwy_35.pdf",
                 "name": "RNAV_GNSS_RWY_35.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "14dLWscfXXr-h3oSS6FfZ3HEIJgzvfoyM",
                 "driveUrl": "https://drive.google.com/file/d/14dLWscfXXr-h3oSS6FfZ3HEIJgzvfoyM/view?usp=drivesdk",
                 "type": "pdf",

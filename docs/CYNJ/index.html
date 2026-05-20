@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "cynj_omino_2_dep_rnav.pdf",
                 "name": "CYNJ_OMINO_2_DEP_RNAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1WhzY6VSxyRuTgSwqzAeza1JzTV1zo98S",
                 "driveUrl": "https://drive.google.com/file/d/1WhzY6VSxyRuTgSwqzAeza1JzTV1zo98S/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
                         {
                                 "id": "cynj_omino_2_dep_rnav.pdf",
                                 "name": "CYNJ_OMINO_2_DEP_RNAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1WhzY6VSxyRuTgSwqzAeza1JzTV1zo98S",
                                 "driveUrl": "https://drive.google.com/file/d/1WhzY6VSxyRuTgSwqzAeza1JzTV1zo98S/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1215,8 +1215,8 @@
                         {
                                 "id": "cynj_omino_2_dep_rnav_pg_02.pdf",
                                 "name": "CYNJ_OMINO_2_DEP_RNAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1dRfg_P9QLVcL-6JX21A4xvtGuFKgD4xV",
                                 "driveUrl": "https://drive.google.com/file/d/1dRfg_P9QLVcL-6JX21A4xvtGuFKgD4xV/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1227,8 +1227,8 @@
         {
                 "id": "cynj_taxi_chart.pdf",
                 "name": "CYNJ_TAXI_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "14lIt3k7Am8YqsBv69Wwfltq7XT_AVaha",
                 "driveUrl": "https://drive.google.com/file/d/14lIt3k7Am8YqsBv69Wwfltq7XT_AVaha/view?usp=drivesdk",
                 "type": "pdf",
@@ -1237,8 +1237,8 @@
         {
                 "id": "cynj_aerodrome_chart.pdf",
                 "name": "CYNJ_AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1rRWhhtdnD8fo_WFIdAcyxmGCc23EHyX7",
                 "driveUrl": "https://drive.google.com/file/d/1rRWhhtdnD8fo_WFIdAcyxmGCc23EHyX7/view?usp=drivesdk",
                 "type": "pdf",
@@ -1247,8 +1247,8 @@
         {
                 "id": "cynj_rnav_gnss_rwy_01.pdf",
                 "name": "CYNJ_RNAV_GNSS_RWY_01.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "10ViBoQGz3NgMPXwYhvV_YYQR98cx-xwI",
                 "driveUrl": "https://drive.google.com/file/d/10ViBoQGz3NgMPXwYhvV_YYQR98cx-xwI/view?usp=drivesdk",
                 "type": "pdf",

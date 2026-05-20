@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "cyfd_takeoff_minimums.pdf",
                 "name": "CYFD_TAKEOFF_MINIMUMS.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1-RnX60iormuX5D-h__Vop1O5ztoOpEFE",
                 "driveUrl": "https://drive.google.com/file/d/1-RnX60iormuX5D-h__Vop1O5ztoOpEFE/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "cyfd_aerodrome_chart.pdf",
                 "name": "CYFD_AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "17s8sksMMzpQR6s71Y6MjlXfmfkQ9L0y5",
                 "driveUrl": "https://drive.google.com/file/d/17s8sksMMzpQR6s71Y6MjlXfmfkQ9L0y5/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "cyfd_rnav_gnss_rwy_23.pdf",
                 "name": "CYFD_RNAV_GNSS_RWY_23.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1eliY2XyUEYPruZdM4gLITf_kfuu6W7NL",
                 "driveUrl": "https://drive.google.com/file/d/1eliY2XyUEYPruZdM4gLITf_kfuu6W7NL/view?usp=drivesdk",
                 "type": "pdf",
@@ -1225,8 +1225,8 @@
         {
                 "id": "cyfd_rnav_gnss_rwy_05.pdf",
                 "name": "CYFD_RNAV_GNSS_RWY_05.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "11Oc5zorBulmmoiXKpk4gMK-12GQduV15",
                 "driveUrl": "https://drive.google.com/file/d/11Oc5zorBulmmoiXKpk4gMK-12GQduV15/view?usp=drivesdk",
                 "type": "pdf",

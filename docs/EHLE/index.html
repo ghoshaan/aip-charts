@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "standard_departure_chart_-_instrument_rwy_23.pdf",
                 "name": "STANDARD_DEPARTURE_CHART_-_INSTRUMENT_RWY_23.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1AfTBOSMrpW9eXEfJrZ7gQBCXFJ4O1dxg",
                 "driveUrl": "https://drive.google.com/file/d/1AfTBOSMrpW9eXEfJrZ7gQBCXFJ4O1dxg/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "standard_departure_chart_-_instrument_rwy_05.pdf",
                 "name": "STANDARD_DEPARTURE_CHART_-_INSTRUMENT_RWY_05.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1cSQZcqH1T9FR3pEvWGt5UJI1-Rjl6_6e",
                 "driveUrl": "https://drive.google.com/file/d/1cSQZcqH1T9FR3pEvWGt5UJI1-Rjl6_6e/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "aerodrome_obstacle_chart_type_a_rwy_05-23.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_TYPE_A_RWY_05-23.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1M6S26xnGtnZiBqqfkdCs00-gywL34tyu",
                 "driveUrl": "https://drive.google.com/file/d/1M6S26xnGtnZiBqqfkdCs00-gywL34tyu/view?usp=drivesdk",
                 "type": "pdf",
@@ -1225,8 +1225,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1wmhZHOjfJ3SwsnlX1sII8dy3UrQ4iQwg",
                 "driveUrl": "https://drive.google.com/file/d/1wmhZHOjfJ3SwsnlX1sII8dy3UrQ4iQwg/view?usp=drivesdk",
                 "type": "pdf",
@@ -1235,8 +1235,8 @@
         {
                 "id": "vfr_training_circuit.pdf",
                 "name": "VFR_TRAINING_CIRCUIT.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1XZk-SI-NTfzZzuqWG-SY1t-smmSNZBSA",
                 "driveUrl": "https://drive.google.com/file/d/1XZk-SI-NTfzZzuqWG-SY1t-smmSNZBSA/view?usp=drivesdk",
                 "type": "pdf",
@@ -1245,8 +1245,8 @@
         {
                 "id": "visual_approach_chartvfr_procedures_during_udp.pdf",
                 "name": "VISUAL_APPROACH_CHARTVFR_PROCEDURES_DURING_UDP.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "13aSA9WQ71TIP5yNzV1Q6OsB0hIVjDv7J",
                 "driveUrl": "https://drive.google.com/file/d/13aSA9WQ71TIP5yNzV1Q6OsB0hIVjDv7J/view?usp=drivesdk",
                 "type": "pdf",
@@ -1255,8 +1255,8 @@
         {
                 "id": "instrument_approach_chart_rnp_rwy_23.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_23.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1zzJqkQAo7BUERkvkDsRAxkolcE9v2_wI",
                 "driveUrl": "https://drive.google.com/file/d/1zzJqkQAo7BUERkvkDsRAxkolcE9v2_wI/view?usp=drivesdk",
                 "type": "pdf",
@@ -1265,8 +1265,8 @@
         {
                 "id": "instrument_approach_chart_rnp_rwy_05.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_RNP_RWY_05.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "11scLiPd1_Op5aKidhY01Hp8ONOSCZx9a",
                 "driveUrl": "https://drive.google.com/file/d/11scLiPd1_Op5aKidhY01Hp8ONOSCZx9a/view?usp=drivesdk",
                 "type": "pdf",
@@ -1275,8 +1275,8 @@
         {
                 "id": "instrument_approach_chart_ils_or_loc_rwy_05.pdf",
                 "name": "INSTRUMENT_APPROACH_CHART_ILS_OR_LOC_RWY_05.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1mcq3s6o1Xl026hqaGW1ZBpg-T3dzdie1",
                 "driveUrl": "https://drive.google.com/file/d/1mcq3s6o1Xl026hqaGW1ZBpg-T3dzdie1/view?usp=drivesdk",
                 "type": "pdf",
@@ -1285,8 +1285,8 @@
         {
                 "id": "atc_surveillance_minimum_altitude_chart.pdf",
                 "name": "ATC_SURVEILLANCE_MINIMUM_ALTITUDE_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1Pe_tbPfYv0BKqg47PgI3gbqIegS2V9UL",
                 "driveUrl": "https://drive.google.com/file/d/1Pe_tbPfYv0BKqg47PgI3gbqIegS2V9UL/view?usp=drivesdk",
                 "type": "pdf",
@@ -1295,8 +1295,8 @@
         {
                 "id": "area_chart.pdf",
                 "name": "AREA_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1nANLbvk1_LLwL-bu7FcMFuQoj6FVgYo2",
                 "driveUrl": "https://drive.google.com/file/d/1nANLbvk1_LLwL-bu7FcMFuQoj6FVgYo2/view?usp=drivesdk",
                 "type": "pdf",

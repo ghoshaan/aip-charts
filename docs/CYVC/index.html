@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "la_ronge_2_dep_vector.pdf",
                 "name": "LA_RONGE_2_DEP_VECTOR",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1Qjf-RY79sGTgXWpmFSmSOZAqAMHxn9gx",
                 "driveUrl": "https://drive.google.com/file/d/1Qjf-RY79sGTgXWpmFSmSOZAqAMHxn9gx/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
                         {
                                 "id": "la_ronge_2_dep_vector.pdf",
                                 "name": "LA_RONGE_2_DEP_VECTOR.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1Qjf-RY79sGTgXWpmFSmSOZAqAMHxn9gx",
                                 "driveUrl": "https://drive.google.com/file/d/1Qjf-RY79sGTgXWpmFSmSOZAqAMHxn9gx/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1215,8 +1215,8 @@
                         {
                                 "id": "la_ronge_2_dep_vector_pg_02.pdf",
                                 "name": "LA_RONGE_2_DEP_VECTOR_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1rHWxYpI9dp8Ve_6GgUWzT5v0Qs14ZOjr",
                                 "driveUrl": "https://drive.google.com/file/d/1rHWxYpI9dp8Ve_6GgUWzT5v0Qs14ZOjr/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1227,8 +1227,8 @@
         {
                 "id": "vor_rwy_18.pdf",
                 "name": "VOR_RWY_18.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1pHBtXOOojNAn35rUCJie6PucBaq_BjF5",
                 "driveUrl": "https://drive.google.com/file/d/1pHBtXOOojNAn35rUCJie6PucBaq_BjF5/view?usp=drivesdk",
                 "type": "pdf",
@@ -1237,8 +1237,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1ZtKDFwAeCiQiu_If7eAtO1Hx1XLOEJ61",
                 "driveUrl": "https://drive.google.com/file/d/1ZtKDFwAeCiQiu_If7eAtO1Hx1XLOEJ61/view?usp=drivesdk",
                 "type": "pdf",
@@ -1247,8 +1247,8 @@
         {
                 "id": "rnav_gnss_rwy_36.pdf",
                 "name": "RNAV_GNSS_RWY_36.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1UJVYYZVHY1pySZN9ar_6VbTu-pwngKDJ",
                 "driveUrl": "https://drive.google.com/file/d/1UJVYYZVHY1pySZN9ar_6VbTu-pwngKDJ/view?usp=drivesdk",
                 "type": "pdf",
@@ -1257,8 +1257,8 @@
         {
                 "id": "rnav_gnss_rwy_18.pdf",
                 "name": "RNAV_GNSS_RWY_18.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1xuW5V9d5uGXHhgtGSWEvJLJNIMgQcgT0",
                 "driveUrl": "https://drive.google.com/file/d/1xuW5V9d5uGXHhgtGSWEvJLJNIMgQcgT0/view?usp=drivesdk",
                 "type": "pdf",

@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "rouyn_1_dep_vector.pdf",
                 "name": "ROUYN_1_DEP_VECTOR",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1vcZEjEnwpH1AUAONw3_WMTfq1oZjJR1w",
                 "driveUrl": "https://drive.google.com/file/d/1vcZEjEnwpH1AUAONw3_WMTfq1oZjJR1w/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
                         {
                                 "id": "rouyn_1_dep_vector.pdf",
                                 "name": "ROUYN_1_DEP_VECTOR.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1vcZEjEnwpH1AUAONw3_WMTfq1oZjJR1w",
                                 "driveUrl": "https://drive.google.com/file/d/1vcZEjEnwpH1AUAONw3_WMTfq1oZjJR1w/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1215,8 +1215,8 @@
                         {
                                 "id": "rouyn_1_dep_vector_pg_02.pdf",
                                 "name": "ROUYN_1_DEP_VECTOR_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1IFNT6wETRB1jpB43cDv2BmoOYVE21Olg",
                                 "driveUrl": "https://drive.google.com/file/d/1IFNT6wETRB1jpB43cDv2BmoOYVE21Olg/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1227,8 +1227,8 @@
         {
                 "id": "munbi_4_dep_pilot_nav.pdf",
                 "name": "MUNBI_4_DEP_PILOT_NAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1xPSbq5Z8xkr9-L59oXuQsuyI07n8LpaT",
                 "driveUrl": "https://drive.google.com/file/d/1xPSbq5Z8xkr9-L59oXuQsuyI07n8LpaT/view?usp=drivesdk",
                 "type": "pdf",
@@ -1237,8 +1237,8 @@
                         {
                                 "id": "munbi_4_dep_pilot_nav.pdf",
                                 "name": "MUNBI_4_DEP_PILOT_NAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1xPSbq5Z8xkr9-L59oXuQsuyI07n8LpaT",
                                 "driveUrl": "https://drive.google.com/file/d/1xPSbq5Z8xkr9-L59oXuQsuyI07n8LpaT/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1247,8 +1247,8 @@
                         {
                                 "id": "munbi_4_dep_pilot_nav_pg_02.pdf",
                                 "name": "MUNBI_4_DEP_PILOT_NAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "12egu4MiYxLdbmQC1Vmt1n9y8Yka1eH7g",
                                 "driveUrl": "https://drive.google.com/file/d/12egu4MiYxLdbmQC1Vmt1n9y8Yka1eH7g/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1259,8 +1259,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1pAyehucILgNqx1tg24yiEAIzBvl9g-_X",
                 "driveUrl": "https://drive.google.com/file/d/1pAyehucILgNqx1tg24yiEAIzBvl9g-_X/view?usp=drivesdk",
                 "type": "pdf",
@@ -1269,8 +1269,8 @@
         {
                 "id": "kernu_3_dep_pilot_nav.pdf",
                 "name": "KERNU_3_DEP_PILOT_NAV",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1Sc7Yv3_FG9SN4KnpWy-FPN16_yg5fnNA",
                 "driveUrl": "https://drive.google.com/file/d/1Sc7Yv3_FG9SN4KnpWy-FPN16_yg5fnNA/view?usp=drivesdk",
                 "type": "pdf",
@@ -1279,8 +1279,8 @@
                         {
                                 "id": "kernu_3_dep_pilot_nav.pdf",
                                 "name": "KERNU_3_DEP_PILOT_NAV.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1Sc7Yv3_FG9SN4KnpWy-FPN16_yg5fnNA",
                                 "driveUrl": "https://drive.google.com/file/d/1Sc7Yv3_FG9SN4KnpWy-FPN16_yg5fnNA/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1289,8 +1289,8 @@
                         {
                                 "id": "kernu_3_dep_pilot_nav_pg_02.pdf",
                                 "name": "KERNU_3_DEP_PILOT_NAV_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1FaNwCe0CTgmCvnQZyvQ-c8p24KIN1hZV",
                                 "driveUrl": "https://drive.google.com/file/d/1FaNwCe0CTgmCvnQZyvQ-c8p24KIN1hZV/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1301,8 +1301,8 @@
         {
                 "id": "rnav_gnss_rwy_26.pdf",
                 "name": "RNAV_GNSS_RWY_26.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1RgCPjut626LVY-K8S5NFqmirwywwBiLW",
                 "driveUrl": "https://drive.google.com/file/d/1RgCPjut626LVY-K8S5NFqmirwywwBiLW/view?usp=drivesdk",
                 "type": "pdf",
@@ -1311,8 +1311,8 @@
         {
                 "id": "rnav_gnss_rwy_08.pdf",
                 "name": "RNAV_GNSS_RWY_08.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1BCd-Tg5_q-LwU6-kuSyatJ31cZlsfvXl",
                 "driveUrl": "https://drive.google.com/file/d/1BCd-Tg5_q-LwU6-kuSyatJ31cZlsfvXl/view?usp=drivesdk",
                 "type": "pdf",
@@ -1321,8 +1321,8 @@
         {
                 "id": "ndb_dme_rwy_26.pdf",
                 "name": "NDB_DME_RWY_26.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1RSe0zWiv4drNDWrB18HHZpmRy6rgwPEk",
                 "driveUrl": "https://drive.google.com/file/d/1RSe0zWiv4drNDWrB18HHZpmRy6rgwPEk/view?usp=drivesdk",
                 "type": "pdf",
@@ -1331,8 +1331,8 @@
         {
                 "id": "loc_or_ndb_rwy_08.pdf",
                 "name": "LOC_OR_NDB_RWY_08.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1yDlyHlSR61rI2_WnqWUzknXojhLQngxb",
                 "driveUrl": "https://drive.google.com/file/d/1yDlyHlSR61rI2_WnqWUzknXojhLQngxb/view?usp=drivesdk",
                 "type": "pdf",

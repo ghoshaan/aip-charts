@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "restricted_aerodrome_chart.pdf",
                 "name": "RESTRICTED_AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "119CK9AJGtXTbd4yTKWkcE7UCsk95UoZA",
                 "driveUrl": "https://drive.google.com/file/d/119CK9AJGtXTbd4yTKWkcE7UCsk95UoZA/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "restricted_rnav_gnss_a.pdf",
                 "name": "RESTRICTED_RNAV_GNSS_A",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1xPXmJrmPeLb8R6nJGFcM3xrRnhEURDf0",
                 "driveUrl": "https://drive.google.com/file/d/1xPXmJrmPeLb8R6nJGFcM3xrRnhEURDf0/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
                         {
                                 "id": "restricted_rnav_gnss_a.pdf",
                                 "name": "RESTRICTED_RNAV_GNSS_A.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1xPXmJrmPeLb8R6nJGFcM3xrRnhEURDf0",
                                 "driveUrl": "https://drive.google.com/file/d/1xPXmJrmPeLb8R6nJGFcM3xrRnhEURDf0/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1225,8 +1225,8 @@
                         {
                                 "id": "restricted_rnav_gnss_a_pg_02.pdf",
                                 "name": "RESTRICTED_RNAV_GNSS_A_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1NFqsOgNkVT2mXVDyEfOVsj-HLAB-txLI",
                                 "driveUrl": "https://drive.google.com/file/d/1NFqsOgNkVT2mXVDyEfOVsj-HLAB-txLI/view?usp=drivesdk",
                                 "type": "pdf",

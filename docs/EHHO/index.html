@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "adc.pdf",
                 "name": "ADC.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1-IY1F12nHOfo9vkVF3s58kEm-ocZm0yJ",
                 "driveUrl": "https://drive.google.com/file/d/1-IY1F12nHOfo9vkVF3s58kEm-ocZm0yJ/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "vac_-_vfr_procedures.pdf",
                 "name": "VAC_-_VFR_PROCEDURES.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1CRlgk6T8BtKIYoXg2xPs9RR5YimgtorV",
                 "driveUrl": "https://drive.google.com/file/d/1CRlgk6T8BtKIYoXg2xPs9RR5YimgtorV/view?usp=drivesdk",
                 "type": "pdf",

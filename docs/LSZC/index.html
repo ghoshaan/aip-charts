@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "iac_icao_rnp-a.pdf",
                 "name": "IAC_ICAO_RNP-A.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1NO5972YSWMZQ62OHTNsGAHhmaPUNESlH",
                 "driveUrl": "https://drive.google.com/file/d/1NO5972YSWMZQ62OHTNsGAHhmaPUNESlH/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "star_icao_rnav_ronix_-_asged_1f_wil_2f.pdf",
                 "name": "STAR_ICAO_RNAV_RONIX_-_ASGED_1F_WIL_2F.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1QrH39iF4p8n937Z-HclUsuhLOZ3kMDRZ",
                 "driveUrl": "https://drive.google.com/file/d/1QrH39iF4p8n937Z-HclUsuhLOZ3kMDRZ/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "sid_icao_rwy_24_-_wil_3a.pdf",
                 "name": "SID_ICAO_RWY_24_-_WIL_3A.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1Nl0sNa0LgXarine95H7FSAE7LSufBTXP",
                 "driveUrl": "https://drive.google.com/file/d/1Nl0sNa0LgXarine95H7FSAE7LSufBTXP/view?usp=drivesdk",
                 "type": "pdf",
@@ -1225,8 +1225,8 @@
         {
                 "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_24.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_24.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1QdCBUdwb46SlFzc6a2HnQ9d94I0joEPw",
                 "driveUrl": "https://drive.google.com/file/d/1QdCBUdwb46SlFzc6a2HnQ9d94I0joEPw/view?usp=drivesdk",
                 "type": "pdf",
@@ -1235,8 +1235,8 @@
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1yJpSUYhANEPc0sl6lq--xZ-pVSB8OBR-",
                 "driveUrl": "https://drive.google.com/file/d/1yJpSUYhANEPc0sl6lq--xZ-pVSB8OBR-/view?usp=drivesdk",
                 "type": "pdf",
@@ -1245,8 +1245,8 @@
         {
                 "id": "visual_approach_procedure_rwy_0624.pdf",
                 "name": "VISUAL_APPROACH_PROCEDURE_RWY_0624.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1AE_MilRuby6PU_I-xHcObsRCQZOtrIPK",
                 "driveUrl": "https://drive.google.com/file/d/1AE_MilRuby6PU_I-xHcObsRCQZOtrIPK/view?usp=drivesdk",
                 "type": "pdf",

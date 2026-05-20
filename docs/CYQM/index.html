@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1BMKEtjmJQutt0dcfOk_9I-A-8e36jDvE",
                 "driveUrl": "https://drive.google.com/file/d/1BMKEtjmJQutt0dcfOk_9I-A-8e36jDvE/view?usp=drivesdk",
                 "type": "doc",
@@ -1205,8 +1205,8 @@
         {
                 "id": "cyqm_rnav_gnss_z_rwy_06.pdf",
                 "name": "CYQM_RNAV_GNSS_Z_RWY_06.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1aeky60CjOlZ4rn6ejGiA2epJgwH1ex02",
                 "driveUrl": "https://drive.google.com/file/d/1aeky60CjOlZ4rn6ejGiA2epJgwH1ex02/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "cyqm_moncton_5_dep_vector.pdf",
                 "name": "CYQM_MONCTON_5_DEP_VECTOR",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1AxQJ4R4hSDySyCiw0KMKw-Rtum11Miez",
                 "driveUrl": "https://drive.google.com/file/d/1AxQJ4R4hSDySyCiw0KMKw-Rtum11Miez/view?usp=drivesdk",
                 "type": "pdf",
@@ -1225,8 +1225,8 @@
                         {
                                 "id": "cyqm_moncton_5_dep_vector.pdf",
                                 "name": "CYQM_MONCTON_5_DEP_VECTOR.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1AxQJ4R4hSDySyCiw0KMKw-Rtum11Miez",
                                 "driveUrl": "https://drive.google.com/file/d/1AxQJ4R4hSDySyCiw0KMKw-Rtum11Miez/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1235,8 +1235,8 @@
                         {
                                 "id": "cyqm_moncton_5_dep_vector_pg_02.pdf",
                                 "name": "CYQM_MONCTON_5_DEP_VECTOR_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1ttr6yKihhn6LNU3HZa-RRUNkNuDKyxv9",
                                 "driveUrl": "https://drive.google.com/file/d/1ttr6yKihhn6LNU3HZa-RRUNkNuDKyxv9/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1247,8 +1247,8 @@
         {
                 "id": "cyqm_rnav_gnss_z_rwy_24.pdf",
                 "name": "CYQM_RNAV_GNSS_Z_RWY_24.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1A6aFK03wLOF7DFMJnwj2y6Bjr2Eg4gzx",
                 "driveUrl": "https://drive.google.com/file/d/1A6aFK03wLOF7DFMJnwj2y6Bjr2Eg4gzx/view?usp=drivesdk",
                 "type": "pdf",
@@ -1257,8 +1257,8 @@
         {
                 "id": "cyqm_rnav_gnss_z_rwy_29.pdf",
                 "name": "CYQM_RNAV_GNSS_Z_RWY_29.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1CeZVnttaRQJdpnVuUidC0U9RAJTErrMI",
                 "driveUrl": "https://drive.google.com/file/d/1CeZVnttaRQJdpnVuUidC0U9RAJTErrMI/view?usp=drivesdk",
                 "type": "pdf",
@@ -1267,8 +1267,8 @@
         {
                 "id": "cyqm_rnav_rnp_y_rwy_11.pdf",
                 "name": "CYQM_RNAV_RNP_Y_RWY_11.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1REFjbIU0UE5LJPtv2hsvFVPoUWITlUED",
                 "driveUrl": "https://drive.google.com/file/d/1REFjbIU0UE5LJPtv2hsvFVPoUWITlUED/view?usp=drivesdk",
                 "type": "pdf",
@@ -1277,8 +1277,8 @@
         {
                 "id": "cyqm_rnav_rnp_y_rwy_06.pdf",
                 "name": "CYQM_RNAV_RNP_Y_RWY_06.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1iIa0oy1pWlqHzUsZ-d8Wtw2gelaZPIUT",
                 "driveUrl": "https://drive.google.com/file/d/1iIa0oy1pWlqHzUsZ-d8Wtw2gelaZPIUT/view?usp=drivesdk",
                 "type": "pdf",
@@ -1287,8 +1287,8 @@
         {
                 "id": "cyqm_takeoff_minimums.pdf",
                 "name": "CYQM_TAKEOFF_MINIMUMS.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1G5Ins1FRPTZd4enVSh6rjvImdLxe8sDL",
                 "driveUrl": "https://drive.google.com/file/d/1G5Ins1FRPTZd4enVSh6rjvImdLxe8sDL/view?usp=drivesdk",
                 "type": "pdf",
@@ -1297,8 +1297,8 @@
         {
                 "id": "cyqm_rnav_rnp_y_rwy_24.pdf",
                 "name": "CYQM_RNAV_RNP_Y_RWY_24.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1pL9udoUaoPmThMcxAJRgR-Iolx39zbj6",
                 "driveUrl": "https://drive.google.com/file/d/1pL9udoUaoPmThMcxAJRgR-Iolx39zbj6/view?usp=drivesdk",
                 "type": "pdf",
@@ -1307,8 +1307,8 @@
         {
                 "id": "cyqm_rnav_rnp_y_rwy_29.pdf",
                 "name": "CYQM_RNAV_RNP_Y_RWY_29.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "10TRyCtJjQs9UhUq58TBozY_uTG1i2Qqx",
                 "driveUrl": "https://drive.google.com/file/d/10TRyCtJjQs9UhUq58TBozY_uTG1i2Qqx/view?usp=drivesdk",
                 "type": "pdf",
@@ -1317,8 +1317,8 @@
         {
                 "id": "cyqm_aerodrome_chart.pdf",
                 "name": "CYQM_AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1d-8ZvwVSsKD8v6C7CIrxxz5bFna0tktQ",
                 "driveUrl": "https://drive.google.com/file/d/1d-8ZvwVSsKD8v6C7CIrxxz5bFna0tktQ/view?usp=drivesdk",
                 "type": "pdf",
@@ -1327,8 +1327,8 @@
         {
                 "id": "cyqm_parking_areas_apron_viii.pdf",
                 "name": "CYQM_PARKING_AREAS_APRON_VIII.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1KIevUja4NfOgVy9LTj7s8smNINM_TxyR",
                 "driveUrl": "https://drive.google.com/file/d/1KIevUja4NfOgVy9LTj7s8smNINM_TxyR/view?usp=drivesdk",
                 "type": "pdf",
@@ -1337,8 +1337,8 @@
         {
                 "id": "cyqm_ils_rwy_06.pdf",
                 "name": "CYQM_ILS_RWY_06.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1sY1u50IR5cdJsEpmcHbUGCKkjUDUGTmh",
                 "driveUrl": "https://drive.google.com/file/d/1sY1u50IR5cdJsEpmcHbUGCKkjUDUGTmh/view?usp=drivesdk",
                 "type": "pdf",
@@ -1347,8 +1347,8 @@
         {
                 "id": "cyqm_rnav_gnss_z_rwy_11.pdf",
                 "name": "CYQM_RNAV_GNSS_Z_RWY_11.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1uZ4FPAaE3QXYE-RtuP9GLtOu1DJ70z_P",
                 "driveUrl": "https://drive.google.com/file/d/1uZ4FPAaE3QXYE-RtuP9GLtOu1DJ70z_P/view?usp=drivesdk",
                 "type": "pdf",
@@ -1357,8 +1357,8 @@
         {
                 "id": "cyqm_ils_rwy_29.pdf",
                 "name": "CYQM_ILS_RWY_29.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "13nNobTrlDgUomew8BOV3X0XktJf17h3H",
                 "driveUrl": "https://drive.google.com/file/d/13nNobTrlDgUomew8BOV3X0XktJf17h3H/view?usp=drivesdk",
                 "type": "pdf",

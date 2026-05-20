@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "restricted_night_circuit_procedures.pdf",
                 "name": "RESTRICTED_NIGHT_CIRCUIT_PROCEDURES.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1Nn8aTK0vJku4y_lqrM0LWqu7iMZ_TKh9",
                 "driveUrl": "https://drive.google.com/file/d/1Nn8aTK0vJku4y_lqrM0LWqu7iMZ_TKh9/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "restricted_aerodrome_chart.pdf",
                 "name": "RESTRICTED_AERODROME_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1LmIUqi54GkhyjHdaBdukRdqwcnCy729_",
                 "driveUrl": "https://drive.google.com/file/d/1LmIUqi54GkhyjHdaBdukRdqwcnCy729_/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "restricted_rnav_gnss_rwy_32.pdf",
                 "name": "RESTRICTED_RNAV_GNSS_RWY_32",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1tIPgFAun5wsC115goVpNcrE2r9xglVHw",
                 "driveUrl": "https://drive.google.com/file/d/1tIPgFAun5wsC115goVpNcrE2r9xglVHw/view?usp=drivesdk",
                 "type": "pdf",
@@ -1225,8 +1225,8 @@
                         {
                                 "id": "restricted_rnav_gnss_rwy_32.pdf",
                                 "name": "RESTRICTED_RNAV_GNSS_RWY_32.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1tIPgFAun5wsC115goVpNcrE2r9xglVHw",
                                 "driveUrl": "https://drive.google.com/file/d/1tIPgFAun5wsC115goVpNcrE2r9xglVHw/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1235,8 +1235,8 @@
                         {
                                 "id": "restricted_rnav_gnss_rwy_32_pg_02.pdf",
                                 "name": "RESTRICTED_RNAV_GNSS_RWY_32_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "16ojczY7rUbG3nhECJx68qh5ajlDcqdHh",
                                 "driveUrl": "https://drive.google.com/file/d/16ojczY7rUbG3nhECJx68qh5ajlDcqdHh/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1247,8 +1247,8 @@
         {
                 "id": "restricted_rnav_gnss_rwy_14.pdf",
                 "name": "RESTRICTED_RNAV_GNSS_RWY_14",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1fcsbMJl7lVGLoNpWHdKfOjQ7ZzMkgSyQ",
                 "driveUrl": "https://drive.google.com/file/d/1fcsbMJl7lVGLoNpWHdKfOjQ7ZzMkgSyQ/view?usp=drivesdk",
                 "type": "pdf",
@@ -1257,8 +1257,8 @@
                         {
                                 "id": "restricted_rnav_gnss_rwy_14.pdf",
                                 "name": "RESTRICTED_RNAV_GNSS_RWY_14.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1fcsbMJl7lVGLoNpWHdKfOjQ7ZzMkgSyQ",
                                 "driveUrl": "https://drive.google.com/file/d/1fcsbMJl7lVGLoNpWHdKfOjQ7ZzMkgSyQ/view?usp=drivesdk",
                                 "type": "pdf",
@@ -1267,8 +1267,8 @@
                         {
                                 "id": "restricted_rnav_gnss_rwy_14_pg_02.pdf",
                                 "name": "RESTRICTED_RNAV_GNSS_RWY_14_PG_02.pdf",
-                                "url": "../#",
-                                "localUrl": "../#",
+                                "url": "#",
+                                "localUrl": "#",
                                 "driveId": "1rfHPmPkRsO4cVbPsyWHN1gDKP1l28Rm_",
                                 "driveUrl": "https://drive.google.com/file/d/1rfHPmPkRsO4cVbPsyWHN1gDKP1l28Rm_/view?usp=drivesdk",
                                 "type": "pdf",
