@@ -27,15 +27,15 @@ jobs:
       - name: Restore chart cache
         uses: actions/cache@v4
         with:
-          path: |
-            docs/charts_data
-            manifest.json
+          path: manifest.json
           key: charts-${{ hashFiles('manifest.json') }}
           restore-keys: charts-
 
       - name: Generate site
         env:
           GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+          DOWNLOAD_CHARTS: 'false'
+          APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
         run: python generate_multipage_directory.py
 
       - name: Deploy to gh-pages branch
