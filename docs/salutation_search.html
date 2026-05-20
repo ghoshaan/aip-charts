@@ -318,6 +318,10 @@
             return /[^a-zA-Z\s\-']/.test(spelling);
         }
 
+        function displaySpelling(spelling) {
+            return spelling.replace(/[-‐-―−]/g, ' ');
+        }
+
         function renderCards(words) {
             const container = document.getElementById('results');
             if (words.length === 0) {
@@ -337,7 +341,7 @@
                         </button>
                     </div>
                     <div class="card-title">
-                        ${word.spelling}${hasNonAscii(word.spelling) ? ' ❌' : ''}
+                        ${displaySpelling(word.spelling)}${hasNonAscii(word.spelling) ? ' ❌' : ''}
                     </div>
                     <div class="definition">
                         ${word.definitions[0]}
