@@ -884,7 +884,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -946,7 +946,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
@@ -1195,8 +1195,8 @@
         {
                 "id": "enr_63_-_enroute_connectivity_chart__h24_frequencies_chart.pdf",
                 "name": "ENR_6.3_-_ENROUTE_CONNECTIVITY_CHART_&_H24_FREQUENCIES_CHART.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1g6Rir3qacKBHzkaMwD76VdRs2lPdLW6N",
                 "driveUrl": "https://drive.google.com/file/d/1g6Rir3qacKBHzkaMwD76VdRs2lPdLW6N/view?usp=drivesdk",
                 "type": "pdf",
@@ -1205,8 +1205,8 @@
         {
                 "id": "enr_62_-_enroute_chart_upper_airspace.pdf",
                 "name": "ENR_6.2_-_ENROUTE_CHART_UPPER_AIRSPACE.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1dP5NYxlFQNyGmGGJBp2ae8mTpEWPNEkZ",
                 "driveUrl": "https://drive.google.com/file/d/1dP5NYxlFQNyGmGGJBp2ae8mTpEWPNEkZ/view?usp=drivesdk",
                 "type": "pdf",
@@ -1215,8 +1215,8 @@
         {
                 "id": "enr_61_-_enroute_chart_lower_ats_routes.pdf",
                 "name": "ENR_6.1_-_ENROUTE_CHART_LOWER_ATS_ROUTES.pdf",
-                "url": "../#",
-                "localUrl": "../#",
+                "url": "#",
+                "localUrl": "#",
                 "driveId": "1WWKw-_4YdK418vt-ourhsR18_koG2Wio",
                 "driveUrl": "https://drive.google.com/file/d/1WWKw-_4YdK418vt-ourhsR18_koG2Wio/view?usp=drivesdk",
                 "type": "pdf",

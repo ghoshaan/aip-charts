@@ -995,7 +995,7 @@
 
                 try {
                     let pdfData;
-                    if (localUrl && localUrl !== '#') {
+                    if (localUrl && localUrl !== '#' && !localUrl.endsWith('#')) {
                         loaderStatus.textContent = 'LOADING LOCAL PDF...';
                         const loadingTask = pdfjsLib.getDocument(localUrl);
                         currentPdf = await loadingTask.promise;
@@ -1057,7 +1057,7 @@
                 
                 try {
                     let pdfData;
-                    if (page.localUrl && page.localUrl !== '#') {
+                    if (page.localUrl && page.localUrl !== '#' && !page.localUrl.endsWith('#')) {
                         const loadingTask = pdfjsLib.getDocument(page.localUrl);
                         currentPdf = await loadingTask.promise;
                     } else {
