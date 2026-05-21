@@ -604,22 +604,9 @@
             flex-shrink: 0;
         }
 
-        /* Waypoints side-by-side layout styles */
-        .airport-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            align-items: start;
-        }
-        @media (min-width: 992px) {
-            .airport-layout.has-waypoints {
-                grid-template-columns: 2.2fr 1.3fr;
-            }
-        }
-        
+        /* Collapsible Waypoints styles */
         .waypoints-section {
-            position: sticky;
-            top: 2rem;
+            margin-bottom: 2rem;
         }
         
         .waypoints-card {
@@ -631,28 +618,49 @@
         }
         
         .waypoints-card-header {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
             background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background-color 0.15s;
+        }
+        
+        .waypoints-card-header:hover {
+            background: rgba(255, 255, 255, 0.05);
         }
         
         .waypoints-card-header h2 {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--accent);
             margin: 0;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .waypoints-card-header .toggle-icon {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            transition: transform 0.2s;
         }
         
         .waypoints-list {
-            display: flex;
-            flex-direction: column;
-            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 0.75rem;
-            max-height: 550px;
-            overflow-y: auto;
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .waypoints-section.collapsed .waypoints-list {
+            display: none;
         }
         
         .waypoint-item {
@@ -763,22 +771,12 @@
             <button class="filter-btn" data-filter="image">Images</button>
         </div>
         
-        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
         
-        <div class="airport-layout has-waypoints">
-            <div class="charts-section">
-                <div class="file-count" id="fileCount">Showing 8 files</div>
-                <div class="file-list" id="fileList"></div>
-                <div id="emptyState" class="empty-state" style="display: none;">
-                    <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
-                    <p>No files found.</p>
-                </div>
-            </div>
-            
-            <div class="waypoints-section">
+            <div class="waypoints-section collapsed">
                 <div class="waypoints-card">
-                    <div class="waypoints-card-header">
+                    <div class="waypoints-card-header" onclick="toggleWaypoints()">
                         <h2>🧭 Visual Waypoints</h2>
+                        <span class="toggle-icon">▶</span>
                     </div>
                     <div class="waypoints-list">
                         
@@ -791,7 +789,6 @@
                             <div class="waypoint-coords">52.3747° N, 113.8217° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.374722,-113.821667&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.374722,-113.821667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -804,7 +801,6 @@
                             <div class="waypoint-coords">52.1442° N, 113.9681° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.144167,-113.968056&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.144167,-113.968056" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -817,7 +813,6 @@
                             <div class="waypoint-coords">52.3039° N, 113.6833° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.303889,-113.683333&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.303889,-113.683333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -830,7 +825,6 @@
                             <div class="waypoint-coords">52.1444° N, 114.0969° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.144444,-114.096944&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.144444,-114.096944" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -843,7 +837,6 @@
                             <div class="waypoint-coords">51.9622° N, 113.8589° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=51.962222,-113.858889&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=51.962222,-113.858889" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -856,7 +849,6 @@
                             <div class="waypoint-coords">52.0544° N, 114.2131° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.054444,-114.213056&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.054444,-114.213056" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -869,7 +861,6 @@
                             <div class="waypoint-coords">52.3331° N, 113.5317° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.333056,-113.531667&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.333056,-113.531667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -882,7 +873,6 @@
                             <div class="waypoint-coords">52.1189° N, 113.4806° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.118889,-113.480556&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.118889,-113.480556" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -895,7 +885,6 @@
                             <div class="waypoint-coords">52.2828° N, 114.0733° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.282778,-114.073333&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.282778,-114.073333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -908,7 +897,6 @@
                             <div class="waypoint-coords">52.1347° N, 113.7178° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.134722,-113.717778&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.134722,-113.717778" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -921,7 +909,6 @@
                             <div class="waypoint-coords">52.1447° N, 113.8228° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.144722,-113.822778&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.144722,-113.822778" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -934,7 +921,6 @@
                             <div class="waypoint-coords">52.2206° N, 113.9553° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.220556,-113.955278&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.220556,-113.955278" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
@@ -947,11 +933,22 @@
                             <div class="waypoint-coords">52.2242° N, 113.8081° W</div>
                         </div>
                         <div class="waypoint-links">
-                            <a href="https://skyvector.com/?ll=52.224167,-113.808056&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
                             <a href="https://www.google.com/maps/search/?api=1&query=52.224167,-113.808056" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
                         </div>
                     </div>
                     </div>
+                </div>
+            </div>
+        
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+        
+        <div class="airport-layout">
+            <div class="charts-section">
+                <div class="file-count" id="fileCount">Showing 8 files</div>
+                <div class="file-list" id="fileList"></div>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
+                    <p>No files found.</p>
                 </div>
             </div>
         </div>
@@ -1361,7 +1358,6 @@
                         const latStr = `${Math.abs(wp.latitude).toFixed(4)}° ${latHemi}`;
                         const lonStr = `${Math.abs(wp.longitude).toFixed(4)}° ${lonHemi}`;
                         const coords = `${latStr}, ${lonStr}`;
-                        const skyvector_url = `https://skyvector.com/?ll=${wp.latitude},${wp.longitude}&chart=301&zoom=3`;
                         const gmaps_url = `https://www.google.com/maps/search/?api=1&query=${wp.latitude},${wp.longitude}`;
                         
                         rowsHtml += `
@@ -1371,7 +1367,6 @@
                                 <td><span class="wp-coords">${coords}</span></td>
                                 <td>
                                     <div class="wp-actions">
-                                        <a href="${skyvector_url}" target="_blank" class="wp-btn">SkyVector</a>
                                         <a href="${gmaps_url}" target="_blank" class="wp-btn">Google Maps</a>
                                     </div>
                                 </td>
@@ -2187,6 +2182,15 @@
         });
         
         renderFiles();
+
+        function toggleWaypoints() {
+            const section = document.querySelector('.waypoints-section');
+            const icon = document.querySelector('.waypoints-card-header .toggle-icon');
+            if (section && icon) {
+                const isCollapsed = section.classList.toggle('collapsed');
+                icon.textContent = isCollapsed ? '▶' : '▼';
+            }
+        }
     </script>
 </body>
 </html>
