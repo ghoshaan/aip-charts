@@ -409,15 +409,16 @@
     ],
     "localAudioPath": "data/audio/portuguese/por_favor.mp3"
   },
-  "adiós": {
-    "spelling": "adiós",
+  "adios": {
+    "spelling": "adios",
     "language": "Spanish",
+    "romanization": "adiós",
     "ipa": "/a.diˈos/",
     "audioUrl": null,
     "definitions": [
       "goodbye, farewell"
     ],
-    "localAudioPath": "data/audio/spanish/adiós.mp3"
+    "localAudioPath": "data/audio/spanish/adios.mp3"
   },
   "de nada": {
     "spelling": "de nada",
