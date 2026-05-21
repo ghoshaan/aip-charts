@@ -49,7 +49,19 @@ DOWNLOAD_CHARTS = os.environ.get('DOWNLOAD_CHARTS', 'true').lower() == 'true'
 AUTO_PUSH = os.environ.get('AUTO_PUSH', 'true').lower() == 'true'
 DATA_REPO_URL = os.environ.get('DATA_REPO_URL', 'https://ghoshaan.github.io/aip-charts-data/')
 APPS_SCRIPT_URL = os.environ.get('APPS_SCRIPT_URL', 'https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec')
-GENERATOR_VERSION = 'v8'
+GENERATOR_VERSION = 'v10'
+
+# Load Canadian visual waypoints data
+CANADIAN_WAYPOINTS = {}
+try:
+    if os.path.exists('canadian_visual_waypoints_master_FULL.json'):
+        with open('canadian_visual_waypoints_master_FULL.json', 'r', encoding='utf-8') as f:
+            CANADIAN_WAYPOINTS = json.load(f)
+        print(f"Loaded visual waypoints for {len(CANADIAN_WAYPOINTS)} airports.")
+    else:
+        print("⚠️ canadian_visual_waypoints_master_FULL.json not found in current directory.")
+except Exception as e:
+    print(f"⚠️ Error loading canadian_visual_waypoints_master_FULL.json: {e}")
 
 # Region icons (add more as needed)
 REGION_ICONS = {
@@ -1536,6 +1548,10 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
     if manifest['airports'].get(airport_slug) == airport_data_hash and os.path.exists(f"{OUTPUT_DIR}/{airport_slug}/index.html"):
         return airport_slug
 
+    clean_code = airport_code.strip().upper().split()[0]
+    waypoint_info = CANADIAN_WAYPOINTS.get(clean_code, {})
+    waypoints = waypoint_info.get('visual_waypoints', [])
+
     adjusted_files = [
         dict(
             f,
@@ -1548,6 +1564,56 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
         for f in files
     ]
     adjusted_files = group_multipage_files(adjusted_files)
+
+    if waypoints:
+        waypoint_idents = [f"{wp['name']} [{wp['ident']}]" for wp in waypoints]
+        waypoints_str = ", ".join(waypoint_idents)
+        adjusted_files.insert(0, {
+            'id': 'visual-waypoints',
+            'name': f"Visual Waypoints ({waypoints_str})",
+            'type': 'waypoints',
+            'url': '#',
+            'localUrl': '#',
+            'driveId': '',
+            'driveUrl': '#'
+        })
+
+    waypoints_section_html = ""
+    if waypoints:
+        waypoints_items_html = ""
+        for wp in waypoints:
+            lat_hemi = "N" if wp['latitude'] >= 0 else "S"
+            lon_hemi = "E" if wp['longitude'] >= 0 else "W"
+            lat_str = f"{abs(wp['latitude']):.4f}° {lat_hemi}"
+            lon_str = f"{abs(wp['longitude']):.4f}° {lon_hemi}"
+            gmaps_url = f"https://www.google.com/maps/search/?api=1&query={wp['latitude']},{wp['longitude']}"
+            
+            waypoints_items_html += f'''
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">{wp['name']}</span>
+                                <span class="waypoint-ident">{wp['ident']}</span>
+                            </div>
+                            <div class="waypoint-coords">{lat_str}, {lon_str}</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="{gmaps_url}" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>'''
+            
+        waypoints_section_html = f'''
+            <div class="waypoints-section collapsed">
+                <div class="waypoints-card">
+                    <div class="waypoints-card-header" onclick="toggleWaypoints()">
+                        <h2>🧭 Visual Waypoints</h2>
+                        <span class="toggle-icon">▶</span>
+                    </div>
+                    <div class="waypoints-list">
+                        {waypoints_items_html}
+                    </div>
+                </div>
+            </div>'''
 
     html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -1598,13 +1664,19 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
             <button class="filter-btn" data-filter="image">Images</button>
         </div>
         
+        {waypoints_section_html}
+        
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
         
-        <div class="file-count" id="fileCount">Showing {len(adjusted_files)} files</div>
-        <div class="file-list" id="fileList"></div>
-        <div id="emptyState" class="empty-state" style="display: none;">
-            <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
-            <p>No files found.</p>
+        <div class="airport-layout">
+            <div class="charts-section">
+                <div class="file-count" id="fileCount">Showing {len(adjusted_files)} files</div>
+                <div class="file-list" id="fileList"></div>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
+                    <p>No files found.</p>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -1620,6 +1692,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
             icao: '{airport_slug}',
             region: '{region_name}'
         }};
+        const airportWaypoints = {json.dumps(waypoints)};
 
         const pinAirportBtn = document.getElementById('pinAirportBtn');
         const updateAirportPinState = () => {{
@@ -1636,7 +1709,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
         updateAirportPinState();
 
         const files = {json.dumps(adjusted_files, indent=8)};
-        const fileIcons = {{pdf: '📄', image: '🖼️', doc: '📝'}};
+        const fileIcons = {{pdf: '📄', image: '🖼️', doc: '📝', waypoints: '🧭'}};
         let currentFilter = 'all';
         
         const fuse = new Fuse(files, {{
@@ -1753,6 +1826,15 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
         }});
         
         renderFiles();
+
+        function toggleWaypoints() {{
+            const section = document.querySelector('.waypoints-section');
+            const icon = document.querySelector('.waypoints-card-header .toggle-icon');
+            if (section && icon) {{
+                const isCollapsed = section.classList.toggle('collapsed');
+                icon.textContent = isCollapsed ? '▶' : '▼';
+            }}
+        }}
     </script>
 </body>
 </html>'''
@@ -2678,6 +2760,176 @@ def get_viewer_js():
                 applySidebarState();
                 loader.style.display = 'flex';
 
+                // Intercept visual waypoints virtual entry
+                if (id === 'visual-waypoints') {
+                    if (document.getElementById('zoomRange')) {
+                        document.getElementById('zoomRange').parentElement.style.display = 'none';
+                    }
+                    if (document.getElementById('rotateBtn')) {
+                        document.getElementById('rotateBtn').style.display = 'none';
+                    }
+                    if (document.getElementById('resetBtn')) {
+                        document.getElementById('resetBtn').style.display = 'none';
+                    }
+                    if (document.getElementById('refreshBtn')) {
+                        document.getElementById('refreshBtn').style.display = 'none';
+                    }
+                    if (document.getElementById('pageNav')) {
+                        document.getElementById('pageNav').style.display = 'none';
+                    }
+                    const tipEl = document.querySelector('.viewer-tip');
+                    if (tipEl) {
+                        tipEl.style.display = 'none';
+                    }
+
+                    container.innerHTML = '';
+                    let rowsHtml = '';
+                    const wps = (typeof airportWaypoints !== 'undefined') ? airportWaypoints : [];
+                    wps.forEach(wp => {
+                        const latHemi = wp.latitude >= 0 ? 'N' : 'S';
+                        const lonHemi = wp.longitude >= 0 ? 'E' : 'W';
+                        const latStr = `${Math.abs(wp.latitude).toFixed(4)}° ${latHemi}`;
+                        const lonStr = `${Math.abs(wp.longitude).toFixed(4)}° ${lonHemi}`;
+                        const coords = `${latStr}, ${lonStr}`;
+                        const gmaps_url = `https://www.google.com/maps/search/?api=1&query=${wp.latitude},${wp.longitude}`;
+                        
+                        rowsHtml += `
+                            <tr>
+                                <td><span class="wp-name">${wp.name}</span></td>
+                                <td><span class="wp-ident">${wp.ident}</span></td>
+                                <td><span class="wp-coords">${coords}</span></td>
+                                <td>
+                                    <div class="wp-actions">
+                                        <a href="${gmaps_url}" target="_blank" class="wp-btn">Google Maps</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    container.innerHTML = `
+                        <div class="waypoints-viewer-container">
+                            <style>
+                                .waypoints-viewer-container {
+                                    width: 100%;
+                                    max-width: 900px;
+                                    margin: 40px auto;
+                                    padding: 2rem;
+                                    background: var(--surface);
+                                    border: 1px solid var(--border);
+                                    border-radius: 8px;
+                                    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+                                    font-family: 'IBM Plex Mono', monospace;
+                                }
+                                .waypoints-viewer-header {
+                                    margin-bottom: 1.5rem;
+                                    border-bottom: 1px solid var(--border);
+                                    padding-bottom: 1rem;
+                                }
+                                .waypoints-viewer-header h3 {
+                                    font-family: 'Rajdhani', sans-serif;
+                                    font-size: 1.5rem;
+                                    color: var(--accent);
+                                    text-transform: uppercase;
+                                    margin: 0;
+                                }
+                                .waypoints-table {
+                                    width: 100%;
+                                    border-collapse: collapse;
+                                    text-align: left;
+                                    margin-top: 1rem;
+                                }
+                                .waypoints-table th, .waypoints-table td {
+                                    padding: 0.75rem 1rem;
+                                    border-bottom: 1px solid var(--border);
+                                }
+                                .waypoints-table th {
+                                    font-family: 'Rajdhani', sans-serif;
+                                    font-size: 1.05rem;
+                                    text-transform: uppercase;
+                                    color: var(--text-dim);
+                                    letter-spacing: 0.05em;
+                                    font-weight: 700;
+                                }
+                                .waypoints-table tbody tr {
+                                    transition: background-color 0.15s;
+                                }
+                                .waypoints-table tbody tr:hover {
+                                    background-color: var(--surface-hover);
+                                }
+                                .wp-name {
+                                    font-weight: 600;
+                                    color: var(--text);
+                                }
+                                .wp-ident {
+                                    color: var(--warning);
+                                    font-weight: 600;
+                                }
+                                .wp-coords {
+                                    color: var(--text-dim);
+                                    white-space: nowrap;
+                                }
+                                .wp-actions {
+                                    display: flex;
+                                    gap: 0.5rem;
+                                }
+                                .wp-btn {
+                                    display: inline-block;
+                                    text-decoration: none;
+                                    color: var(--accent);
+                                    background: var(--accent-glow);
+                                    padding: 0.25rem 0.5rem;
+                                    border-radius: 3px;
+                                    font-size: 0.75rem;
+                                    font-weight: 600;
+                                    transition: all 0.15s;
+                                    white-space: nowrap;
+                                }
+                                .wp-btn:hover {
+                                    background: var(--accent);
+                                    color: var(--bg);
+                                }
+                            </style>
+                            <div class="waypoints-viewer-header">
+                                <h3>🧭 Visual Waypoints</h3>
+                            </div>
+                            <table class="waypoints-table">
+                                <thead>
+                                    <tr>
+                                        <th>Waypoint Name</th>
+                                        <th>Identifier</th>
+                                        <th>Coordinates</th>
+                                        <th>Links</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHtml || '<tr><td colspan="4" style="text-align:center; color:var(--text-dim);">No waypoints found for this airport.</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    
+                    loader.style.display = 'none';
+                    return;
+                } else {
+                    if (document.getElementById('zoomRange')) {
+                        document.getElementById('zoomRange').parentElement.style.display = 'flex';
+                    }
+                    if (document.getElementById('rotateBtn')) {
+                        document.getElementById('rotateBtn').style.display = 'flex';
+                    }
+                    if (document.getElementById('resetBtn')) {
+                        document.getElementById('resetBtn').style.display = 'flex';
+                    }
+                    if (document.getElementById('refreshBtn')) {
+                        document.getElementById('refreshBtn').style.display = 'flex';
+                    }
+                    const tipEl = document.querySelector('.viewer-tip');
+                    if (tipEl) {
+                        tipEl.style.display = 'block';
+                    }
+                }
+
                 try {
                     const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
                     const loadResult = await getPdfData(id, embedId, localUrl, loaderStatus);
@@ -2908,6 +3160,7 @@ def get_viewer_js():
             };
 
             function adjustZoom(delta) {
+                if (currentFileId === 'visual-waypoints') return;
                 const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
                 visualScale = newZoom / currentZoom;
                 applyVisualTransform();
@@ -3259,6 +3512,136 @@ def get_file_list_styles():
             text-transform: uppercase;
             font-weight: 600;
             flex-shrink: 0;
+        }
+
+        /* Collapsible Waypoints styles */
+        .waypoints-section {
+            margin-bottom: 2rem;
+        }
+        
+        .waypoints-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .waypoints-card-header {
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background-color 0.15s;
+        }
+        
+        .waypoints-card-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .waypoints-card-header h2 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .waypoints-card-header .toggle-icon {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            transition: transform 0.2s;
+        }
+        
+        .waypoints-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 0.75rem;
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .waypoints-section.collapsed .waypoints-list {
+            display: none;
+        }
+        
+        .waypoint-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            transition: border-color 0.15s;
+        }
+        
+        .waypoint-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .waypoint-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            min-width: 0;
+        }
+        
+        .waypoint-name-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .waypoint-name {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 0.85rem;
+        }
+        
+        .waypoint-ident {
+            color: var(--warning);
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .waypoint-coords {
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+        
+        .waypoint-links {
+            display: flex;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+        
+        .waypoint-link {
+            text-decoration: none;
+            color: var(--accent);
+            background: var(--accent-glow);
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        
+        .waypoint-link:hover {
+            background: var(--accent);
+            color: var(--bg);
         }
     '''
 
