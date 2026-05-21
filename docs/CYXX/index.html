@@ -603,6 +603,128 @@
             font-weight: 600;
             flex-shrink: 0;
         }
+
+        /* Waypoints side-by-side layout styles */
+        .airport-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+        @media (min-width: 992px) {
+            .airport-layout.has-waypoints {
+                grid-template-columns: 2.2fr 1.3fr;
+            }
+        }
+        
+        .waypoints-section {
+            position: sticky;
+            top: 2rem;
+        }
+        
+        .waypoints-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .waypoints-card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .waypoints-card-header h2 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .waypoints-list {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            gap: 0.75rem;
+            max-height: 550px;
+            overflow-y: auto;
+        }
+        
+        .waypoint-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            transition: border-color 0.15s;
+        }
+        
+        .waypoint-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .waypoint-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            min-width: 0;
+        }
+        
+        .waypoint-name-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .waypoint-name {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 0.85rem;
+        }
+        
+        .waypoint-ident {
+            color: var(--warning);
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .waypoint-coords {
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+        
+        .waypoint-links {
+            display: flex;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+        
+        .waypoint-link {
+            text-decoration: none;
+            color: var(--accent);
+            background: var(--accent-glow);
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        
+        .waypoint-link:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
     
     </style>
 </head>
@@ -643,11 +765,325 @@
         
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
         
-        <div class="file-count" id="fileCount">Showing 16 files</div>
-        <div class="file-list" id="fileList"></div>
-        <div id="emptyState" class="empty-state" style="display: none;">
-            <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
-            <p>No files found.</p>
+        <div class="airport-layout has-waypoints">
+            <div class="charts-section">
+                <div class="file-count" id="fileCount">Showing 17 files</div>
+                <div class="file-list" id="fileList"></div>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div style="font-size: 3rem; opacity: 0.3;">🔍</div>
+                    <p>No files found.</p>
+                </div>
+            </div>
+            
+            <div class="waypoints-section">
+                <div class="waypoints-card">
+                    <div class="waypoints-card-header">
+                        <h2>🧭 Visual Waypoints</h2>
+                    </div>
+                    <div class="waypoints-list">
+                        
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">264th</span>
+                                <span class="waypoint-ident">VCXYZ</span>
+                            </div>
+                            <div class="waypoint-coords">49.1017° N, 122.4933° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.101667,-122.493333&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.101667,-122.493333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">CLAYBURN</span>
+                                <span class="waypoint-ident">VCCYB</span>
+                            </div>
+                            <div class="waypoint-coords">49.1100° N, 122.2483° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.11,-122.248333&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.11,-122.248333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">COLE RD</span>
+                                <span class="waypoint-ident">VCCLE</span>
+                            </div>
+                            <div class="waypoint-coords">49.0628° N, 122.1689° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.062778,-122.168889&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.062778,-122.168889" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">FUNPARK</span>
+                                <span class="waypoint-ident">VCFPK</span>
+                            </div>
+                            <div class="waypoint-coords">49.0389° N, 122.2239° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.038889,-122.223889&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.038889,-122.223889" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">ISLAND</span>
+                                <span class="waypoint-ident">VCISL</span>
+                            </div>
+                            <div class="waypoint-coords">49.1278° N, 122.3858° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.127778,-122.385833&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.127778,-122.385833" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">SUMAS</span>
+                                <span class="waypoint-ident">VCSUM</span>
+                            </div>
+                            <div class="waypoint-coords">49.0333° N, 122.2667° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.033333,-122.266667&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.033333,-122.266667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">WHATCOM</span>
+                                <span class="waypoint-ident">VCWCM</span>
+                            </div>
+                            <div class="waypoint-coords">48.9453° N, 122.5792° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=48.945278,-122.579167&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=48.945278,-122.579167" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">3ROAD</span>
+                                <span class="waypoint-ident">VCTRD</span>
+                            </div>
+                            <div class="waypoint-coords">49.0897° N, 122.1247° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.089722,-122.124722&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.089722,-122.124722" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">ALDERGROVE</span>
+                                <span class="waypoint-ident">VCGRV</span>
+                            </div>
+                            <div class="waypoint-coords">49.0583° N, 122.4700° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.058333,-122.47&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.058333,-122.47" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">ARNOLD</span>
+                                <span class="waypoint-ident">VCARN</span>
+                            </div>
+                            <div class="waypoint-coords">49.0167° N, 122.1500° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.016667,-122.15&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.016667,-122.15" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">BAKER</span>
+                                <span class="waypoint-ident">VCBKR</span>
+                            </div>
+                            <div class="waypoint-coords">48.9617° N, 122.2233° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=48.961667,-122.223333&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=48.961667,-122.223333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">BIRCH POINT</span>
+                                <span class="waypoint-ident">VCBPT</span>
+                            </div>
+                            <div class="waypoint-coords">48.9433° N, 122.8183° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=48.943333,-122.818333&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=48.943333,-122.818333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">EMMY</span>
+                                <span class="waypoint-ident">VCEMY</span>
+                            </div>
+                            <div class="waypoint-coords">49.0700° N, 122.3406° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.07,-122.340556&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.07,-122.340556" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">EVERSON</span>
+                                <span class="waypoint-ident">VCEVR</span>
+                            </div>
+                            <div class="waypoint-coords">48.9300° N, 122.3233° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=48.93,-122.323333&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=48.93,-122.323333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">GLEN VALLEY</span>
+                                <span class="waypoint-ident">VCGLN</span>
+                            </div>
+                            <div class="waypoint-coords">49.1267° N, 122.4283° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.126667,-122.428333&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.126667,-122.428333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">GREENHOUSE</span>
+                                <span class="waypoint-ident">VCGRE</span>
+                            </div>
+                            <div class="waypoint-coords">49.0667° N, 122.1550° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.066667,-122.155&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.066667,-122.155" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">KILGARD</span>
+                                <span class="waypoint-ident">VCKLH</span>
+                            </div>
+                            <div class="waypoint-coords">49.0533° N, 122.2017° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.053333,-122.201667&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.053333,-122.201667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">LYNDEN</span>
+                                <span class="waypoint-ident">VCLDN</span>
+                            </div>
+                            <div class="waypoint-coords">48.9567° N, 122.4567° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=48.956667,-122.456667&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=48.956667,-122.456667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">MILL LAKE</span>
+                                <span class="waypoint-ident">VCMLK</span>
+                            </div>
+                            <div class="waypoint-coords">49.0433° N, 122.3150° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.043333,-122.315&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.043333,-122.315" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">MISSION BRIDGE</span>
+                                <span class="waypoint-ident">VCMSB</span>
+                            </div>
+                            <div class="waypoint-coords">49.1233° N, 122.3067° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.123333,-122.306667&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.123333,-122.306667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">POPPY</span>
+                                <span class="waypoint-ident">VCPPY</span>
+                            </div>
+                            <div class="waypoint-coords">49.0700° N, 122.5367° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.07,-122.536667&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.07,-122.536667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">ROCKY</span>
+                                <span class="waypoint-ident">VCRKY</span>
+                            </div>
+                            <div class="waypoint-coords">48.9767° N, 122.3400° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=48.976667,-122.34&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=48.976667,-122.34" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="waypoint-item">
+                        <div class="waypoint-info">
+                            <div class="waypoint-name-row">
+                                <span class="waypoint-name">YARROW</span>
+                                <span class="waypoint-ident">VCYAR</span>
+                            </div>
+                            <div class="waypoint-coords">49.0806° N, 122.0647° W</div>
+                        </div>
+                        <div class="waypoint-links">
+                            <a href="https://skyvector.com/?ll=49.080556,-122.064722&chart=301&zoom=3" target="_blank" class="waypoint-link" title="Open in SkyVector">SkyVector</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=49.080556,-122.064722" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -1024,6 +1460,178 @@
                 applySidebarState();
                 loader.style.display = 'flex';
 
+                // Intercept visual waypoints virtual entry
+                if (id === 'visual-waypoints') {
+                    if (document.getElementById('zoomRange')) {
+                        document.getElementById('zoomRange').parentElement.style.display = 'none';
+                    }
+                    if (document.getElementById('rotateBtn')) {
+                        document.getElementById('rotateBtn').style.display = 'none';
+                    }
+                    if (document.getElementById('resetBtn')) {
+                        document.getElementById('resetBtn').style.display = 'none';
+                    }
+                    if (document.getElementById('refreshBtn')) {
+                        document.getElementById('refreshBtn').style.display = 'none';
+                    }
+                    if (document.getElementById('pageNav')) {
+                        document.getElementById('pageNav').style.display = 'none';
+                    }
+                    const tipEl = document.querySelector('.viewer-tip');
+                    if (tipEl) {
+                        tipEl.style.display = 'none';
+                    }
+
+                    container.innerHTML = '';
+                    let rowsHtml = '';
+                    const wps = (typeof airportWaypoints !== 'undefined') ? airportWaypoints : [];
+                    wps.forEach(wp => {
+                        const latHemi = wp.latitude >= 0 ? 'N' : 'S';
+                        const lonHemi = wp.longitude >= 0 ? 'E' : 'W';
+                        const latStr = `${Math.abs(wp.latitude).toFixed(4)}° ${latHemi}`;
+                        const lonStr = `${Math.abs(wp.longitude).toFixed(4)}° ${lonHemi}`;
+                        const coords = `${latStr}, ${lonStr}`;
+                        const skyvector_url = `https://skyvector.com/?ll=${wp.latitude},${wp.longitude}&chart=301&zoom=3`;
+                        const gmaps_url = `https://www.google.com/maps/search/?api=1&query=${wp.latitude},${wp.longitude}`;
+                        
+                        rowsHtml += `
+                            <tr>
+                                <td><span class="wp-name">${wp.name}</span></td>
+                                <td><span class="wp-ident">${wp.ident}</span></td>
+                                <td><span class="wp-coords">${coords}</span></td>
+                                <td>
+                                    <div class="wp-actions">
+                                        <a href="${skyvector_url}" target="_blank" class="wp-btn">SkyVector</a>
+                                        <a href="${gmaps_url}" target="_blank" class="wp-btn">Google Maps</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    container.innerHTML = `
+                        <div class="waypoints-viewer-container">
+                            <style>
+                                .waypoints-viewer-container {
+                                    width: 100%;
+                                    max-width: 900px;
+                                    margin: 40px auto;
+                                    padding: 2rem;
+                                    background: var(--surface);
+                                    border: 1px solid var(--border);
+                                    border-radius: 8px;
+                                    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+                                    font-family: 'IBM Plex Mono', monospace;
+                                }
+                                .waypoints-viewer-header {
+                                    margin-bottom: 1.5rem;
+                                    border-bottom: 1px solid var(--border);
+                                    padding-bottom: 1rem;
+                                }
+                                .waypoints-viewer-header h3 {
+                                    font-family: 'Rajdhani', sans-serif;
+                                    font-size: 1.5rem;
+                                    color: var(--accent);
+                                    text-transform: uppercase;
+                                    margin: 0;
+                                }
+                                .waypoints-table {
+                                    width: 100%;
+                                    border-collapse: collapse;
+                                    text-align: left;
+                                    margin-top: 1rem;
+                                }
+                                .waypoints-table th, .waypoints-table td {
+                                    padding: 0.75rem 1rem;
+                                    border-bottom: 1px solid var(--border);
+                                }
+                                .waypoints-table th {
+                                    font-family: 'Rajdhani', sans-serif;
+                                    font-size: 1.05rem;
+                                    text-transform: uppercase;
+                                    color: var(--text-dim);
+                                    letter-spacing: 0.05em;
+                                    font-weight: 700;
+                                }
+                                .waypoints-table tbody tr {
+                                    transition: background-color 0.15s;
+                                }
+                                .waypoints-table tbody tr:hover {
+                                    background-color: var(--surface-hover);
+                                }
+                                .wp-name {
+                                    font-weight: 600;
+                                    color: var(--text);
+                                }
+                                .wp-ident {
+                                    color: var(--warning);
+                                    font-weight: 600;
+                                }
+                                .wp-coords {
+                                    color: var(--text-dim);
+                                    white-space: nowrap;
+                                }
+                                .wp-actions {
+                                    display: flex;
+                                    gap: 0.5rem;
+                                }
+                                .wp-btn {
+                                    display: inline-block;
+                                    text-decoration: none;
+                                    color: var(--accent);
+                                    background: var(--accent-glow);
+                                    padding: 0.25rem 0.5rem;
+                                    border-radius: 3px;
+                                    font-size: 0.75rem;
+                                    font-weight: 600;
+                                    transition: all 0.15s;
+                                    white-space: nowrap;
+                                }
+                                .wp-btn:hover {
+                                    background: var(--accent);
+                                    color: var(--bg);
+                                }
+                            </style>
+                            <div class="waypoints-viewer-header">
+                                <h3>🧭 Visual Waypoints</h3>
+                            </div>
+                            <table class="waypoints-table">
+                                <thead>
+                                    <tr>
+                                        <th>Waypoint Name</th>
+                                        <th>Identifier</th>
+                                        <th>Coordinates</th>
+                                        <th>Links</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHtml || '<tr><td colspan="4" style="text-align:center; color:var(--text-dim);">No waypoints found for this airport.</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    
+                    loader.style.display = 'none';
+                    return;
+                } else {
+                    if (document.getElementById('zoomRange')) {
+                        document.getElementById('zoomRange').parentElement.style.display = 'flex';
+                    }
+                    if (document.getElementById('rotateBtn')) {
+                        document.getElementById('rotateBtn').style.display = 'flex';
+                    }
+                    if (document.getElementById('resetBtn')) {
+                        document.getElementById('resetBtn').style.display = 'flex';
+                    }
+                    if (document.getElementById('refreshBtn')) {
+                        document.getElementById('refreshBtn').style.display = 'flex';
+                    }
+                    const tipEl = document.querySelector('.viewer-tip');
+                    if (tipEl) {
+                        tipEl.style.display = 'block';
+                    }
+                }
+
                 try {
                     const embedId = fileObj && fileObj.driveId ? fileObj.driveId : null;
                     const loadResult = await getPdfData(id, embedId, localUrl, loaderStatus);
@@ -1254,6 +1862,7 @@
             };
 
             function adjustZoom(delta) {
+                if (currentFileId === 'visual-waypoints') return;
                 const newZoom = Math.min(Math.max(0.5, currentZoom * visualScale + delta), 4);
                 visualScale = newZoom / currentZoom;
                 applyVisualTransform();
@@ -1472,6 +2081,7 @@
             icao: 'CYXX',
             region: 'CANADA'
         };
+        const airportWaypoints = [{"name": "264th", "ident": "VCXYZ", "latitude": 49.101667, "longitude": -122.493333}, {"name": "CLAYBURN", "ident": "VCCYB", "latitude": 49.11, "longitude": -122.248333}, {"name": "COLE RD", "ident": "VCCLE", "latitude": 49.062778, "longitude": -122.168889}, {"name": "FUNPARK", "ident": "VCFPK", "latitude": 49.038889, "longitude": -122.223889}, {"name": "ISLAND", "ident": "VCISL", "latitude": 49.127778, "longitude": -122.385833}, {"name": "SUMAS", "ident": "VCSUM", "latitude": 49.033333, "longitude": -122.266667}, {"name": "WHATCOM", "ident": "VCWCM", "latitude": 48.945278, "longitude": -122.579167}, {"name": "3ROAD", "ident": "VCTRD", "latitude": 49.089722, "longitude": -122.124722}, {"name": "ALDERGROVE", "ident": "VCGRV", "latitude": 49.058333, "longitude": -122.47}, {"name": "ARNOLD", "ident": "VCARN", "latitude": 49.016667, "longitude": -122.15}, {"name": "BAKER", "ident": "VCBKR", "latitude": 48.961667, "longitude": -122.223333}, {"name": "BIRCH POINT", "ident": "VCBPT", "latitude": 48.943333, "longitude": -122.818333}, {"name": "EMMY", "ident": "VCEMY", "latitude": 49.07, "longitude": -122.340556}, {"name": "EVERSON", "ident": "VCEVR", "latitude": 48.93, "longitude": -122.323333}, {"name": "GLEN VALLEY", "ident": "VCGLN", "latitude": 49.126667, "longitude": -122.428333}, {"name": "GREENHOUSE", "ident": "VCGRE", "latitude": 49.066667, "longitude": -122.155}, {"name": "KILGARD", "ident": "VCKLH", "latitude": 49.053333, "longitude": -122.201667}, {"name": "LYNDEN", "ident": "VCLDN", "latitude": 48.956667, "longitude": -122.456667}, {"name": "MILL LAKE", "ident": "VCMLK", "latitude": 49.043333, "longitude": -122.315}, {"name": "MISSION BRIDGE", "ident": "VCMSB", "latitude": 49.123333, "longitude": -122.306667}, {"name": "POPPY", "ident": "VCPPY", "latitude": 49.07, "longitude": -122.536667}, {"name": "ROCKY", "ident": "VCRKY", "latitude": 48.976667, "longitude": -122.34}, {"name": "YARROW", "ident": "VCYAR", "latitude": 49.080556, "longitude": -122.064722}];
 
         const pinAirportBtn = document.getElementById('pinAirportBtn');
         const updateAirportPinState = () => {
@@ -1488,6 +2098,15 @@
         updateAirportPinState();
 
         const files = [
+        {
+                "id": "visual-waypoints",
+                "name": "Visual Waypoints (264th [VCXYZ], CLAYBURN [VCCYB], COLE RD [VCCLE], FUNPARK [VCFPK], ISLAND [VCISL], SUMAS [VCSUM], WHATCOM [VCWCM], 3ROAD [VCTRD], ALDERGROVE [VCGRV], ARNOLD [VCARN], BAKER [VCBKR], BIRCH POINT [VCBPT], EMMY [VCEMY], EVERSON [VCEVR], GLEN VALLEY [VCGLN], GREENHOUSE [VCGRE], KILGARD [VCKLH], LYNDEN [VCLDN], MILL LAKE [VCMLK], MISSION BRIDGE [VCMSB], POPPY [VCPPY], ROCKY [VCRKY], YARROW [VCYAR])",
+                "type": "waypoints",
+                "url": "#",
+                "localUrl": "#",
+                "driveId": "",
+                "driveUrl": "#"
+        },
         {
                 "id": ".DS_Store",
                 "name": ".DS_Store",
@@ -1747,7 +2366,7 @@
                 "rootUrl": "https://ghoshaan.github.io/aip-charts-data/canada/cyxx-abbotsford/cyxx_hope_5_arr_rnav.pdf"
         }
 ];
-        const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
+        const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝', waypoints: '🧭'};
         let currentFilter = 'all';
         
         const fuse = new Fuse(files, {
