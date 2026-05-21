@@ -999,6 +999,39 @@
                 }
             }
 
+            function getViewerContentWidth() {
+                const modal = document.getElementById('viewerModal');
+                if (!modal) return window.innerWidth;
+                const modalWidth = modal.clientWidth || window.innerWidth;
+                
+                const sidebar = document.getElementById('viewerSidebar');
+                const hasSidebar = sidebar && sidebar.style.display !== 'none';
+                const sidebarWidth = (hasSidebar && sidebarOpen) ? 280 : 0;
+                
+                return modalWidth - sidebarWidth;
+            }
+
+            async function fitToWidth() {
+                if (!currentPdf) return;
+                try {
+                    const page = await currentPdf.getPage(1);
+                    const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+                    const contentWidth = getViewerContentWidth();
+                    const fitScale = (contentWidth - 40) / viewport.width;
+                    const newZoom = Math.min(Math.max(0.5, fitScale), 2.5);
+                    
+                    currentZoom = newZoom;
+                    visualScale = 1.0;
+                    
+                    document.getElementById('zoomRange').value = newZoom;
+                    document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+                    
+                    await updateZoomQuality();
+                } catch (err) {
+                    console.error('fitToWidth error:', err);
+                }
+            }
+
             function populateSidebar(activeId) {
                 const sidebarList = document.getElementById('sidebarList');
                 const sidebarCount = document.getElementById('sidebarCount');
@@ -1129,7 +1162,8 @@
                     try {
                         const page = await currentPdf.getPage(1);
                         const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
-                        const fitScale = (container.clientWidth - 40) / viewport.width;
+                        const contentWidth = getViewerContentWidth();
+                        const fitScale = (contentWidth - 40) / viewport.width;
                         const initialZoom = Math.min(Math.max(0.5, fitScale), 2.5);
                         
                         currentZoom = initialZoom;
@@ -1239,6 +1273,21 @@
 
             window.addEventListener('hashchange', checkHash);
             window.addEventListener('DOMContentLoaded', () => setTimeout(checkHash, 500));
+
+            // Debounce function for resize event
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+
+            window.addEventListener('resize', debounce(() => {
+                if (document.getElementById('viewerModal').style.display === 'flex') {
+                    fitToWidth();
+                }
+            }, 150));
 
             async function renderAllPages() {
                 const container = document.getElementById('pdfViewer');
@@ -1354,6 +1403,7 @@
                 sidebarOpen = !sidebarOpen;
                 localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
                 applySidebarState();
+                fitToWidth();
             };
 
             document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
@@ -1436,11 +1486,7 @@
 
             document.getElementById('resetBtn').onclick = async () => {
                 currentRotation = 0;
-                currentZoom = 1.5;
-                visualScale = 1.0;
-                document.getElementById('zoomRange').value = 1.5;
-                document.getElementById('zoomValue').textContent = '1.5x';
-                await renderAllPages();
+                await fitToWidth();
             };
 
             document.getElementById('viewerModal').onclick = (e) => {
