@@ -1174,7 +1174,6 @@
                         const latStr = `${Math.abs(wp.latitude).toFixed(4)}° ${latHemi}`;
                         const lonStr = `${Math.abs(wp.longitude).toFixed(4)}° ${lonHemi}`;
                         const coords = `${latStr}, ${lonStr}`;
-                        const skyvector_url = `https://skyvector.com/?ll=${wp.latitude},${wp.longitude}&chart=301&zoom=3`;
                         const gmaps_url = `https://www.google.com/maps/search/?api=1&query=${wp.latitude},${wp.longitude}`;
                         
                         rowsHtml += `
@@ -1184,7 +1183,6 @@
                                 <td><span class="wp-coords">${coords}</span></td>
                                 <td>
                                     <div class="wp-actions">
-                                        <a href="${skyvector_url}" target="_blank" class="wp-btn">SkyVector</a>
                                         <a href="${gmaps_url}" target="_blank" class="wp-btn">Google Maps</a>
                                     </div>
                                 </td>
