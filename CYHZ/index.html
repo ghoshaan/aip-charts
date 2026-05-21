@@ -468,6 +468,15 @@
             background: rgba(88, 166, 255, 0.3);
         }
 
+        .zoom-marquee {
+            position: absolute;
+            border: 2px dashed var(--accent);
+            background: var(--accent-glow);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
         .viewer-tip {
             position: absolute;
             bottom: 1rem;
@@ -704,10 +713,11 @@
 
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
+                        <div id="zoomMarquee" class="zoom-marquee"></div>
                     </div>
 
                     <div class="viewer-tip">
-                        <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                        <span>💡 <b>Mouse Wheel</b> to zoom. <b>Shift + Drag</b> a box to zoom into a region.</span>
                     </div>
                 </div>
             </div>
@@ -746,7 +756,7 @@
         }
     
         
-            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
+            const APPS_SCRIPT_URL = "";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -995,7 +1005,23 @@
                     
                     currentPdf = await loadingTask.promise;
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
-                    await renderAllPages();
+                    
+                    // Viewport width fit by default (Feature 3)
+                    try {
+                        const page = await currentPdf.getPage(1);
+                        const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+                        const fitScale = (container.clientWidth - 40) / viewport.width;
+                        const initialZoom = Math.min(Math.max(0.5, fitScale), 2.5);
+                        
+                        currentZoom = initialZoom;
+                        document.getElementById('zoomRange').value = initialZoom;
+                        document.getElementById('zoomValue').textContent = `${initialZoom.toFixed(1)}x`;
+                    } catch (zoomErr) {
+                        console.error('Fit viewport error:', zoomErr);
+                    }
+
+                    // Render pages asynchronously (Optimization 2)
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1050,7 +1076,7 @@
                         loadingTask = pdfjsLib.getDocument({ data: loadResult.data });
                     }
                     currentPdf = await loadingTask.promise;
-                    await renderAllPages();
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1122,25 +1148,8 @@
                 canvas.width = viewport.width;
                 container.appendChild(canvas);
 
-                const textLayerDiv = document.createElement('div');
-                textLayerDiv.className = 'textLayer';
-                container.appendChild(textLayerDiv);
-
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-                // Render text layer
-                try {
-                    const textContent = await page.getTextContent();
-                    pdfjsLib.renderTextLayer({
-                        textContent: textContent,
-                        container: textLayerDiv,
-                        viewport: viewport,
-                        textDivs: []
-                    });
-                } catch (textErr) {
-                    console.error('Text layer render error:', textErr);
-                }
             }
 
             function applyVisualTransform() {
@@ -1285,7 +1294,7 @@
                         
                         const loadingTask = pdfjsLib.getDocument({ data: pdfData });
                         currentPdf = await loadingTask.promise;
-                        await renderAllPages();
+                        renderAllPages();
                         loader.style.display = 'none';
                         updatePageNav();
                     } catch (err) {
@@ -1318,6 +1327,97 @@
             document.getElementById('viewerModal').onclick = (e) => {
                 if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
+
+            // Selection box zoom (Marquee Zoom) (Feature 4)
+            const marqueeContainer = document.getElementById('pdfViewerContainer');
+            const marquee = document.getElementById('zoomMarquee');
+            let isDragging = false;
+            let startXScreen = 0, startYScreen = 0;
+
+            marqueeContainer.addEventListener('mousedown', (e) => {
+                if (e.shiftKey && e.button === 0) { // Shift + Left Click
+                    const canvas = marqueeContainer.querySelector('canvas');
+                    if (!canvas) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startXScreen = e.clientX;
+                    startYScreen = e.clientY;
+
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+                    const left = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                    const top = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                    marquee.style.left = `${left}px`;
+                    marquee.style.top = `${top}px`;
+                    marquee.style.width = '0px';
+                    marquee.style.height = '0px';
+                    marquee.style.display = 'block';
+                    marqueeContainer.style.cursor = 'crosshair';
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const containerRect = marqueeContainer.getBoundingClientRect();
+                const currentX = e.clientX - containerRect.left + marqueeContainer.scrollLeft;
+                const currentY = e.clientY - containerRect.top + marqueeContainer.scrollTop;
+                const startX = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                const startY = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                const left = Math.min(startX, currentX);
+                const top = Math.min(startY, currentY);
+                const width = Math.abs(startX - currentX);
+                const height = Math.abs(startY - currentY);
+
+                marquee.style.left = `${left}px`;
+                marquee.style.top = `${top}px`;
+                marquee.style.width = `${width}px`;
+                marquee.style.height = `${height}px`;
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                marquee.style.display = 'none';
+                marqueeContainer.style.cursor = '';
+
+                const canvas = marqueeContainer.querySelector('canvas');
+                if (!canvas) return;
+
+                const width = Math.abs(startXScreen - e.clientX);
+                const height = Math.abs(startYScreen - e.clientY);
+
+                // Ignore tiny clicks/drags (less than 15px)
+                if (width > 15 && height > 15) {
+                    const canvasRectOld = canvas.getBoundingClientRect();
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+
+                    const selCenterX = Math.min(startXScreen, e.clientX) + width / 2;
+                    const selCenterY = Math.min(startYScreen, e.clientY) + height / 2;
+
+                    const pctX = (selCenterX - canvasRectOld.left) / canvasRectOld.width;
+                    const pctY = (selCenterY - canvasRectOld.top) / canvasRectOld.height;
+
+                    const factorX = marqueeContainer.clientWidth / width;
+                    const factorY = marqueeContainer.clientHeight / height;
+                    const factor = Math.min(factorX, factorY) * 0.95;
+
+                    const targetZoom = Math.min(Math.max(0.5, currentZoom * visualScale * factor), 4.0);
+                    const delta = targetZoom - (currentZoom * visualScale);
+                    adjustZoom(delta);
+
+                    // Align viewport scroll to center of selection
+                    const canvasRectNew = canvas.getBoundingClientRect();
+                    const newScreenCenterX = canvasRectNew.left + pctX * canvasRectNew.width;
+                    const newScreenCenterY = canvasRectNew.top + pctY * canvasRectNew.height;
+
+                    const containerScreenCenterX = containerRect.left + marqueeContainer.clientWidth / 2;
+                    const containerScreenCenterY = containerRect.top + marqueeContainer.clientHeight / 2;
+
+                    marqueeContainer.scrollLeft += (newScreenCenterX - containerScreenCenterX);
+                    marqueeContainer.scrollTop += (newScreenCenterY - containerScreenCenterY);
+                }
+            });
         
         
         const airportCtx = {
@@ -1345,370 +1445,370 @@
         {
                 "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/.DS_Store",
+                "localUrl": "../charts_data/canada/cyhz-halifax/.DS_Store",
                 "driveId": "1KvM5KiwV78h4Gb_ZOLWCHLOHaBCYL5SJ",
                 "driveUrl": "https://drive.google.com/file/d/1KvM5KiwV78h4Gb_ZOLWCHLOHaBCYL5SJ/view?usp=drivesdk",
                 "type": "doc",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/.DS_Store"
         },
         {
                 "id": "cyhz_halifax_4_dep_vector.pdf",
                 "name": "CYHZ_HALIFAX_4_DEP_VECTOR",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_halifax_4_dep_vector.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_halifax_4_dep_vector.pdf",
                 "driveId": "1I5v4kUkEn5QGDFATYC_pAsOq3nSX3373",
                 "driveUrl": "https://drive.google.com/file/d/1I5v4kUkEn5QGDFATYC_pAsOq3nSX3373/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_halifax_4_dep_vector.pdf",
                 "pages": [
                         {
                                 "id": "cyhz_halifax_4_dep_vector.pdf",
                                 "name": "CYHZ_HALIFAX_4_DEP_VECTOR.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyhz-halifax/cyhz_halifax_4_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_halifax_4_dep_vector.pdf",
                                 "driveId": "1I5v4kUkEn5QGDFATYC_pAsOq3nSX3373",
                                 "driveUrl": "https://drive.google.com/file/d/1I5v4kUkEn5QGDFATYC_pAsOq3nSX3373/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_halifax_4_dep_vector.pdf"
                         },
                         {
                                 "id": "cyhz_halifax_4_dep_vector_pg_02.pdf",
                                 "name": "CYHZ_HALIFAX_4_DEP_VECTOR_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyhz-halifax/cyhz_halifax_4_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_halifax_4_dep_vector_pg_02.pdf",
                                 "driveId": "1gLvGO-JffUFH6dU5xaqoCc4A7a2YO11i",
                                 "driveUrl": "https://drive.google.com/file/d/1gLvGO-JffUFH6dU5xaqoCc4A7a2YO11i/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_halifax_4_dep_vector_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cyhz_de-icing_operations.pdf",
                 "name": "CYHZ_DE-ICING_OPERATIONS.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_de-icing_operations.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_de-icing_operations.pdf",
                 "driveId": "1jjiQaRZzzUlYzrpb6kW9PFnvWBdRmuht",
                 "driveUrl": "https://drive.google.com/file/d/1jjiQaRZzzUlYzrpb6kW9PFnvWBdRmuht/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_de-icing_operations.pdf"
         },
         {
                 "id": "cyhz_parking_areas_apron_iii.pdf",
                 "name": "CYHZ_PARKING_AREAS_APRON_III.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_parking_areas_apron_iii.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_parking_areas_apron_iii.pdf",
                 "driveId": "1f4-G54jMYwpkkozDs-fKuCFSHZ6kKiJN",
                 "driveUrl": "https://drive.google.com/file/d/1f4-G54jMYwpkkozDs-fKuCFSHZ6kKiJN/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_parking_areas_apron_iii.pdf"
         },
         {
                 "id": "cyhz_rnav_rnp_y_rwy_14.pdf",
                 "name": "CYHZ_RNAV_RNP_Y_RWY_14.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_14.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_14.pdf",
                 "driveId": "1mv17jkvg_efQ7XoEqt3CuF7591ky8StX",
                 "driveUrl": "https://drive.google.com/file/d/1mv17jkvg_efQ7XoEqt3CuF7591ky8StX/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_14.pdf"
         },
         {
                 "id": "cyhz_rnav_rnp_y_rwy_05.pdf",
                 "name": "CYHZ_RNAV_RNP_Y_RWY_05.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_05.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_05.pdf",
                 "driveId": "1XbS-CzdhZt7fk72vziBjzk23WG2diPzh",
                 "driveUrl": "https://drive.google.com/file/d/1XbS-CzdhZt7fk72vziBjzk23WG2diPzh/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_05.pdf"
         },
         {
                 "id": "cyhz_low_visibility_procedures.pdf",
                 "name": "CYHZ_LOW_VISIBILITY_PROCEDURES.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_low_visibility_procedures.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_low_visibility_procedures.pdf",
                 "driveId": "1DV4Mbfo3WnNRRtdbUV2_tdpW-c27HCOy",
                 "driveUrl": "https://drive.google.com/file/d/1DV4Mbfo3WnNRRtdbUV2_tdpW-c27HCOy/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_low_visibility_procedures.pdf"
         },
         {
                 "id": "cyhz_low_visibility_taxi_chart.pdf",
                 "name": "CYHZ_LOW_VISIBILITY_TAXI_CHART.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_low_visibility_taxi_chart.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_low_visibility_taxi_chart.pdf",
                 "driveId": "1azEFw4fLM-7G_AjA8462DUTM6X4dD9Js",
                 "driveUrl": "https://drive.google.com/file/d/1azEFw4fLM-7G_AjA8462DUTM6X4dD9Js/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_low_visibility_taxi_chart.pdf"
         },
         {
                 "id": "cyhz_rnav_gnss_z_rwy_23.pdf",
                 "name": "CYHZ_RNAV_GNSS_Z_RWY_23.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_23.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_23.pdf",
                 "driveId": "1h1oTvns-8YV3UBtncmaG8KlakLN_T1EA",
                 "driveUrl": "https://drive.google.com/file/d/1h1oTvns-8YV3UBtncmaG8KlakLN_T1EA/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_23.pdf"
         },
         {
                 "id": "cyhz_aerodrome_chart.pdf",
                 "name": "CYHZ_AERODROME_CHART.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_aerodrome_chart.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_aerodrome_chart.pdf",
                 "driveId": "1GowUxS6ol3NZBho9MJQcCbfh2bYEVMqT",
                 "driveUrl": "https://drive.google.com/file/d/1GowUxS6ol3NZBho9MJQcCbfh2bYEVMqT/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_aerodrome_chart.pdf"
         },
         {
                 "id": "cyhz_rnav_gnss_z_rwy_32.pdf",
                 "name": "CYHZ_RNAV_GNSS_Z_RWY_32.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_32.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_32.pdf",
                 "driveId": "1jYDPmAIE62QkHNBLM5-tfFl7lH1HXB-W",
                 "driveUrl": "https://drive.google.com/file/d/1jYDPmAIE62QkHNBLM5-tfFl7lH1HXB-W/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_32.pdf"
         },
         {
                 "id": "cyhz_parking_areas_apron_i.pdf",
                 "name": "CYHZ_PARKING_AREAS_APRON_I.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_parking_areas_apron_i.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_parking_areas_apron_i.pdf",
                 "driveId": "14R7aCzcR1xWgYR2l9gV0EdCQlDS6hIXH",
                 "driveUrl": "https://drive.google.com/file/d/14R7aCzcR1xWgYR2l9gV0EdCQlDS6hIXH/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_parking_areas_apron_i.pdf"
         },
         {
                 "id": "cyhz_rnav_rnp_y_rwy_32.pdf",
                 "name": "CYHZ_RNAV_RNP_Y_RWY_32.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_32.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_32.pdf",
                 "driveId": "1jHC_4NB8LpKXPydYUNc_NSpICQf-sdw4",
                 "driveUrl": "https://drive.google.com/file/d/1jHC_4NB8LpKXPydYUNc_NSpICQf-sdw4/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_32.pdf"
         },
         {
                 "id": "cyhz_parking_areas.pdf",
                 "name": "CYHZ_PARKING_AREAS.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_parking_areas.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_parking_areas.pdf",
                 "driveId": "1EQTVdN1YEXYTD04oOCSR3RYfObZuJsUv",
                 "driveUrl": "https://drive.google.com/file/d/1EQTVdN1YEXYTD04oOCSR3RYfObZuJsUv/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_parking_areas.pdf"
         },
         {
                 "id": "cyhz_rnav_rnp_y_rwy_23.pdf",
                 "name": "CYHZ_RNAV_RNP_Y_RWY_23.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_23.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_23.pdf",
                 "driveId": "1KkJdtsNpjoAnEqg-0vrOTbeIgPQBkF7x",
                 "driveUrl": "https://drive.google.com/file/d/1KkJdtsNpjoAnEqg-0vrOTbeIgPQBkF7x/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_rnav_rnp_y_rwy_23.pdf"
         },
         {
                 "id": "cyhz_rnav_gnss_z_rwy_14.pdf",
                 "name": "CYHZ_RNAV_GNSS_Z_RWY_14.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_14.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_14.pdf",
                 "driveId": "1cVT0CzZsXjjMAVD8lBoLWazXZMONa63E",
                 "driveUrl": "https://drive.google.com/file/d/1cVT0CzZsXjjMAVD8lBoLWazXZMONa63E/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_14.pdf"
         },
         {
                 "id": "cyhz_minas_1_arr_rnav.pdf",
                 "name": "CYHZ_MINAS_1_ARR_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_minas_1_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_minas_1_arr_rnav.pdf",
                 "driveId": "1NaoL0501ds3IX_gzJKkRyMXXaPsk-xSl",
                 "driveUrl": "https://drive.google.com/file/d/1NaoL0501ds3IX_gzJKkRyMXXaPsk-xSl/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_minas_1_arr_rnav.pdf",
                 "pages": [
                         {
                                 "id": "cyhz_minas_1_arr_rnav.pdf",
                                 "name": "CYHZ_MINAS_1_ARR_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyhz-halifax/cyhz_minas_1_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_minas_1_arr_rnav.pdf",
                                 "driveId": "1NaoL0501ds3IX_gzJKkRyMXXaPsk-xSl",
                                 "driveUrl": "https://drive.google.com/file/d/1NaoL0501ds3IX_gzJKkRyMXXaPsk-xSl/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_minas_1_arr_rnav.pdf"
                         },
                         {
                                 "id": "cyhz_minas_1_arr_rnav_pg_02.pdf",
                                 "name": "CYHZ_MINAS_1_ARR_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyhz-halifax/cyhz_minas_1_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_minas_1_arr_rnav_pg_02.pdf",
                                 "driveId": "1h4hdq2U4msyUWMCIlGRQ-q8PNeqkVgxm",
                                 "driveUrl": "https://drive.google.com/file/d/1h4hdq2U4msyUWMCIlGRQ-q8PNeqkVgxm/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_minas_1_arr_rnav_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cyhz_loc_rwy_05.pdf",
                 "name": "CYHZ_LOC_RWY_05.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_loc_rwy_05.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_loc_rwy_05.pdf",
                 "driveId": "1z23FA_AJeSd2ngtnPSM1TMXSb9ByoRBW",
                 "driveUrl": "https://drive.google.com/file/d/1z23FA_AJeSd2ngtnPSM1TMXSb9ByoRBW/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_loc_rwy_05.pdf"
         },
         {
                 "id": "cyhz_ils_cat_ii_rwy_23.pdf",
                 "name": "CYHZ_ILS_CAT_II_RWY_23.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_ils_cat_ii_rwy_23.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_ils_cat_ii_rwy_23.pdf",
                 "driveId": "1roKNtJFX02m7wRfocETTuRVHVLIJuueo",
                 "driveUrl": "https://drive.google.com/file/d/1roKNtJFX02m7wRfocETTuRVHVLIJuueo/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_ils_cat_ii_rwy_23.pdf"
         },
         {
                 "id": "cyhz_ils_rwy_23.pdf",
                 "name": "CYHZ_ILS_RWY_23.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_ils_rwy_23.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_ils_rwy_23.pdf",
                 "driveId": "1mbGp26CF1LFYeZXkCZENpYcA5a3KVw_X",
                 "driveUrl": "https://drive.google.com/file/d/1mbGp26CF1LFYeZXkCZENpYcA5a3KVw_X/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_ils_rwy_23.pdf"
         },
         {
                 "id": "cyhz_ils_rwy_14.pdf",
                 "name": "CYHZ_ILS_RWY_14.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_ils_rwy_14.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_ils_rwy_14.pdf",
                 "driveId": "1WaP-yjmov4m4sBRIyV1qZe2AK3t0-r8k",
                 "driveUrl": "https://drive.google.com/file/d/1WaP-yjmov4m4sBRIyV1qZe2AK3t0-r8k/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_ils_rwy_14.pdf"
         },
         {
                 "id": "cyhz_lirla_5_arr_rnav.pdf",
                 "name": "CYHZ_LIRLA_5_ARR_RNAV.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_lirla_5_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_lirla_5_arr_rnav.pdf",
                 "driveId": "1ote4fPAPJaVZncmGfiSc9URJjVL20bKM",
                 "driveUrl": "https://drive.google.com/file/d/1ote4fPAPJaVZncmGfiSc9URJjVL20bKM/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_lirla_5_arr_rnav.pdf"
         },
         {
                 "id": "cyhz_fundy_5_arr_rnav.pdf",
                 "name": "CYHZ_FUNDY_5_ARR_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_fundy_5_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_fundy_5_arr_rnav.pdf",
                 "driveId": "1qh_QU_czMoICxfd1c9RmYwrsyyWLPKDu",
                 "driveUrl": "https://drive.google.com/file/d/1qh_QU_czMoICxfd1c9RmYwrsyyWLPKDu/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_fundy_5_arr_rnav.pdf",
                 "pages": [
                         {
                                 "id": "cyhz_fundy_5_arr_rnav.pdf",
                                 "name": "CYHZ_FUNDY_5_ARR_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyhz-halifax/cyhz_fundy_5_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_fundy_5_arr_rnav.pdf",
                                 "driveId": "1qh_QU_czMoICxfd1c9RmYwrsyyWLPKDu",
                                 "driveUrl": "https://drive.google.com/file/d/1qh_QU_czMoICxfd1c9RmYwrsyyWLPKDu/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_fundy_5_arr_rnav.pdf"
                         },
                         {
                                 "id": "cyhz_fundy_5_arr_rnav_pg_02.pdf",
                                 "name": "CYHZ_FUNDY_5_ARR_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyhz-halifax/cyhz_fundy_5_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_fundy_5_arr_rnav_pg_02.pdf",
                                 "driveId": "1-FdfQeNANb5kvPuvbHygbAzaYP7CpFKz",
                                 "driveUrl": "https://drive.google.com/file/d/1-FdfQeNANb5kvPuvbHygbAzaYP7CpFKz/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_fundy_5_arr_rnav_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cyhz_rnav_gnss_z_rwy_05.pdf",
                 "name": "CYHZ_RNAV_GNSS_Z_RWY_05.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_05.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_05.pdf",
                 "driveId": "1exp4PD84fPHpFNobSJvAHQlmT5n8FewE",
                 "driveUrl": "https://drive.google.com/file/d/1exp4PD84fPHpFNobSJvAHQlmT5n8FewE/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_rnav_gnss_z_rwy_05.pdf"
         },
         {
                 "id": "cyhz_peggy_5_arr_rnav.pdf",
                 "name": "CYHZ_PEGGY_5_ARR_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_peggy_5_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_peggy_5_arr_rnav.pdf",
                 "driveId": "1lM87VvccBYaCvZ5sjS55aYsAzUcFSlP0",
                 "driveUrl": "https://drive.google.com/file/d/1lM87VvccBYaCvZ5sjS55aYsAzUcFSlP0/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_peggy_5_arr_rnav.pdf",
                 "pages": [
                         {
                                 "id": "cyhz_peggy_5_arr_rnav.pdf",
                                 "name": "CYHZ_PEGGY_5_ARR_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyhz-halifax/cyhz_peggy_5_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_peggy_5_arr_rnav.pdf",
                                 "driveId": "1lM87VvccBYaCvZ5sjS55aYsAzUcFSlP0",
                                 "driveUrl": "https://drive.google.com/file/d/1lM87VvccBYaCvZ5sjS55aYsAzUcFSlP0/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_peggy_5_arr_rnav.pdf"
                         },
                         {
                                 "id": "cyhz_peggy_5_arr_rnav_pg_02.pdf",
                                 "name": "CYHZ_PEGGY_5_ARR_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyhz-halifax/cyhz_peggy_5_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_peggy_5_arr_rnav_pg_02.pdf",
                                 "driveId": "10EZNdN8R6ii_FQRumXZKaF0x6odPUJqc",
                                 "driveUrl": "https://drive.google.com/file/d/10EZNdN8R6ii_FQRumXZKaF0x6odPUJqc/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_peggy_5_arr_rnav_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cyhz_cabot_5_arr_rnav.pdf",
                 "name": "CYHZ_CABOT_5_ARR_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyhz-halifax/cyhz_cabot_5_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_cabot_5_arr_rnav.pdf",
                 "driveId": "1DHkgPglEwsLnuo-PsQ_jMsRJJ11fTcKL",
                 "driveUrl": "https://drive.google.com/file/d/1DHkgPglEwsLnuo-PsQ_jMsRJJ11fTcKL/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_cabot_5_arr_rnav.pdf",
                 "pages": [
                         {
                                 "id": "cyhz_cabot_5_arr_rnav.pdf",
                                 "name": "CYHZ_CABOT_5_ARR_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyhz-halifax/cyhz_cabot_5_arr_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_cabot_5_arr_rnav.pdf",
                                 "driveId": "1DHkgPglEwsLnuo-PsQ_jMsRJJ11fTcKL",
                                 "driveUrl": "https://drive.google.com/file/d/1DHkgPglEwsLnuo-PsQ_jMsRJJ11fTcKL/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_cabot_5_arr_rnav.pdf"
                         },
                         {
                                 "id": "cyhz_cabot_5_arr_rnav_pg_02.pdf",
                                 "name": "CYHZ_CABOT_5_ARR_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyhz-halifax/cyhz_cabot_5_arr_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyhz-halifax/cyhz_cabot_5_arr_rnav_pg_02.pdf",
                                 "driveId": "1VoDUeTTtq8g6jg3IfoogIyEo3GyPEuSm",
                                 "driveUrl": "https://drive.google.com/file/d/1VoDUeTTtq8g6jg3IfoogIyEo3GyPEuSm/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyhz-halifax/cyhz_cabot_5_arr_rnav_pg_02.pdf"
                         }
                 ]
         }

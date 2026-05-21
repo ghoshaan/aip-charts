@@ -468,6 +468,15 @@
             background: rgba(88, 166, 255, 0.3);
         }
 
+        .zoom-marquee {
+            position: absolute;
+            border: 2px dashed var(--accent);
+            background: var(--accent-glow);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
         .viewer-tip {
             position: absolute;
             bottom: 1rem;
@@ -704,10 +713,11 @@
 
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
+                        <div id="zoomMarquee" class="zoom-marquee"></div>
                     </div>
 
                     <div class="viewer-tip">
-                        <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                        <span>💡 <b>Mouse Wheel</b> to zoom. <b>Shift + Drag</b> a box to zoom into a region.</span>
                     </div>
                 </div>
             </div>
@@ -746,7 +756,7 @@
         }
     
         
-            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
+            const APPS_SCRIPT_URL = "";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -995,7 +1005,23 @@
                     
                     currentPdf = await loadingTask.promise;
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
-                    await renderAllPages();
+                    
+                    // Viewport width fit by default (Feature 3)
+                    try {
+                        const page = await currentPdf.getPage(1);
+                        const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+                        const fitScale = (container.clientWidth - 40) / viewport.width;
+                        const initialZoom = Math.min(Math.max(0.5, fitScale), 2.5);
+                        
+                        currentZoom = initialZoom;
+                        document.getElementById('zoomRange').value = initialZoom;
+                        document.getElementById('zoomValue').textContent = `${initialZoom.toFixed(1)}x`;
+                    } catch (zoomErr) {
+                        console.error('Fit viewport error:', zoomErr);
+                    }
+
+                    // Render pages asynchronously (Optimization 2)
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1050,7 +1076,7 @@
                         loadingTask = pdfjsLib.getDocument({ data: loadResult.data });
                     }
                     currentPdf = await loadingTask.promise;
-                    await renderAllPages();
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1122,25 +1148,8 @@
                 canvas.width = viewport.width;
                 container.appendChild(canvas);
 
-                const textLayerDiv = document.createElement('div');
-                textLayerDiv.className = 'textLayer';
-                container.appendChild(textLayerDiv);
-
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-                // Render text layer
-                try {
-                    const textContent = await page.getTextContent();
-                    pdfjsLib.renderTextLayer({
-                        textContent: textContent,
-                        container: textLayerDiv,
-                        viewport: viewport,
-                        textDivs: []
-                    });
-                } catch (textErr) {
-                    console.error('Text layer render error:', textErr);
-                }
             }
 
             function applyVisualTransform() {
@@ -1285,7 +1294,7 @@
                         
                         const loadingTask = pdfjsLib.getDocument({ data: pdfData });
                         currentPdf = await loadingTask.promise;
-                        await renderAllPages();
+                        renderAllPages();
                         loader.style.display = 'none';
                         updatePageNav();
                     } catch (err) {
@@ -1318,6 +1327,97 @@
             document.getElementById('viewerModal').onclick = (e) => {
                 if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
+
+            // Selection box zoom (Marquee Zoom) (Feature 4)
+            const marqueeContainer = document.getElementById('pdfViewerContainer');
+            const marquee = document.getElementById('zoomMarquee');
+            let isDragging = false;
+            let startXScreen = 0, startYScreen = 0;
+
+            marqueeContainer.addEventListener('mousedown', (e) => {
+                if (e.shiftKey && e.button === 0) { // Shift + Left Click
+                    const canvas = marqueeContainer.querySelector('canvas');
+                    if (!canvas) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startXScreen = e.clientX;
+                    startYScreen = e.clientY;
+
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+                    const left = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                    const top = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                    marquee.style.left = `${left}px`;
+                    marquee.style.top = `${top}px`;
+                    marquee.style.width = '0px';
+                    marquee.style.height = '0px';
+                    marquee.style.display = 'block';
+                    marqueeContainer.style.cursor = 'crosshair';
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const containerRect = marqueeContainer.getBoundingClientRect();
+                const currentX = e.clientX - containerRect.left + marqueeContainer.scrollLeft;
+                const currentY = e.clientY - containerRect.top + marqueeContainer.scrollTop;
+                const startX = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                const startY = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                const left = Math.min(startX, currentX);
+                const top = Math.min(startY, currentY);
+                const width = Math.abs(startX - currentX);
+                const height = Math.abs(startY - currentY);
+
+                marquee.style.left = `${left}px`;
+                marquee.style.top = `${top}px`;
+                marquee.style.width = `${width}px`;
+                marquee.style.height = `${height}px`;
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                marquee.style.display = 'none';
+                marqueeContainer.style.cursor = '';
+
+                const canvas = marqueeContainer.querySelector('canvas');
+                if (!canvas) return;
+
+                const width = Math.abs(startXScreen - e.clientX);
+                const height = Math.abs(startYScreen - e.clientY);
+
+                // Ignore tiny clicks/drags (less than 15px)
+                if (width > 15 && height > 15) {
+                    const canvasRectOld = canvas.getBoundingClientRect();
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+
+                    const selCenterX = Math.min(startXScreen, e.clientX) + width / 2;
+                    const selCenterY = Math.min(startYScreen, e.clientY) + height / 2;
+
+                    const pctX = (selCenterX - canvasRectOld.left) / canvasRectOld.width;
+                    const pctY = (selCenterY - canvasRectOld.top) / canvasRectOld.height;
+
+                    const factorX = marqueeContainer.clientWidth / width;
+                    const factorY = marqueeContainer.clientHeight / height;
+                    const factor = Math.min(factorX, factorY) * 0.95;
+
+                    const targetZoom = Math.min(Math.max(0.5, currentZoom * visualScale * factor), 4.0);
+                    const delta = targetZoom - (currentZoom * visualScale);
+                    adjustZoom(delta);
+
+                    // Align viewport scroll to center of selection
+                    const canvasRectNew = canvas.getBoundingClientRect();
+                    const newScreenCenterX = canvasRectNew.left + pctX * canvasRectNew.width;
+                    const newScreenCenterY = canvasRectNew.top + pctY * canvasRectNew.height;
+
+                    const containerScreenCenterX = containerRect.left + marqueeContainer.clientWidth / 2;
+                    const containerScreenCenterY = containerRect.top + marqueeContainer.clientHeight / 2;
+
+                    marqueeContainer.scrollLeft += (newScreenCenterX - containerScreenCenterX);
+                    marqueeContainer.scrollTop += (newScreenCenterY - containerScreenCenterY);
+                }
+            });
         
         
         const airportCtx = {
@@ -1345,132 +1445,132 @@
         {
                 "id": "vancouver-back.pdf",
                 "name": "VANCOUVER BACK.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/vancouver-back.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/vancouver-back.pdf",
                 "driveId": "185qLYNdNfiIyTEWJvfSxlkOzy5CQn1-e",
                 "driveUrl": "https://drive.google.com/file/d/185qLYNdNfiIyTEWJvfSxlkOzy5CQn1-e/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/vancouver-back.pdf"
         },
         {
                 "id": "yt_vfr_terminal_procedures_05-14-2026.pdf",
                 "name": "YT_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/yt_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/yt_vfr_terminal_procedures_05-14-2026.pdf",
                 "driveId": "114gr1yJGc70t7VODB1LlK7knlCnQoc8C",
                 "driveUrl": "https://drive.google.com/file/d/114gr1yJGc70t7VODB1LlK7knlCnQoc8C/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/yt_vfr_terminal_procedures_05-14-2026.pdf"
         },
         {
                 "id": "sk_vfr_terminal_procedures_05-14-2026.pdf",
                 "name": "SK_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/sk_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/sk_vfr_terminal_procedures_05-14-2026.pdf",
                 "driveId": "1RJLgjAuCfABGVO5qcuaxkJVB43V1Jx_I",
                 "driveUrl": "https://drive.google.com/file/d/1RJLgjAuCfABGVO5qcuaxkJVB43V1Jx_I/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/sk_vfr_terminal_procedures_05-14-2026.pdf"
         },
         {
                 "id": "qc_vfr_terminal_procedures_05-14-2026.pdf",
                 "name": "QC_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/qc_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/qc_vfr_terminal_procedures_05-14-2026.pdf",
                 "driveId": "1gO-ldc0W5sMwf91hRDtjpyXtup3eSvre",
                 "driveUrl": "https://drive.google.com/file/d/1gO-ldc0W5sMwf91hRDtjpyXtup3eSvre/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/qc_vfr_terminal_procedures_05-14-2026.pdf"
         },
         {
                 "id": "on_vfr_terminal_procedures_05-14-2026.pdf",
                 "name": "ON_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/on_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/on_vfr_terminal_procedures_05-14-2026.pdf",
                 "driveId": "1AAE3NM2sXAmNfZqHzaSAQ7i6I9SZzTEI",
                 "driveUrl": "https://drive.google.com/file/d/1AAE3NM2sXAmNfZqHzaSAQ7i6I9SZzTEI/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/on_vfr_terminal_procedures_05-14-2026.pdf"
         },
         {
                 "id": "nt_vfr_terminal_procedures_05-14-2026.pdf",
                 "name": "NT_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/nt_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/nt_vfr_terminal_procedures_05-14-2026.pdf",
                 "driveId": "1GlFO2cM_r7yQDoguqngLzYRj1xcaf6oj",
                 "driveUrl": "https://drive.google.com/file/d/1GlFO2cM_r7yQDoguqngLzYRj1xcaf6oj/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/nt_vfr_terminal_procedures_05-14-2026.pdf"
         },
         {
                 "id": "ns_vfr_terminal_procedures_05-14-2026.pdf",
                 "name": "NS_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/ns_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/ns_vfr_terminal_procedures_05-14-2026.pdf",
                 "driveId": "1PVn7PNnqEUFO5nvYkngo_zejPGy512Ga",
                 "driveUrl": "https://drive.google.com/file/d/1PVn7PNnqEUFO5nvYkngo_zejPGy512Ga/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/ns_vfr_terminal_procedures_05-14-2026.pdf"
         },
         {
                 "id": "nl_vfr_terminal_procedures_05-14-2026.pdf",
                 "name": "NL_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/nl_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/nl_vfr_terminal_procedures_05-14-2026.pdf",
                 "driveId": "1gt50TFh0msiefDTnmVT5ULiFzbHoUost",
                 "driveUrl": "https://drive.google.com/file/d/1gt50TFh0msiefDTnmVT5ULiFzbHoUost/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/nl_vfr_terminal_procedures_05-14-2026.pdf"
         },
         {
                 "id": "nb_vfr_terminal_procedures_05-14-2026.pdf",
                 "name": "NB_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/nb_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/nb_vfr_terminal_procedures_05-14-2026.pdf",
                 "driveId": "1ef03PIW5MG_8il7b-PFjspDpZlzNxWAg",
                 "driveUrl": "https://drive.google.com/file/d/1ef03PIW5MG_8il7b-PFjspDpZlzNxWAg/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/nb_vfr_terminal_procedures_05-14-2026.pdf"
         },
         {
                 "id": "mb_vfr_terminal_procedures_05-14-2026.pdf",
                 "name": "MB_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/mb_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/mb_vfr_terminal_procedures_05-14-2026.pdf",
                 "driveId": "1r0syN_0Pg8JBPp4BYTHAcIwht5SjVyKY",
                 "driveUrl": "https://drive.google.com/file/d/1r0syN_0Pg8JBPp4BYTHAcIwht5SjVyKY/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/mb_vfr_terminal_procedures_05-14-2026.pdf"
         },
         {
                 "id": "bc_vfr_terminal_procedures_05-14-2026.pdf",
                 "name": "BC_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/bc_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/bc_vfr_terminal_procedures_05-14-2026.pdf",
                 "driveId": "1Xi_m80AK3EzOuokgcUzuoIJVBPApAPmX",
                 "driveUrl": "https://drive.google.com/file/d/1Xi_m80AK3EzOuokgcUzuoIJVBPApAPmX/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/bc_vfr_terminal_procedures_05-14-2026.pdf"
         },
         {
                 "id": "ab_vfr_terminal_procedures_05-14-2026.pdf",
                 "name": "AB_VFR_TERMINAL_PROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/ab_vfr_terminal_procedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/ab_vfr_terminal_procedures_05-14-2026.pdf",
                 "driveId": "13qJe37Cg5ySh2Qk7aegNIfpLCeuDxwUy",
                 "driveUrl": "https://drive.google.com/file/d/13qJe37Cg5ySh2Qk7aegNIfpLCeuDxwUy/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/ab_vfr_terminal_procedures_05-14-2026.pdf"
         },
         {
                 "id": "cfsvfrterminalprocedures_05-14-2026.pdf",
                 "name": "CFSVFRTERMINALPROCEDURES_05-14-2026.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/vta-charts/cfsvfrterminalprocedures_05-14-2026.pdf",
+                "localUrl": "../charts_data/canada/vta-charts/cfsvfrterminalprocedures_05-14-2026.pdf",
                 "driveId": "1H2jwVTgto7qjVuvG8hhL8duqNbUfLEJx",
                 "driveUrl": "https://drive.google.com/file/d/1H2jwVTgto7qjVuvG8hhL8duqNbUfLEJx/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/vta-charts/cfsvfrterminalprocedures_05-14-2026.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};

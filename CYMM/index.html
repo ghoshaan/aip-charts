@@ -468,6 +468,15 @@
             background: rgba(88, 166, 255, 0.3);
         }
 
+        .zoom-marquee {
+            position: absolute;
+            border: 2px dashed var(--accent);
+            background: var(--accent-glow);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
         .viewer-tip {
             position: absolute;
             bottom: 1rem;
@@ -704,10 +713,11 @@
 
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
+                        <div id="zoomMarquee" class="zoom-marquee"></div>
                     </div>
 
                     <div class="viewer-tip">
-                        <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                        <span>💡 <b>Mouse Wheel</b> to zoom. <b>Shift + Drag</b> a box to zoom into a region.</span>
                     </div>
                 </div>
             </div>
@@ -746,7 +756,7 @@
         }
     
         
-            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
+            const APPS_SCRIPT_URL = "";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -995,7 +1005,23 @@
                     
                     currentPdf = await loadingTask.promise;
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
-                    await renderAllPages();
+                    
+                    // Viewport width fit by default (Feature 3)
+                    try {
+                        const page = await currentPdf.getPage(1);
+                        const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+                        const fitScale = (container.clientWidth - 40) / viewport.width;
+                        const initialZoom = Math.min(Math.max(0.5, fitScale), 2.5);
+                        
+                        currentZoom = initialZoom;
+                        document.getElementById('zoomRange').value = initialZoom;
+                        document.getElementById('zoomValue').textContent = `${initialZoom.toFixed(1)}x`;
+                    } catch (zoomErr) {
+                        console.error('Fit viewport error:', zoomErr);
+                    }
+
+                    // Render pages asynchronously (Optimization 2)
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1050,7 +1076,7 @@
                         loadingTask = pdfjsLib.getDocument({ data: loadResult.data });
                     }
                     currentPdf = await loadingTask.promise;
-                    await renderAllPages();
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1122,25 +1148,8 @@
                 canvas.width = viewport.width;
                 container.appendChild(canvas);
 
-                const textLayerDiv = document.createElement('div');
-                textLayerDiv.className = 'textLayer';
-                container.appendChild(textLayerDiv);
-
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-                // Render text layer
-                try {
-                    const textContent = await page.getTextContent();
-                    pdfjsLib.renderTextLayer({
-                        textContent: textContent,
-                        container: textLayerDiv,
-                        viewport: viewport,
-                        textDivs: []
-                    });
-                } catch (textErr) {
-                    console.error('Text layer render error:', textErr);
-                }
             }
 
             function applyVisualTransform() {
@@ -1285,7 +1294,7 @@
                         
                         const loadingTask = pdfjsLib.getDocument({ data: pdfData });
                         currentPdf = await loadingTask.promise;
-                        await renderAllPages();
+                        renderAllPages();
                         loader.style.display = 'none';
                         updatePageNav();
                     } catch (err) {
@@ -1318,6 +1327,97 @@
             document.getElementById('viewerModal').onclick = (e) => {
                 if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
+
+            // Selection box zoom (Marquee Zoom) (Feature 4)
+            const marqueeContainer = document.getElementById('pdfViewerContainer');
+            const marquee = document.getElementById('zoomMarquee');
+            let isDragging = false;
+            let startXScreen = 0, startYScreen = 0;
+
+            marqueeContainer.addEventListener('mousedown', (e) => {
+                if (e.shiftKey && e.button === 0) { // Shift + Left Click
+                    const canvas = marqueeContainer.querySelector('canvas');
+                    if (!canvas) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startXScreen = e.clientX;
+                    startYScreen = e.clientY;
+
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+                    const left = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                    const top = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                    marquee.style.left = `${left}px`;
+                    marquee.style.top = `${top}px`;
+                    marquee.style.width = '0px';
+                    marquee.style.height = '0px';
+                    marquee.style.display = 'block';
+                    marqueeContainer.style.cursor = 'crosshair';
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const containerRect = marqueeContainer.getBoundingClientRect();
+                const currentX = e.clientX - containerRect.left + marqueeContainer.scrollLeft;
+                const currentY = e.clientY - containerRect.top + marqueeContainer.scrollTop;
+                const startX = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                const startY = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                const left = Math.min(startX, currentX);
+                const top = Math.min(startY, currentY);
+                const width = Math.abs(startX - currentX);
+                const height = Math.abs(startY - currentY);
+
+                marquee.style.left = `${left}px`;
+                marquee.style.top = `${top}px`;
+                marquee.style.width = `${width}px`;
+                marquee.style.height = `${height}px`;
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                marquee.style.display = 'none';
+                marqueeContainer.style.cursor = '';
+
+                const canvas = marqueeContainer.querySelector('canvas');
+                if (!canvas) return;
+
+                const width = Math.abs(startXScreen - e.clientX);
+                const height = Math.abs(startYScreen - e.clientY);
+
+                // Ignore tiny clicks/drags (less than 15px)
+                if (width > 15 && height > 15) {
+                    const canvasRectOld = canvas.getBoundingClientRect();
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+
+                    const selCenterX = Math.min(startXScreen, e.clientX) + width / 2;
+                    const selCenterY = Math.min(startYScreen, e.clientY) + height / 2;
+
+                    const pctX = (selCenterX - canvasRectOld.left) / canvasRectOld.width;
+                    const pctY = (selCenterY - canvasRectOld.top) / canvasRectOld.height;
+
+                    const factorX = marqueeContainer.clientWidth / width;
+                    const factorY = marqueeContainer.clientHeight / height;
+                    const factor = Math.min(factorX, factorY) * 0.95;
+
+                    const targetZoom = Math.min(Math.max(0.5, currentZoom * visualScale * factor), 4.0);
+                    const delta = targetZoom - (currentZoom * visualScale);
+                    adjustZoom(delta);
+
+                    // Align viewport scroll to center of selection
+                    const canvasRectNew = canvas.getBoundingClientRect();
+                    const newScreenCenterX = canvasRectNew.left + pctX * canvasRectNew.width;
+                    const newScreenCenterY = canvasRectNew.top + pctY * canvasRectNew.height;
+
+                    const containerScreenCenterX = containerRect.left + marqueeContainer.clientWidth / 2;
+                    const containerScreenCenterY = containerRect.top + marqueeContainer.clientHeight / 2;
+
+                    marqueeContainer.scrollLeft += (newScreenCenterX - containerScreenCenterX);
+                    marqueeContainer.scrollTop += (newScreenCenterY - containerScreenCenterY);
+                }
+            });
         
         
         const airportCtx = {
@@ -1345,210 +1445,210 @@
         {
                 "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/.DS_Store",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/.DS_Store",
                 "driveId": "1j0G0xbZ5P14gq25ABvO0P4qluT1pgVxc",
                 "driveUrl": "https://drive.google.com/file/d/1j0G0xbZ5P14gq25ABvO0P4qluT1pgVxc/view?usp=drivesdk",
                 "type": "doc",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/.DS_Store"
         },
         {
                 "id": "cymm_viktu_1_dep_rnav.pdf",
                 "name": "CYMM_VIKTU_1_DEP_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_viktu_1_dep_rnav.pdf",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_viktu_1_dep_rnav.pdf",
                 "driveId": "1B-eHSAI_b6utgRZ0pmXjDEf7n7zJn2Qx",
                 "driveUrl": "https://drive.google.com/file/d/1B-eHSAI_b6utgRZ0pmXjDEf7n7zJn2Qx/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_viktu_1_dep_rnav.pdf",
                 "pages": [
                         {
                                 "id": "cymm_viktu_1_dep_rnav.pdf",
                                 "name": "CYMM_VIKTU_1_DEP_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_viktu_1_dep_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_viktu_1_dep_rnav.pdf",
                                 "driveId": "1B-eHSAI_b6utgRZ0pmXjDEf7n7zJn2Qx",
                                 "driveUrl": "https://drive.google.com/file/d/1B-eHSAI_b6utgRZ0pmXjDEf7n7zJn2Qx/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_viktu_1_dep_rnav.pdf"
                         },
                         {
                                 "id": "cymm_viktu_1_dep_rnav_pg_02.pdf",
                                 "name": "CYMM_VIKTU_1_DEP_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_viktu_1_dep_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_viktu_1_dep_rnav_pg_02.pdf",
                                 "driveId": "1mxjX-FyXrPea_fszXj9CxuNjuXruLfoV",
                                 "driveUrl": "https://drive.google.com/file/d/1mxjX-FyXrPea_fszXj9CxuNjuXruLfoV/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_viktu_1_dep_rnav_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cymm_texal_1_dep_rnav.pdf",
                 "name": "CYMM_TEXAL_1_DEP_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_texal_1_dep_rnav.pdf",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_texal_1_dep_rnav.pdf",
                 "driveId": "188ICI3ZfY3RUCwX9A8xQlKqBGfaN6dA-",
                 "driveUrl": "https://drive.google.com/file/d/188ICI3ZfY3RUCwX9A8xQlKqBGfaN6dA-/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_texal_1_dep_rnav.pdf",
                 "pages": [
                         {
                                 "id": "cymm_texal_1_dep_rnav.pdf",
                                 "name": "CYMM_TEXAL_1_DEP_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_texal_1_dep_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_texal_1_dep_rnav.pdf",
                                 "driveId": "188ICI3ZfY3RUCwX9A8xQlKqBGfaN6dA-",
                                 "driveUrl": "https://drive.google.com/file/d/188ICI3ZfY3RUCwX9A8xQlKqBGfaN6dA-/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_texal_1_dep_rnav.pdf"
                         },
                         {
                                 "id": "cymm_texal_1_dep_rnav_pg_02.pdf",
                                 "name": "CYMM_TEXAL_1_DEP_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_texal_1_dep_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_texal_1_dep_rnav_pg_02.pdf",
                                 "driveId": "1w29IZ_siSI68rm88UQcxnQ3Ul2XIEg4v",
                                 "driveUrl": "https://drive.google.com/file/d/1w29IZ_siSI68rm88UQcxnQ3Ul2XIEg4v/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_texal_1_dep_rnav_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cymm_fort_mac_2_dep_vector.pdf",
                 "name": "CYMM_FORT_MAC_2_DEP_VECTOR",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_fort_mac_2_dep_vector.pdf",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_fort_mac_2_dep_vector.pdf",
                 "driveId": "15Cs4V43gbQ3mHLy3rKtyVkMF_FKGj8Vi",
                 "driveUrl": "https://drive.google.com/file/d/15Cs4V43gbQ3mHLy3rKtyVkMF_FKGj8Vi/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_fort_mac_2_dep_vector.pdf",
                 "pages": [
                         {
                                 "id": "cymm_fort_mac_2_dep_vector.pdf",
                                 "name": "CYMM_FORT_MAC_2_DEP_VECTOR.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_fort_mac_2_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_fort_mac_2_dep_vector.pdf",
                                 "driveId": "15Cs4V43gbQ3mHLy3rKtyVkMF_FKGj8Vi",
                                 "driveUrl": "https://drive.google.com/file/d/15Cs4V43gbQ3mHLy3rKtyVkMF_FKGj8Vi/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_fort_mac_2_dep_vector.pdf"
                         },
                         {
                                 "id": "cymm_fort_mac_2_dep_vector_pg_02.pdf",
                                 "name": "CYMM_FORT_MAC_2_DEP_VECTOR_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_fort_mac_2_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_fort_mac_2_dep_vector_pg_02.pdf",
                                 "driveId": "1Ev27iwh66QQqxsPcX4vaTKs_QmZGQo8c",
                                 "driveUrl": "https://drive.google.com/file/d/1Ev27iwh66QQqxsPcX4vaTKs_QmZGQo8c/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_fort_mac_2_dep_vector_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cymm_rnav_gnss_z_rwy_08.pdf",
                 "name": "CYMM_RNAV_GNSS_Z_RWY_08.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_rnav_gnss_z_rwy_08.pdf",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_rnav_gnss_z_rwy_08.pdf",
                 "driveId": "1UbxDoY2HLFCQKdQ_MRco4B43qp-iksyV",
                 "driveUrl": "https://drive.google.com/file/d/1UbxDoY2HLFCQKdQ_MRco4B43qp-iksyV/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_rnav_gnss_z_rwy_08.pdf"
         },
         {
                 "id": "cymm_de-icing_operations.pdf",
                 "name": "CYMM_DE-ICING_OPERATIONS",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_de-icing_operations.pdf",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_de-icing_operations.pdf",
                 "driveId": "1CunJF0OFcghb0_I-1C6bPpBrk6VkI3JU",
                 "driveUrl": "https://drive.google.com/file/d/1CunJF0OFcghb0_I-1C6bPpBrk6VkI3JU/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_de-icing_operations.pdf",
                 "pages": [
                         {
                                 "id": "cymm_de-icing_operations.pdf",
                                 "name": "CYMM_DE-ICING_OPERATIONS.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_de-icing_operations.pdf",
+                                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_de-icing_operations.pdf",
                                 "driveId": "1CunJF0OFcghb0_I-1C6bPpBrk6VkI3JU",
                                 "driveUrl": "https://drive.google.com/file/d/1CunJF0OFcghb0_I-1C6bPpBrk6VkI3JU/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_de-icing_operations.pdf"
                         },
                         {
                                 "id": "cymm_de-icing_operations_pg_02.pdf",
                                 "name": "CYMM_DE-ICING_OPERATIONS_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_de-icing_operations_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_de-icing_operations_pg_02.pdf",
                                 "driveId": "16ykJeTav7fRYZzCMhHSB0AT5pjT74nj-",
                                 "driveUrl": "https://drive.google.com/file/d/16ykJeTav7fRYZzCMhHSB0AT5pjT74nj-/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_de-icing_operations_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cymm_ils_rwy_26.pdf",
                 "name": "CYMM_ILS_RWY_26.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_ils_rwy_26.pdf",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_ils_rwy_26.pdf",
                 "driveId": "1owY86wbS4vI268sWvcvoRNySlI76H36V",
                 "driveUrl": "https://drive.google.com/file/d/1owY86wbS4vI268sWvcvoRNySlI76H36V/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_ils_rwy_26.pdf"
         },
         {
                 "id": "cymm_rnav_rnp_y_rwy_26.pdf",
                 "name": "CYMM_RNAV_RNP_Y_RWY_26.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_rnav_rnp_y_rwy_26.pdf",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_rnav_rnp_y_rwy_26.pdf",
                 "driveId": "1bUccOtPhk7z5Th77KbqW5-l5xeh30fjk",
                 "driveUrl": "https://drive.google.com/file/d/1bUccOtPhk7z5Th77KbqW5-l5xeh30fjk/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_rnav_rnp_y_rwy_26.pdf"
         },
         {
                 "id": "cymm_rnav_rnp_y_rwy_08.pdf",
                 "name": "CYMM_RNAV_RNP_Y_RWY_08.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_rnav_rnp_y_rwy_08.pdf",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_rnav_rnp_y_rwy_08.pdf",
                 "driveId": "1g4h6OZW2eRu0-BozxvULSQiWLFTcsukM",
                 "driveUrl": "https://drive.google.com/file/d/1g4h6OZW2eRu0-BozxvULSQiWLFTcsukM/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_rnav_rnp_y_rwy_08.pdf"
         },
         {
                 "id": "cymm_rnav_gnss_z_rwy_26.pdf",
                 "name": "CYMM_RNAV_GNSS_Z_RWY_26.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_rnav_gnss_z_rwy_26.pdf",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_rnav_gnss_z_rwy_26.pdf",
                 "driveId": "1jxcmGhkWiT3OKjScUH9R01k28MhDUjXm",
                 "driveUrl": "https://drive.google.com/file/d/1jxcmGhkWiT3OKjScUH9R01k28MhDUjXm/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_rnav_gnss_z_rwy_26.pdf"
         },
         {
                 "id": "cymm_aerodrome_chart.pdf",
                 "name": "CYMM_AERODROME_CHART.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_aerodrome_chart.pdf",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_aerodrome_chart.pdf",
                 "driveId": "1wb_SvtGifXJRJr6XyBaqCc4wBenXsfH0",
                 "driveUrl": "https://drive.google.com/file/d/1wb_SvtGifXJRJr6XyBaqCc4wBenXsfH0/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_aerodrome_chart.pdf"
         },
         {
                 "id": "cymm_lexon_5_arr_rnav.pdf",
                 "name": "CYMM_LEXON_5_ARR_RNAV.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cymm-fort-mcmurray/cymm_lexon_5_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cymm-fort-mcmurray/cymm_lexon_5_arr_rnav.pdf",
                 "driveId": "1F6A1tqFMghCcEjh0r3MS1v-HzkbE21YY",
                 "driveUrl": "https://drive.google.com/file/d/1F6A1tqFMghCcEjh0r3MS1v-HzkbE21YY/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cymm-fort-mcmurray/cymm_lexon_5_arr_rnav.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};

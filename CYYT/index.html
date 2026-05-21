@@ -468,6 +468,15 @@
             background: rgba(88, 166, 255, 0.3);
         }
 
+        .zoom-marquee {
+            position: absolute;
+            border: 2px dashed var(--accent);
+            background: var(--accent-glow);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
         .viewer-tip {
             position: absolute;
             bottom: 1rem;
@@ -704,10 +713,11 @@
 
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
+                        <div id="zoomMarquee" class="zoom-marquee"></div>
                     </div>
 
                     <div class="viewer-tip">
-                        <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                        <span>💡 <b>Mouse Wheel</b> to zoom. <b>Shift + Drag</b> a box to zoom into a region.</span>
                     </div>
                 </div>
             </div>
@@ -746,7 +756,7 @@
         }
     
         
-            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
+            const APPS_SCRIPT_URL = "";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -995,7 +1005,23 @@
                     
                     currentPdf = await loadingTask.promise;
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
-                    await renderAllPages();
+                    
+                    // Viewport width fit by default (Feature 3)
+                    try {
+                        const page = await currentPdf.getPage(1);
+                        const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+                        const fitScale = (container.clientWidth - 40) / viewport.width;
+                        const initialZoom = Math.min(Math.max(0.5, fitScale), 2.5);
+                        
+                        currentZoom = initialZoom;
+                        document.getElementById('zoomRange').value = initialZoom;
+                        document.getElementById('zoomValue').textContent = `${initialZoom.toFixed(1)}x`;
+                    } catch (zoomErr) {
+                        console.error('Fit viewport error:', zoomErr);
+                    }
+
+                    // Render pages asynchronously (Optimization 2)
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1050,7 +1076,7 @@
                         loadingTask = pdfjsLib.getDocument({ data: loadResult.data });
                     }
                     currentPdf = await loadingTask.promise;
-                    await renderAllPages();
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1122,25 +1148,8 @@
                 canvas.width = viewport.width;
                 container.appendChild(canvas);
 
-                const textLayerDiv = document.createElement('div');
-                textLayerDiv.className = 'textLayer';
-                container.appendChild(textLayerDiv);
-
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-                // Render text layer
-                try {
-                    const textContent = await page.getTextContent();
-                    pdfjsLib.renderTextLayer({
-                        textContent: textContent,
-                        container: textLayerDiv,
-                        viewport: viewport,
-                        textDivs: []
-                    });
-                } catch (textErr) {
-                    console.error('Text layer render error:', textErr);
-                }
             }
 
             function applyVisualTransform() {
@@ -1285,7 +1294,7 @@
                         
                         const loadingTask = pdfjsLib.getDocument({ data: pdfData });
                         currentPdf = await loadingTask.promise;
-                        await renderAllPages();
+                        renderAllPages();
                         loader.style.display = 'none';
                         updatePageNav();
                     } catch (err) {
@@ -1318,6 +1327,97 @@
             document.getElementById('viewerModal').onclick = (e) => {
                 if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
+
+            // Selection box zoom (Marquee Zoom) (Feature 4)
+            const marqueeContainer = document.getElementById('pdfViewerContainer');
+            const marquee = document.getElementById('zoomMarquee');
+            let isDragging = false;
+            let startXScreen = 0, startYScreen = 0;
+
+            marqueeContainer.addEventListener('mousedown', (e) => {
+                if (e.shiftKey && e.button === 0) { // Shift + Left Click
+                    const canvas = marqueeContainer.querySelector('canvas');
+                    if (!canvas) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startXScreen = e.clientX;
+                    startYScreen = e.clientY;
+
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+                    const left = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                    const top = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                    marquee.style.left = `${left}px`;
+                    marquee.style.top = `${top}px`;
+                    marquee.style.width = '0px';
+                    marquee.style.height = '0px';
+                    marquee.style.display = 'block';
+                    marqueeContainer.style.cursor = 'crosshair';
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const containerRect = marqueeContainer.getBoundingClientRect();
+                const currentX = e.clientX - containerRect.left + marqueeContainer.scrollLeft;
+                const currentY = e.clientY - containerRect.top + marqueeContainer.scrollTop;
+                const startX = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                const startY = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                const left = Math.min(startX, currentX);
+                const top = Math.min(startY, currentY);
+                const width = Math.abs(startX - currentX);
+                const height = Math.abs(startY - currentY);
+
+                marquee.style.left = `${left}px`;
+                marquee.style.top = `${top}px`;
+                marquee.style.width = `${width}px`;
+                marquee.style.height = `${height}px`;
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                marquee.style.display = 'none';
+                marqueeContainer.style.cursor = '';
+
+                const canvas = marqueeContainer.querySelector('canvas');
+                if (!canvas) return;
+
+                const width = Math.abs(startXScreen - e.clientX);
+                const height = Math.abs(startYScreen - e.clientY);
+
+                // Ignore tiny clicks/drags (less than 15px)
+                if (width > 15 && height > 15) {
+                    const canvasRectOld = canvas.getBoundingClientRect();
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+
+                    const selCenterX = Math.min(startXScreen, e.clientX) + width / 2;
+                    const selCenterY = Math.min(startYScreen, e.clientY) + height / 2;
+
+                    const pctX = (selCenterX - canvasRectOld.left) / canvasRectOld.width;
+                    const pctY = (selCenterY - canvasRectOld.top) / canvasRectOld.height;
+
+                    const factorX = marqueeContainer.clientWidth / width;
+                    const factorY = marqueeContainer.clientHeight / height;
+                    const factor = Math.min(factorX, factorY) * 0.95;
+
+                    const targetZoom = Math.min(Math.max(0.5, currentZoom * visualScale * factor), 4.0);
+                    const delta = targetZoom - (currentZoom * visualScale);
+                    adjustZoom(delta);
+
+                    // Align viewport scroll to center of selection
+                    const canvasRectNew = canvas.getBoundingClientRect();
+                    const newScreenCenterX = canvasRectNew.left + pctX * canvasRectNew.width;
+                    const newScreenCenterY = canvasRectNew.top + pctY * canvasRectNew.height;
+
+                    const containerScreenCenterX = containerRect.left + marqueeContainer.clientWidth / 2;
+                    const containerScreenCenterY = containerRect.top + marqueeContainer.clientHeight / 2;
+
+                    marqueeContainer.scrollLeft += (newScreenCenterX - containerScreenCenterX);
+                    marqueeContainer.scrollTop += (newScreenCenterY - containerScreenCenterY);
+                }
+            });
         
         
         const airportCtx = {
@@ -1345,306 +1445,306 @@
         {
                 "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/.DS_Store",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/.DS_Store",
                 "driveId": "1I3bUCzMQO15i_dbCMaA-v2A_TRZHmsaX",
                 "driveUrl": "https://drive.google.com/file/d/1I3bUCzMQO15i_dbCMaA-v2A_TRZHmsaX/view?usp=drivesdk",
                 "type": "doc",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/.DS_Store"
         },
         {
                 "id": "cyyt_de-icing_operations.pdf",
                 "name": "CYYT_DE-ICING_OPERATIONS.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_de-icing_operations.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_de-icing_operations.pdf",
                 "driveId": "18oedL9WR2PIq_LJLERxO0Oup4cgMz0QK",
                 "driveUrl": "https://drive.google.com/file/d/18oedL9WR2PIq_LJLERxO0Oup4cgMz0QK/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_de-icing_operations.pdf"
         },
         {
                 "id": "cyyt_st_johns_8_dep_vector.pdf",
                 "name": "CYYT_ST_JOHNS_8_DEP_VECTOR",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector.pdf",
                 "driveId": "19rkNM6TqmtFUPvc2C0MF81mqxmfPt8AG",
                 "driveUrl": "https://drive.google.com/file/d/19rkNM6TqmtFUPvc2C0MF81mqxmfPt8AG/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector.pdf",
                 "pages": [
                         {
                                 "id": "cyyt_st_johns_8_dep_vector.pdf",
                                 "name": "CYYT_ST_JOHNS_8_DEP_VECTOR.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector.pdf",
                                 "driveId": "19rkNM6TqmtFUPvc2C0MF81mqxmfPt8AG",
                                 "driveUrl": "https://drive.google.com/file/d/19rkNM6TqmtFUPvc2C0MF81mqxmfPt8AG/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector.pdf"
                         },
                         {
                                 "id": "cyyt_st_johns_8_dep_vector_pg_02.pdf",
                                 "name": "CYYT_ST_JOHNS_8_DEP_VECTOR_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector_pg_02.pdf",
                                 "driveId": "1OZee9mwqYKedYDULxUfCWzaVOpUi8-WU",
                                 "driveUrl": "https://drive.google.com/file/d/1OZee9mwqYKedYDULxUfCWzaVOpUi8-WU/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_st_johns_8_dep_vector_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cyyt_low_visibility_procedures.pdf",
                 "name": "CYYT_LOW_VISIBILITY_PROCEDURES.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_low_visibility_procedures.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_low_visibility_procedures.pdf",
                 "driveId": "1WqJrb0a41dKUp2H6nnlBb_ItWhhbxxay",
                 "driveUrl": "https://drive.google.com/file/d/1WqJrb0a41dKUp2H6nnlBb_ItWhhbxxay/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_low_visibility_procedures.pdf"
         },
         {
                 "id": "cyyt_rnav_gnss_z_rwy_28.pdf",
                 "name": "CYYT_RNAV_GNSS_Z_RWY_28.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_28.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_28.pdf",
                 "driveId": "1JBuxRRPw06Za13VpwnQcmCJ8kLBE9q9D",
                 "driveUrl": "https://drive.google.com/file/d/1JBuxRRPw06Za13VpwnQcmCJ8kLBE9q9D/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_28.pdf"
         },
         {
                 "id": "cyyt_rnav_rnp_y_rwy_34.pdf",
                 "name": "CYYT_RNAV_RNP_Y_RWY_34.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_34.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_34.pdf",
                 "driveId": "1J2cUpaaAHykC2eFU4SqJFrGmDow_G7GL",
                 "driveUrl": "https://drive.google.com/file/d/1J2cUpaaAHykC2eFU4SqJFrGmDow_G7GL/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_34.pdf"
         },
         {
                 "id": "cyyt_central_de-icing_facility.pdf",
                 "name": "CYYT_CENTRAL_DE-ICING_FACILITY.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_central_de-icing_facility.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_central_de-icing_facility.pdf",
                 "driveId": "1dlfoZHFLQQmt_V6KYHfG-RlrIQu3Ywwl",
                 "driveUrl": "https://drive.google.com/file/d/1dlfoZHFLQQmt_V6KYHfG-RlrIQu3Ywwl/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_central_de-icing_facility.pdf"
         },
         {
                 "id": "cyyt_rnav_gnss_x_rwy_10.pdf",
                 "name": "CYYT_RNAV_GNSS_X_RWY_10.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_x_rwy_10.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_x_rwy_10.pdf",
                 "driveId": "1z8cIWU1D9rGNicHDJeJkDDk_WfZP3Cvb",
                 "driveUrl": "https://drive.google.com/file/d/1z8cIWU1D9rGNicHDJeJkDDk_WfZP3Cvb/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_x_rwy_10.pdf"
         },
         {
                 "id": "cyyt_rnav_gnss_z_rwy_16.pdf",
                 "name": "CYYT_RNAV_GNSS_Z_RWY_16.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_16.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_16.pdf",
                 "driveId": "1rEci2NUIyPxXCFIyNvnDHkqdr8laN_vz",
                 "driveUrl": "https://drive.google.com/file/d/1rEci2NUIyPxXCFIyNvnDHkqdr8laN_vz/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_16.pdf"
         },
         {
                 "id": "cyyt_rnav_rnp_y_rwy_10.pdf",
                 "name": "CYYT_RNAV_RNP_Y_RWY_10.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_10.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_10.pdf",
                 "driveId": "1MNz9eGqPI1NmTSazTKk4bEu15NQAd5ER",
                 "driveUrl": "https://drive.google.com/file/d/1MNz9eGqPI1NmTSazTKk4bEu15NQAd5ER/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_10.pdf"
         },
         {
                 "id": "cyyt_parking_areas.pdf",
                 "name": "CYYT_PARKING_AREAS",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_parking_areas.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_parking_areas.pdf",
                 "driveId": "1xiUXAFJ-LzIbMekNKSSvdCsR0tdqirZ6",
                 "driveUrl": "https://drive.google.com/file/d/1xiUXAFJ-LzIbMekNKSSvdCsR0tdqirZ6/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_parking_areas.pdf",
                 "pages": [
                         {
                                 "id": "cyyt_parking_areas.pdf",
                                 "name": "CYYT_PARKING_AREAS.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyyt-st-johns/cyyt_parking_areas.pdf",
+                                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_parking_areas.pdf",
                                 "driveId": "1xiUXAFJ-LzIbMekNKSSvdCsR0tdqirZ6",
                                 "driveUrl": "https://drive.google.com/file/d/1xiUXAFJ-LzIbMekNKSSvdCsR0tdqirZ6/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_parking_areas.pdf"
                         },
                         {
                                 "id": "cyyt_parking_areas_pg_02.pdf",
                                 "name": "CYYT_PARKING_AREAS_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyyt-st-johns/cyyt_parking_areas_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_parking_areas_pg_02.pdf",
                                 "driveId": "1YDGAw49oIdzYMXiTo9KxSBPNiKW3rM1G",
                                 "driveUrl": "https://drive.google.com/file/d/1YDGAw49oIdzYMXiTo9KxSBPNiKW3rM1G/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_parking_areas_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cyyt_ils_rwy_16.pdf",
                 "name": "CYYT_ILS_RWY_16.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_16.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_16.pdf",
                 "driveId": "1TqHiPYuzdIFZWDzkdDPvKmQEDBvAUTpE",
                 "driveUrl": "https://drive.google.com/file/d/1TqHiPYuzdIFZWDzkdDPvKmQEDBvAUTpE/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_16.pdf"
         },
         {
                 "id": "cyyt_low_visibility_taxi_chart_rwy_10_28.pdf",
                 "name": "CYYT_LOW_VISIBILITY_TAXI_CHART_RWY_10_28.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_low_visibility_taxi_chart_rwy_10_28.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_low_visibility_taxi_chart_rwy_10_28.pdf",
                 "driveId": "1JHj9Xz4vJmND957Ctf1yrJegH7RfagXC",
                 "driveUrl": "https://drive.google.com/file/d/1JHj9Xz4vJmND957Ctf1yrJegH7RfagXC/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_low_visibility_taxi_chart_rwy_10_28.pdf"
         },
         {
                 "id": "cyyt_aerodrome_chart.pdf",
                 "name": "CYYT_AERODROME_CHART.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_aerodrome_chart.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_aerodrome_chart.pdf",
                 "driveId": "1XQ8CYHUnqd-I1onLMq1hARJNmSaYzkY2",
                 "driveUrl": "https://drive.google.com/file/d/1XQ8CYHUnqd-I1onLMq1hARJNmSaYzkY2/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_aerodrome_chart.pdf"
         },
         {
                 "id": "cyyt_rnav_gnss_x_rwy_16.pdf",
                 "name": "CYYT_RNAV_GNSS_X_RWY_16.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_x_rwy_16.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_x_rwy_16.pdf",
                 "driveId": "1DO7geuK3CtKmdLJskA14qpLQzbyRmGSx",
                 "driveUrl": "https://drive.google.com/file/d/1DO7geuK3CtKmdLJskA14qpLQzbyRmGSx/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_x_rwy_16.pdf"
         },
         {
                 "id": "cyyt_rnav_rnp_y_rwy_28.pdf",
                 "name": "CYYT_RNAV_RNP_Y_RWY_28.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_28.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_28.pdf",
                 "driveId": "1HqGOG7eSEloXKybEGIO1Ix1kXihWFI3r",
                 "driveUrl": "https://drive.google.com/file/d/1HqGOG7eSEloXKybEGIO1Ix1kXihWFI3r/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_28.pdf"
         },
         {
                 "id": "cyyt_rnav_gnss_z_rwy_10.pdf",
                 "name": "CYYT_RNAV_GNSS_Z_RWY_10.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_10.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_10.pdf",
                 "driveId": "1z6OWawclDMw9ksf4nT9VNj2b9IekT5pM",
                 "driveUrl": "https://drive.google.com/file/d/1z6OWawclDMw9ksf4nT9VNj2b9IekT5pM/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_10.pdf"
         },
         {
                 "id": "cyyt_ils_rwy_28.pdf",
                 "name": "CYYT_ILS_RWY_28.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_28.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_28.pdf",
                 "driveId": "1iL8ruBC6JAJPpBaZRTyDoqk2jP0xNsDM",
                 "driveUrl": "https://drive.google.com/file/d/1iL8ruBC6JAJPpBaZRTyDoqk2jP0xNsDM/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_28.pdf"
         },
         {
                 "id": "cyyt_rnav_gnss_z_rwy_34.pdf",
                 "name": "CYYT_RNAV_GNSS_Z_RWY_34.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_34.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_34.pdf",
                 "driveId": "1YDgsmrcY-suEmSEYK5mX5X3ZgHqVEape",
                 "driveUrl": "https://drive.google.com/file/d/1YDgsmrcY-suEmSEYK5mX5X3ZgHqVEape/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_gnss_z_rwy_34.pdf"
         },
         {
                 "id": "cyyt_rnav_rnp_y_rwy_16.pdf",
                 "name": "CYYT_RNAV_RNP_Y_RWY_16.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_16.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_16.pdf",
                 "driveId": "1drlO_oKzIkaIwa4CarI0LuqcYVBf2sV6",
                 "driveUrl": "https://drive.google.com/file/d/1drlO_oKzIkaIwa4CarI0LuqcYVBf2sV6/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_rnav_rnp_y_rwy_16.pdf"
         },
         {
                 "id": "cyyt_ils_rwy_10.pdf",
                 "name": "CYYT_ILS_RWY_10.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_10.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_10.pdf",
                 "driveId": "1vhuA2obBfLsT1-uyfqQTudMh2nwp8BJB",
                 "driveUrl": "https://drive.google.com/file/d/1vhuA2obBfLsT1-uyfqQTudMh2nwp8BJB/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_ils_rwy_10.pdf"
         },
         {
                 "id": "cyyt_burin_6_arr_rnav.pdf",
                 "name": "CYYT_BURIN_6_ARR_RNAV.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_burin_6_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_burin_6_arr_rnav.pdf",
                 "driveId": "1XtgN2jNF04A9wUZnD8WiXoLJrMWG4I5d",
                 "driveUrl": "https://drive.google.com/file/d/1XtgN2jNF04A9wUZnD8WiXoLJrMWG4I5d/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_burin_6_arr_rnav.pdf"
         },
         {
                 "id": "cyyt_avalon_5_arr_rnav.pdf",
                 "name": "CYYT_AVALON_5_ARR_RNAV.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_avalon_5_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_avalon_5_arr_rnav.pdf",
                 "driveId": "1Wvw779s72vaihCcL4YbwCcEVmQM9wH8h",
                 "driveUrl": "https://drive.google.com/file/d/1Wvw779s72vaihCcL4YbwCcEVmQM9wH8h/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_avalon_5_arr_rnav.pdf"
         },
         {
                 "id": "cyyt_ils_cat_ii_or_iii_rwy_28.pdf",
                 "name": "CYYT_ILS_CAT_II_OR_III_RWY_28.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_ils_cat_ii_or_iii_rwy_28.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_ils_cat_ii_or_iii_rwy_28.pdf",
                 "driveId": "1wMjMZgONy3HfEbOThWLPykD6kDbRJw9m",
                 "driveUrl": "https://drive.google.com/file/d/1wMjMZgONy3HfEbOThWLPykD6kDbRJw9m/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_ils_cat_ii_or_iii_rwy_28.pdf"
         },
         {
                 "id": "cyyt_ils_cat_ii_or_iii_rwy_10.pdf",
                 "name": "CYYT_ILS_CAT_II_OR_III_RWY_10.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_ils_cat_ii_or_iii_rwy_10.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_ils_cat_ii_or_iii_rwy_10.pdf",
                 "driveId": "1_itl4LIyVXmxWjsL1-myfOS5nPjel6T2",
                 "driveUrl": "https://drive.google.com/file/d/1_itl4LIyVXmxWjsL1-myfOS5nPjel6T2/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_ils_cat_ii_or_iii_rwy_10.pdf"
         },
         {
                 "id": "cyyt_tigor_5_arr_rnav.pdf",
                 "name": "CYYT_TIGOR_5_ARR_RNAV.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyyt-st-johns/cyyt_tigor_5_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyyt-st-johns/cyyt_tigor_5_arr_rnav.pdf",
                 "driveId": "10RiLKpRoOP-l9heZczLlg8ddzxsYrck4",
                 "driveUrl": "https://drive.google.com/file/d/10RiLKpRoOP-l9heZczLlg8ddzxsYrck4/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyyt-st-johns/cyyt_tigor_5_arr_rnav.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};

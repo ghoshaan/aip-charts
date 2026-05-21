@@ -468,6 +468,15 @@
             background: rgba(88, 166, 255, 0.3);
         }
 
+        .zoom-marquee {
+            position: absolute;
+            border: 2px dashed var(--accent);
+            background: var(--accent-glow);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
         .viewer-tip {
             position: absolute;
             bottom: 1rem;
@@ -704,10 +713,11 @@
 
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
+                        <div id="zoomMarquee" class="zoom-marquee"></div>
                     </div>
 
                     <div class="viewer-tip">
-                        <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                        <span>💡 <b>Mouse Wheel</b> to zoom. <b>Shift + Drag</b> a box to zoom into a region.</span>
                     </div>
                 </div>
             </div>
@@ -746,7 +756,7 @@
         }
     
         
-            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
+            const APPS_SCRIPT_URL = "";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -995,7 +1005,23 @@
                     
                     currentPdf = await loadingTask.promise;
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
-                    await renderAllPages();
+                    
+                    // Viewport width fit by default (Feature 3)
+                    try {
+                        const page = await currentPdf.getPage(1);
+                        const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+                        const fitScale = (container.clientWidth - 40) / viewport.width;
+                        const initialZoom = Math.min(Math.max(0.5, fitScale), 2.5);
+                        
+                        currentZoom = initialZoom;
+                        document.getElementById('zoomRange').value = initialZoom;
+                        document.getElementById('zoomValue').textContent = `${initialZoom.toFixed(1)}x`;
+                    } catch (zoomErr) {
+                        console.error('Fit viewport error:', zoomErr);
+                    }
+
+                    // Render pages asynchronously (Optimization 2)
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1050,7 +1076,7 @@
                         loadingTask = pdfjsLib.getDocument({ data: loadResult.data });
                     }
                     currentPdf = await loadingTask.promise;
-                    await renderAllPages();
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1122,25 +1148,8 @@
                 canvas.width = viewport.width;
                 container.appendChild(canvas);
 
-                const textLayerDiv = document.createElement('div');
-                textLayerDiv.className = 'textLayer';
-                container.appendChild(textLayerDiv);
-
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-                // Render text layer
-                try {
-                    const textContent = await page.getTextContent();
-                    pdfjsLib.renderTextLayer({
-                        textContent: textContent,
-                        container: textLayerDiv,
-                        viewport: viewport,
-                        textDivs: []
-                    });
-                } catch (textErr) {
-                    console.error('Text layer render error:', textErr);
-                }
             }
 
             function applyVisualTransform() {
@@ -1285,7 +1294,7 @@
                         
                         const loadingTask = pdfjsLib.getDocument({ data: pdfData });
                         currentPdf = await loadingTask.promise;
-                        await renderAllPages();
+                        renderAllPages();
                         loader.style.display = 'none';
                         updatePageNav();
                     } catch (err) {
@@ -1318,6 +1327,97 @@
             document.getElementById('viewerModal').onclick = (e) => {
                 if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
+
+            // Selection box zoom (Marquee Zoom) (Feature 4)
+            const marqueeContainer = document.getElementById('pdfViewerContainer');
+            const marquee = document.getElementById('zoomMarquee');
+            let isDragging = false;
+            let startXScreen = 0, startYScreen = 0;
+
+            marqueeContainer.addEventListener('mousedown', (e) => {
+                if (e.shiftKey && e.button === 0) { // Shift + Left Click
+                    const canvas = marqueeContainer.querySelector('canvas');
+                    if (!canvas) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startXScreen = e.clientX;
+                    startYScreen = e.clientY;
+
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+                    const left = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                    const top = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                    marquee.style.left = `${left}px`;
+                    marquee.style.top = `${top}px`;
+                    marquee.style.width = '0px';
+                    marquee.style.height = '0px';
+                    marquee.style.display = 'block';
+                    marqueeContainer.style.cursor = 'crosshair';
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const containerRect = marqueeContainer.getBoundingClientRect();
+                const currentX = e.clientX - containerRect.left + marqueeContainer.scrollLeft;
+                const currentY = e.clientY - containerRect.top + marqueeContainer.scrollTop;
+                const startX = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                const startY = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                const left = Math.min(startX, currentX);
+                const top = Math.min(startY, currentY);
+                const width = Math.abs(startX - currentX);
+                const height = Math.abs(startY - currentY);
+
+                marquee.style.left = `${left}px`;
+                marquee.style.top = `${top}px`;
+                marquee.style.width = `${width}px`;
+                marquee.style.height = `${height}px`;
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                marquee.style.display = 'none';
+                marqueeContainer.style.cursor = '';
+
+                const canvas = marqueeContainer.querySelector('canvas');
+                if (!canvas) return;
+
+                const width = Math.abs(startXScreen - e.clientX);
+                const height = Math.abs(startYScreen - e.clientY);
+
+                // Ignore tiny clicks/drags (less than 15px)
+                if (width > 15 && height > 15) {
+                    const canvasRectOld = canvas.getBoundingClientRect();
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+
+                    const selCenterX = Math.min(startXScreen, e.clientX) + width / 2;
+                    const selCenterY = Math.min(startYScreen, e.clientY) + height / 2;
+
+                    const pctX = (selCenterX - canvasRectOld.left) / canvasRectOld.width;
+                    const pctY = (selCenterY - canvasRectOld.top) / canvasRectOld.height;
+
+                    const factorX = marqueeContainer.clientWidth / width;
+                    const factorY = marqueeContainer.clientHeight / height;
+                    const factor = Math.min(factorX, factorY) * 0.95;
+
+                    const targetZoom = Math.min(Math.max(0.5, currentZoom * visualScale * factor), 4.0);
+                    const delta = targetZoom - (currentZoom * visualScale);
+                    adjustZoom(delta);
+
+                    // Align viewport scroll to center of selection
+                    const canvasRectNew = canvas.getBoundingClientRect();
+                    const newScreenCenterX = canvasRectNew.left + pctX * canvasRectNew.width;
+                    const newScreenCenterY = canvasRectNew.top + pctY * canvasRectNew.height;
+
+                    const containerScreenCenterX = containerRect.left + marqueeContainer.clientWidth / 2;
+                    const containerScreenCenterY = containerRect.top + marqueeContainer.clientHeight / 2;
+
+                    marqueeContainer.scrollLeft += (newScreenCenterX - containerScreenCenterX);
+                    marqueeContainer.scrollTop += (newScreenCenterY - containerScreenCenterY);
+                }
+            });
         
         
         const airportCtx = {
@@ -1345,122 +1445,122 @@
         {
                 "id": "star_icao_rwy_0119_-_lusil_7l_lusil_7p_odina_7l_ori_7l_ori_7p_srn_6l_top_6l_vog_6l.pdf",
                 "name": "STAR_ICAO_RWY_0119_-_LUSIL_7L_LUSIL_7P_ODINA_7L_ORI_7L_ORI_7P_SRN_6L_TOP_6L_VOG_6L.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/star_icao_rwy_0119_-_lusil_7l_lusil_7p_odina_7l_ori_7l_ori_7p_srn_6l_top_6l_vog_6l.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/star_icao_rwy_0119_-_lusil_7l_lusil_7p_odina_7l_ori_7l_ori_7p_srn_6l_top_6l_vog_6l.pdf",
                 "driveId": "13U2LPhXQf8Wejg_j6y5Mk7iDh-uiv-6Z",
                 "driveUrl": "https://drive.google.com/file/d/13U2LPhXQf8Wejg_j6y5Mk7iDh-uiv-6Z/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/star_icao_rwy_0119_-_lusil_7l_lusil_7p_odina_7l_ori_7l_ori_7p_srn_6l_top_6l_vog_6l.pdf"
         },
         {
                 "id": "sid_icao_high_performance_rwy_19_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
                 "name": "SID_ICAO_HIGH_PERFORMANCE_RWY_19_-_CANNE_2U_CANNE_1Z_OMETO_1F_ORI_1U_ORI_1W_PINIK_1A_SRN_1W_VOG_1W.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/sid_icao_high_performance_rwy_19_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/sid_icao_high_performance_rwy_19_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
                 "driveId": "1UMA6Uvd5FIkDWFje4B35V8huJmQeyXMB",
                 "driveUrl": "https://drive.google.com/file/d/1UMA6Uvd5FIkDWFje4B35V8huJmQeyXMB/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/sid_icao_high_performance_rwy_19_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf"
         },
         {
                 "id": "sid_icao_rwy_01_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
                 "name": "SID_ICAO_RWY_01_-_CANNE_2U_CANNE_1Z_OMETO_1F_ORI_1U_ORI_1W_PINIK_1A_SRN_1W_VOG_1W.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/sid_icao_rwy_01_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/sid_icao_rwy_01_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf",
                 "driveId": "1tbpuJjkyBCY_Dz7dkbfNw_OgZpNYHuAj",
                 "driveUrl": "https://drive.google.com/file/d/1tbpuJjkyBCY_Dz7dkbfNw_OgZpNYHuAj/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/sid_icao_rwy_01_-_canne_2u_canne_1z_ometo_1f_ori_1u_ori_1w_pinik_1a_srn_1w_vog_1w.pdf"
         },
         {
                 "id": "sid_icao_rnav_rwy_0119_-_canne_1e_ometo_1e.pdf",
                 "name": "SID_ICAO_RNAV_RWY_0119_-_CANNE_1E_OMETO_1E.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/sid_icao_rnav_rwy_0119_-_canne_1e_ometo_1e.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/sid_icao_rnav_rwy_0119_-_canne_1e_ometo_1e.pdf",
                 "driveId": "1VhmebVzNyBipdBz_zul2nqo6xdmhZVHx",
                 "driveUrl": "https://drive.google.com/file/d/1VhmebVzNyBipdBz_zul2nqo6xdmhZVHx/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/sid_icao_rnav_rwy_0119_-_canne_1e_ometo_1e.pdf"
         },
         {
                 "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_19.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_19.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/aerodrome_obstacle_chart_-_type_a_-_rwy_19.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/aerodrome_obstacle_chart_-_type_a_-_rwy_19.pdf",
                 "driveId": "1xr7YwrDfkixzETDVJ6peeyWo0Ay-NW8t",
                 "driveUrl": "https://drive.google.com/file/d/1xr7YwrDfkixzETDVJ6peeyWo0Ay-NW8t/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/aerodrome_obstacle_chart_-_type_a_-_rwy_19.pdf"
         },
         {
                 "id": "aerodrome_obstacle_chart_-_type_a_-_rwy_01.pdf",
                 "name": "AERODROME_OBSTACLE_CHART_-_TYPE_A_-_RWY_01.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/aerodrome_obstacle_chart_-_type_a_-_rwy_01.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/aerodrome_obstacle_chart_-_type_a_-_rwy_01.pdf",
                 "driveId": "19DK2MrjvlVyHcjbcEtK2J5cV__ktXQJN",
                 "driveUrl": "https://drive.google.com/file/d/19DK2MrjvlVyHcjbcEtK2J5cV__ktXQJN/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/aerodrome_obstacle_chart_-_type_a_-_rwy_01.pdf"
         },
         {
                 "id": "aircraft_parking_docking_chart.pdf",
                 "name": "AIRCRAFT_PARKING_DOCKING_CHART.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/aircraft_parking_docking_chart.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/aircraft_parking_docking_chart.pdf",
                 "driveId": "1uvPrXpW92XnNs76UwIhiyrERmgpzz4eq",
                 "driveUrl": "https://drive.google.com/file/d/1uvPrXpW92XnNs76UwIhiyrERmgpzz4eq/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/aircraft_parking_docking_chart.pdf"
         },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/aerodrome_chart.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/aerodrome_chart.pdf",
                 "driveId": "1WHjT3zmkq1WMOsISbMNozYXDYVC-q4vY",
                 "driveUrl": "https://drive.google.com/file/d/1WHjT3zmkq1WMOsISbMNozYXDYVC-q4vY/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/aerodrome_chart.pdf"
         },
         {
                 "id": "visual_approach_procedure_charlie_circling_rwy_19.pdf",
                 "name": "VISUAL_APPROACH_PROCEDURE_CHARLIE_CIRCLING_RWY_19.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/visual_approach_procedure_charlie_circling_rwy_19.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/visual_approach_procedure_charlie_circling_rwy_19.pdf",
                 "driveId": "1I0D-fP8-B3Ee8ivi5P8J8ibycDcddPGu",
                 "driveUrl": "https://drive.google.com/file/d/1I0D-fP8-B3Ee8ivi5P8J8ibycDcddPGu/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/visual_approach_procedure_charlie_circling_rwy_19.pdf"
         },
         {
                 "id": "visual_approach_procedure_foxtrott_circling_rwy_19.pdf",
                 "name": "VISUAL_APPROACH_PROCEDURE_FOXTROTT_CIRCLING_RWY_19.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/visual_approach_procedure_foxtrott_circling_rwy_19.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/visual_approach_procedure_foxtrott_circling_rwy_19.pdf",
                 "driveId": "1EBJsKZ-UWH-aX7TnRoL64ZuR2s3U67Aj",
                 "driveUrl": "https://drive.google.com/file/d/1EBJsKZ-UWH-aX7TnRoL64ZuR2s3U67Aj/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/visual_approach_procedure_foxtrott_circling_rwy_19.pdf"
         },
         {
                 "id": "iac_icao_loc_rwy_01_circling_rwy_19.pdf",
                 "name": "IAC_ICAO_LOC_RWY_01_CIRCLING_RWY_19.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/iac_icao_loc_rwy_01_circling_rwy_19.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/iac_icao_loc_rwy_01_circling_rwy_19.pdf",
                 "driveId": "1E069QpvRHL5cvdTyNX7bl9sEdxflgE-D",
                 "driveUrl": "https://drive.google.com/file/d/1E069QpvRHL5cvdTyNX7bl9sEdxflgE-D/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/iac_icao_loc_rwy_01_circling_rwy_19.pdf"
         },
         {
                 "id": "iac_igs_rwy_01.pdf",
                 "name": "IAC_IGS_RWY_01.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/switzerland/lsza/iac_igs_rwy_01.pdf",
+                "localUrl": "../charts_data/switzerland/lsza/iac_igs_rwy_01.pdf",
                 "driveId": "1gVckGMheHLaqyrEW3JHAyhX2qWa-Opib",
                 "driveUrl": "https://drive.google.com/file/d/1gVckGMheHLaqyrEW3JHAyhX2qWa-Opib/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/switzerland/lsza/iac_igs_rwy_01.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
