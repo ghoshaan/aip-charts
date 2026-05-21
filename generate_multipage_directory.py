@@ -46,9 +46,10 @@ CHARTS_DOWNLOAD_DIR = os.path.join(OUTPUT_DIR, 'charts_data')
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 
 DOWNLOAD_CHARTS = os.environ.get('DOWNLOAD_CHARTS', 'true').lower() == 'true'
+AUTO_PUSH = os.environ.get('AUTO_PUSH', 'true').lower() == 'true'
 DATA_REPO_URL = os.environ.get('DATA_REPO_URL', 'https://ghoshaan.github.io/aip-charts-data/')
 APPS_SCRIPT_URL = os.environ.get('APPS_SCRIPT_URL', 'https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec')
-GENERATOR_VERSION = 'v7'
+GENERATOR_VERSION = 'v8'
 
 # Region icons (add more as needed)
 REGION_ICONS = {
@@ -3335,6 +3336,62 @@ def process_sid_star_data():
     print(f"   ✅ Processed {len(airports_list)} airports with SID/STAR/IAP data.")
 
 
+def sync_repositories():
+    """Automatically stage, commit, and push changes to both aip-charts-data and aip-charts repositories if AUTO_PUSH is enabled"""
+    if not AUTO_PUSH:
+        print("\nℹ️ Auto-push is disabled (AUTO_PUSH=false). Skipping GitHub push.")
+        return
+
+    import subprocess
+    
+    # 1. Sync data repository (docs/charts_data)
+    print("\n📤 Syncing new PDF charts to the data repository (aip-charts-data)...")
+    try:
+        # Check if git status has any changes in the sub-repo
+        status_data = subprocess.run(
+            ['git', 'status', '--porcelain'],
+            cwd=CHARTS_DOWNLOAD_DIR,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        if status_data.stdout.strip():
+            print("   Staging new PDF files...")
+            subprocess.run(['git', 'add', '.'], cwd=CHARTS_DOWNLOAD_DIR, check=True)
+            print("   Committing changes...")
+            subprocess.run(['git', 'commit', '-m', 'feat: update PDF charts from Google Drive'], cwd=CHARTS_DOWNLOAD_DIR, check=True)
+            print("   Pushing to GitHub Pages (aip-charts-data)...")
+            subprocess.run(['git', 'push', 'origin', 'main'], cwd=CHARTS_DOWNLOAD_DIR, check=True)
+            print("   ✅ Data repository synced successfully.")
+        else:
+            print("   ✅ Data repository is already up to date.")
+    except Exception as e:
+        print(f"   ⚠️ Failed to sync data repository: {e}")
+
+    # 2. Sync main website repository
+    print("\n📤 Syncing website pages to the main repository (aip-charts)...")
+    try:
+        # Check if git status has any changes in the main repo
+        status_main = subprocess.run(
+            ['git', 'status', '--porcelain'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        if status_main.stdout.strip():
+            print("   Staging updated website pages...")
+            subprocess.run(['git', 'add', 'docs/', 'manifest.json'], check=True)
+            print("   Committing changes...")
+            subprocess.run(['git', 'commit', '-m', 'feat: update site pages from Google Drive'], check=True)
+            print("   Pushing to GitHub Pages (aip-charts)...")
+            subprocess.run(['git', 'push', 'origin', 'main'], check=True)
+            print("   ✅ Main repository synced successfully.")
+        else:
+            print("   ✅ Main repository is already up to date.")
+    except Exception as e:
+        print(f"   ⚠️ Failed to sync main repository: {e}")
+
+
 # ============================================================================
 # MAIN
 # ============================================================================
@@ -3394,6 +3451,9 @@ def main():
     
     # Final save for airport hashes
     save_manifest(manifest)
+
+    # Automatically push changes to GitHub if enabled
+    sync_repositories()
 
     print("\n" + "="*70)
     print("  🎉 SUCCESS!")
