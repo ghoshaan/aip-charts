@@ -46,8 +46,9 @@ CHARTS_DOWNLOAD_DIR = os.path.join(OUTPUT_DIR, 'charts_data')
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 
 DOWNLOAD_CHARTS = os.environ.get('DOWNLOAD_CHARTS', 'true').lower() == 'true'
+DATA_REPO_URL = os.environ.get('DATA_REPO_URL', 'https://ghoshaan.github.io/aip-charts-data/')
 APPS_SCRIPT_URL = os.environ.get('APPS_SCRIPT_URL', 'https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec')
-GENERATOR_VERSION = 'v5'
+GENERATOR_VERSION = 'v7'
 
 # Region icons (add more as needed)
 REGION_ICONS = {
@@ -734,8 +735,11 @@ def organize_by_hierarchy(service, items, manifest):
 
         drive_file_id = item['id']
         drive_view_url = item.get('viewUrl', '#')
-        # Only set localUrl if the file actually exists locally
-        resolved_local_url = local_rel_path if download_ok and os.path.exists(local_full_path) else '#'
+        # Only set localUrl if the file actually exists locally (serve from external aip-charts-data Pages repo)
+        if os.path.exists(local_full_path):
+            resolved_local_url = f"{DATA_REPO_URL.rstrip('/')}/{local_rel_path.replace('charts_data/', '')}"
+        else:
+            resolved_local_url = '#'
         hierarchy[region][airport].append({
             'id': safe_filename,
             'name': item['name'],
@@ -1531,8 +1535,17 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
     if manifest['airports'].get(airport_slug) == airport_data_hash and os.path.exists(f"{OUTPUT_DIR}/{airport_slug}/index.html"):
         return airport_slug
 
-    # Adjust file URLs for subdirectory context; rootUrl keeps the root-relative path for pin storage
-    adjusted_files = [dict(f, url='../' + f['url'] if f['url'] != '#' else '#', localUrl='../' + f['localUrl'] if f['localUrl'] != '#' else '#', rootUrl=f['localUrl'], driveId=f.get('driveId',''), driveUrl=f.get('driveUrl','#')) for f in files]
+    adjusted_files = [
+        dict(
+            f,
+            url=f['url'] if (f['url'] == '#' or f['url'].startswith('http://') or f['url'].startswith('https://')) else '../' + f['url'],
+            localUrl=f['localUrl'] if (f['localUrl'] == '#' or f['localUrl'].startswith('http://') or f['localUrl'].startswith('https://')) else '../' + f['localUrl'],
+            rootUrl=f['localUrl'],
+            driveId=f.get('driveId',''),
+            driveUrl=f.get('driveUrl','#')
+        )
+        for f in files
+    ]
     adjusted_files = group_multipage_files(adjusted_files)
 
     html = f'''<!DOCTYPE html>
