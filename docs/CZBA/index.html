@@ -468,6 +468,15 @@
             background: rgba(88, 166, 255, 0.3);
         }
 
+        .zoom-marquee {
+            position: absolute;
+            border: 2px dashed var(--accent);
+            background: var(--accent-glow);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
         .viewer-tip {
             position: absolute;
             bottom: 1rem;
@@ -704,10 +713,11 @@
 
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
+                        <div id="zoomMarquee" class="zoom-marquee"></div>
                     </div>
 
                     <div class="viewer-tip">
-                        <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                        <span>💡 <b>Mouse Wheel</b> to zoom. <b>Shift + Drag</b> a box to zoom into a region.</span>
                     </div>
                 </div>
             </div>
@@ -746,7 +756,7 @@
         }
     
         
-            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
+            const APPS_SCRIPT_URL = "";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -995,7 +1005,23 @@
                     
                     currentPdf = await loadingTask.promise;
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
-                    await renderAllPages();
+                    
+                    // Viewport width fit by default (Feature 3)
+                    try {
+                        const page = await currentPdf.getPage(1);
+                        const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+                        const fitScale = (container.clientWidth - 40) / viewport.width;
+                        const initialZoom = Math.min(Math.max(0.5, fitScale), 2.5);
+                        
+                        currentZoom = initialZoom;
+                        document.getElementById('zoomRange').value = initialZoom;
+                        document.getElementById('zoomValue').textContent = `${initialZoom.toFixed(1)}x`;
+                    } catch (zoomErr) {
+                        console.error('Fit viewport error:', zoomErr);
+                    }
+
+                    // Render pages asynchronously (Optimization 2)
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1050,7 +1076,7 @@
                         loadingTask = pdfjsLib.getDocument({ data: loadResult.data });
                     }
                     currentPdf = await loadingTask.promise;
-                    await renderAllPages();
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1122,25 +1148,8 @@
                 canvas.width = viewport.width;
                 container.appendChild(canvas);
 
-                const textLayerDiv = document.createElement('div');
-                textLayerDiv.className = 'textLayer';
-                container.appendChild(textLayerDiv);
-
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-                // Render text layer
-                try {
-                    const textContent = await page.getTextContent();
-                    pdfjsLib.renderTextLayer({
-                        textContent: textContent,
-                        container: textLayerDiv,
-                        viewport: viewport,
-                        textDivs: []
-                    });
-                } catch (textErr) {
-                    console.error('Text layer render error:', textErr);
-                }
             }
 
             function applyVisualTransform() {
@@ -1285,7 +1294,7 @@
                         
                         const loadingTask = pdfjsLib.getDocument({ data: pdfData });
                         currentPdf = await loadingTask.promise;
-                        await renderAllPages();
+                        renderAllPages();
                         loader.style.display = 'none';
                         updatePageNav();
                     } catch (err) {
@@ -1318,6 +1327,97 @@
             document.getElementById('viewerModal').onclick = (e) => {
                 if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
+
+            // Selection box zoom (Marquee Zoom) (Feature 4)
+            const marqueeContainer = document.getElementById('pdfViewerContainer');
+            const marquee = document.getElementById('zoomMarquee');
+            let isDragging = false;
+            let startXScreen = 0, startYScreen = 0;
+
+            marqueeContainer.addEventListener('mousedown', (e) => {
+                if (e.shiftKey && e.button === 0) { // Shift + Left Click
+                    const canvas = marqueeContainer.querySelector('canvas');
+                    if (!canvas) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startXScreen = e.clientX;
+                    startYScreen = e.clientY;
+
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+                    const left = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                    const top = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                    marquee.style.left = `${left}px`;
+                    marquee.style.top = `${top}px`;
+                    marquee.style.width = '0px';
+                    marquee.style.height = '0px';
+                    marquee.style.display = 'block';
+                    marqueeContainer.style.cursor = 'crosshair';
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const containerRect = marqueeContainer.getBoundingClientRect();
+                const currentX = e.clientX - containerRect.left + marqueeContainer.scrollLeft;
+                const currentY = e.clientY - containerRect.top + marqueeContainer.scrollTop;
+                const startX = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                const startY = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                const left = Math.min(startX, currentX);
+                const top = Math.min(startY, currentY);
+                const width = Math.abs(startX - currentX);
+                const height = Math.abs(startY - currentY);
+
+                marquee.style.left = `${left}px`;
+                marquee.style.top = `${top}px`;
+                marquee.style.width = `${width}px`;
+                marquee.style.height = `${height}px`;
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                marquee.style.display = 'none';
+                marqueeContainer.style.cursor = '';
+
+                const canvas = marqueeContainer.querySelector('canvas');
+                if (!canvas) return;
+
+                const width = Math.abs(startXScreen - e.clientX);
+                const height = Math.abs(startYScreen - e.clientY);
+
+                // Ignore tiny clicks/drags (less than 15px)
+                if (width > 15 && height > 15) {
+                    const canvasRectOld = canvas.getBoundingClientRect();
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+
+                    const selCenterX = Math.min(startXScreen, e.clientX) + width / 2;
+                    const selCenterY = Math.min(startYScreen, e.clientY) + height / 2;
+
+                    const pctX = (selCenterX - canvasRectOld.left) / canvasRectOld.width;
+                    const pctY = (selCenterY - canvasRectOld.top) / canvasRectOld.height;
+
+                    const factorX = marqueeContainer.clientWidth / width;
+                    const factorY = marqueeContainer.clientHeight / height;
+                    const factor = Math.min(factorX, factorY) * 0.95;
+
+                    const targetZoom = Math.min(Math.max(0.5, currentZoom * visualScale * factor), 4.0);
+                    const delta = targetZoom - (currentZoom * visualScale);
+                    adjustZoom(delta);
+
+                    // Align viewport scroll to center of selection
+                    const canvasRectNew = canvas.getBoundingClientRect();
+                    const newScreenCenterX = canvasRectNew.left + pctX * canvasRectNew.width;
+                    const newScreenCenterY = canvasRectNew.top + pctY * canvasRectNew.height;
+
+                    const containerScreenCenterX = containerRect.left + marqueeContainer.clientWidth / 2;
+                    const containerScreenCenterY = containerRect.top + marqueeContainer.clientHeight / 2;
+
+                    marqueeContainer.scrollLeft += (newScreenCenterX - containerScreenCenterX);
+                    marqueeContainer.scrollTop += (newScreenCenterY - containerScreenCenterY);
+                }
+            });
         
         
         const airportCtx = {
@@ -1345,180 +1445,180 @@
         {
                 "id": "pemba_6_dep_rnav.pdf",
                 "name": "PEMBA_6_DEP_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/czba/pemba_6_dep_rnav.pdf",
+                "localUrl": "../charts_data/canada/czba/pemba_6_dep_rnav.pdf",
                 "driveId": "1qGuPe42la9jN8OgFU9OlLn-4flCuF4xT",
                 "driveUrl": "https://drive.google.com/file/d/1qGuPe42la9jN8OgFU9OlLn-4flCuF4xT/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/czba/pemba_6_dep_rnav.pdf",
                 "pages": [
                         {
                                 "id": "pemba_6_dep_rnav.pdf",
                                 "name": "PEMBA_6_DEP_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/czba/pemba_6_dep_rnav.pdf",
+                                "localUrl": "../charts_data/canada/czba/pemba_6_dep_rnav.pdf",
                                 "driveId": "1qGuPe42la9jN8OgFU9OlLn-4flCuF4xT",
                                 "driveUrl": "https://drive.google.com/file/d/1qGuPe42la9jN8OgFU9OlLn-4flCuF4xT/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/czba/pemba_6_dep_rnav.pdf"
                         },
                         {
                                 "id": "pemba_6_dep_rnav_pg_02.pdf",
                                 "name": "PEMBA_6_DEP_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/czba/pemba_6_dep_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/czba/pemba_6_dep_rnav_pg_02.pdf",
                                 "driveId": "1b3BJ2l7l4OsZym-R2Btnx55wiN8-8QYv",
                                 "driveUrl": "https://drive.google.com/file/d/1b3BJ2l7l4OsZym-R2Btnx55wiN8-8QYv/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/czba/pemba_6_dep_rnav_pg_02.pdf"
                         },
                         {
                                 "id": "pemba_6_dep_rnav_pg_03.pdf",
                                 "name": "PEMBA_6_DEP_RNAV_PG_03.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/czba/pemba_6_dep_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/czba/pemba_6_dep_rnav_pg_03.pdf",
                                 "driveId": "1nUEBpMPACHHpT_yNbusUFh0elBNQr8xd",
                                 "driveUrl": "https://drive.google.com/file/d/1nUEBpMPACHHpT_yNbusUFh0elBNQr8xd/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/czba/pemba_6_dep_rnav_pg_03.pdf"
                         }
                 ]
         },
         {
                 "id": "oakvl_3_dep_rnav.pdf",
                 "name": "OAKVL_3_DEP_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/czba/oakvl_3_dep_rnav.pdf",
+                "localUrl": "../charts_data/canada/czba/oakvl_3_dep_rnav.pdf",
                 "driveId": "10UFwim4RMd1ZUSftyLnD3xHoOXMkzDod",
                 "driveUrl": "https://drive.google.com/file/d/10UFwim4RMd1ZUSftyLnD3xHoOXMkzDod/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/czba/oakvl_3_dep_rnav.pdf",
                 "pages": [
                         {
                                 "id": "oakvl_3_dep_rnav.pdf",
                                 "name": "OAKVL_3_DEP_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/czba/oakvl_3_dep_rnav.pdf",
+                                "localUrl": "../charts_data/canada/czba/oakvl_3_dep_rnav.pdf",
                                 "driveId": "10UFwim4RMd1ZUSftyLnD3xHoOXMkzDod",
                                 "driveUrl": "https://drive.google.com/file/d/10UFwim4RMd1ZUSftyLnD3xHoOXMkzDod/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/czba/oakvl_3_dep_rnav.pdf"
                         },
                         {
                                 "id": "oakvl_3_dep_rnav_pg_02.pdf",
                                 "name": "OAKVL_3_DEP_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/czba/oakvl_3_dep_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/czba/oakvl_3_dep_rnav_pg_02.pdf",
                                 "driveId": "1Wy4GwVa--QoaobQLSesqGMZvWCDMVxt9",
                                 "driveUrl": "https://drive.google.com/file/d/1Wy4GwVa--QoaobQLSesqGMZvWCDMVxt9/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/czba/oakvl_3_dep_rnav_pg_02.pdf"
                         },
                         {
                                 "id": "oakvl_3_dep_rnav_pg_03.pdf",
                                 "name": "OAKVL_3_DEP_RNAV_PG_03.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/czba/oakvl_3_dep_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/czba/oakvl_3_dep_rnav_pg_03.pdf",
                                 "driveId": "1Gmu0TbyjZIHPTbrxI2Y2USlPLF4WnXz0",
                                 "driveUrl": "https://drive.google.com/file/d/1Gmu0TbyjZIHPTbrxI2Y2USlPLF4WnXz0/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/czba/oakvl_3_dep_rnav_pg_03.pdf"
                         }
                 ]
         },
         {
                 "id": "mavan_2_dep_rnav.pdf",
                 "name": "MAVAN_2_DEP_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/czba/mavan_2_dep_rnav.pdf",
+                "localUrl": "../charts_data/canada/czba/mavan_2_dep_rnav.pdf",
                 "driveId": "1aG7QjVhgNEUIYIuNN3ZaCCFBUFr65UEf",
                 "driveUrl": "https://drive.google.com/file/d/1aG7QjVhgNEUIYIuNN3ZaCCFBUFr65UEf/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/czba/mavan_2_dep_rnav.pdf",
                 "pages": [
                         {
                                 "id": "mavan_2_dep_rnav.pdf",
                                 "name": "MAVAN_2_DEP_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/czba/mavan_2_dep_rnav.pdf",
+                                "localUrl": "../charts_data/canada/czba/mavan_2_dep_rnav.pdf",
                                 "driveId": "1aG7QjVhgNEUIYIuNN3ZaCCFBUFr65UEf",
                                 "driveUrl": "https://drive.google.com/file/d/1aG7QjVhgNEUIYIuNN3ZaCCFBUFr65UEf/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/czba/mavan_2_dep_rnav.pdf"
                         },
                         {
                                 "id": "mavan_2_dep_rnav_pg_02.pdf",
                                 "name": "MAVAN_2_DEP_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/czba/mavan_2_dep_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/czba/mavan_2_dep_rnav_pg_02.pdf",
                                 "driveId": "1gQI3F_VKtaQoZakKmrzZD5NodmQ5UsqU",
                                 "driveUrl": "https://drive.google.com/file/d/1gQI3F_VKtaQoZakKmrzZD5NodmQ5UsqU/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/czba/mavan_2_dep_rnav_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "dusom_2_dep_rnav.pdf",
                 "name": "DUSOM_2_DEP_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/czba/dusom_2_dep_rnav.pdf",
+                "localUrl": "../charts_data/canada/czba/dusom_2_dep_rnav.pdf",
                 "driveId": "1toRcs3VFORzd4B9DV2TorepiPoBjNV6c",
                 "driveUrl": "https://drive.google.com/file/d/1toRcs3VFORzd4B9DV2TorepiPoBjNV6c/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/czba/dusom_2_dep_rnav.pdf",
                 "pages": [
                         {
                                 "id": "dusom_2_dep_rnav.pdf",
                                 "name": "DUSOM_2_DEP_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/czba/dusom_2_dep_rnav.pdf",
+                                "localUrl": "../charts_data/canada/czba/dusom_2_dep_rnav.pdf",
                                 "driveId": "1toRcs3VFORzd4B9DV2TorepiPoBjNV6c",
                                 "driveUrl": "https://drive.google.com/file/d/1toRcs3VFORzd4B9DV2TorepiPoBjNV6c/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/czba/dusom_2_dep_rnav.pdf"
                         },
                         {
                                 "id": "dusom_2_dep_rnav_pg_02.pdf",
                                 "name": "DUSOM_2_DEP_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/czba/dusom_2_dep_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/czba/dusom_2_dep_rnav_pg_02.pdf",
                                 "driveId": "1iTsNFTTGRZGIoqtD3QCWFpS-2Mg-pMeD",
                                 "driveUrl": "https://drive.google.com/file/d/1iTsNFTTGRZGIoqtD3QCWFpS-2Mg-pMeD/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/czba/dusom_2_dep_rnav_pg_02.pdf"
                         },
                         {
                                 "id": "dusom_2_dep_rnav_pg_03.pdf",
                                 "name": "DUSOM_2_DEP_RNAV_PG_03.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/czba/dusom_2_dep_rnav_pg_03.pdf",
+                                "localUrl": "../charts_data/canada/czba/dusom_2_dep_rnav_pg_03.pdf",
                                 "driveId": "1TmVIEvnV9npP9ky5UXBRmQ2h3wfKYMAM",
                                 "driveUrl": "https://drive.google.com/file/d/1TmVIEvnV9npP9ky5UXBRmQ2h3wfKYMAM/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/czba/dusom_2_dep_rnav_pg_03.pdf"
                         }
                 ]
         },
         {
                 "id": "rnav_gnss_rwy_32.pdf",
                 "name": "RNAV_GNSS_RWY_32.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/czba/rnav_gnss_rwy_32.pdf",
+                "localUrl": "../charts_data/canada/czba/rnav_gnss_rwy_32.pdf",
                 "driveId": "1dTkQWOqFJvr6Ch-oBM0B-55DTEsSmZ89",
                 "driveUrl": "https://drive.google.com/file/d/1dTkQWOqFJvr6Ch-oBM0B-55DTEsSmZ89/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/czba/rnav_gnss_rwy_32.pdf"
         },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/czba/aerodrome_chart.pdf",
+                "localUrl": "../charts_data/canada/czba/aerodrome_chart.pdf",
                 "driveId": "1lna7y13xgr5tqkpDC0ntOYUbSE-oo0QB",
                 "driveUrl": "https://drive.google.com/file/d/1lna7y13xgr5tqkpDC0ntOYUbSE-oo0QB/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/czba/aerodrome_chart.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};

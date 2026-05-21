@@ -468,6 +468,15 @@
             background: rgba(88, 166, 255, 0.3);
         }
 
+        .zoom-marquee {
+            position: absolute;
+            border: 2px dashed var(--accent);
+            background: var(--accent-glow);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
         .viewer-tip {
             position: absolute;
             bottom: 1rem;
@@ -704,10 +713,11 @@
 
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
+                        <div id="zoomMarquee" class="zoom-marquee"></div>
                     </div>
 
                     <div class="viewer-tip">
-                        <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                        <span>💡 <b>Mouse Wheel</b> to zoom. <b>Shift + Drag</b> a box to zoom into a region.</span>
                     </div>
                 </div>
             </div>
@@ -746,7 +756,7 @@
         }
     
         
-            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
+            const APPS_SCRIPT_URL = "";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -995,7 +1005,23 @@
                     
                     currentPdf = await loadingTask.promise;
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
-                    await renderAllPages();
+                    
+                    // Viewport width fit by default (Feature 3)
+                    try {
+                        const page = await currentPdf.getPage(1);
+                        const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+                        const fitScale = (container.clientWidth - 40) / viewport.width;
+                        const initialZoom = Math.min(Math.max(0.5, fitScale), 2.5);
+                        
+                        currentZoom = initialZoom;
+                        document.getElementById('zoomRange').value = initialZoom;
+                        document.getElementById('zoomValue').textContent = `${initialZoom.toFixed(1)}x`;
+                    } catch (zoomErr) {
+                        console.error('Fit viewport error:', zoomErr);
+                    }
+
+                    // Render pages asynchronously (Optimization 2)
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1050,7 +1076,7 @@
                         loadingTask = pdfjsLib.getDocument({ data: loadResult.data });
                     }
                     currentPdf = await loadingTask.promise;
-                    await renderAllPages();
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1122,25 +1148,8 @@
                 canvas.width = viewport.width;
                 container.appendChild(canvas);
 
-                const textLayerDiv = document.createElement('div');
-                textLayerDiv.className = 'textLayer';
-                container.appendChild(textLayerDiv);
-
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-                // Render text layer
-                try {
-                    const textContent = await page.getTextContent();
-                    pdfjsLib.renderTextLayer({
-                        textContent: textContent,
-                        container: textLayerDiv,
-                        viewport: viewport,
-                        textDivs: []
-                    });
-                } catch (textErr) {
-                    console.error('Text layer render error:', textErr);
-                }
             }
 
             function applyVisualTransform() {
@@ -1285,7 +1294,7 @@
                         
                         const loadingTask = pdfjsLib.getDocument({ data: pdfData });
                         currentPdf = await loadingTask.promise;
-                        await renderAllPages();
+                        renderAllPages();
                         loader.style.display = 'none';
                         updatePageNav();
                     } catch (err) {
@@ -1318,6 +1327,97 @@
             document.getElementById('viewerModal').onclick = (e) => {
                 if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
+
+            // Selection box zoom (Marquee Zoom) (Feature 4)
+            const marqueeContainer = document.getElementById('pdfViewerContainer');
+            const marquee = document.getElementById('zoomMarquee');
+            let isDragging = false;
+            let startXScreen = 0, startYScreen = 0;
+
+            marqueeContainer.addEventListener('mousedown', (e) => {
+                if (e.shiftKey && e.button === 0) { // Shift + Left Click
+                    const canvas = marqueeContainer.querySelector('canvas');
+                    if (!canvas) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startXScreen = e.clientX;
+                    startYScreen = e.clientY;
+
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+                    const left = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                    const top = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                    marquee.style.left = `${left}px`;
+                    marquee.style.top = `${top}px`;
+                    marquee.style.width = '0px';
+                    marquee.style.height = '0px';
+                    marquee.style.display = 'block';
+                    marqueeContainer.style.cursor = 'crosshair';
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const containerRect = marqueeContainer.getBoundingClientRect();
+                const currentX = e.clientX - containerRect.left + marqueeContainer.scrollLeft;
+                const currentY = e.clientY - containerRect.top + marqueeContainer.scrollTop;
+                const startX = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                const startY = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                const left = Math.min(startX, currentX);
+                const top = Math.min(startY, currentY);
+                const width = Math.abs(startX - currentX);
+                const height = Math.abs(startY - currentY);
+
+                marquee.style.left = `${left}px`;
+                marquee.style.top = `${top}px`;
+                marquee.style.width = `${width}px`;
+                marquee.style.height = `${height}px`;
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                marquee.style.display = 'none';
+                marqueeContainer.style.cursor = '';
+
+                const canvas = marqueeContainer.querySelector('canvas');
+                if (!canvas) return;
+
+                const width = Math.abs(startXScreen - e.clientX);
+                const height = Math.abs(startYScreen - e.clientY);
+
+                // Ignore tiny clicks/drags (less than 15px)
+                if (width > 15 && height > 15) {
+                    const canvasRectOld = canvas.getBoundingClientRect();
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+
+                    const selCenterX = Math.min(startXScreen, e.clientX) + width / 2;
+                    const selCenterY = Math.min(startYScreen, e.clientY) + height / 2;
+
+                    const pctX = (selCenterX - canvasRectOld.left) / canvasRectOld.width;
+                    const pctY = (selCenterY - canvasRectOld.top) / canvasRectOld.height;
+
+                    const factorX = marqueeContainer.clientWidth / width;
+                    const factorY = marqueeContainer.clientHeight / height;
+                    const factor = Math.min(factorX, factorY) * 0.95;
+
+                    const targetZoom = Math.min(Math.max(0.5, currentZoom * visualScale * factor), 4.0);
+                    const delta = targetZoom - (currentZoom * visualScale);
+                    adjustZoom(delta);
+
+                    // Align viewport scroll to center of selection
+                    const canvasRectNew = canvas.getBoundingClientRect();
+                    const newScreenCenterX = canvasRectNew.left + pctX * canvasRectNew.width;
+                    const newScreenCenterY = canvasRectNew.top + pctY * canvasRectNew.height;
+
+                    const containerScreenCenterX = containerRect.left + marqueeContainer.clientWidth / 2;
+                    const containerScreenCenterY = containerRect.top + marqueeContainer.clientHeight / 2;
+
+                    marqueeContainer.scrollLeft += (newScreenCenterX - containerScreenCenterX);
+                    marqueeContainer.scrollTop += (newScreenCenterY - containerScreenCenterY);
+                }
+            });
         
         
         const airportCtx = {
@@ -1345,240 +1445,240 @@
         {
                 "id": "saint_john_5_dep_vector.pdf",
                 "name": "SAINT_JOHN_5_DEP_VECTOR",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/saint_john_5_dep_vector.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/saint_john_5_dep_vector.pdf",
                 "driveId": "13x5QeXy8vOQA9RE3TsvrBDuCynHLEzxf",
                 "driveUrl": "https://drive.google.com/file/d/13x5QeXy8vOQA9RE3TsvrBDuCynHLEzxf/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cysj-saint-john/saint_john_5_dep_vector.pdf",
                 "pages": [
                         {
                                 "id": "saint_john_5_dep_vector.pdf",
                                 "name": "SAINT_JOHN_5_DEP_VECTOR.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cysj-saint-john/saint_john_5_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cysj-saint-john/saint_john_5_dep_vector.pdf",
                                 "driveId": "13x5QeXy8vOQA9RE3TsvrBDuCynHLEzxf",
                                 "driveUrl": "https://drive.google.com/file/d/13x5QeXy8vOQA9RE3TsvrBDuCynHLEzxf/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cysj-saint-john/saint_john_5_dep_vector.pdf"
                         },
                         {
                                 "id": "saint_john_5_dep_vector_pg_02.pdf",
                                 "name": "SAINT_JOHN_5_DEP_VECTOR_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cysj-saint-john/saint_john_5_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cysj-saint-john/saint_john_5_dep_vector_pg_02.pdf",
                                 "driveId": "1z_gaQfFR3PhdzD9q-o7w7HLumtQMZfG_",
                                 "driveUrl": "https://drive.google.com/file/d/1z_gaQfFR3PhdzD9q-o7w7HLumtQMZfG_/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cysj-saint-john/saint_john_5_dep_vector_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "mownd_1_dep_vector.pdf",
                 "name": "MOWND_1_DEP_VECTOR",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/mownd_1_dep_vector.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/mownd_1_dep_vector.pdf",
                 "driveId": "1fidsLtYfk-DqU-73ee7JB_ckfUqfY8Rb",
                 "driveUrl": "https://drive.google.com/file/d/1fidsLtYfk-DqU-73ee7JB_ckfUqfY8Rb/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cysj-saint-john/mownd_1_dep_vector.pdf",
                 "pages": [
                         {
                                 "id": "mownd_1_dep_vector.pdf",
                                 "name": "MOWND_1_DEP_VECTOR.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cysj-saint-john/mownd_1_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cysj-saint-john/mownd_1_dep_vector.pdf",
                                 "driveId": "1fidsLtYfk-DqU-73ee7JB_ckfUqfY8Rb",
                                 "driveUrl": "https://drive.google.com/file/d/1fidsLtYfk-DqU-73ee7JB_ckfUqfY8Rb/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cysj-saint-john/mownd_1_dep_vector.pdf"
                         },
                         {
                                 "id": "mownd_1_dep_vector_pg_02.pdf",
                                 "name": "MOWND_1_DEP_VECTOR_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cysj-saint-john/mownd_1_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cysj-saint-john/mownd_1_dep_vector_pg_02.pdf",
                                 "driveId": "1Jg9n0WLNbRjSFYV6qO90Ip3nEuc6wJLG",
                                 "driveUrl": "https://drive.google.com/file/d/1Jg9n0WLNbRjSFYV6qO90Ip3nEuc6wJLG/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cysj-saint-john/mownd_1_dep_vector_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "hampton_3_dep_vector.pdf",
                 "name": "HAMPTON_3_DEP_VECTOR",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/hampton_3_dep_vector.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/hampton_3_dep_vector.pdf",
                 "driveId": "12fEi92C0EjD_TOoQ0eTwxU1vED6k-Hg8",
                 "driveUrl": "https://drive.google.com/file/d/12fEi92C0EjD_TOoQ0eTwxU1vED6k-Hg8/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cysj-saint-john/hampton_3_dep_vector.pdf",
                 "pages": [
                         {
                                 "id": "hampton_3_dep_vector.pdf",
                                 "name": "HAMPTON_3_DEP_VECTOR.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cysj-saint-john/hampton_3_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cysj-saint-john/hampton_3_dep_vector.pdf",
                                 "driveId": "12fEi92C0EjD_TOoQ0eTwxU1vED6k-Hg8",
                                 "driveUrl": "https://drive.google.com/file/d/12fEi92C0EjD_TOoQ0eTwxU1vED6k-Hg8/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cysj-saint-john/hampton_3_dep_vector.pdf"
                         },
                         {
                                 "id": "hampton_3_dep_vector_pg_02.pdf",
                                 "name": "HAMPTON_3_DEP_VECTOR_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cysj-saint-john/hampton_3_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cysj-saint-john/hampton_3_dep_vector_pg_02.pdf",
                                 "driveId": "1rZKqP68QIqSi35tr9lRIk-ghJGL7XVH-",
                                 "driveUrl": "https://drive.google.com/file/d/1rZKqP68QIqSi35tr9lRIk-ghJGL7XVH-/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cysj-saint-john/hampton_3_dep_vector_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "reduced_low_visibility_procedures.pdf",
                 "name": "REDUCED_LOW_VISIBILITY_PROCEDURES",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/reduced_low_visibility_procedures.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/reduced_low_visibility_procedures.pdf",
                 "driveId": "1sOziA7OGNXCV_A7nSCuDziU3bqjmiBu1",
                 "driveUrl": "https://drive.google.com/file/d/1sOziA7OGNXCV_A7nSCuDziU3bqjmiBu1/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cysj-saint-john/reduced_low_visibility_procedures.pdf",
                 "pages": [
                         {
                                 "id": "reduced_low_visibility_procedures.pdf",
                                 "name": "REDUCED_LOW_VISIBILITY_PROCEDURES.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cysj-saint-john/reduced_low_visibility_procedures.pdf",
+                                "localUrl": "../charts_data/canada/cysj-saint-john/reduced_low_visibility_procedures.pdf",
                                 "driveId": "1sOziA7OGNXCV_A7nSCuDziU3bqjmiBu1",
                                 "driveUrl": "https://drive.google.com/file/d/1sOziA7OGNXCV_A7nSCuDziU3bqjmiBu1/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cysj-saint-john/reduced_low_visibility_procedures.pdf"
                         },
                         {
                                 "id": "reduced_low_visibility_procedures_pg_02.pdf",
                                 "name": "REDUCED_LOW_VISIBILITY_PROCEDURES_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cysj-saint-john/reduced_low_visibility_procedures_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cysj-saint-john/reduced_low_visibility_procedures_pg_02.pdf",
                                 "driveId": "1BPOEu4F0bTqQ57xB19ylFgEd7zpVPVyZ",
                                 "driveUrl": "https://drive.google.com/file/d/1BPOEu4F0bTqQ57xB19ylFgEd7zpVPVyZ/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cysj-saint-john/reduced_low_visibility_procedures_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "aerodrome_chart.pdf",
                 "name": "AERODROME_CHART.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/aerodrome_chart.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/aerodrome_chart.pdf",
                 "driveId": "1_rKdxOG-ydlNSTu_sVVJnIIzVXTd3SdX",
                 "driveUrl": "https://drive.google.com/file/d/1_rKdxOG-ydlNSTu_sVVJnIIzVXTd3SdX/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cysj-saint-john/aerodrome_chart.pdf"
         },
         {
                 "id": "rnav_rnp_y_rwy_23.pdf",
                 "name": "RNAV_RNP_Y_RWY_23.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_23.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_23.pdf",
                 "driveId": "1TjVKnPhiBmtm8HUiiwA_fLk-zcraceUO",
                 "driveUrl": "https://drive.google.com/file/d/1TjVKnPhiBmtm8HUiiwA_fLk-zcraceUO/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_23.pdf"
         },
         {
                 "id": "rnav_rnp_y_rwy_32.pdf",
                 "name": "RNAV_RNP_Y_RWY_32.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_32.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_32.pdf",
                 "driveId": "1T8evVRfwuZY4IugKqaoAxipWuoU5KuaP",
                 "driveUrl": "https://drive.google.com/file/d/1T8evVRfwuZY4IugKqaoAxipWuoU5KuaP/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_32.pdf"
         },
         {
                 "id": "rnav_rnp_y_rwy_14.pdf",
                 "name": "RNAV_RNP_Y_RWY_14.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_14.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_14.pdf",
                 "driveId": "1wge3sDJfpSwGvmUmuu0VIJbwUlnvznqn",
                 "driveUrl": "https://drive.google.com/file/d/1wge3sDJfpSwGvmUmuu0VIJbwUlnvznqn/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_14.pdf"
         },
         {
                 "id": "rnav_rnp_y_rwy_05.pdf",
                 "name": "RNAV_RNP_Y_RWY_05.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_05.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_05.pdf",
                 "driveId": "1QBbCTR1faK-tw15A3Z4CkbVXgh_5kAb3",
                 "driveUrl": "https://drive.google.com/file/d/1QBbCTR1faK-tw15A3Z4CkbVXgh_5kAb3/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cysj-saint-john/rnav_rnp_y_rwy_05.pdf"
         },
         {
                 "id": "rnav_gnss_z_rwy_32.pdf",
                 "name": "RNAV_GNSS_Z_RWY_32.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_32.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_32.pdf",
                 "driveId": "1C4iSnAQpaBbc7slsfHOqpF_icHYSRLQu",
                 "driveUrl": "https://drive.google.com/file/d/1C4iSnAQpaBbc7slsfHOqpF_icHYSRLQu/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_32.pdf"
         },
         {
                 "id": "rnav_gnss_z_rwy_14.pdf",
                 "name": "RNAV_GNSS_Z_RWY_14.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_14.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_14.pdf",
                 "driveId": "1csDs7fV2f-9wZxWYMm8LOMiefWH02gU6",
                 "driveUrl": "https://drive.google.com/file/d/1csDs7fV2f-9wZxWYMm8LOMiefWH02gU6/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_14.pdf"
         },
         {
                 "id": "rnav_gnss_z_rwy_23.pdf",
                 "name": "RNAV_GNSS_Z_RWY_23.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_23.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_23.pdf",
                 "driveId": "1DRi2HBP2TwMXmYmk4GQzdeXXpiC4yRCz",
                 "driveUrl": "https://drive.google.com/file/d/1DRi2HBP2TwMXmYmk4GQzdeXXpiC4yRCz/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_23.pdf"
         },
         {
                 "id": "rnav_gnss_z_rwy_05.pdf",
                 "name": "RNAV_GNSS_Z_RWY_05.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_05.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_05.pdf",
                 "driveId": "1w5jhaoq9U6U2-daHzyEprqKQQ0lPWef0",
                 "driveUrl": "https://drive.google.com/file/d/1w5jhaoq9U6U2-daHzyEprqKQQ0lPWef0/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cysj-saint-john/rnav_gnss_z_rwy_05.pdf"
         },
         {
                 "id": "ils_rwy_23.pdf",
                 "name": "ILS_RWY_23.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/ils_rwy_23.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/ils_rwy_23.pdf",
                 "driveId": "1NjQ0dKQB2gAWON-uj9xwK1ftYq_VFIuf",
                 "driveUrl": "https://drive.google.com/file/d/1NjQ0dKQB2gAWON-uj9xwK1ftYq_VFIuf/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cysj-saint-john/ils_rwy_23.pdf"
         },
         {
                 "id": "ils_rwy_05.pdf",
                 "name": "ILS_RWY_05.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cysj-saint-john/ils_rwy_05.pdf",
+                "localUrl": "../charts_data/canada/cysj-saint-john/ils_rwy_05.pdf",
                 "driveId": "1tbnVSsVqrE7ZacwlkzKJ0fpQdQxacFJN",
                 "driveUrl": "https://drive.google.com/file/d/1tbnVSsVqrE7ZacwlkzKJ0fpQdQxacFJN/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cysj-saint-john/ils_rwy_05.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};

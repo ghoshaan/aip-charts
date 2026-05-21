@@ -468,6 +468,15 @@
             background: rgba(88, 166, 255, 0.3);
         }
 
+        .zoom-marquee {
+            position: absolute;
+            border: 2px dashed var(--accent);
+            background: var(--accent-glow);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
         .viewer-tip {
             position: absolute;
             bottom: 1rem;
@@ -704,10 +713,11 @@
 
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
+                        <div id="zoomMarquee" class="zoom-marquee"></div>
                     </div>
 
                     <div class="viewer-tip">
-                        <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                        <span>💡 <b>Mouse Wheel</b> to zoom. <b>Shift + Drag</b> a box to zoom into a region.</span>
                     </div>
                 </div>
             </div>
@@ -746,7 +756,7 @@
         }
     
         
-            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
+            const APPS_SCRIPT_URL = "";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -995,7 +1005,23 @@
                     
                     currentPdf = await loadingTask.promise;
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
-                    await renderAllPages();
+                    
+                    // Viewport width fit by default (Feature 3)
+                    try {
+                        const page = await currentPdf.getPage(1);
+                        const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+                        const fitScale = (container.clientWidth - 40) / viewport.width;
+                        const initialZoom = Math.min(Math.max(0.5, fitScale), 2.5);
+                        
+                        currentZoom = initialZoom;
+                        document.getElementById('zoomRange').value = initialZoom;
+                        document.getElementById('zoomValue').textContent = `${initialZoom.toFixed(1)}x`;
+                    } catch (zoomErr) {
+                        console.error('Fit viewport error:', zoomErr);
+                    }
+
+                    // Render pages asynchronously (Optimization 2)
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1050,7 +1076,7 @@
                         loadingTask = pdfjsLib.getDocument({ data: loadResult.data });
                     }
                     currentPdf = await loadingTask.promise;
-                    await renderAllPages();
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1122,25 +1148,8 @@
                 canvas.width = viewport.width;
                 container.appendChild(canvas);
 
-                const textLayerDiv = document.createElement('div');
-                textLayerDiv.className = 'textLayer';
-                container.appendChild(textLayerDiv);
-
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-                // Render text layer
-                try {
-                    const textContent = await page.getTextContent();
-                    pdfjsLib.renderTextLayer({
-                        textContent: textContent,
-                        container: textLayerDiv,
-                        viewport: viewport,
-                        textDivs: []
-                    });
-                } catch (textErr) {
-                    console.error('Text layer render error:', textErr);
-                }
             }
 
             function applyVisualTransform() {
@@ -1285,7 +1294,7 @@
                         
                         const loadingTask = pdfjsLib.getDocument({ data: pdfData });
                         currentPdf = await loadingTask.promise;
-                        await renderAllPages();
+                        renderAllPages();
                         loader.style.display = 'none';
                         updatePageNav();
                     } catch (err) {
@@ -1318,6 +1327,97 @@
             document.getElementById('viewerModal').onclick = (e) => {
                 if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
+
+            // Selection box zoom (Marquee Zoom) (Feature 4)
+            const marqueeContainer = document.getElementById('pdfViewerContainer');
+            const marquee = document.getElementById('zoomMarquee');
+            let isDragging = false;
+            let startXScreen = 0, startYScreen = 0;
+
+            marqueeContainer.addEventListener('mousedown', (e) => {
+                if (e.shiftKey && e.button === 0) { // Shift + Left Click
+                    const canvas = marqueeContainer.querySelector('canvas');
+                    if (!canvas) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startXScreen = e.clientX;
+                    startYScreen = e.clientY;
+
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+                    const left = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                    const top = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                    marquee.style.left = `${left}px`;
+                    marquee.style.top = `${top}px`;
+                    marquee.style.width = '0px';
+                    marquee.style.height = '0px';
+                    marquee.style.display = 'block';
+                    marqueeContainer.style.cursor = 'crosshair';
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const containerRect = marqueeContainer.getBoundingClientRect();
+                const currentX = e.clientX - containerRect.left + marqueeContainer.scrollLeft;
+                const currentY = e.clientY - containerRect.top + marqueeContainer.scrollTop;
+                const startX = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                const startY = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                const left = Math.min(startX, currentX);
+                const top = Math.min(startY, currentY);
+                const width = Math.abs(startX - currentX);
+                const height = Math.abs(startY - currentY);
+
+                marquee.style.left = `${left}px`;
+                marquee.style.top = `${top}px`;
+                marquee.style.width = `${width}px`;
+                marquee.style.height = `${height}px`;
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                marquee.style.display = 'none';
+                marqueeContainer.style.cursor = '';
+
+                const canvas = marqueeContainer.querySelector('canvas');
+                if (!canvas) return;
+
+                const width = Math.abs(startXScreen - e.clientX);
+                const height = Math.abs(startYScreen - e.clientY);
+
+                // Ignore tiny clicks/drags (less than 15px)
+                if (width > 15 && height > 15) {
+                    const canvasRectOld = canvas.getBoundingClientRect();
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+
+                    const selCenterX = Math.min(startXScreen, e.clientX) + width / 2;
+                    const selCenterY = Math.min(startYScreen, e.clientY) + height / 2;
+
+                    const pctX = (selCenterX - canvasRectOld.left) / canvasRectOld.width;
+                    const pctY = (selCenterY - canvasRectOld.top) / canvasRectOld.height;
+
+                    const factorX = marqueeContainer.clientWidth / width;
+                    const factorY = marqueeContainer.clientHeight / height;
+                    const factor = Math.min(factorX, factorY) * 0.95;
+
+                    const targetZoom = Math.min(Math.max(0.5, currentZoom * visualScale * factor), 4.0);
+                    const delta = targetZoom - (currentZoom * visualScale);
+                    adjustZoom(delta);
+
+                    // Align viewport scroll to center of selection
+                    const canvasRectNew = canvas.getBoundingClientRect();
+                    const newScreenCenterX = canvasRectNew.left + pctX * canvasRectNew.width;
+                    const newScreenCenterY = canvasRectNew.top + pctY * canvasRectNew.height;
+
+                    const containerScreenCenterX = containerRect.left + marqueeContainer.clientWidth / 2;
+                    const containerScreenCenterY = containerRect.top + marqueeContainer.clientHeight / 2;
+
+                    marqueeContainer.scrollLeft += (newScreenCenterX - containerScreenCenterX);
+                    marqueeContainer.scrollTop += (newScreenCenterY - containerScreenCenterY);
+                }
+            });
         
         
         const airportCtx = {
@@ -1345,204 +1445,204 @@
         {
                 "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/.DS_Store",
+                "localUrl": "../charts_data/canada/cyqr-regina/.DS_Store",
                 "driveId": "19XrCOI-ZW2sZ7v-XBwzfE8hByAu2eF6V",
                 "driveUrl": "https://drive.google.com/file/d/19XrCOI-ZW2sZ7v-XBwzfE8hByAu2eF6V/view?usp=drivesdk",
                 "type": "doc",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/.DS_Store"
         },
         {
                 "id": "cyqr_rnav_gnss_z_rwy_31.pdf",
                 "name": "CYQR_RNAV_GNSS_Z_RWY_31.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_31.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_31.pdf",
                 "driveId": "1mUzxqNVvHjZFhRY0JHv8R9c_sHm9onmK",
                 "driveUrl": "https://drive.google.com/file/d/1mUzxqNVvHjZFhRY0JHv8R9c_sHm9onmK/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_31.pdf"
         },
         {
                 "id": "cyqr_aerodrome_chart.pdf",
                 "name": "CYQR_AERODROME_CHART.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_aerodrome_chart.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_aerodrome_chart.pdf",
                 "driveId": "1YHUcU3pcDkOz9bfuZJHd9HiaHhUZlDni",
                 "driveUrl": "https://drive.google.com/file/d/1YHUcU3pcDkOz9bfuZJHd9HiaHhUZlDni/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_aerodrome_chart.pdf"
         },
         {
                 "id": "cyqr_rnav_gnss_z_rwy_13.pdf",
                 "name": "CYQR_RNAV_GNSS_Z_RWY_13.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_13.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_13.pdf",
                 "driveId": "1JdYyD0UEMG13MFoIfSPkMQ4yYM2SylgL",
                 "driveUrl": "https://drive.google.com/file/d/1JdYyD0UEMG13MFoIfSPkMQ4yYM2SylgL/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_13.pdf"
         },
         {
                 "id": "cyqr_noise_abatement_procedures.pdf",
                 "name": "CYQR_NOISE_ABATEMENT_PROCEDURES.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_noise_abatement_procedures.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_noise_abatement_procedures.pdf",
                 "driveId": "15s_poq0nC-M1vpMAk3TkVJnBNV5r4_ud",
                 "driveUrl": "https://drive.google.com/file/d/15s_poq0nC-M1vpMAk3TkVJnBNV5r4_ud/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_noise_abatement_procedures.pdf"
         },
         {
                 "id": "cyqr_rnav_rnp_y_rwy_31.pdf",
                 "name": "CYQR_RNAV_RNP_Y_RWY_31.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_31.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_31.pdf",
                 "driveId": "190pQCMX8zXLK_dgbYLRGRbDmhs4b88qZ",
                 "driveUrl": "https://drive.google.com/file/d/190pQCMX8zXLK_dgbYLRGRbDmhs4b88qZ/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_31.pdf"
         },
         {
                 "id": "cyqr_parking_areas.pdf",
                 "name": "CYQR_PARKING_AREAS.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_parking_areas.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_parking_areas.pdf",
                 "driveId": "1-3z2yZ0cT_KPai7xbDhCuJ4XoUtN312l",
                 "driveUrl": "https://drive.google.com/file/d/1-3z2yZ0cT_KPai7xbDhCuJ4XoUtN312l/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_parking_areas.pdf"
         },
         {
                 "id": "cyqr_regina_2_dep_vector.pdf",
                 "name": "CYQR_REGINA_2_DEP_VECTOR",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector.pdf",
                 "driveId": "1ttLMUuTROKj_qU_8BzU5ouzfYdzOIqIY",
                 "driveUrl": "https://drive.google.com/file/d/1ttLMUuTROKj_qU_8BzU5ouzfYdzOIqIY/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector.pdf",
                 "pages": [
                         {
                                 "id": "cyqr_regina_2_dep_vector.pdf",
                                 "name": "CYQR_REGINA_2_DEP_VECTOR.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector.pdf",
                                 "driveId": "1ttLMUuTROKj_qU_8BzU5ouzfYdzOIqIY",
                                 "driveUrl": "https://drive.google.com/file/d/1ttLMUuTROKj_qU_8BzU5ouzfYdzOIqIY/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector.pdf"
                         },
                         {
                                 "id": "cyqr_regina_2_dep_vector_pg_02.pdf",
                                 "name": "CYQR_REGINA_2_DEP_VECTOR_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector_pg_02.pdf",
                                 "driveId": "1N7TTAezoT_9tJ2tRYSoPynGFs1vF-PDu",
                                 "driveUrl": "https://drive.google.com/file/d/1N7TTAezoT_9tJ2tRYSoPynGFs1vF-PDu/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_regina_2_dep_vector_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cyqr_rnav_gnss_z_rwy_26.pdf",
                 "name": "CYQR_RNAV_GNSS_Z_RWY_26.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_26.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_26.pdf",
                 "driveId": "1FOZoG77mq7swmFZ1JL_AwF83n-JpxCg0",
                 "driveUrl": "https://drive.google.com/file/d/1FOZoG77mq7swmFZ1JL_AwF83n-JpxCg0/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_26.pdf"
         },
         {
                 "id": "cyqr_rnav_rnp_y_rwy_26.pdf",
                 "name": "CYQR_RNAV_RNP_Y_RWY_26.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_26.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_26.pdf",
                 "driveId": "1T8G8_5SvG9SR77Xs7qpx6sC85oWCmgUi",
                 "driveUrl": "https://drive.google.com/file/d/1T8G8_5SvG9SR77Xs7qpx6sC85oWCmgUi/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_26.pdf"
         },
         {
                 "id": "cyqr_rnav_rnp_y_rwy_13.pdf",
                 "name": "CYQR_RNAV_RNP_Y_RWY_13.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_13.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_13.pdf",
                 "driveId": "17TjGuXzFYC5tLpEehu7WuTaO3tUQ0K-T",
                 "driveUrl": "https://drive.google.com/file/d/17TjGuXzFYC5tLpEehu7WuTaO3tUQ0K-T/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_13.pdf"
         },
         {
                 "id": "cyqr_rnav_rnp_y_rwy_08.pdf",
                 "name": "CYQR_RNAV_RNP_Y_RWY_08.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_08.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_08.pdf",
                 "driveId": "1iwdj4Zjr34axOd2CWWz_VEfKWSxZlHCZ",
                 "driveUrl": "https://drive.google.com/file/d/1iwdj4Zjr34axOd2CWWz_VEfKWSxZlHCZ/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_rnp_y_rwy_08.pdf"
         },
         {
                 "id": "cyqr_rnav_gnss_z_rwy_08.pdf",
                 "name": "CYQR_RNAV_GNSS_Z_RWY_08.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_08.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_08.pdf",
                 "driveId": "1G4S7N-joWALySfGEwN6e-lTlcXyWloB1",
                 "driveUrl": "https://drive.google.com/file/d/1G4S7N-joWALySfGEwN6e-lTlcXyWloB1/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_rnav_gnss_z_rwy_08.pdf"
         },
         {
                 "id": "cyqr_antos_6_arr_rnav.pdf",
                 "name": "CYQR_ANTOS_6_ARR_RNAV.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_antos_6_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_antos_6_arr_rnav.pdf",
                 "driveId": "1RUl8cpIxGzsYU8LfJSt3b67V_PTOVO4A",
                 "driveUrl": "https://drive.google.com/file/d/1RUl8cpIxGzsYU8LfJSt3b67V_PTOVO4A/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_antos_6_arr_rnav.pdf"
         },
         {
                 "id": "cyqr_gorak_2_arr_rnav.pdf",
                 "name": "CYQR_GORAK_2_ARR_RNAV.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_gorak_2_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_gorak_2_arr_rnav.pdf",
                 "driveId": "1mLFdaD7z1XQtv-ERCPl7Y4DROKMIfdqG",
                 "driveUrl": "https://drive.google.com/file/d/1mLFdaD7z1XQtv-ERCPl7Y4DROKMIfdqG/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_gorak_2_arr_rnav.pdf"
         },
         {
                 "id": "cyqr_ils_rwy_13.pdf",
                 "name": "CYQR_ILS_RWY_13.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_ils_rwy_13.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_ils_rwy_13.pdf",
                 "driveId": "1fuNUDGiRbs-gmEq_wCK8weG1HF8CgO7T",
                 "driveUrl": "https://drive.google.com/file/d/1fuNUDGiRbs-gmEq_wCK8weG1HF8CgO7T/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_ils_rwy_13.pdf"
         },
         {
                 "id": "cyqr_odgov_6_arr_rnav.pdf",
                 "name": "CYQR_ODGOV_6_ARR_RNAV.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_odgov_6_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_odgov_6_arr_rnav.pdf",
                 "driveId": "1ssMj60cxI_FU4hLANLIZwy3GtVed84-8",
                 "driveUrl": "https://drive.google.com/file/d/1ssMj60cxI_FU4hLANLIZwy3GtVed84-8/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_odgov_6_arr_rnav.pdf"
         },
         {
                 "id": "cyqr_kemka_6_arr_rnav.pdf",
                 "name": "CYQR_KEMKA_6_ARR_RNAV.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqr-regina/cyqr_kemka_6_arr_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyqr-regina/cyqr_kemka_6_arr_rnav.pdf",
                 "driveId": "1P_jPVAidQN4aLG9FDxFbOJTXNsyQa806",
                 "driveUrl": "https://drive.google.com/file/d/1P_jPVAidQN4aLG9FDxFbOJTXNsyQa806/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqr-regina/cyqr_kemka_6_arr_rnav.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};

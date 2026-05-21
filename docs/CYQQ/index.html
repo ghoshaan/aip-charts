@@ -468,6 +468,15 @@
             background: rgba(88, 166, 255, 0.3);
         }
 
+        .zoom-marquee {
+            position: absolute;
+            border: 2px dashed var(--accent);
+            background: var(--accent-glow);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
         .viewer-tip {
             position: absolute;
             bottom: 1rem;
@@ -704,10 +713,11 @@
 
                     <div id="pdfViewerContainer">
                         <div id="pdfViewer"></div>
+                        <div id="zoomMarquee" class="zoom-marquee"></div>
                     </div>
 
                     <div class="viewer-tip">
-                        <span>💡 <b>Ctrl+F</b> to search. <b>Mouse Wheel</b> to zoom.</span>
+                        <span>💡 <b>Mouse Wheel</b> to zoom. <b>Shift + Drag</b> a box to zoom into a region.</span>
                     </div>
                 </div>
             </div>
@@ -746,7 +756,7 @@
         }
     
         
-            const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec";
+            const APPS_SCRIPT_URL = "";
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             let currentPdf = null;
@@ -995,7 +1005,23 @@
                     
                     currentPdf = await loadingTask.promise;
                     loaderStatus.textContent = `INDEXING ${currentPdf.numPages} PAGE(S)...`;
-                    await renderAllPages();
+                    
+                    // Viewport width fit by default (Feature 3)
+                    try {
+                        const page = await currentPdf.getPage(1);
+                        const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+                        const fitScale = (container.clientWidth - 40) / viewport.width;
+                        const initialZoom = Math.min(Math.max(0.5, fitScale), 2.5);
+                        
+                        currentZoom = initialZoom;
+                        document.getElementById('zoomRange').value = initialZoom;
+                        document.getElementById('zoomValue').textContent = `${initialZoom.toFixed(1)}x`;
+                    } catch (zoomErr) {
+                        console.error('Fit viewport error:', zoomErr);
+                    }
+
+                    // Render pages asynchronously (Optimization 2)
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1050,7 +1076,7 @@
                         loadingTask = pdfjsLib.getDocument({ data: loadResult.data });
                     }
                     currentPdf = await loadingTask.promise;
-                    await renderAllPages();
+                    renderAllPages();
                     loader.style.display = 'none';
                     updatePageNav();
                 } catch (err) {
@@ -1122,25 +1148,8 @@
                 canvas.width = viewport.width;
                 container.appendChild(canvas);
 
-                const textLayerDiv = document.createElement('div');
-                textLayerDiv.className = 'textLayer';
-                container.appendChild(textLayerDiv);
-
                 // Render visual content
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-                // Render text layer
-                try {
-                    const textContent = await page.getTextContent();
-                    pdfjsLib.renderTextLayer({
-                        textContent: textContent,
-                        container: textLayerDiv,
-                        viewport: viewport,
-                        textDivs: []
-                    });
-                } catch (textErr) {
-                    console.error('Text layer render error:', textErr);
-                }
             }
 
             function applyVisualTransform() {
@@ -1285,7 +1294,7 @@
                         
                         const loadingTask = pdfjsLib.getDocument({ data: pdfData });
                         currentPdf = await loadingTask.promise;
-                        await renderAllPages();
+                        renderAllPages();
                         loader.style.display = 'none';
                         updatePageNav();
                     } catch (err) {
@@ -1318,6 +1327,97 @@
             document.getElementById('viewerModal').onclick = (e) => {
                 if (e.target === document.getElementById('viewerModal')) closeViewer();
             };
+
+            // Selection box zoom (Marquee Zoom) (Feature 4)
+            const marqueeContainer = document.getElementById('pdfViewerContainer');
+            const marquee = document.getElementById('zoomMarquee');
+            let isDragging = false;
+            let startXScreen = 0, startYScreen = 0;
+
+            marqueeContainer.addEventListener('mousedown', (e) => {
+                if (e.shiftKey && e.button === 0) { // Shift + Left Click
+                    const canvas = marqueeContainer.querySelector('canvas');
+                    if (!canvas) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startXScreen = e.clientX;
+                    startYScreen = e.clientY;
+
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+                    const left = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                    const top = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                    marquee.style.left = `${left}px`;
+                    marquee.style.top = `${top}px`;
+                    marquee.style.width = '0px';
+                    marquee.style.height = '0px';
+                    marquee.style.display = 'block';
+                    marqueeContainer.style.cursor = 'crosshair';
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const containerRect = marqueeContainer.getBoundingClientRect();
+                const currentX = e.clientX - containerRect.left + marqueeContainer.scrollLeft;
+                const currentY = e.clientY - containerRect.top + marqueeContainer.scrollTop;
+                const startX = startXScreen - containerRect.left + marqueeContainer.scrollLeft;
+                const startY = startYScreen - containerRect.top + marqueeContainer.scrollTop;
+
+                const left = Math.min(startX, currentX);
+                const top = Math.min(startY, currentY);
+                const width = Math.abs(startX - currentX);
+                const height = Math.abs(startY - currentY);
+
+                marquee.style.left = `${left}px`;
+                marquee.style.top = `${top}px`;
+                marquee.style.width = `${width}px`;
+                marquee.style.height = `${height}px`;
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                marquee.style.display = 'none';
+                marqueeContainer.style.cursor = '';
+
+                const canvas = marqueeContainer.querySelector('canvas');
+                if (!canvas) return;
+
+                const width = Math.abs(startXScreen - e.clientX);
+                const height = Math.abs(startYScreen - e.clientY);
+
+                // Ignore tiny clicks/drags (less than 15px)
+                if (width > 15 && height > 15) {
+                    const canvasRectOld = canvas.getBoundingClientRect();
+                    const containerRect = marqueeContainer.getBoundingClientRect();
+
+                    const selCenterX = Math.min(startXScreen, e.clientX) + width / 2;
+                    const selCenterY = Math.min(startYScreen, e.clientY) + height / 2;
+
+                    const pctX = (selCenterX - canvasRectOld.left) / canvasRectOld.width;
+                    const pctY = (selCenterY - canvasRectOld.top) / canvasRectOld.height;
+
+                    const factorX = marqueeContainer.clientWidth / width;
+                    const factorY = marqueeContainer.clientHeight / height;
+                    const factor = Math.min(factorX, factorY) * 0.95;
+
+                    const targetZoom = Math.min(Math.max(0.5, currentZoom * visualScale * factor), 4.0);
+                    const delta = targetZoom - (currentZoom * visualScale);
+                    adjustZoom(delta);
+
+                    // Align viewport scroll to center of selection
+                    const canvasRectNew = canvas.getBoundingClientRect();
+                    const newScreenCenterX = canvasRectNew.left + pctX * canvasRectNew.width;
+                    const newScreenCenterY = canvasRectNew.top + pctY * canvasRectNew.height;
+
+                    const containerScreenCenterX = containerRect.left + marqueeContainer.clientWidth / 2;
+                    const containerScreenCenterY = containerRect.top + marqueeContainer.clientHeight / 2;
+
+                    marqueeContainer.scrollLeft += (newScreenCenterX - containerScreenCenterX);
+                    marqueeContainer.scrollTop += (newScreenCenterY - containerScreenCenterY);
+                }
+            });
         
         
         const airportCtx = {
@@ -1345,248 +1445,248 @@
         {
                 "id": ".DS_Store",
                 "name": ".DS_Store",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/.DS_Store",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/.DS_Store",
                 "driveId": "112v0EwzarNqES-WRpVrf1GNaKuyHnr95",
                 "driveUrl": "https://drive.google.com/file/d/112v0EwzarNqES-WRpVrf1GNaKuyHnr95/view?usp=drivesdk",
                 "type": "doc",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/.DS_Store"
         },
         {
                 "id": "cyqq_saratoga_1_dep_dnd_rnav.pdf",
                 "name": "CYQQ_SARATOGA_1_DEP_DND_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_saratoga_1_dep_dnd_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_saratoga_1_dep_dnd_rnav.pdf",
                 "driveId": "1codvlM8apZZMokXgg7JZmZxoRpJO2m3i",
                 "driveUrl": "https://drive.google.com/file/d/1codvlM8apZZMokXgg7JZmZxoRpJO2m3i/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_saratoga_1_dep_dnd_rnav.pdf",
                 "pages": [
                         {
                                 "id": "cyqq_saratoga_1_dep_dnd_rnav.pdf",
                                 "name": "CYQQ_SARATOGA_1_DEP_DND_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_saratoga_1_dep_dnd_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_saratoga_1_dep_dnd_rnav.pdf",
                                 "driveId": "1codvlM8apZZMokXgg7JZmZxoRpJO2m3i",
                                 "driveUrl": "https://drive.google.com/file/d/1codvlM8apZZMokXgg7JZmZxoRpJO2m3i/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_saratoga_1_dep_dnd_rnav.pdf"
                         },
                         {
                                 "id": "cyqq_saratoga_1_dep_dnd_rnav_pg_02.pdf",
                                 "name": "CYQQ_SARATOGA_1_DEP_DND_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_saratoga_1_dep_dnd_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_saratoga_1_dep_dnd_rnav_pg_02.pdf",
                                 "driveId": "1MJj3mFAI69JM4Ng4gWqt0bYZRRuKyxeR",
                                 "driveUrl": "https://drive.google.com/file/d/1MJj3mFAI69JM4Ng4gWqt0bYZRRuKyxeR/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_saratoga_1_dep_dnd_rnav_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cyqq_ils_z_rwy_30_dnd.pdf",
                 "name": "CYQQ_ILS_Z_RWY_30_DND.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_z_rwy_30_dnd.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_z_rwy_30_dnd.pdf",
                 "driveId": "15ImpaXWFhuEXqTAckfJabeAAfy4cKNTt",
                 "driveUrl": "https://drive.google.com/file/d/15ImpaXWFhuEXqTAckfJabeAAfy4cKNTt/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_z_rwy_30_dnd.pdf"
         },
         {
                 "id": "cyqq_tacan_z_rwy_30_dnd.pdf",
                 "name": "CYQQ_TACAN_Z_RWY_30_DND.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_tacan_z_rwy_30_dnd.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_tacan_z_rwy_30_dnd.pdf",
                 "driveId": "1iYjUrQt4vAtms4GzDaenLF9Y45-iV-LB",
                 "driveUrl": "https://drive.google.com/file/d/1iYjUrQt4vAtms4GzDaenLF9Y45-iV-LB/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_tacan_z_rwy_30_dnd.pdf"
         },
         {
                 "id": "cyqq_rnav_gnss_z_rwy_12_dnd.pdf",
                 "name": "CYQQ_RNAV_GNSS_Z_RWY_12_DND.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_gnss_z_rwy_12_dnd.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_gnss_z_rwy_12_dnd.pdf",
                 "driveId": "1d3vWKcLgduc0rPDS9lEyxo9DjoAjQ9zv",
                 "driveUrl": "https://drive.google.com/file/d/1d3vWKcLgduc0rPDS9lEyxo9DjoAjQ9zv/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_gnss_z_rwy_12_dnd.pdf"
         },
         {
                 "id": "cyqq_rnav_gnss_z_rwy_30_dnd.pdf",
                 "name": "CYQQ_RNAV_GNSS_Z_RWY_30_DND.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_gnss_z_rwy_30_dnd.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_gnss_z_rwy_30_dnd.pdf",
                 "driveId": "1pag0rhXTZcKXcq58fpW1F4syQwfDYtOK",
                 "driveUrl": "https://drive.google.com/file/d/1pag0rhXTZcKXcq58fpW1F4syQwfDYtOK/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_gnss_z_rwy_30_dnd.pdf"
         },
         {
                 "id": "cyqq_rnav_rnp_y_rwy_30.pdf",
                 "name": "CYQQ_RNAV_RNP_Y_RWY_30.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_rnp_y_rwy_30.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_rnp_y_rwy_30.pdf",
                 "driveId": "1vyPndFjEbRvUr3kp2vXZBkTpJJOiEms8",
                 "driveUrl": "https://drive.google.com/file/d/1vyPndFjEbRvUr3kp2vXZBkTpJJOiEms8/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_rnp_y_rwy_30.pdf"
         },
         {
                 "id": "cyqq_lazo_3_dep_dnd_vector.pdf",
                 "name": "CYQQ_LAZO_3_DEP_DND_VECTOR",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_lazo_3_dep_dnd_vector.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_lazo_3_dep_dnd_vector.pdf",
                 "driveId": "1Mtd6Q-x7pf88BRT0TSRBdP8GSYG5CY2E",
                 "driveUrl": "https://drive.google.com/file/d/1Mtd6Q-x7pf88BRT0TSRBdP8GSYG5CY2E/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_lazo_3_dep_dnd_vector.pdf",
                 "pages": [
                         {
                                 "id": "cyqq_lazo_3_dep_dnd_vector.pdf",
                                 "name": "CYQQ_LAZO_3_DEP_DND_VECTOR.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_lazo_3_dep_dnd_vector.pdf",
+                                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_lazo_3_dep_dnd_vector.pdf",
                                 "driveId": "1Mtd6Q-x7pf88BRT0TSRBdP8GSYG5CY2E",
                                 "driveUrl": "https://drive.google.com/file/d/1Mtd6Q-x7pf88BRT0TSRBdP8GSYG5CY2E/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_lazo_3_dep_dnd_vector.pdf"
                         },
                         {
                                 "id": "cyqq_lazo_3_dep_dnd_vector_pg_02.pdf",
                                 "name": "CYQQ_LAZO_3_DEP_DND_VECTOR_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_lazo_3_dep_dnd_vector_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_lazo_3_dep_dnd_vector_pg_02.pdf",
                                 "driveId": "1ZSqVTFz-6lfx_xO_V6s_PW391-CybIg_",
                                 "driveUrl": "https://drive.google.com/file/d/1ZSqVTFz-6lfx_xO_V6s_PW391-CybIg_/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_lazo_3_dep_dnd_vector_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cyqq_rnav_rnp_y_rwy_18.pdf",
                 "name": "CYQQ_RNAV_RNP_Y_RWY_18.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_rnp_y_rwy_18.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_rnp_y_rwy_18.pdf",
                 "driveId": "1TELIF2ePzWGAhGaNG5IMTXez2Z_Xu8UV",
                 "driveUrl": "https://drive.google.com/file/d/1TELIF2ePzWGAhGaNG5IMTXez2Z_Xu8UV/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_rnp_y_rwy_18.pdf"
         },
         {
                 "id": "cyqq_rnav_rnp_y_rwy_12.pdf",
                 "name": "CYQQ_RNAV_RNP_Y_RWY_12.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_rnp_y_rwy_12.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_rnp_y_rwy_12.pdf",
                 "driveId": "1GlkYdD77r54Ia6n_qByE-sCem9X2CqmF",
                 "driveUrl": "https://drive.google.com/file/d/1GlkYdD77r54Ia6n_qByE-sCem9X2CqmF/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_rnav_rnp_y_rwy_12.pdf"
         },
         {
                 "id": "cyqq_ils_y_rwy_30_dnd.pdf",
                 "name": "CYQQ_ILS_Y_RWY_30_DND.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_y_rwy_30_dnd.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_y_rwy_30_dnd.pdf",
                 "driveId": "1oDW_LzGuKrXwPs8AzplwINtHFn-fk63Q",
                 "driveUrl": "https://drive.google.com/file/d/1oDW_LzGuKrXwPs8AzplwINtHFn-fk63Q/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_y_rwy_30_dnd.pdf"
         },
         {
                 "id": "cyqq_tacan_z_rwy_12_dnd.pdf",
                 "name": "CYQQ_TACAN_Z_RWY_12_DND.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_tacan_z_rwy_12_dnd.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_tacan_z_rwy_12_dnd.pdf",
                 "driveId": "1JTSvy9BeHzIm8qnzzevxPYRfCPA71Ks3",
                 "driveUrl": "https://drive.google.com/file/d/1JTSvy9BeHzIm8qnzzevxPYRfCPA71Ks3/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_tacan_z_rwy_12_dnd.pdf"
         },
         {
                 "id": "cyqq_aerodrome_chart_dnd.pdf",
                 "name": "CYQQ_AERODROME_CHART_DND.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_aerodrome_chart_dnd.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_aerodrome_chart_dnd.pdf",
                 "driveId": "1fNPizCRkiwAZpipei_jGZlhSXkp5BbWx",
                 "driveUrl": "https://drive.google.com/file/d/1fNPizCRkiwAZpipei_jGZlhSXkp5BbWx/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_aerodrome_chart_dnd.pdf"
         },
         {
                 "id": "cyqq_hornby_2_dep_dnd_rnav.pdf",
                 "name": "CYQQ_HORNBY_2_DEP_DND_RNAV",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hornby_2_dep_dnd_rnav.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hornby_2_dep_dnd_rnav.pdf",
                 "driveId": "1WSZEeRwU6Mhf79sr3PWfGnb7fzMlzj3z",
                 "driveUrl": "https://drive.google.com/file/d/1WSZEeRwU6Mhf79sr3PWfGnb7fzMlzj3z/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#",
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hornby_2_dep_dnd_rnav.pdf",
                 "pages": [
                         {
                                 "id": "cyqq_hornby_2_dep_dnd_rnav.pdf",
                                 "name": "CYQQ_HORNBY_2_DEP_DND_RNAV.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hornby_2_dep_dnd_rnav.pdf",
+                                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hornby_2_dep_dnd_rnav.pdf",
                                 "driveId": "1WSZEeRwU6Mhf79sr3PWfGnb7fzMlzj3z",
                                 "driveUrl": "https://drive.google.com/file/d/1WSZEeRwU6Mhf79sr3PWfGnb7fzMlzj3z/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hornby_2_dep_dnd_rnav.pdf"
                         },
                         {
                                 "id": "cyqq_hornby_2_dep_dnd_rnav_pg_02.pdf",
                                 "name": "CYQQ_HORNBY_2_DEP_DND_RNAV_PG_02.pdf",
-                                "url": "#",
-                                "localUrl": "#",
+                                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hornby_2_dep_dnd_rnav_pg_02.pdf",
+                                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hornby_2_dep_dnd_rnav_pg_02.pdf",
                                 "driveId": "1RA_CHXFwinKqzOQsQnjrogkm9dk3XyaX",
                                 "driveUrl": "https://drive.google.com/file/d/1RA_CHXFwinKqzOQsQnjrogkm9dk3XyaX/view?usp=drivesdk",
                                 "type": "pdf",
-                                "rootUrl": "#"
+                                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hornby_2_dep_dnd_rnav_pg_02.pdf"
                         }
                 ]
         },
         {
                 "id": "cyqq_hi-tacan_y_rwy_12_dnd.pdf",
                 "name": "CYQQ_HI-TACAN_Y_RWY_12_DND.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hi-tacan_y_rwy_12_dnd.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hi-tacan_y_rwy_12_dnd.pdf",
                 "driveId": "1ruDTTsQREdzb92rGiVrDCYijB-cLt9Ax",
                 "driveUrl": "https://drive.google.com/file/d/1ruDTTsQREdzb92rGiVrDCYijB-cLt9Ax/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hi-tacan_y_rwy_12_dnd.pdf"
         },
         {
                 "id": "cyqq_ils_z_rwy_12_dnd.pdf",
                 "name": "CYQQ_ILS_Z_RWY_12_DND.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_z_rwy_12_dnd.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_z_rwy_12_dnd.pdf",
                 "driveId": "1imzLo6BFkzg44PA233OHY6YxKvG2_dAP",
                 "driveUrl": "https://drive.google.com/file/d/1imzLo6BFkzg44PA233OHY6YxKvG2_dAP/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_z_rwy_12_dnd.pdf"
         },
         {
                 "id": "cyqq_ils_y_rwy_12_dnd.pdf",
                 "name": "CYQQ_ILS_Y_RWY_12_DND.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_y_rwy_12_dnd.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_y_rwy_12_dnd.pdf",
                 "driveId": "1A0PltVTeui7-0m-kImjudglIz1enBdq8",
                 "driveUrl": "https://drive.google.com/file/d/1A0PltVTeui7-0m-kImjudglIz1enBdq8/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_ils_y_rwy_12_dnd.pdf"
         },
         {
                 "id": "cyqq_hi-tacan_y_rwy_30_dnd.pdf",
                 "name": "CYQQ_HI-TACAN_Y_RWY_30_DND.pdf",
-                "url": "#",
-                "localUrl": "#",
+                "url": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hi-tacan_y_rwy_30_dnd.pdf",
+                "localUrl": "../charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hi-tacan_y_rwy_30_dnd.pdf",
                 "driveId": "1GkKFaMuXs7ynORHgENGHgkaiSz1x7Zf5",
                 "driveUrl": "https://drive.google.com/file/d/1GkKFaMuXs7ynORHgENGHgkaiSz1x7Zf5/view?usp=drivesdk",
                 "type": "pdf",
-                "rootUrl": "#"
+                "rootUrl": "charts_data/canada/cyqq-cfb-comox-or-19-wing/cyqq_hi-tacan_y_rwy_30_dnd.pdf"
         }
 ];
         const fileIcons = {pdf: '📄', image: '🖼️', doc: '📝'};
