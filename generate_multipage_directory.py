@@ -46,8 +46,8 @@ CHARTS_DOWNLOAD_DIR = os.path.join(OUTPUT_DIR, 'charts_data')
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 
 DOWNLOAD_CHARTS = os.environ.get('DOWNLOAD_CHARTS', 'true').lower() == 'true'
-APPS_SCRIPT_URL = os.environ.get('APPS_SCRIPT_URL', '')
-GENERATOR_VERSION = 'v3'
+APPS_SCRIPT_URL = os.environ.get('APPS_SCRIPT_URL', 'https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec')
+GENERATOR_VERSION = 'v4'
 
 # Region icons (add more as needed)
 REGION_ICONS = {
