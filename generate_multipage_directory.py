@@ -47,7 +47,7 @@ SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 
 DOWNLOAD_CHARTS = os.environ.get('DOWNLOAD_CHARTS', 'true').lower() == 'true'
 APPS_SCRIPT_URL = os.environ.get('APPS_SCRIPT_URL', 'https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec')
-GENERATOR_VERSION = 'v4'
+GENERATOR_VERSION = 'v5'
 
 # Region icons (add more as needed)
 REGION_ICONS = {
@@ -2520,6 +2520,39 @@ def get_viewer_js():
                 }
             }
 
+            function getViewerContentWidth() {
+                const modal = document.getElementById('viewerModal');
+                if (!modal) return window.innerWidth;
+                const modalWidth = modal.clientWidth || window.innerWidth;
+                
+                const sidebar = document.getElementById('viewerSidebar');
+                const hasSidebar = sidebar && sidebar.style.display !== 'none';
+                const sidebarWidth = (hasSidebar && sidebarOpen) ? 280 : 0;
+                
+                return modalWidth - sidebarWidth;
+            }
+
+            async function fitToWidth() {
+                if (!currentPdf) return;
+                try {
+                    const page = await currentPdf.getPage(1);
+                    const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+                    const contentWidth = getViewerContentWidth();
+                    const fitScale = (contentWidth - 40) / viewport.width;
+                    const newZoom = Math.min(Math.max(0.5, fitScale), 2.5);
+                    
+                    currentZoom = newZoom;
+                    visualScale = 1.0;
+                    
+                    document.getElementById('zoomRange').value = newZoom;
+                    document.getElementById('zoomValue').textContent = `${newZoom.toFixed(1)}x`;
+                    
+                    await updateZoomQuality();
+                } catch (err) {
+                    console.error('fitToWidth error:', err);
+                }
+            }
+
             function populateSidebar(activeId) {
                 const sidebarList = document.getElementById('sidebarList');
                 const sidebarCount = document.getElementById('sidebarCount');
@@ -2545,7 +2578,7 @@ def get_viewer_js():
                     const item = document.createElement('div');
                     item.className = 'sidebar-item' + (file.id === activeId ? ' active' : '');
                     item.title = file.name;
-                    item.textContent = file.name.replace(/\.[^.]+$/, '');
+                    item.textContent = file.name.replace(/\\.[^.]+$/, '');
                     item.onclick = () => {
                         if (file.id !== currentFileId) {
                             openViewer(file.id, file.name, file.url, file.localUrl, false,
@@ -2650,7 +2683,8 @@ def get_viewer_js():
                     try {
                         const page = await currentPdf.getPage(1);
                         const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
-                        const fitScale = (container.clientWidth - 40) / viewport.width;
+                        const contentWidth = getViewerContentWidth();
+                        const fitScale = (contentWidth - 40) / viewport.width;
                         const initialZoom = Math.min(Math.max(0.5, fitScale), 2.5);
                         
                         currentZoom = initialZoom;
@@ -2760,6 +2794,21 @@ def get_viewer_js():
 
             window.addEventListener('hashchange', checkHash);
             window.addEventListener('DOMContentLoaded', () => setTimeout(checkHash, 500));
+
+            // Debounce function for resize event
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+
+            window.addEventListener('resize', debounce(() => {
+                if (document.getElementById('viewerModal').style.display === 'flex') {
+                    fitToWidth();
+                }
+            }, 150));
 
             async function renderAllPages() {
                 const container = document.getElementById('pdfViewer');
@@ -2875,6 +2924,7 @@ def get_viewer_js():
                 sidebarOpen = !sidebarOpen;
                 localStorage.setItem(SIDEBAR_KEY, sidebarOpen);
                 applySidebarState();
+                fitToWidth();
             };
 
             document.getElementById('prevPageBtn').onclick = () => goToFilePage(-1);
@@ -2957,11 +3007,7 @@ def get_viewer_js():
 
             document.getElementById('resetBtn').onclick = async () => {
                 currentRotation = 0;
-                currentZoom = 1.5;
-                visualScale = 1.0;
-                document.getElementById('zoomRange').value = 1.5;
-                document.getElementById('zoomValue').textContent = '1.5x';
-                await renderAllPages();
+                await fitToWidth();
             };
 
             document.getElementById('viewerModal').onclick = (e) => {
