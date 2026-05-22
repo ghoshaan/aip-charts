@@ -651,16 +651,76 @@
             transition: transform 0.2s;
         }
         
-        .waypoints-list {
+        .waypoints-card-content {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        
+        .waypoints-section.collapsed .waypoints-card-content {
+            display: none;
+        }
+        
+        .waypoints-subheader {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin: 0;
+            letter-spacing: 0.05em;
+        }
+        
+        .waypoints-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 0.75rem;
-            padding: 1rem;
-            border-top: 1px solid var(--border);
         }
         
-        .waypoints-section.collapsed .waypoints-list {
-            display: none;
+        .procedures-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .procedure-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.15s;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        
+        .procedure-badge:hover {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        .procedure-badge.route {
+            border-color: rgba(52, 152, 219, 0.3);
+        }
+        
+        .procedure-badge.route:hover {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: #3498db;
+            color: #3498db;
+        }
+        
+        .procedure-badge.heli {
+            border-color: rgba(155, 89, 182, 0.3);
+        }
+        
+        .procedure-badge.heli:hover {
+            background: rgba(155, 89, 182, 0.1);
+            border-color: #9b59b6;
+            color: #9b59b6;
         }
         
         .waypoint-item {
@@ -778,164 +838,171 @@
                         <h2>🧭 Visual Waypoints</h2>
                         <span class="toggle-icon">▶</span>
                     </div>
-                    <div class="waypoints-list">
+                    <div class="waypoints-card-content">
                         
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">BELLS CORNERS</span>
-                                <span class="waypoint-ident">VCBCR</span>
+                    <div class="waypoints-subheader">Waypoints</div>
+                    <div class="waypoints-grid">
+                        
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">BELLS CORNERS</span>
+                                    <span class="waypoint-ident">VCBCR</span>
+                                </div>
+                                <div class="waypoint-coords">45.3200° N, 75.8333° W</div>
                             </div>
-                            <div class="waypoint-coords">45.3200° N, 75.8333° W</div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.32,-75.833333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
                         </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.32,-75.833333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">CENTURY</span>
+                                    <span class="waypoint-ident">VCNTY</span>
+                                </div>
+                                <div class="waypoint-coords">45.1894° N, 75.7211° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.189444,-75.721111" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">CHAMPLAIN BRIDGE</span>
+                                    <span class="waypoint-ident">VCCHB</span>
+                                </div>
+                                <div class="waypoint-coords">45.4083° N, 75.7583° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.408333,-75.758333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">CHELSEA DAM</span>
+                                    <span class="waypoint-ident">VCHEL</span>
+                                </div>
+                                <div class="waypoint-coords">45.5133° N, 75.7756° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.513333,-75.775556" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">CONSTANCE LAKE</span>
+                                    <span class="waypoint-ident">VCCON</span>
+                                </div>
+                                <div class="waypoint-coords">45.4167° N, 75.9833° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.416667,-75.983333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">CUMBERLAND</span>
+                                    <span class="waypoint-ident">VCMBL</span>
+                                </div>
+                                <div class="waypoint-coords">45.5167° N, 75.4100° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.516667,-75.41" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">DESCHENES QUARRY</span>
+                                    <span class="waypoint-ident">VCQRY</span>
+                                </div>
+                                <div class="waypoint-coords">45.4300° N, 75.8200° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.43,-75.82" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">EDWARDS</span>
+                                    <span class="waypoint-ident">VCEDW</span>
+                                </div>
+                                <div class="waypoint-coords">45.3231° N, 75.4661° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.323056,-75.466111" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">INNES</span>
+                                    <span class="waypoint-ident">VCINS</span>
+                                </div>
+                                <div class="waypoint-coords">45.4236° N, 75.5797° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.423611,-75.579722" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">LAC MCGREGOR</span>
+                                    <span class="waypoint-ident">VCPOU</span>
+                                </div>
+                                <div class="waypoint-coords">45.6436° N, 75.6478° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.643611,-75.647778" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">ORLEANS</span>
+                                    <span class="waypoint-ident">VCORL</span>
+                                </div>
+                                <div class="waypoint-coords">45.4761° N, 75.5242° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.476111,-75.524167" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">RUSSELL</span>
+                                    <span class="waypoint-ident">VCRSL</span>
+                                </div>
+                                <div class="waypoint-coords">45.2575° N, 75.3667° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.2575,-75.366667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">THURSO</span>
+                                    <span class="waypoint-ident">VCGUY</span>
+                                </div>
+                                <div class="waypoint-coords">45.5986° N, 75.2453° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=45.598611,-75.245278" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">CENTURY</span>
-                                <span class="waypoint-ident">VCNTY</span>
-                            </div>
-                            <div class="waypoint-coords">45.1894° N, 75.7211° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.189444,-75.721111" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">CHAMPLAIN BRIDGE</span>
-                                <span class="waypoint-ident">VCCHB</span>
-                            </div>
-                            <div class="waypoint-coords">45.4083° N, 75.7583° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.408333,-75.758333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">CHELSEA DAM</span>
-                                <span class="waypoint-ident">VCHEL</span>
-                            </div>
-                            <div class="waypoint-coords">45.5133° N, 75.7756° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.513333,-75.775556" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">CONSTANCE LAKE</span>
-                                <span class="waypoint-ident">VCCON</span>
-                            </div>
-                            <div class="waypoint-coords">45.4167° N, 75.9833° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.416667,-75.983333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">CUMBERLAND</span>
-                                <span class="waypoint-ident">VCMBL</span>
-                            </div>
-                            <div class="waypoint-coords">45.5167° N, 75.4100° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.516667,-75.41" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">DESCHENES QUARRY</span>
-                                <span class="waypoint-ident">VCQRY</span>
-                            </div>
-                            <div class="waypoint-coords">45.4300° N, 75.8200° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.43,-75.82" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">EDWARDS</span>
-                                <span class="waypoint-ident">VCEDW</span>
-                            </div>
-                            <div class="waypoint-coords">45.3231° N, 75.4661° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.323056,-75.466111" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">INNES</span>
-                                <span class="waypoint-ident">VCINS</span>
-                            </div>
-                            <div class="waypoint-coords">45.4236° N, 75.5797° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.423611,-75.579722" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">LAC MCGREGOR</span>
-                                <span class="waypoint-ident">VCPOU</span>
-                            </div>
-                            <div class="waypoint-coords">45.6436° N, 75.6478° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.643611,-75.647778" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">ORLEANS</span>
-                                <span class="waypoint-ident">VCORL</span>
-                            </div>
-                            <div class="waypoint-coords">45.4761° N, 75.5242° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.476111,-75.524167" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">RUSSELL</span>
-                                <span class="waypoint-ident">VCRSL</span>
-                            </div>
-                            <div class="waypoint-coords">45.2575° N, 75.3667° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.2575,-75.366667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">THURSO</span>
-                                <span class="waypoint-ident">VCGUY</span>
-                            </div>
-                            <div class="waypoint-coords">45.5986° N, 75.2453° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=45.598611,-75.245278" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
+                        
+                        
+                        
                     </div>
                 </div>
             </div>
@@ -1350,31 +1417,13 @@
                     }
 
                     container.innerHTML = '';
-                    let rowsHtml = '';
+                    
                     const wps = (typeof airportWaypoints !== 'undefined') ? airportWaypoints : [];
-                    wps.forEach(wp => {
-                        const latHemi = wp.latitude >= 0 ? 'N' : 'S';
-                        const lonHemi = wp.longitude >= 0 ? 'E' : 'W';
-                        const latStr = `${Math.abs(wp.latitude).toFixed(4)}° ${latHemi}`;
-                        const lonStr = `${Math.abs(wp.longitude).toFixed(4)}° ${lonHemi}`;
-                        const coords = `${latStr}, ${lonStr}`;
-                        const gmaps_url = `https://www.google.com/maps/search/?api=1&query=${wp.latitude},${wp.longitude}`;
-                        
-                        rowsHtml += `
-                            <tr>
-                                <td><span class="wp-name">${wp.name}</span></td>
-                                <td><span class="wp-ident">${wp.ident}</span></td>
-                                <td><span class="wp-coords">${coords}</span></td>
-                                <td>
-                                    <div class="wp-actions">
-                                        <a href="${gmaps_url}" target="_blank" class="wp-btn">Google Maps</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
-
-                    container.innerHTML = `
+                    const routes = (typeof airportVfrRoutes !== 'undefined') ? airportVfrRoutes : [];
+                    const heliRoutes = (typeof airportHeliRoutes !== 'undefined') ? airportHeliRoutes : [];
+                    const procedures = (typeof airportVfrProcedures !== 'undefined') ? airportVfrProcedures : [];
+                    
+                    let viewerHtml = `
                         <div class="waypoints-viewer-container">
                             <style>
                                 .waypoints-viewer-container {
@@ -1392,6 +1441,9 @@
                                     margin-bottom: 1.5rem;
                                     border-bottom: 1px solid var(--border);
                                     padding-bottom: 1rem;
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
                                 }
                                 .waypoints-viewer-header h3 {
                                     font-family: 'Rajdhani', sans-serif;
@@ -1405,6 +1457,7 @@
                                     border-collapse: collapse;
                                     text-align: left;
                                     margin-top: 1rem;
+                                    margin-bottom: 2rem;
                                 }
                                 .waypoints-table th, .waypoints-table td {
                                     padding: 0.75rem 1rem;
@@ -1456,7 +1509,103 @@
                                     background: var(--accent);
                                     color: var(--bg);
                                 }
+                                
+                                .viewer-procedures-section {
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 1.5rem;
+                                    margin-top: 1.5rem;
+                                    padding-top: 1.5rem;
+                                    border-top: 1px solid var(--border);
+                                }
+                                .viewer-procedure-group {
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 0.75rem;
+                                }
+                                .viewer-procedure-group h4 {
+                                    font-family: 'Rajdhani', sans-serif;
+                                    font-size: 1.2rem;
+                                    color: var(--accent);
+                                    text-transform: uppercase;
+                                    margin: 0;
+                                    letter-spacing: 0.05em;
+                                }
+                                .viewer-procedure-list {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 0.5rem;
+                                }
+                                .viewer-procedure-badge {
+                                    background: rgba(255, 255, 255, 0.03);
+                                    border: 1px solid var(--border);
+                                    color: var(--text);
+                                    padding: 0.4rem 0.8rem;
+                                    border-radius: 4px;
+                                    font-size: 0.8rem;
+                                    font-weight: 600;
+                                    transition: all 0.15s;
+                                }
+                                .viewer-procedure-badge:hover {
+                                    background: var(--accent-glow);
+                                    border-color: var(--accent);
+                                    color: var(--accent);
+                                }
+                                .viewer-procedure-badge.route {
+                                    border-color: rgba(52, 152, 219, 0.3);
+                                }
+                                .viewer-procedure-badge.route:hover {
+                                    background: rgba(52, 152, 219, 0.1);
+                                    border-color: #3498db;
+                                    color: #3498db;
+                                }
+                                .viewer-procedure-badge.heli {
+                                    border-color: rgba(155, 89, 182, 0.3);
+                                }
+                                .viewer-procedure-badge.heli:hover {
+                                    background: rgba(155, 89, 182, 0.1);
+                                    border-color: #9b59b6;
+                                    color: #9b59b6;
+                                }
                             </style>
+                    `;
+                    
+                    if (wps.length > 0) {
+                        let rowsHtml = '';
+                        wps.forEach(wp => {
+                            const hasCoords = wp.latitude !== null && wp.latitude !== undefined && wp.longitude !== null && wp.longitude !== undefined;
+                            let coords = 'No Coordinates';
+                            let gmaps_url = '#';
+                            let gmaps_link_style = '';
+                            let gmaps_onclick = '';
+                            if (hasCoords) {
+                                const latHemi = wp.latitude >= 0 ? 'N' : 'S';
+                                const lonHemi = wp.longitude >= 0 ? 'E' : 'W';
+                                const latStr = `${Math.abs(wp.latitude).toFixed(4)}° ${latHemi}`;
+                                const lonStr = `${Math.abs(wp.longitude).toFixed(4)}° ${lonHemi}`;
+                                coords = `${latStr}, ${lonStr}`;
+                                gmaps_url = `https://www.google.com/maps/search/?api=1&query=${wp.latitude},${wp.longitude}`;
+                            } else {
+                                gmaps_link_style = 'style="opacity: 0.5; cursor: not-allowed; pointer-events: none;"';
+                                gmaps_onclick = 'onclick="event.preventDefault();"';
+                            }
+                            const wpIdent = wp.ident || '';
+                            
+                            rowsHtml += `
+                                <tr>
+                                    <td><span class="wp-name">${wp.name}</span></td>
+                                    <td><span class="wp-ident">${wpIdent}</span></td>
+                                    <td><span class="wp-coords">${coords}</span></td>
+                                    <td>
+                                        <div class="wp-actions">
+                                            <a href="${gmaps_url}" target="_blank" class="wp-btn" ${gmaps_link_style} ${gmaps_onclick}>Google Maps</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        
+                        viewerHtml += `
                             <div class="waypoints-viewer-header">
                                 <h3>🧭 Visual Waypoints</h3>
                             </div>
@@ -1470,12 +1619,61 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${rowsHtml || '<tr><td colspan="4" style="text-align:center; color:var(--text-dim);">No waypoints found for this airport.</td></tr>'}
+                                    ${rowsHtml}
                                 </tbody>
                             </table>
+                        `;
+                    }
+                    
+                    if (procedures.length > 0 || routes.length > 0 || heliRoutes.length > 0) {
+                        let borderStyle = wps.length > 0 ? '' : 'style="border-top:none; margin-top:0; padding-top:0;"';
+                        viewerHtml += `
+                            <div class="viewer-procedures-section" ${borderStyle}>
+                        `;
+                        
+                        if (procedures.length > 0) {
+                            viewerHtml += `
+                                <div class="viewer-procedure-group">
+                                    <h4>✈️ VFR Procedures</h4>
+                                    <div class="viewer-procedure-list">
+                                        ${procedures.map(p => `<span class="viewer-procedure-badge">${p}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (routes.length > 0) {
+                            viewerHtml += `
+                                <div class="viewer-procedure-group">
+                                    <h4>🛣️ VFR Routes</h4>
+                                    <div class="viewer-procedure-list">
+                                        ${routes.map(r => `<span class="viewer-procedure-badge route">${r}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (heliRoutes.length > 0) {
+                            viewerHtml += `
+                                <div class="viewer-procedure-group">
+                                    <h4>🚁 Helicopter Routes</h4>
+                                    <div class="viewer-procedure-list">
+                                        ${heliRoutes.map(h => `<span class="viewer-procedure-badge heli">${h}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        viewerHtml += `
+                            </div>
+                        `;
+                    }
+                    
+                    viewerHtml += `
                         </div>
                     `;
                     
+                    container.innerHTML = viewerHtml;
                     loader.style.display = 'none';
                     return;
                 } else {
@@ -1947,6 +2145,9 @@
             region: 'CANADA'
         };
         const airportWaypoints = [{"name": "BELLS CORNERS", "ident": "VCBCR", "latitude": 45.32, "longitude": -75.833333}, {"name": "CENTURY", "ident": "VCNTY", "latitude": 45.189444, "longitude": -75.721111}, {"name": "CHAMPLAIN BRIDGE", "ident": "VCCHB", "latitude": 45.408333, "longitude": -75.758333}, {"name": "CHELSEA DAM", "ident": "VCHEL", "latitude": 45.513333, "longitude": -75.775556}, {"name": "CONSTANCE LAKE", "ident": "VCCON", "latitude": 45.416667, "longitude": -75.983333}, {"name": "CUMBERLAND", "ident": "VCMBL", "latitude": 45.516667, "longitude": -75.41}, {"name": "DESCHENES QUARRY", "ident": "VCQRY", "latitude": 45.43, "longitude": -75.82}, {"name": "EDWARDS", "ident": "VCEDW", "latitude": 45.323056, "longitude": -75.466111}, {"name": "INNES", "ident": "VCINS", "latitude": 45.423611, "longitude": -75.579722}, {"name": "LAC MCGREGOR", "ident": "VCPOU", "latitude": 45.643611, "longitude": -75.647778}, {"name": "ORLEANS", "ident": "VCORL", "latitude": 45.476111, "longitude": -75.524167}, {"name": "RUSSELL", "ident": "VCRSL", "latitude": 45.2575, "longitude": -75.366667}, {"name": "THURSO", "ident": "VCGUY", "latitude": 45.598611, "longitude": -75.245278}];
+        const airportVfrRoutes = [];
+        const airportHeliRoutes = [];
+        const airportVfrProcedures = [];
 
         const pinAirportBtn = document.getElementById('pinAirportBtn');
         const updateAirportPinState = () => {
@@ -1965,7 +2166,7 @@
         const files = [
         {
                 "id": "visual-waypoints",
-                "name": "Visual Waypoints (BELLS CORNERS [VCBCR], CENTURY [VCNTY], CHAMPLAIN BRIDGE [VCCHB], CHELSEA DAM [VCHEL], CONSTANCE LAKE [VCCON], CUMBERLAND [VCMBL], DESCHENES QUARRY [VCQRY], EDWARDS [VCEDW], INNES [VCINS], LAC MCGREGOR [VCPOU], ORLEANS [VCORL], RUSSELL [VCRSL], THURSO [VCGUY])",
+                "name": "Visual Waypoints & Procedures (Waypoints: BELLS CORNERS, CENTURY, CHAMPLAIN BRIDGE, CHELSEA DAM, CONSTANCE LAKE, CUMBERLAND, DESCHENES QUARRY, EDWAR...)",
                 "type": "waypoints",
                 "url": "#",
                 "localUrl": "#",

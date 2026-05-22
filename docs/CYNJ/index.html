@@ -651,16 +651,76 @@
             transition: transform 0.2s;
         }
         
-        .waypoints-list {
+        .waypoints-card-content {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        
+        .waypoints-section.collapsed .waypoints-card-content {
+            display: none;
+        }
+        
+        .waypoints-subheader {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin: 0;
+            letter-spacing: 0.05em;
+        }
+        
+        .waypoints-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 0.75rem;
-            padding: 1rem;
-            border-top: 1px solid var(--border);
         }
         
-        .waypoints-section.collapsed .waypoints-list {
-            display: none;
+        .procedures-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .procedure-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.15s;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        
+        .procedure-badge:hover {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        .procedure-badge.route {
+            border-color: rgba(52, 152, 219, 0.3);
+        }
+        
+        .procedure-badge.route:hover {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: #3498db;
+            color: #3498db;
+        }
+        
+        .procedure-badge.heli {
+            border-color: rgba(155, 89, 182, 0.3);
+        }
+        
+        .procedure-badge.heli:hover {
+            background: rgba(155, 89, 182, 0.1);
+            border-color: #9b59b6;
+            color: #9b59b6;
         }
         
         .waypoint-item {
@@ -775,190 +835,205 @@
             <div class="waypoints-section collapsed">
                 <div class="waypoints-card">
                     <div class="waypoints-card-header" onclick="toggleWaypoints()">
-                        <h2>🧭 Visual Waypoints</h2>
+                        <h2>🧭 Visual Waypoints & VFR Procedures</h2>
                         <span class="toggle-icon">▶</span>
                     </div>
-                    <div class="waypoints-list">
+                    <div class="waypoints-card-content">
                         
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">216 INTERCHANGE</span>
-                                <span class="waypoint-ident">VCEXC</span>
+                    <div class="waypoints-subheader">Waypoints</div>
+                    <div class="waypoints-grid">
+                        
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">216 INTERCHANGE</span>
+                                    <span class="waypoint-ident">VCEXC</span>
+                                </div>
+                                <div class="waypoint-coords">49.1522° N, 122.6242° W</div>
                             </div>
-                            <div class="waypoint-coords">49.1522° N, 122.6242° W</div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.152222,-122.624167" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
                         </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.152222,-122.624167" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">232 INTERCHANGE</span>
+                                    <span class="waypoint-ident">VCXCH</span>
+                                </div>
+                                <div class="waypoint-coords">49.1364° N, 122.5814° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.136389,-122.581389" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">264th</span>
+                                    <span class="waypoint-ident">VCXYZ</span>
+                                </div>
+                                <div class="waypoint-coords">49.1017° N, 122.4933° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.101667,-122.493333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">ALBION</span>
+                                    <span class="waypoint-ident">VCABN</span>
+                                </div>
+                                <div class="waypoint-coords">49.1867° N, 122.5600° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.186667,-122.56" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">CLOVERDALE</span>
+                                    <span class="waypoint-ident">VCCLV</span>
+                                </div>
+                                <div class="waypoint-coords">49.1117° N, 122.7233° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.111667,-122.723333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">FORT LANGLEY</span>
+                                    <span class="waypoint-ident">VCLNG</span>
+                                </div>
+                                <div class="waypoint-coords">49.1667° N, 122.5517° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.166667,-122.551667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">MAN MADE LAKES</span>
+                                    <span class="waypoint-ident">VCMML</span>
+                                </div>
+                                <div class="waypoint-coords">49.0547° N, 122.6531° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.054722,-122.653056" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">POPPY</span>
+                                    <span class="waypoint-ident">VCPPY</span>
+                                </div>
+                                <div class="waypoint-coords">49.0700° N, 122.5367° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.07,-122.536667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">THUNDERBIRD</span>
+                                    <span class="waypoint-ident">VCTBD</span>
+                                </div>
+                                <div class="waypoint-coords">49.1317° N, 122.5411° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.131667,-122.541111" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">TRINITY</span>
+                                    <span class="waypoint-ident">VCTNY</span>
+                                </div>
+                                <div class="waypoint-coords">49.1425° N, 122.6028° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.1425,-122.602778" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">200th St</span>
+                                    <span class="waypoint-ident">VCXCC</span>
+                                </div>
+                                <div class="waypoint-coords">49.0958° N, 122.6686° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.095833,-122.668611" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">216th St</span>
+                                    <span class="waypoint-ident">VCXVI</span>
+                                </div>
+                                <div class="waypoint-coords">49.0744° N, 122.6247° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.074444,-122.624722" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">232nd St</span>
+                                    <span class="waypoint-ident">VCSND</span>
+                                </div>
+                                <div class="waypoint-coords">49.1039° N, 122.5811° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.103889,-122.581111" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">BYPASS</span>
+                                    <span class="waypoint-ident">VCBYP</span>
+                                </div>
+                                <div class="waypoint-coords">49.1011° N, 122.6431° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.101111,-122.643056" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">MILNER</span>
+                                    <span class="waypoint-ident">VCMER</span>
+                                </div>
+                                <div class="waypoint-coords">49.1264° N, 122.6247° W</div>
+                            </div>
+                            <div class="waypoint-links">
+                                <a href="https://www.google.com/maps/search/?api=1&query=49.126389,-122.624722" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">232 INTERCHANGE</span>
-                                <span class="waypoint-ident">VCXCH</span>
-                            </div>
-                            <div class="waypoint-coords">49.1364° N, 122.5814° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.136389,-122.581389" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
+                        
+                    <div class="waypoints-subheader" style="margin-top: 1rem;">✈️ VFR Procedures</div>
+                    <div class="procedures-flex">
+                        <span class="procedure-badge">CLOVERDALE DEP</span><span class="procedure-badge">TRINITY DEP</span><span class="procedure-badge">THUNDERBIRD DEP</span><span class="procedure-badge">POPPY DEP</span><span class="procedure-badge">LAKE DEP</span>
                     </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">264th</span>
-                                <span class="waypoint-ident">VCXYZ</span>
-                            </div>
-                            <div class="waypoint-coords">49.1017° N, 122.4933° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.101667,-122.493333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">ALBION</span>
-                                <span class="waypoint-ident">VCABN</span>
-                            </div>
-                            <div class="waypoint-coords">49.1867° N, 122.5600° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.186667,-122.56" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">CLOVERDALE</span>
-                                <span class="waypoint-ident">VCCLV</span>
-                            </div>
-                            <div class="waypoint-coords">49.1117° N, 122.7233° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.111667,-122.723333" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">FORT LANGLEY</span>
-                                <span class="waypoint-ident">VCLNG</span>
-                            </div>
-                            <div class="waypoint-coords">49.1667° N, 122.5517° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.166667,-122.551667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">MAN MADE LAKES</span>
-                                <span class="waypoint-ident">VCMML</span>
-                            </div>
-                            <div class="waypoint-coords">49.0547° N, 122.6531° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.054722,-122.653056" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">POPPY</span>
-                                <span class="waypoint-ident">VCPPY</span>
-                            </div>
-                            <div class="waypoint-coords">49.0700° N, 122.5367° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.07,-122.536667" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">THUNDERBIRD</span>
-                                <span class="waypoint-ident">VCTBD</span>
-                            </div>
-                            <div class="waypoint-coords">49.1317° N, 122.5411° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.131667,-122.541111" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">TRINITY</span>
-                                <span class="waypoint-ident">VCTNY</span>
-                            </div>
-                            <div class="waypoint-coords">49.1425° N, 122.6028° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.1425,-122.602778" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">200th St</span>
-                                <span class="waypoint-ident">VCXCC</span>
-                            </div>
-                            <div class="waypoint-coords">49.0958° N, 122.6686° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.095833,-122.668611" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">216th St</span>
-                                <span class="waypoint-ident">VCXVI</span>
-                            </div>
-                            <div class="waypoint-coords">49.0744° N, 122.6247° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.074444,-122.624722" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">232nd St</span>
-                                <span class="waypoint-ident">VCSND</span>
-                            </div>
-                            <div class="waypoint-coords">49.1039° N, 122.5811° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.103889,-122.581111" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">BYPASS</span>
-                                <span class="waypoint-ident">VCBYP</span>
-                            </div>
-                            <div class="waypoint-coords">49.1011° N, 122.6431° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.101111,-122.643056" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">MILNER</span>
-                                <span class="waypoint-ident">VCMER</span>
-                            </div>
-                            <div class="waypoint-coords">49.1264° N, 122.6247° W</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.126389,-122.624722" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
+                        
+                        
+                    <div class="waypoints-subheader" style="margin-top: 1rem;">🚁 Helicopter Routes</div>
+                    <div class="procedures-flex">
+                        <span class="procedure-badge heli">NORTH ROUTE</span><span class="procedure-badge heli">EAST ROUTE</span><span class="procedure-badge heli">SOUTHEAST ROUTE</span><span class="procedure-badge heli">WEST ROUTE</span>
                     </div>
                     </div>
                 </div>
@@ -1374,31 +1449,13 @@
                     }
 
                     container.innerHTML = '';
-                    let rowsHtml = '';
+                    
                     const wps = (typeof airportWaypoints !== 'undefined') ? airportWaypoints : [];
-                    wps.forEach(wp => {
-                        const latHemi = wp.latitude >= 0 ? 'N' : 'S';
-                        const lonHemi = wp.longitude >= 0 ? 'E' : 'W';
-                        const latStr = `${Math.abs(wp.latitude).toFixed(4)}° ${latHemi}`;
-                        const lonStr = `${Math.abs(wp.longitude).toFixed(4)}° ${lonHemi}`;
-                        const coords = `${latStr}, ${lonStr}`;
-                        const gmaps_url = `https://www.google.com/maps/search/?api=1&query=${wp.latitude},${wp.longitude}`;
-                        
-                        rowsHtml += `
-                            <tr>
-                                <td><span class="wp-name">${wp.name}</span></td>
-                                <td><span class="wp-ident">${wp.ident}</span></td>
-                                <td><span class="wp-coords">${coords}</span></td>
-                                <td>
-                                    <div class="wp-actions">
-                                        <a href="${gmaps_url}" target="_blank" class="wp-btn">Google Maps</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
-
-                    container.innerHTML = `
+                    const routes = (typeof airportVfrRoutes !== 'undefined') ? airportVfrRoutes : [];
+                    const heliRoutes = (typeof airportHeliRoutes !== 'undefined') ? airportHeliRoutes : [];
+                    const procedures = (typeof airportVfrProcedures !== 'undefined') ? airportVfrProcedures : [];
+                    
+                    let viewerHtml = `
                         <div class="waypoints-viewer-container">
                             <style>
                                 .waypoints-viewer-container {
@@ -1416,6 +1473,9 @@
                                     margin-bottom: 1.5rem;
                                     border-bottom: 1px solid var(--border);
                                     padding-bottom: 1rem;
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
                                 }
                                 .waypoints-viewer-header h3 {
                                     font-family: 'Rajdhani', sans-serif;
@@ -1429,6 +1489,7 @@
                                     border-collapse: collapse;
                                     text-align: left;
                                     margin-top: 1rem;
+                                    margin-bottom: 2rem;
                                 }
                                 .waypoints-table th, .waypoints-table td {
                                     padding: 0.75rem 1rem;
@@ -1480,7 +1541,103 @@
                                     background: var(--accent);
                                     color: var(--bg);
                                 }
+                                
+                                .viewer-procedures-section {
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 1.5rem;
+                                    margin-top: 1.5rem;
+                                    padding-top: 1.5rem;
+                                    border-top: 1px solid var(--border);
+                                }
+                                .viewer-procedure-group {
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 0.75rem;
+                                }
+                                .viewer-procedure-group h4 {
+                                    font-family: 'Rajdhani', sans-serif;
+                                    font-size: 1.2rem;
+                                    color: var(--accent);
+                                    text-transform: uppercase;
+                                    margin: 0;
+                                    letter-spacing: 0.05em;
+                                }
+                                .viewer-procedure-list {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 0.5rem;
+                                }
+                                .viewer-procedure-badge {
+                                    background: rgba(255, 255, 255, 0.03);
+                                    border: 1px solid var(--border);
+                                    color: var(--text);
+                                    padding: 0.4rem 0.8rem;
+                                    border-radius: 4px;
+                                    font-size: 0.8rem;
+                                    font-weight: 600;
+                                    transition: all 0.15s;
+                                }
+                                .viewer-procedure-badge:hover {
+                                    background: var(--accent-glow);
+                                    border-color: var(--accent);
+                                    color: var(--accent);
+                                }
+                                .viewer-procedure-badge.route {
+                                    border-color: rgba(52, 152, 219, 0.3);
+                                }
+                                .viewer-procedure-badge.route:hover {
+                                    background: rgba(52, 152, 219, 0.1);
+                                    border-color: #3498db;
+                                    color: #3498db;
+                                }
+                                .viewer-procedure-badge.heli {
+                                    border-color: rgba(155, 89, 182, 0.3);
+                                }
+                                .viewer-procedure-badge.heli:hover {
+                                    background: rgba(155, 89, 182, 0.1);
+                                    border-color: #9b59b6;
+                                    color: #9b59b6;
+                                }
                             </style>
+                    `;
+                    
+                    if (wps.length > 0) {
+                        let rowsHtml = '';
+                        wps.forEach(wp => {
+                            const hasCoords = wp.latitude !== null && wp.latitude !== undefined && wp.longitude !== null && wp.longitude !== undefined;
+                            let coords = 'No Coordinates';
+                            let gmaps_url = '#';
+                            let gmaps_link_style = '';
+                            let gmaps_onclick = '';
+                            if (hasCoords) {
+                                const latHemi = wp.latitude >= 0 ? 'N' : 'S';
+                                const lonHemi = wp.longitude >= 0 ? 'E' : 'W';
+                                const latStr = `${Math.abs(wp.latitude).toFixed(4)}° ${latHemi}`;
+                                const lonStr = `${Math.abs(wp.longitude).toFixed(4)}° ${lonHemi}`;
+                                coords = `${latStr}, ${lonStr}`;
+                                gmaps_url = `https://www.google.com/maps/search/?api=1&query=${wp.latitude},${wp.longitude}`;
+                            } else {
+                                gmaps_link_style = 'style="opacity: 0.5; cursor: not-allowed; pointer-events: none;"';
+                                gmaps_onclick = 'onclick="event.preventDefault();"';
+                            }
+                            const wpIdent = wp.ident || '';
+                            
+                            rowsHtml += `
+                                <tr>
+                                    <td><span class="wp-name">${wp.name}</span></td>
+                                    <td><span class="wp-ident">${wpIdent}</span></td>
+                                    <td><span class="wp-coords">${coords}</span></td>
+                                    <td>
+                                        <div class="wp-actions">
+                                            <a href="${gmaps_url}" target="_blank" class="wp-btn" ${gmaps_link_style} ${gmaps_onclick}>Google Maps</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        
+                        viewerHtml += `
                             <div class="waypoints-viewer-header">
                                 <h3>🧭 Visual Waypoints</h3>
                             </div>
@@ -1494,12 +1651,61 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${rowsHtml || '<tr><td colspan="4" style="text-align:center; color:var(--text-dim);">No waypoints found for this airport.</td></tr>'}
+                                    ${rowsHtml}
                                 </tbody>
                             </table>
+                        `;
+                    }
+                    
+                    if (procedures.length > 0 || routes.length > 0 || heliRoutes.length > 0) {
+                        let borderStyle = wps.length > 0 ? '' : 'style="border-top:none; margin-top:0; padding-top:0;"';
+                        viewerHtml += `
+                            <div class="viewer-procedures-section" ${borderStyle}>
+                        `;
+                        
+                        if (procedures.length > 0) {
+                            viewerHtml += `
+                                <div class="viewer-procedure-group">
+                                    <h4>✈️ VFR Procedures</h4>
+                                    <div class="viewer-procedure-list">
+                                        ${procedures.map(p => `<span class="viewer-procedure-badge">${p}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (routes.length > 0) {
+                            viewerHtml += `
+                                <div class="viewer-procedure-group">
+                                    <h4>🛣️ VFR Routes</h4>
+                                    <div class="viewer-procedure-list">
+                                        ${routes.map(r => `<span class="viewer-procedure-badge route">${r}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (heliRoutes.length > 0) {
+                            viewerHtml += `
+                                <div class="viewer-procedure-group">
+                                    <h4>🚁 Helicopter Routes</h4>
+                                    <div class="viewer-procedure-list">
+                                        ${heliRoutes.map(h => `<span class="viewer-procedure-badge heli">${h}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        viewerHtml += `
+                            </div>
+                        `;
+                    }
+                    
+                    viewerHtml += `
                         </div>
                     `;
                     
+                    container.innerHTML = viewerHtml;
                     loader.style.display = 'none';
                     return;
                 } else {
@@ -1971,6 +2177,9 @@
             region: 'CANADA'
         };
         const airportWaypoints = [{"name": "216 INTERCHANGE", "ident": "VCEXC", "latitude": 49.152222, "longitude": -122.624167}, {"name": "232 INTERCHANGE", "ident": "VCXCH", "latitude": 49.136389, "longitude": -122.581389}, {"name": "264th", "ident": "VCXYZ", "latitude": 49.101667, "longitude": -122.493333}, {"name": "ALBION", "ident": "VCABN", "latitude": 49.186667, "longitude": -122.56}, {"name": "CLOVERDALE", "ident": "VCCLV", "latitude": 49.111667, "longitude": -122.723333}, {"name": "FORT LANGLEY", "ident": "VCLNG", "latitude": 49.166667, "longitude": -122.551667}, {"name": "MAN MADE LAKES", "ident": "VCMML", "latitude": 49.054722, "longitude": -122.653056}, {"name": "POPPY", "ident": "VCPPY", "latitude": 49.07, "longitude": -122.536667}, {"name": "THUNDERBIRD", "ident": "VCTBD", "latitude": 49.131667, "longitude": -122.541111}, {"name": "TRINITY", "ident": "VCTNY", "latitude": 49.1425, "longitude": -122.602778}, {"name": "200th St", "ident": "VCXCC", "latitude": 49.095833, "longitude": -122.668611}, {"name": "216th St", "ident": "VCXVI", "latitude": 49.074444, "longitude": -122.624722}, {"name": "232nd St", "ident": "VCSND", "latitude": 49.103889, "longitude": -122.581111}, {"name": "BYPASS", "ident": "VCBYP", "latitude": 49.101111, "longitude": -122.643056}, {"name": "MILNER", "ident": "VCMER", "latitude": 49.126389, "longitude": -122.624722}];
+        const airportVfrRoutes = [];
+        const airportHeliRoutes = ["NORTH ROUTE", "EAST ROUTE", "SOUTHEAST ROUTE", "WEST ROUTE"];
+        const airportVfrProcedures = ["CLOVERDALE DEP", "TRINITY DEP", "THUNDERBIRD DEP", "POPPY DEP", "LAKE DEP"];
 
         const pinAirportBtn = document.getElementById('pinAirportBtn');
         const updateAirportPinState = () => {
@@ -1989,7 +2198,7 @@
         const files = [
         {
                 "id": "visual-waypoints",
-                "name": "Visual Waypoints (216 INTERCHANGE [VCEXC], 232 INTERCHANGE [VCXCH], 264th [VCXYZ], ALBION [VCABN], CLOVERDALE [VCCLV], FORT LANGLEY [VCLNG], MAN MADE LAKES [VCMML], POPPY [VCPPY], THUNDERBIRD [VCTBD], TRINITY [VCTNY], 200th St [VCXCC], 216th St [VCXVI], 232nd St [VCSND], BYPASS [VCBYP], MILNER [VCMER])",
+                "name": "Visual Waypoints & Procedures (Waypoints: 216 INTERCHANGE, 232 INTERCHANGE, 264th, ALBION, CLOVERDALE, FORT LANGLEY, MAN MADE LAKES, POPPY, THUNDERB...)",
                 "type": "waypoints",
                 "url": "#",
                 "localUrl": "#",
