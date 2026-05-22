@@ -49,7 +49,7 @@ DOWNLOAD_CHARTS = os.environ.get('DOWNLOAD_CHARTS', 'true').lower() == 'true'
 AUTO_PUSH = os.environ.get('AUTO_PUSH', 'true').lower() == 'true'
 DATA_REPO_URL = os.environ.get('DATA_REPO_URL', 'https://ghoshaan.github.io/aip-charts-data/')
 APPS_SCRIPT_URL = os.environ.get('APPS_SCRIPT_URL', 'https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec')
-GENERATOR_VERSION = 'v10'
+GENERATOR_VERSION = 'v11'
 
 # Load Canadian visual waypoints data
 CANADIAN_WAYPOINTS = {}
@@ -1551,6 +1551,10 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
     clean_code = airport_code.strip().upper().split()[0]
     waypoint_info = CANADIAN_WAYPOINTS.get(clean_code, {})
     waypoints = waypoint_info.get('visual_waypoints', [])
+    routes = waypoint_info.get('routes', [])
+    heli_routes = waypoint_info.get('heli_routes', [])
+    vfr_procedures = waypoint_info.get('vfr_procedures', [])
+    has_visual = bool(waypoints or routes or heli_routes or vfr_procedures)
 
     adjusted_files = [
         dict(
@@ -1565,12 +1569,27 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
     ]
     adjusted_files = group_multipage_files(adjusted_files)
 
-    if waypoints:
-        waypoint_idents = [f"{wp['name']} [{wp['ident']}]" for wp in waypoints]
-        waypoints_str = ", ".join(waypoint_idents)
+    if has_visual:
+        parts = []
+        if waypoints:
+            waypoint_names = [wp['name'] for wp in waypoints]
+            parts.append(f"Waypoints: {', '.join(waypoint_names)}")
+        if vfr_procedures:
+            parts.append(f"Procedures: {', '.join(vfr_procedures)}")
+        if routes:
+            parts.append(f"Routes: {', '.join(routes)}")
+        if heli_routes:
+            parts.append(f"Heli: {', '.join(heli_routes)}")
+        
+        display_details = "; ".join(parts)
+        if len(display_details) > 120:
+            display_details = display_details[:117] + "..."
+            
+        virtual_file_name = f"Visual Waypoints & Procedures ({display_details})" if display_details else "Visual Waypoints & Procedures"
+
         adjusted_files.insert(0, {
             'id': 'visual-waypoints',
-            'name': f"Visual Waypoints ({waypoints_str})",
+            'name': virtual_file_name,
             'type': 'waypoints',
             'url': '#',
             'localUrl': '#',
@@ -1579,38 +1598,90 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
         })
 
     waypoints_section_html = ""
-    if waypoints:
-        waypoints_items_html = ""
-        for wp in waypoints:
-            lat_hemi = "N" if wp['latitude'] >= 0 else "S"
-            lon_hemi = "E" if wp['longitude'] >= 0 else "W"
-            lat_str = f"{abs(wp['latitude']):.4f}° {lat_hemi}"
-            lon_str = f"{abs(wp['longitude']):.4f}° {lon_hemi}"
-            gmaps_url = f"https://www.google.com/maps/search/?api=1&query={wp['latitude']},{wp['longitude']}"
-            
-            waypoints_items_html += f'''
-                    <div class="waypoint-item">
-                        <div class="waypoint-info">
-                            <div class="waypoint-name-row">
-                                <span class="waypoint-name">{wp['name']}</span>
-                                <span class="waypoint-ident">{wp['ident']}</span>
+    if has_visual:
+        card_title = "🧭 Visual Waypoints"
+        if (routes or heli_routes or vfr_procedures):
+            if waypoints:
+                card_title = "🧭 Visual Waypoints & VFR Procedures"
+            else:
+                card_title = "🧭 VFR Procedures & Routes"
+                
+        waypoints_grid_html = ""
+        if waypoints:
+            waypoints_items_html = ""
+            for wp in waypoints:
+                wp_ident = wp.get('ident') or ""
+                if wp.get('latitude') is not None and wp.get('longitude') is not None:
+                    lat_hemi = "N" if wp['latitude'] >= 0 else "S"
+                    lon_hemi = "E" if wp['longitude'] >= 0 else "W"
+                    lat_str = f"{abs(wp['latitude']):.4f}° {lat_hemi}"
+                    lon_str = f"{abs(wp['longitude']):.4f}° {lon_hemi}"
+                    coords_str = f"{lat_str}, {lon_str}"
+                    gmaps_url = f"https://www.google.com/maps/search/?api=1&query={wp['latitude']},{wp['longitude']}"
+                    gmaps_link = f'<a href="{gmaps_url}" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>'
+                else:
+                    coords_str = "No Coordinates"
+                    gmaps_link = '<span class="waypoint-link disabled" style="opacity: 0.5; cursor: not-allowed;">Google Maps</span>'
+                
+                waypoints_items_html += f'''
+                        <div class="waypoint-item">
+                            <div class="waypoint-info">
+                                <div class="waypoint-name-row">
+                                    <span class="waypoint-name">{wp['name']}</span>
+                                    <span class="waypoint-ident">{wp_ident}</span>
+                                </div>
+                                <div class="waypoint-coords">{coords_str}</div>
                             </div>
-                            <div class="waypoint-coords">{lat_str}, {lon_str}</div>
-                        </div>
-                        <div class="waypoint-links">
-                            <a href="{gmaps_url}" target="_blank" class="waypoint-link" title="Open in Google Maps">Google Maps</a>
-                        </div>
-                    </div>'''
+                            <div class="waypoint-links">
+                                {gmaps_link}
+                            </div>
+                        </div>'''
             
+            waypoints_grid_html = f'''
+                    <div class="waypoints-subheader">Waypoints</div>
+                    <div class="waypoints-grid">
+                        {waypoints_items_html}
+                    </div>'''
+
+        procedures_section_html = ""
+        if vfr_procedures:
+            badges = "".join([f'<span class="procedure-badge">{p}</span>' for p in vfr_procedures])
+            procedures_section_html = f'''
+                    <div class="waypoints-subheader" style="margin-top: 1rem;">✈️ VFR Procedures</div>
+                    <div class="procedures-flex">
+                        {badges}
+                    </div>'''
+                    
+        routes_section_html = ""
+        if routes:
+            badges = "".join([f'<span class="procedure-badge route">{r}</span>' for r in routes])
+            routes_section_html = f'''
+                    <div class="waypoints-subheader" style="margin-top: 1rem;">🛣️ VFR Routes</div>
+                    <div class="procedures-flex">
+                        {badges}
+                    </div>'''
+                    
+        heli_routes_section_html = ""
+        if heli_routes:
+            badges = "".join([f'<span class="procedure-badge heli">{h}</span>' for h in heli_routes])
+            heli_routes_section_html = f'''
+                    <div class="waypoints-subheader" style="margin-top: 1rem;">🚁 Helicopter Routes</div>
+                    <div class="procedures-flex">
+                        {badges}
+                    </div>'''
+
         waypoints_section_html = f'''
             <div class="waypoints-section collapsed">
                 <div class="waypoints-card">
                     <div class="waypoints-card-header" onclick="toggleWaypoints()">
-                        <h2>🧭 Visual Waypoints</h2>
+                        <h2>{card_title}</h2>
                         <span class="toggle-icon">▶</span>
                     </div>
-                    <div class="waypoints-list">
-                        {waypoints_items_html}
+                    <div class="waypoints-card-content">
+                        {waypoints_grid_html}
+                        {procedures_section_html}
+                        {routes_section_html}
+                        {heli_routes_section_html}
                     </div>
                 </div>
             </div>'''
@@ -1693,6 +1764,9 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
             region: '{region_name}'
         }};
         const airportWaypoints = {json.dumps(waypoints)};
+        const airportVfrRoutes = {json.dumps(routes)};
+        const airportHeliRoutes = {json.dumps(heli_routes)};
+        const airportVfrProcedures = {json.dumps(vfr_procedures)};
 
         const pinAirportBtn = document.getElementById('pinAirportBtn');
         const updateAirportPinState = () => {{
@@ -2783,31 +2857,13 @@ def get_viewer_js():
                     }
 
                     container.innerHTML = '';
-                    let rowsHtml = '';
+                    
                     const wps = (typeof airportWaypoints !== 'undefined') ? airportWaypoints : [];
-                    wps.forEach(wp => {
-                        const latHemi = wp.latitude >= 0 ? 'N' : 'S';
-                        const lonHemi = wp.longitude >= 0 ? 'E' : 'W';
-                        const latStr = `${Math.abs(wp.latitude).toFixed(4)}° ${latHemi}`;
-                        const lonStr = `${Math.abs(wp.longitude).toFixed(4)}° ${lonHemi}`;
-                        const coords = `${latStr}, ${lonStr}`;
-                        const gmaps_url = `https://www.google.com/maps/search/?api=1&query=${wp.latitude},${wp.longitude}`;
-                        
-                        rowsHtml += `
-                            <tr>
-                                <td><span class="wp-name">${wp.name}</span></td>
-                                <td><span class="wp-ident">${wp.ident}</span></td>
-                                <td><span class="wp-coords">${coords}</span></td>
-                                <td>
-                                    <div class="wp-actions">
-                                        <a href="${gmaps_url}" target="_blank" class="wp-btn">Google Maps</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
-
-                    container.innerHTML = `
+                    const routes = (typeof airportVfrRoutes !== 'undefined') ? airportVfrRoutes : [];
+                    const heliRoutes = (typeof airportHeliRoutes !== 'undefined') ? airportHeliRoutes : [];
+                    const procedures = (typeof airportVfrProcedures !== 'undefined') ? airportVfrProcedures : [];
+                    
+                    let viewerHtml = `
                         <div class="waypoints-viewer-container">
                             <style>
                                 .waypoints-viewer-container {
@@ -2825,6 +2881,9 @@ def get_viewer_js():
                                     margin-bottom: 1.5rem;
                                     border-bottom: 1px solid var(--border);
                                     padding-bottom: 1rem;
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
                                 }
                                 .waypoints-viewer-header h3 {
                                     font-family: 'Rajdhani', sans-serif;
@@ -2838,6 +2897,7 @@ def get_viewer_js():
                                     border-collapse: collapse;
                                     text-align: left;
                                     margin-top: 1rem;
+                                    margin-bottom: 2rem;
                                 }
                                 .waypoints-table th, .waypoints-table td {
                                     padding: 0.75rem 1rem;
@@ -2889,7 +2949,103 @@ def get_viewer_js():
                                     background: var(--accent);
                                     color: var(--bg);
                                 }
+                                
+                                .viewer-procedures-section {
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 1.5rem;
+                                    margin-top: 1.5rem;
+                                    padding-top: 1.5rem;
+                                    border-top: 1px solid var(--border);
+                                }
+                                .viewer-procedure-group {
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 0.75rem;
+                                }
+                                .viewer-procedure-group h4 {
+                                    font-family: 'Rajdhani', sans-serif;
+                                    font-size: 1.2rem;
+                                    color: var(--accent);
+                                    text-transform: uppercase;
+                                    margin: 0;
+                                    letter-spacing: 0.05em;
+                                }
+                                .viewer-procedure-list {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 0.5rem;
+                                }
+                                .viewer-procedure-badge {
+                                    background: rgba(255, 255, 255, 0.03);
+                                    border: 1px solid var(--border);
+                                    color: var(--text);
+                                    padding: 0.4rem 0.8rem;
+                                    border-radius: 4px;
+                                    font-size: 0.8rem;
+                                    font-weight: 600;
+                                    transition: all 0.15s;
+                                }
+                                .viewer-procedure-badge:hover {
+                                    background: var(--accent-glow);
+                                    border-color: var(--accent);
+                                    color: var(--accent);
+                                }
+                                .viewer-procedure-badge.route {
+                                    border-color: rgba(52, 152, 219, 0.3);
+                                }
+                                .viewer-procedure-badge.route:hover {
+                                    background: rgba(52, 152, 219, 0.1);
+                                    border-color: #3498db;
+                                    color: #3498db;
+                                }
+                                .viewer-procedure-badge.heli {
+                                    border-color: rgba(155, 89, 182, 0.3);
+                                }
+                                .viewer-procedure-badge.heli:hover {
+                                    background: rgba(155, 89, 182, 0.1);
+                                    border-color: #9b59b6;
+                                    color: #9b59b6;
+                                }
                             </style>
+                    `;
+                    
+                    if (wps.length > 0) {
+                        let rowsHtml = '';
+                        wps.forEach(wp => {
+                            const hasCoords = wp.latitude !== null && wp.latitude !== undefined && wp.longitude !== null && wp.longitude !== undefined;
+                            let coords = 'No Coordinates';
+                            let gmaps_url = '#';
+                            let gmaps_link_style = '';
+                            let gmaps_onclick = '';
+                            if (hasCoords) {
+                                const latHemi = wp.latitude >= 0 ? 'N' : 'S';
+                                const lonHemi = wp.longitude >= 0 ? 'E' : 'W';
+                                const latStr = `${Math.abs(wp.latitude).toFixed(4)}° ${latHemi}`;
+                                const lonStr = `${Math.abs(wp.longitude).toFixed(4)}° ${lonHemi}`;
+                                coords = `${latStr}, ${lonStr}`;
+                                gmaps_url = `https://www.google.com/maps/search/?api=1&query=${wp.latitude},${wp.longitude}`;
+                            } else {
+                                gmaps_link_style = 'style="opacity: 0.5; cursor: not-allowed; pointer-events: none;"';
+                                gmaps_onclick = 'onclick="event.preventDefault();"';
+                            }
+                            const wpIdent = wp.ident || '';
+                            
+                            rowsHtml += `
+                                <tr>
+                                    <td><span class="wp-name">${wp.name}</span></td>
+                                    <td><span class="wp-ident">${wpIdent}</span></td>
+                                    <td><span class="wp-coords">${coords}</span></td>
+                                    <td>
+                                        <div class="wp-actions">
+                                            <a href="${gmaps_url}" target="_blank" class="wp-btn" ${gmaps_link_style} ${gmaps_onclick}>Google Maps</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        
+                        viewerHtml += `
                             <div class="waypoints-viewer-header">
                                 <h3>🧭 Visual Waypoints</h3>
                             </div>
@@ -2903,12 +3059,61 @@ def get_viewer_js():
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${rowsHtml || '<tr><td colspan="4" style="text-align:center; color:var(--text-dim);">No waypoints found for this airport.</td></tr>'}
+                                    ${rowsHtml}
                                 </tbody>
                             </table>
+                        `;
+                    }
+                    
+                    if (procedures.length > 0 || routes.length > 0 || heliRoutes.length > 0) {
+                        let borderStyle = wps.length > 0 ? '' : 'style="border-top:none; margin-top:0; padding-top:0;"';
+                        viewerHtml += `
+                            <div class="viewer-procedures-section" ${borderStyle}>
+                        `;
+                        
+                        if (procedures.length > 0) {
+                            viewerHtml += `
+                                <div class="viewer-procedure-group">
+                                    <h4>✈️ VFR Procedures</h4>
+                                    <div class="viewer-procedure-list">
+                                        ${procedures.map(p => `<span class="viewer-procedure-badge">${p}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (routes.length > 0) {
+                            viewerHtml += `
+                                <div class="viewer-procedure-group">
+                                    <h4>🛣️ VFR Routes</h4>
+                                    <div class="viewer-procedure-list">
+                                        ${routes.map(r => `<span class="viewer-procedure-badge route">${r}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (heliRoutes.length > 0) {
+                            viewerHtml += `
+                                <div class="viewer-procedure-group">
+                                    <h4>🚁 Helicopter Routes</h4>
+                                    <div class="viewer-procedure-list">
+                                        ${heliRoutes.map(h => `<span class="viewer-procedure-badge heli">${h}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        viewerHtml += `
+                            </div>
+                        `;
+                    }
+                    
+                    viewerHtml += `
                         </div>
                     `;
                     
+                    container.innerHTML = viewerHtml;
                     loader.style.display = 'none';
                     return;
                 } else {
@@ -3561,16 +3766,76 @@ def get_file_list_styles():
             transition: transform 0.2s;
         }
         
-        .waypoints-list {
+        .waypoints-card-content {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        
+        .waypoints-section.collapsed .waypoints-card-content {
+            display: none;
+        }
+        
+        .waypoints-subheader {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin: 0;
+            letter-spacing: 0.05em;
+        }
+        
+        .waypoints-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 0.75rem;
-            padding: 1rem;
-            border-top: 1px solid var(--border);
         }
         
-        .waypoints-section.collapsed .waypoints-list {
-            display: none;
+        .procedures-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .procedure-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.15s;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        
+        .procedure-badge:hover {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        .procedure-badge.route {
+            border-color: rgba(52, 152, 219, 0.3);
+        }
+        
+        .procedure-badge.route:hover {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: #3498db;
+            color: #3498db;
+        }
+        
+        .procedure-badge.heli {
+            border-color: rgba(155, 89, 182, 0.3);
+        }
+        
+        .procedure-badge.heli:hover {
+            background: rgba(155, 89, 182, 0.1);
+            border-color: #9b59b6;
+            color: #9b59b6;
         }
         
         .waypoint-item {
