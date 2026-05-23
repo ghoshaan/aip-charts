@@ -29,8 +29,8 @@
     ],
     "localAudioPath": "data/audio/dutch/pardon.mp3"
   },
-  "s'il vous plaît": {
-    "spelling": "s'il vous plaît",
+  "s'il vous plait": {
+    "spelling": "s'il vous plait",
     "language": "French",
     "ipa": "/ˌsi(l)vuˈplɛ/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/33/Nl-s'il_vous_plaît.ogg",
@@ -89,8 +89,8 @@
     ],
     "localAudioPath": "data/audio/romanian/salut.mp3"
   },
-  "bonne journée": {
-    "spelling": "bonne journée",
+  "bonne journee": {
+    "spelling": "bonne journee",
     "language": "French",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/LL-Q150_(fra)-LoquaxFR-bonne_journée.wav",
@@ -99,8 +99,8 @@
     ],
     "localAudioPath": "data/audio/french/bonne_journée.mp3"
   },
-  "bonne soirée": {
-    "spelling": "bonne soirée",
+  "bonne soiree": {
+    "spelling": "bonne soiree",
     "language": "French",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2e/LL-Q150_(fra)-LoquaxFR-bonne_soirée.wav",
@@ -109,8 +109,8 @@
     ],
     "localAudioPath": "data/audio/french/bonne_soirée.mp3"
   },
-  "désolé": {
-    "spelling": "désolé",
+  "desole": {
+    "spelling": "desole",
     "language": "French",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Fr-désolé.ogg",
@@ -440,8 +440,8 @@
     ],
     "localAudioPath": "data/audio/spanish/disculpe.mp3"
   },
-  "buenos días": {
-    "spelling": "buenos días",
+  "buenos dias": {
+    "spelling": "buenos dias",
     "language": "Spanish",
     "ipa": null,
     "audioUrl": null,
@@ -450,8 +450,8 @@
     ],
     "localAudioPath": "data/audio/spanish/buenos_días.mp3"
   },
-  "perdón": {
-    "spelling": "perdón",
+  "perdon": {
+    "spelling": "perdon",
     "language": "Spanish",
     "ipa": null,
     "audioUrl": null,
@@ -500,8 +500,8 @@
     ],
     "localAudioPath": "data/audio/spanish/hasta_luego.mp3"
   },
-  "buen día": {
-    "spelling": "buen día",
+  "buen dia": {
+    "spelling": "buen dia",
     "language": "Spanish",
     "ipa": null,
     "audioUrl": null,
