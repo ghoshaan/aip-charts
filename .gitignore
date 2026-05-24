@@ -2,6 +2,9 @@ credentials.json
 token.json
 *.json
 !docs/**/*.json
+!regions.json
+!airport_names.json
+!manifest.json
 .claude/
 __pycache__/
 *.pyc
