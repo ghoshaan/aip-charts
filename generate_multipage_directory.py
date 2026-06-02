@@ -49,7 +49,7 @@ DOWNLOAD_CHARTS = os.environ.get('DOWNLOAD_CHARTS', 'true').lower() == 'true'
 AUTO_PUSH = os.environ.get('AUTO_PUSH', 'true').lower() == 'true'
 DATA_REPO_URL = os.environ.get('DATA_REPO_URL', 'https://ghoshaan.github.io/aip-charts-data/')
 APPS_SCRIPT_URL = os.environ.get('APPS_SCRIPT_URL', 'https://script.google.com/macros/s/AKfycbyXVP5s9UVs27vrqrF1bRyNVKygZQ0slIk743r822rvJgvWrwEdb7nCzxWctTJdWlM/exec')
-GENERATOR_VERSION = 'v11'
+GENERATOR_VERSION = 'v12'
 
 # Load Canadian visual waypoints data
 CANADIAN_WAYPOINTS = {}
@@ -1735,9 +1735,7 @@ def generate_airport_page(region_name, region_slug, airport_code, files, manifes
             <button class="filter-btn" data-filter="image">Images</button>
         </div>
         
-        {waypoints_section_html}
-        
-        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+
         
         <div class="airport-layout">
             <div class="charts-section">
