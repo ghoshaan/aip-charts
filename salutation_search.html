@@ -340,11 +340,11 @@
                     <div class="meta-row">
                         <span class="lang-tag">${word.language}</span>
                         ${word.ipa ? `<span class="ipa">/${word.ipa}/</span>` : ''}
-                        <button class="play-btn" onclick="playAudio('${word.localAudioPath}')" title="Play voice">
+                        <button class="play-btn" onclick="playAudio('${word.localAudioPath.replace(/'/g, "\\'")}')" title="Play voice">
                             <svg width="18" height="18" viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
                         </button>
                         ${word.localAudioPathAlt ? `
-                        <button class="play-btn alt-play" onclick="playAudio('${word.localAudioPathAlt}')" title="Play alternative voice">
+                        <button class="play-btn alt-play" onclick="playAudio('${word.localAudioPathAlt.replace(/'/g, "\\'")}')" title="Play alternative voice">
                             <svg width="18" height="18" viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
                         </button>
                         ` : ''}
