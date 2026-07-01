@@ -7,7 +7,8 @@
     "definitions": [
       "greetings; hello (general salutation)"
     ],
-    "localAudioPath": "data/audio/french/bonjour.mp3"
+    "localAudioPath": "data/audio/french/bonjour.mp3",
+    "localAudioPathAlt": "data/audio/french/bonjour_2.mp3"
   },
   "adieu": {
     "spelling": "adieu",
@@ -17,7 +18,8 @@
     "definitions": [
       "farewell,"
     ],
-    "localAudioPath": "data/audio/french/adieu.mp3"
+    "localAudioPath": "data/audio/french/adieu.mp3",
+    "localAudioPathAlt": "data/audio/french/adieu_2.mp3"
   },
   "pardon": {
     "spelling": "pardon",
@@ -27,7 +29,8 @@
     "definitions": [
       "I'm sorry,"
     ],
-    "localAudioPath": "data/audio/dutch/pardon.mp3"
+    "localAudioPath": "data/audio/dutch/pardon.mp3",
+    "localAudioPathAlt": "data/audio/dutch/pardon_2.mp3"
   },
   "s'il vous plait": {
     "spelling": "s'il vous plait",
@@ -37,7 +40,8 @@
     "definitions": [
       "please, if you please"
     ],
-    "localAudioPath": "data/audio/french/s'il_vous_plaît.mp3"
+    "localAudioPath": "data/audio/french/s'il_vous_plaît.mp3",
+    "localAudioPathAlt": "data/audio/french/s'il_vous_plait_2.mp3"
   },
   "au revoir": {
     "spelling": "au revoir",
@@ -47,7 +51,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/french/au_revoir.mp3"
+    "localAudioPath": "data/audio/french/au_revoir.mp3",
+    "localAudioPathAlt": "data/audio/french/au_revoir_2.mp3"
   },
   "bonsoir": {
     "spelling": "bonsoir",
@@ -57,7 +62,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/french/bonsoir.mp3"
+    "localAudioPath": "data/audio/french/bonsoir.mp3",
+    "localAudioPathAlt": "data/audio/french/bonsoir_2.mp3"
   },
   "excusez-moi": {
     "spelling": "excusez-moi",
@@ -67,7 +73,8 @@
     "definitions": [
       "excuse me"
     ],
-    "localAudioPath": "data/audio/french/excusez-moi.mp3"
+    "localAudioPath": "data/audio/french/excusez-moi.mp3",
+    "localAudioPathAlt": "data/audio/french/excusez-moi_2.mp3"
   },
   "merci": {
     "spelling": "merci",
@@ -77,7 +84,8 @@
     "definitions": [
       "thank you"
     ],
-    "localAudioPath": "data/audio/french/merci.mp3"
+    "localAudioPath": "data/audio/french/merci.mp3",
+    "localAudioPathAlt": "data/audio/french/merci_2.mp3"
   },
   "salut": {
     "spelling": "salut",
@@ -87,7 +95,8 @@
     "definitions": [
       "hello! greetings!"
     ],
-    "localAudioPath": "data/audio/romanian/salut.mp3"
+    "localAudioPath": "data/audio/romanian/salut.mp3",
+    "localAudioPathAlt": "data/audio/romanian/salut_2.mp3"
   },
   "bonne journee": {
     "spelling": "bonne journee",
@@ -97,7 +106,8 @@
     "definitions": [
       "have a nice day (a phrase uttered upon a farewell)"
     ],
-    "localAudioPath": "data/audio/french/bonne_journée.mp3"
+    "localAudioPath": "data/audio/french/bonne_journée.mp3",
+    "localAudioPathAlt": "data/audio/french/bonne_journee_2.mp3"
   },
   "bonne soiree": {
     "spelling": "bonne soiree",
@@ -107,7 +117,8 @@
     "definitions": [
       "Have a good evening (a phrase uttered upon a farewell)"
     ],
-    "localAudioPath": "data/audio/french/bonne_soirée.mp3"
+    "localAudioPath": "data/audio/french/bonne_soirée.mp3",
+    "localAudioPathAlt": "data/audio/french/bonne_soiree_2.mp3"
   },
   "desole": {
     "spelling": "desole",
@@ -117,7 +128,8 @@
     "definitions": [
       "desolate, forsaken"
     ],
-    "localAudioPath": "data/audio/french/désolé.mp3"
+    "localAudioPath": "data/audio/french/désolé.mp3",
+    "localAudioPathAlt": "data/audio/french/desole_2.mp3"
   },
   "je vous en prie": {
     "spelling": "je vous en prie",
@@ -127,7 +139,8 @@
     "definitions": [
       "I beg you, I entreat you"
     ],
-    "localAudioPath": "data/audio/french/je_vous_en_prie.mp3"
+    "localAudioPath": "data/audio/french/je_vous_en_prie.mp3",
+    "localAudioPathAlt": "data/audio/french/je_vous_en_prie_2.mp3"
   },
   "servus": {
     "spelling": "servus",
@@ -137,7 +150,8 @@
     "definitions": [
       "hello, hi"
     ],
-    "localAudioPath": "data/audio/german/servus.mp3"
+    "localAudioPath": "data/audio/german/servus.mp3",
+    "localAudioPathAlt": "data/audio/german/servus_2.mp3"
   },
   "hallo": {
     "spelling": "hallo",
@@ -147,7 +161,8 @@
     "definitions": [
       "hello (a general greeting used when meeting somebody)"
     ],
-    "localAudioPath": "data/audio/dutch/hallo.mp3"
+    "localAudioPath": "data/audio/dutch/hallo.mp3",
+    "localAudioPathAlt": "data/audio/dutch/hallo_2.mp3"
   },
   "danke": {
     "spelling": "danke",
@@ -157,7 +172,8 @@
     "definitions": [
       "thanks, thank you"
     ],
-    "localAudioPath": "data/audio/german/danke.mp3"
+    "localAudioPath": "data/audio/german/danke.mp3",
+    "localAudioPathAlt": "data/audio/german/danke_2.mp3"
   },
   "guten Tag": {
     "spelling": "guten tag",
@@ -167,7 +183,8 @@
     "definitions": [
       "hello; hullo; good day; good afternoon"
     ],
-    "localAudioPath": "data/audio/german/guten_Tag.mp3"
+    "localAudioPath": "data/audio/german/guten_Tag.mp3",
+    "localAudioPathAlt": "data/audio/german/guten_tag_2.mp3"
   },
   "bitte": {
     "spelling": "bitte",
@@ -177,7 +194,8 @@
     "definitions": [
       "please, if you please"
     ],
-    "localAudioPath": "data/audio/german/bitte.mp3"
+    "localAudioPath": "data/audio/german/bitte.mp3",
+    "localAudioPathAlt": "data/audio/german/bitte_2.mp3"
   },
   "auf Wiedersehen": {
     "spelling": "auf wiedersehen",
@@ -187,7 +205,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/german/auf_Wiedersehen.mp3"
+    "localAudioPath": "data/audio/german/auf_Wiedersehen.mp3",
+    "localAudioPathAlt": "data/audio/german/auf_wiedersehen_2.mp3"
   },
   "danke schön": {
     "spelling": "danke schoen",
@@ -197,7 +216,8 @@
     "definitions": [
       "thank you very much"
     ],
-    "localAudioPath": "data/audio/german/danke_schön.mp3"
+    "localAudioPath": "data/audio/german/danke_schön.mp3",
+    "localAudioPathAlt": "data/audio/german/danke_schoen_2.mp3"
   },
   "tschüss": {
     "spelling": "tschuess",
@@ -207,7 +227,8 @@
     "definitions": [
       "bye, cheers, ciao"
     ],
-    "localAudioPath": "data/audio/german/tschüss.mp3"
+    "localAudioPath": "data/audio/german/tschüss.mp3",
+    "localAudioPathAlt": "data/audio/german/tschuess_2.mp3"
   },
   "guten Abend": {
     "spelling": "guten abend",
@@ -217,7 +238,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/german/guten_Abend.mp3"
+    "localAudioPath": "data/audio/german/guten_Abend.mp3",
+    "localAudioPathAlt": "data/audio/german/guten_abend_2.mp3"
   },
   "auf Wiederhören": {
     "spelling": "auf wiederhoeren",
@@ -227,7 +249,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/german/auf_Wiederhören.mp3"
+    "localAudioPath": "data/audio/german/auf_Wiederhören.mp3",
+    "localAudioPathAlt": "data/audio/german/auf_wiederhoeren_2.mp3"
   },
   "es tut mir leid": {
     "spelling": "es tut mir leid",
@@ -237,7 +260,8 @@
     "definitions": [
       "Sorry."
     ],
-    "localAudioPath": "data/audio/german/es_tut_mir_leid.mp3"
+    "localAudioPath": "data/audio/german/es_tut_mir_leid.mp3",
+    "localAudioPathAlt": "data/audio/german/es_tut_mir_leid_2.mp3"
   },
   "guten Morgen": {
     "spelling": "guten morgen",
@@ -247,7 +271,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/german/guten_Morgen.mp3"
+    "localAudioPath": "data/audio/german/guten_Morgen.mp3",
+    "localAudioPathAlt": "data/audio/german/guten_morgen_2.mp3"
   },
   "grüß Gott": {
     "spelling": "gruess gott",
@@ -257,7 +282,8 @@
     "definitions": [
       "hello"
     ],
-    "localAudioPath": "data/audio/german/grüß_Gott.mp3"
+    "localAudioPath": "data/audio/german/grüß_Gott.mp3",
+    "localAudioPathAlt": "data/audio/german/gruess_gott_2.mp3"
   },
   "grazie": {
     "spelling": "grazie",
@@ -267,7 +293,8 @@
     "definitions": [
       "thank you, thanks!"
     ],
-    "localAudioPath": "data/audio/italian/grazie.mp3"
+    "localAudioPath": "data/audio/italian/grazie.mp3",
+    "localAudioPathAlt": "data/audio/italian/grazie_2.mp3"
   },
   "ciao": {
     "spelling": "ciao",
@@ -277,7 +304,8 @@
     "definitions": [
       "hello!"
     ],
-    "localAudioPath": "data/audio/italian/ciao.mp3"
+    "localAudioPath": "data/audio/italian/ciao.mp3",
+    "localAudioPathAlt": "data/audio/italian/ciao_2.mp3"
   },
   "prego": {
     "spelling": "prego",
@@ -287,7 +315,8 @@
     "definitions": [
       "prayer"
     ],
-    "localAudioPath": "data/audio/italian/prego.mp3"
+    "localAudioPath": "data/audio/italian/prego.mp3",
+    "localAudioPathAlt": "data/audio/italian/prego_2.mp3"
   },
   "buonasera": {
     "spelling": "buonasera",
@@ -297,7 +326,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/italian/buonasera.mp3"
+    "localAudioPath": "data/audio/italian/buonasera.mp3",
+    "localAudioPathAlt": "data/audio/italian/buonasera_2.mp3"
   },
   "salve": {
     "spelling": "salve",
@@ -307,7 +337,8 @@
     "definitions": [
       "hello!; hi!; hail!"
     ],
-    "localAudioPath": "data/audio/italian/salve.mp3"
+    "localAudioPath": "data/audio/italian/salve.mp3",
+    "localAudioPathAlt": "data/audio/italian/salve_2.mp3"
   },
   "buongiorno": {
     "spelling": "buongiorno",
@@ -317,7 +348,8 @@
     "definitions": [
       "good day"
     ],
-    "localAudioPath": "data/audio/italian/buongiorno.mp3"
+    "localAudioPath": "data/audio/italian/buongiorno.mp3",
+    "localAudioPathAlt": "data/audio/italian/buongiorno_2.mp3"
   },
   "arrivederci": {
     "spelling": "arrivederci",
@@ -327,7 +359,8 @@
     "definitions": [
       "goodbye, so long, see you soon, see you"
     ],
-    "localAudioPath": "data/audio/italian/arrivederci.mp3"
+    "localAudioPath": "data/audio/italian/arrivederci.mp3",
+    "localAudioPathAlt": "data/audio/italian/arrivederci_2.mp3"
   },
   "scusa": {
     "spelling": "scusa",
@@ -337,7 +370,8 @@
     "definitions": [
       "apology, excuse"
     ],
-    "localAudioPath": "data/audio/italian/scusa.mp3"
+    "localAudioPath": "data/audio/italian/scusa.mp3",
+    "localAudioPathAlt": "data/audio/italian/scusa_2.mp3"
   },
   "per favore": {
     "spelling": "per favore",
@@ -347,7 +381,8 @@
     "definitions": [
       "please"
     ],
-    "localAudioPath": "data/audio/italian/per_favore.mp3"
+    "localAudioPath": "data/audio/italian/per_favore.mp3",
+    "localAudioPathAlt": "data/audio/italian/per_favore_2.mp3"
   },
   "arrivederla": {
     "spelling": "arrivederla",
@@ -357,7 +392,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/italian/arrivederla.mp3"
+    "localAudioPath": "data/audio/italian/arrivederla.mp3",
+    "localAudioPathAlt": "data/audio/italian/arrivederla_2.mp3"
   },
   "mi scusi": {
     "spelling": "mi scusi",
@@ -367,7 +403,8 @@
     "definitions": [
       "sorry"
     ],
-    "localAudioPath": "data/audio/italian/mi_scusi.mp3"
+    "localAudioPath": "data/audio/italian/mi_scusi.mp3",
+    "localAudioPathAlt": "data/audio/italian/mi_scusi_2.mp3"
   },
   "buona giornata": {
     "spelling": "buona giornata",
@@ -377,7 +414,8 @@
     "definitions": [
       "have a nice day"
     ],
-    "localAudioPath": "data/audio/italian/buona_giornata.mp3"
+    "localAudioPath": "data/audio/italian/buona_giornata.mp3",
+    "localAudioPathAlt": "data/audio/italian/buona_giornata_2.mp3"
   },
   "gracias": {
     "spelling": "gracias",
@@ -387,7 +425,8 @@
     "definitions": [
       "thank you, thanks"
     ],
-    "localAudioPath": "data/audio/spanish/gracias.mp3"
+    "localAudioPath": "data/audio/spanish/gracias.mp3",
+    "localAudioPathAlt": "data/audio/spanish/gracias_2.mp3"
   },
   "hola": {
     "spelling": "hola",
@@ -397,7 +436,8 @@
     "definitions": [
       "hello, hi"
     ],
-    "localAudioPath": "data/audio/catalan/hola.mp3"
+    "localAudioPath": "data/audio/catalan/hola.mp3",
+    "localAudioPathAlt": "data/audio/catalan/hola_2.mp3"
   },
   "por favor": {
     "spelling": "por favor",
@@ -407,7 +447,8 @@
     "definitions": [
       "please"
     ],
-    "localAudioPath": "data/audio/portuguese/por_favor.mp3"
+    "localAudioPath": "data/audio/portuguese/por_favor.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/por_favor_2.mp3"
   },
   "adios": {
     "spelling": "adios",
@@ -418,7 +459,8 @@
     "definitions": [
       "goodbye, farewell"
     ],
-    "localAudioPath": "data/audio/spanish/adios.mp3"
+    "localAudioPath": "data/audio/spanish/adios.mp3",
+    "localAudioPathAlt": "data/audio/spanish/adios_2.mp3"
   },
   "de nada": {
     "spelling": "de nada",
@@ -428,7 +470,8 @@
     "definitions": [
       ", think nothing of it, you're welcome, don't mention it"
     ],
-    "localAudioPath": "data/audio/portuguese/de_nada.mp3"
+    "localAudioPath": "data/audio/portuguese/de_nada.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/de_nada_2.mp3"
   },
   "disculpe": {
     "spelling": "disculpe",
@@ -438,7 +481,8 @@
     "definitions": [
       "excuse me; pardon me"
     ],
-    "localAudioPath": "data/audio/spanish/disculpe.mp3"
+    "localAudioPath": "data/audio/spanish/disculpe.mp3",
+    "localAudioPathAlt": "data/audio/spanish/disculpe_2.mp3"
   },
   "buenos dias": {
     "spelling": "buenos dias",
@@ -448,7 +492,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/spanish/buenos_días.mp3"
+    "localAudioPath": "data/audio/spanish/buenos_días.mp3",
+    "localAudioPathAlt": "data/audio/spanish/buenos_dias_2.mp3"
   },
   "perdon": {
     "spelling": "perdon",
@@ -458,7 +503,8 @@
     "definitions": [
       "sorry, pardon me (excuse me)"
     ],
-    "localAudioPath": "data/audio/spanish/perdón.mp3"
+    "localAudioPath": "data/audio/spanish/perdón.mp3",
+    "localAudioPathAlt": "data/audio/spanish/perdon_2.mp3"
   },
   "buenas tardes": {
     "spelling": "buenas tardes",
@@ -468,7 +514,8 @@
     "definitions": [
       "good afternoon"
     ],
-    "localAudioPath": "data/audio/spanish/buenas_tardes.mp3"
+    "localAudioPath": "data/audio/spanish/buenas_tardes.mp3",
+    "localAudioPathAlt": "data/audio/spanish/buenas_tardes_2.mp3"
   },
   "buenas noches": {
     "spelling": "buenas noches",
@@ -478,7 +525,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/spanish/buenas_noches.mp3"
+    "localAudioPath": "data/audio/spanish/buenas_noches.mp3",
+    "localAudioPathAlt": "data/audio/spanish/buenas_noches_2.mp3"
   },
   "lo siento": {
     "spelling": "lo siento",
@@ -488,7 +536,8 @@
     "definitions": [
       "I'm sorry"
     ],
-    "localAudioPath": "data/audio/spanish/lo_siento.mp3"
+    "localAudioPath": "data/audio/spanish/lo_siento.mp3",
+    "localAudioPathAlt": "data/audio/spanish/lo_siento_2.mp3"
   },
   "hasta luego": {
     "spelling": "hasta luego",
@@ -498,7 +547,8 @@
     "definitions": [
       "see you later, goodbye, bye, take care, so long, later"
     ],
-    "localAudioPath": "data/audio/spanish/hasta_luego.mp3"
+    "localAudioPath": "data/audio/spanish/hasta_luego.mp3",
+    "localAudioPathAlt": "data/audio/spanish/hasta_luego_2.mp3"
   },
   "buen dia": {
     "spelling": "buen dia",
@@ -508,7 +558,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/spanish/buen_día.mp3"
+    "localAudioPath": "data/audio/spanish/buen_día.mp3",
+    "localAudioPathAlt": "data/audio/spanish/buen_dia_2.mp3"
   },
   "धन्यवाद": {
     "spelling": "धन्यवाद",
@@ -518,7 +569,8 @@
     "definitions": [
       "thanks, thank you"
     ],
-    "localAudioPath": "data/audio/hindi/धन्यवाद.mp3"
+    "localAudioPath": "data/audio/hindi/धन्यवाद.mp3",
+    "localAudioPathAlt": "data/audio/hindi/धन्यवाद_2.mp3"
   },
   "नमस्ते": {
     "spelling": "नमस्ते",
@@ -528,7 +580,8 @@
     "definitions": [
       "A salutation; a greeting used for most purposes including hello, goodbye, etc."
     ],
-    "localAudioPath": "data/audio/hindi/नमस्ते.mp3"
+    "localAudioPath": "data/audio/hindi/नमस्ते.mp3",
+    "localAudioPathAlt": "data/audio/hindi/नमस्ते_2.mp3"
   },
   "कृपया": {
     "spelling": "कृपया",
@@ -538,7 +591,8 @@
     "definitions": [
       "please, would you kindly"
     ],
-    "localAudioPath": "data/audio/hindi/कृपया.mp3"
+    "localAudioPath": "data/audio/hindi/कृपया.mp3",
+    "localAudioPathAlt": "data/audio/hindi/कृपया_2.mp3"
   },
   "अलविदा": {
     "spelling": "अलविदा",
@@ -548,7 +602,8 @@
     "definitions": [
       "bye, goodbye"
     ],
-    "localAudioPath": "data/audio/hindi/अलविदा.mp3"
+    "localAudioPath": "data/audio/hindi/अलविदा.mp3",
+    "localAudioPathAlt": "data/audio/hindi/अलविदा_2.mp3"
   },
   "terima kasih": {
     "spelling": "terima kasih",
@@ -558,7 +613,8 @@
     "definitions": [
       "thank you"
     ],
-    "localAudioPath": "data/audio/malay/terima_kasih.mp3"
+    "localAudioPath": "data/audio/malay/terima_kasih.mp3",
+    "localAudioPathAlt": "data/audio/malay/terima_kasih_2.mp3"
   },
   "halo": {
     "spelling": "halo",
@@ -568,7 +624,8 @@
     "definitions": [
       "hello"
     ],
-    "localAudioPath": "data/audio/indonesian/halo.mp3"
+    "localAudioPath": "data/audio/indonesian/halo.mp3",
+    "localAudioPathAlt": "data/audio/indonesian/halo_2.mp3"
   },
   "tolong": {
     "spelling": "tolong",
@@ -578,7 +635,8 @@
     "definitions": [
       "to help, to assist"
     ],
-    "localAudioPath": "data/audio/malay/tolong.mp3"
+    "localAudioPath": "data/audio/malay/tolong.mp3",
+    "localAudioPathAlt": "data/audio/malay/tolong_2.mp3"
   },
   "permisi": {
     "spelling": "permisi",
@@ -588,7 +646,8 @@
     "definitions": [
       "permission, authorisation; consent"
     ],
-    "localAudioPath": "data/audio/indonesian/permisi.mp3"
+    "localAudioPath": "data/audio/indonesian/permisi.mp3",
+    "localAudioPathAlt": "data/audio/indonesian/permisi_2.mp3"
   },
   "sama-sama": {
     "spelling": "sama-sama",
@@ -598,7 +657,8 @@
     "definitions": [
       "together"
     ],
-    "localAudioPath": "data/audio/malay/sama-sama.mp3"
+    "localAudioPath": "data/audio/malay/sama-sama.mp3",
+    "localAudioPathAlt": "data/audio/malay/sama-sama_2.mp3"
   },
   "maaf": {
     "spelling": "maaf",
@@ -608,7 +668,8 @@
     "definitions": [
       "Pardon, forgiveness."
     ],
-    "localAudioPath": "data/audio/malay/maaf.mp3"
+    "localAudioPath": "data/audio/malay/maaf.mp3",
+    "localAudioPathAlt": "data/audio/malay/maaf_2.mp3"
   },
   "selamat malam": {
     "spelling": "selamat malam",
@@ -618,7 +679,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/indonesian/selamat_malam.mp3"
+    "localAudioPath": "data/audio/indonesian/selamat_malam.mp3",
+    "localAudioPathAlt": "data/audio/indonesian/selamat_malam_2.mp3"
   },
   "selamat siang": {
     "spelling": "selamat siang",
@@ -628,7 +690,8 @@
     "definitions": [
       "; good day; good afternoon"
     ],
-    "localAudioPath": "data/audio/indonesian/selamat_siang.mp3"
+    "localAudioPath": "data/audio/indonesian/selamat_siang.mp3",
+    "localAudioPathAlt": "data/audio/indonesian/selamat_siang_2.mp3"
   },
   "selamat pagi": {
     "spelling": "selamat pagi",
@@ -638,7 +701,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/malay/selamat_pagi.mp3"
+    "localAudioPath": "data/audio/malay/selamat_pagi.mp3",
+    "localAudioPathAlt": "data/audio/malay/selamat_pagi_2.mp3"
   },
   "selamat sore": {
     "spelling": "selamat sore",
@@ -648,7 +712,8 @@
     "definitions": [
       "good afternoon"
     ],
-    "localAudioPath": "data/audio/indonesian/selamat_sore.mp3"
+    "localAudioPath": "data/audio/indonesian/selamat_sore.mp3",
+    "localAudioPathAlt": "data/audio/indonesian/selamat_sore_2.mp3"
   },
   "selamat tinggal": {
     "spelling": "selamat tinggal",
@@ -658,7 +723,8 @@
     "definitions": [
       "au revoir"
     ],
-    "localAudioPath": "data/audio/indonesian/selamat_tinggal.mp3"
+    "localAudioPath": "data/audio/indonesian/selamat_tinggal.mp3",
+    "localAudioPathAlt": "data/audio/indonesian/selamat_tinggal_2.mp3"
   },
   "sampai jumpa": {
     "spelling": "sampai jumpa",
@@ -668,7 +734,8 @@
     "definitions": [
       "see you later"
     ],
-    "localAudioPath": "data/audio/indonesian/sampai_jumpa.mp3"
+    "localAudioPath": "data/audio/indonesian/sampai_jumpa.mp3",
+    "localAudioPathAlt": "data/audio/indonesian/sampai_jumpa_2.mp3"
   },
   "さようなら": {
     "spelling": "さようなら",
@@ -678,7 +745,8 @@
     "definitions": [
       "a final expression of departure: farewell, so long, adieu, goodbye"
     ],
-    "localAudioPath": "data/audio/japanese/さようなら.mp3"
+    "localAudioPath": "data/audio/japanese/さようなら.mp3",
+    "localAudioPathAlt": "data/audio/japanese/さようなら_2.mp3"
   },
   "ありがとうございます": {
     "spelling": "ありがとうございます",
@@ -688,7 +756,8 @@
     "definitions": [
       "thank you very much"
     ],
-    "localAudioPath": "data/audio/japanese/ありがとうございます.mp3"
+    "localAudioPath": "data/audio/japanese/ありがとうございます.mp3",
+    "localAudioPathAlt": "data/audio/japanese/ありがとうございます_2.mp3"
   },
   "すみません": {
     "spelling": "すみません",
@@ -698,7 +767,8 @@
     "definitions": [
       "sorry! }}"
     ],
-    "localAudioPath": "data/audio/japanese/すみません.mp3"
+    "localAudioPath": "data/audio/japanese/すみません.mp3",
+    "localAudioPathAlt": "data/audio/japanese/すみません_2.mp3"
   },
   "おはようございます": {
     "spelling": "おはようございます",
@@ -708,7 +778,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/japanese/おはようございます.mp3"
+    "localAudioPath": "data/audio/japanese/おはようございます.mp3",
+    "localAudioPathAlt": "data/audio/japanese/おはようございます_2.mp3"
   },
   "안녕하세요": {
     "spelling": "안녕하세요",
@@ -718,7 +789,8 @@
     "definitions": [
       "How are you?"
     ],
-    "localAudioPath": "data/audio/korean/안녕하세요.mp3"
+    "localAudioPath": "data/audio/korean/안녕하세요.mp3",
+    "localAudioPathAlt": "data/audio/korean/안녕하세요_2.mp3"
   },
   "안녕하십니까": {
     "spelling": "안녕하십니까",
@@ -728,7 +800,8 @@
     "definitions": [
       "How are you?"
     ],
-    "localAudioPath": "data/audio/korean/안녕하십니까.mp3"
+    "localAudioPath": "data/audio/korean/안녕하십니까.mp3",
+    "localAudioPathAlt": "data/audio/korean/안녕하십니까_2.mp3"
   },
   "천만에요": {
     "spelling": "천만에요",
@@ -738,7 +811,8 @@
     "definitions": [
       "you're welcome!"
     ],
-    "localAudioPath": "data/audio/korean/천만에요.mp3"
+    "localAudioPath": "data/audio/korean/천만에요.mp3",
+    "localAudioPathAlt": "data/audio/korean/천만에요_2.mp3"
   },
   "감사합니다": {
     "spelling": "감사합니다",
@@ -748,7 +822,8 @@
     "definitions": [
       ": is/am/are thankful"
     ],
-    "localAudioPath": "data/audio/korean/감사합니다.mp3"
+    "localAudioPath": "data/audio/korean/감사합니다.mp3",
+    "localAudioPathAlt": "data/audio/korean/감사합니다_2.mp3"
   },
   "안녕히 계세요": {
     "spelling": "안녕히 계세요",
@@ -758,7 +833,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/korean/안녕히_계세요.mp3"
+    "localAudioPath": "data/audio/korean/안녕히_계세요.mp3",
+    "localAudioPathAlt": "data/audio/korean/안녕히_계세요_2.mp3"
   },
   "안녕히 가세요": {
     "spelling": "안녕히 가세요",
@@ -768,7 +844,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/korean/안녕히_가세요.mp3"
+    "localAudioPath": "data/audio/korean/안녕히_가세요.mp3",
+    "localAudioPathAlt": "data/audio/korean/안녕히_가세요_2.mp3"
   },
   "부탁합니다": {
     "spelling": "부탁합니다",
@@ -778,7 +855,8 @@
     "definitions": [
       "formal polite present indicative form of"
     ],
-    "localAudioPath": "data/audio/korean/부탁합니다.mp3"
+    "localAudioPath": "data/audio/korean/부탁합니다.mp3",
+    "localAudioPathAlt": "data/audio/korean/부탁합니다_2.mp3"
   },
   "graag gedaan": {
     "spelling": "graag gedaan",
@@ -788,7 +866,8 @@
     "definitions": [
       "you're welcome; my pleasure (''after being thanked''); ''literally'': gladly done"
     ],
-    "localAudioPath": "data/audio/dutch/graag_gedaan.mp3"
+    "localAudioPath": "data/audio/dutch/graag_gedaan.mp3",
+    "localAudioPathAlt": "data/audio/dutch/graag_gedaan_2.mp3"
   },
   "alstublieft": {
     "spelling": "alstublieft",
@@ -798,7 +877,8 @@
     "definitions": [
       "please"
     ],
-    "localAudioPath": "data/audio/dutch/alstublieft.mp3"
+    "localAudioPath": "data/audio/dutch/alstublieft.mp3",
+    "localAudioPathAlt": "data/audio/dutch/alstublieft_2.mp3"
   },
   "tot ziens": {
     "spelling": "tot ziens",
@@ -808,7 +888,8 @@
     "definitions": [
       "see you; bye"
     ],
-    "localAudioPath": "data/audio/dutch/tot_ziens.mp3"
+    "localAudioPath": "data/audio/dutch/tot_ziens.mp3",
+    "localAudioPathAlt": "data/audio/dutch/tot_ziens_2.mp3"
   },
   "dank u wel": {
     "spelling": "dank u wel",
@@ -818,7 +899,8 @@
     "definitions": [
       "thank you very much"
     ],
-    "localAudioPath": "data/audio/dutch/dank_u_wel.mp3"
+    "localAudioPath": "data/audio/dutch/dank_u_wel.mp3",
+    "localAudioPathAlt": "data/audio/dutch/dank_u_wel_2.mp3"
   },
   "goedemorgen": {
     "spelling": "goedemorgen",
@@ -828,7 +910,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/dutch/goedemorgen.mp3"
+    "localAudioPath": "data/audio/dutch/goedemorgen.mp3",
+    "localAudioPathAlt": "data/audio/dutch/goedemorgen_2.mp3"
   },
   "goedemiddag": {
     "spelling": "goedemiddag",
@@ -838,7 +921,8 @@
     "definitions": [
       "good afternoon"
     ],
-    "localAudioPath": "data/audio/dutch/goedemiddag.mp3"
+    "localAudioPath": "data/audio/dutch/goedemiddag.mp3",
+    "localAudioPathAlt": "data/audio/dutch/goedemiddag_2.mp3"
   },
   "goedenavond": {
     "spelling": "goedenavond",
@@ -848,7 +932,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/dutch/goedenavond.mp3"
+    "localAudioPath": "data/audio/dutch/goedenavond.mp3",
+    "localAudioPathAlt": "data/audio/dutch/goedenavond_2.mp3"
   },
   "het spijt me": {
     "spelling": "het spijt me",
@@ -858,7 +943,8 @@
     "definitions": [
       "I'm sorry"
     ],
-    "localAudioPath": "data/audio/dutch/het_spijt_me.mp3"
+    "localAudioPath": "data/audio/dutch/het_spijt_me.mp3",
+    "localAudioPathAlt": "data/audio/dutch/het_spijt_me_2.mp3"
   },
   "dzień dobry": {
     "spelling": "dzień dobry",
@@ -868,7 +954,8 @@
     "definitions": [
       "good day, good morning, good afternoon"
     ],
-    "localAudioPath": "data/audio/polish/dzień_dobry.mp3"
+    "localAudioPath": "data/audio/polish/dzień_dobry.mp3",
+    "localAudioPathAlt": "data/audio/polish/dzień_dobry_2.mp3"
   },
   "do widzenia": {
     "spelling": "do widzenia",
@@ -878,7 +965,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/polish/do_widzenia.mp3"
+    "localAudioPath": "data/audio/polish/do_widzenia.mp3",
+    "localAudioPathAlt": "data/audio/polish/do_widzenia_2.mp3"
   },
   "dobry wieczór": {
     "spelling": "dobry wieczór",
@@ -888,7 +976,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/polish/dobry_wieczór.mp3"
+    "localAudioPath": "data/audio/polish/dobry_wieczór.mp3",
+    "localAudioPathAlt": "data/audio/polish/dobry_wieczór_2.mp3"
   },
   "dziękuję": {
     "spelling": "dziękuję",
@@ -898,7 +987,8 @@
     "definitions": [
       "thank you"
     ],
-    "localAudioPath": "data/audio/polish/dziękuję.mp3"
+    "localAudioPath": "data/audio/polish/dziękuję.mp3",
+    "localAudioPathAlt": "data/audio/polish/dziękuję_2.mp3"
   },
   "proszę": {
     "spelling": "proszę",
@@ -908,7 +998,8 @@
     "definitions": [
       "please!"
     ],
-    "localAudioPath": "data/audio/polish/proszę.mp3"
+    "localAudioPath": "data/audio/polish/proszę.mp3",
+    "localAudioPathAlt": "data/audio/polish/proszę_2.mp3"
   },
   "przepraszam": {
     "spelling": "przepraszam",
@@ -918,7 +1009,8 @@
     "definitions": [
       "sorry; I'm sorry, excuse me"
     ],
-    "localAudioPath": "data/audio/polish/przepraszam.mp3"
+    "localAudioPath": "data/audio/polish/przepraszam.mp3",
+    "localAudioPathAlt": "data/audio/polish/przepraszam_2.mp3"
   },
   "nie ma za co": {
     "spelling": "nie ma za co",
@@ -928,7 +1020,8 @@
     "definitions": [
       "you're welcome"
     ],
-    "localAudioPath": "data/audio/polish/nie_ma_za_co.mp3"
+    "localAudioPath": "data/audio/polish/nie_ma_za_co.mp3",
+    "localAudioPathAlt": "data/audio/polish/nie_ma_za_co_2.mp3"
   },
   "witam": {
     "spelling": "witam",
@@ -938,7 +1031,8 @@
     "definitions": [
       "welcome"
     ],
-    "localAudioPath": "data/audio/polish/witam.mp3"
+    "localAudioPath": "data/audio/polish/witam.mp3",
+    "localAudioPathAlt": "data/audio/polish/witam_2.mp3"
   },
   "obrigado": {
     "spelling": "obrigado",
@@ -948,7 +1042,8 @@
     "definitions": [
       "thanks; thank you"
     ],
-    "localAudioPath": "data/audio/portuguese/obrigado.mp3"
+    "localAudioPath": "data/audio/portuguese/obrigado.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/obrigado_2.mp3"
   },
   "olá": {
     "spelling": "olá",
@@ -958,7 +1053,8 @@
     "definitions": [
       "hello; hi"
     ],
-    "localAudioPath": "data/audio/portuguese/olá.mp3"
+    "localAudioPath": "data/audio/portuguese/olá.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/olá_2.mp3"
   },
   "adeus": {
     "spelling": "adeus",
@@ -968,7 +1064,8 @@
     "definitions": [
       "goodbye (farewell)"
     ],
-    "localAudioPath": "data/audio/portuguese/adeus.mp3"
+    "localAudioPath": "data/audio/portuguese/adeus.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/adeus_2.mp3"
   },
   "bom dia": {
     "spelling": "bom dia",
@@ -978,7 +1075,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/portuguese/bom_dia.mp3"
+    "localAudioPath": "data/audio/portuguese/bom_dia.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/bom_dia_2.mp3"
   },
   "boa noite": {
     "spelling": "boa noite",
@@ -988,7 +1086,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/portuguese/boa_noite.mp3"
+    "localAudioPath": "data/audio/portuguese/boa_noite.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/boa_noite_2.mp3"
   },
   "tchau": {
     "spelling": "tchau",
@@ -998,7 +1097,8 @@
     "definitions": [
       "goodbye; bye; see you"
     ],
-    "localAudioPath": "data/audio/portuguese/tchau.mp3"
+    "localAudioPath": "data/audio/portuguese/tchau.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/tchau_2.mp3"
   },
   "boa tarde": {
     "spelling": "boa tarde",
@@ -1008,7 +1108,8 @@
     "definitions": [
       "good afternoon"
     ],
-    "localAudioPath": "data/audio/portuguese/boa_tarde.mp3"
+    "localAudioPath": "data/audio/portuguese/boa_tarde.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/boa_tarde_2.mp3"
   },
   "perdão": {
     "spelling": "perdão",
@@ -1018,7 +1119,8 @@
     "definitions": [
       "pardon; forgiveness"
     ],
-    "localAudioPath": "data/audio/portuguese/perdão.mp3"
+    "localAudioPath": "data/audio/portuguese/perdão.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/perdão_2.mp3"
   },
   "com licença": {
     "spelling": "com licença",
@@ -1028,7 +1130,8 @@
     "definitions": [
       "excuse me"
     ],
-    "localAudioPath": "data/audio/portuguese/com_licença.mp3"
+    "localAudioPath": "data/audio/portuguese/com_licença.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/com_licença_2.mp3"
   },
   "boa viagem": {
     "spelling": "boa viagem",
@@ -1038,7 +1141,8 @@
     "definitions": [
       "bon voyage!; enjoy your trip!"
     ],
-    "localAudioPath": "data/audio/portuguese/boa_viagem.mp3"
+    "localAudioPath": "data/audio/portuguese/boa_viagem.mp3",
+    "localAudioPathAlt": "data/audio/portuguese/boa_viagem_2.mp3"
   },
   "спасибо": {
     "spelling": "спасибо",
@@ -1048,7 +1152,8 @@
     "definitions": [
       "thank you, thanks"
     ],
-    "localAudioPath": "data/audio/russian/спасибо.mp3"
+    "localAudioPath": "data/audio/russian/спасибо.mp3",
+    "localAudioPathAlt": "data/audio/russian/спасибо_2.mp3"
   },
   "до свидания": {
     "spelling": "до свидания",
@@ -1058,7 +1163,8 @@
     "definitions": [
       "goodbye, see you later"
     ],
-    "localAudioPath": "data/audio/russian/до_свидания.mp3"
+    "localAudioPath": "data/audio/russian/до_свидания.mp3",
+    "localAudioPathAlt": "data/audio/russian/до_свидания_2.mp3"
   },
   "пожалуйста": {
     "spelling": "пожалуйста",
@@ -1068,7 +1174,8 @@
     "definitions": [
       "please"
     ],
-    "localAudioPath": "data/audio/russian/пожалуйста.mp3"
+    "localAudioPath": "data/audio/russian/пожалуйста.mp3",
+    "localAudioPathAlt": "data/audio/russian/пожалуйста_2.mp3"
   },
   "здравствуйте": {
     "spelling": "здравствуйте",
@@ -1078,7 +1185,8 @@
     "definitions": [
       "hello"
     ],
-    "localAudioPath": "data/audio/russian/здравствуйте.mp3"
+    "localAudioPath": "data/audio/russian/здравствуйте.mp3",
+    "localAudioPathAlt": "data/audio/russian/здравствуйте_2.mp3"
   },
   "добрый день": {
     "spelling": "добрый день",
@@ -1088,7 +1196,8 @@
     "definitions": [
       "good day, good afternoon"
     ],
-    "localAudioPath": "data/audio/russian/добрый_день.mp3"
+    "localAudioPath": "data/audio/russian/добрый_день.mp3",
+    "localAudioPathAlt": "data/audio/russian/добрый_день_2.mp3"
   },
   "доброе утро": {
     "spelling": "доброе утро",
@@ -1098,7 +1207,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/russian/доброе_утро.mp3"
+    "localAudioPath": "data/audio/russian/доброе_утро.mp3",
+    "localAudioPathAlt": "data/audio/russian/доброе_утро_2.mp3"
   },
   "добрый вечер": {
     "spelling": "добрый вечер",
@@ -1108,7 +1218,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/russian/добрый_вечер.mp3"
+    "localAudioPath": "data/audio/russian/добрый_вечер.mp3",
+    "localAudioPathAlt": "data/audio/russian/добрый_вечер_2.mp3"
   },
   "всего доброго": {
     "spelling": "всего доброго",
@@ -1118,7 +1229,8 @@
     "definitions": [
       "all the best"
     ],
-    "localAudioPath": "data/audio/russian/всего_доброго.mp3"
+    "localAudioPath": "data/audio/russian/всего_доброго.mp3",
+    "localAudioPathAlt": "data/audio/russian/всего_доброго_2.mp3"
   },
   "извините": {
     "spelling": "извините",
@@ -1128,7 +1240,8 @@
     "definitions": [
       "- excuse me; sorry"
     ],
-    "localAudioPath": "data/audio/russian/извините.mp3"
+    "localAudioPath": "data/audio/russian/извините.mp3",
+    "localAudioPathAlt": "data/audio/russian/извините_2.mp3"
   },
   "你好": {
     "spelling": "你好",
@@ -1138,7 +1251,8 @@
     "definitions": [
       "hello; hi"
     ],
-    "localAudioPath": "data/audio/chinese/你好.mp3"
+    "localAudioPath": "data/audio/chinese/你好.mp3",
+    "localAudioPathAlt": "data/audio/chinese/你好_2.mp3"
   },
   "再見": {
     "spelling": "再見",
@@ -1148,7 +1262,8 @@
     "definitions": [
       "goodbye; see you later"
     ],
-    "localAudioPath": "data/audio/chinese/再見.mp3"
+    "localAudioPath": "data/audio/chinese/再見.mp3",
+    "localAudioPathAlt": "data/audio/chinese/再見_2.mp3"
   },
   "早上好": {
     "spelling": "早上好",
@@ -1158,7 +1273,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/chinese/早上好.mp3"
+    "localAudioPath": "data/audio/chinese/早上好.mp3",
+    "localAudioPathAlt": "data/audio/chinese/早上好_2.mp3"
   },
   "早晨": {
     "spelling": "早晨",
@@ -1168,7 +1284,8 @@
     "definitions": [
       "early morning"
     ],
-    "localAudioPath": "data/audio/chinese/早晨.mp3"
+    "localAudioPath": "data/audio/chinese/早晨.mp3",
+    "localAudioPathAlt": "data/audio/chinese/早晨_2.mp3"
   },
   "晚上好": {
     "spelling": "晚上好",
@@ -1178,7 +1295,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/chinese/晚上好.mp3"
+    "localAudioPath": "data/audio/chinese/晚上好.mp3",
+    "localAudioPathAlt": "data/audio/chinese/晚上好_2.mp3"
   },
   "慢走": {
     "spelling": "慢走",
@@ -1188,7 +1306,8 @@
     "definitions": [
       "goodbye; take care ()"
     ],
-    "localAudioPath": "data/audio/chinese/慢走.mp3"
+    "localAudioPath": "data/audio/chinese/慢走.mp3",
+    "localAudioPathAlt": "data/audio/chinese/慢走_2.mp3"
   },
   "下午好": {
     "spelling": "下午好",
@@ -1198,7 +1317,8 @@
     "definitions": [
       "good afternoon"
     ],
-    "localAudioPath": "data/audio/chinese/下午好.mp3"
+    "localAudioPath": "data/audio/chinese/下午好.mp3",
+    "localAudioPathAlt": "data/audio/chinese/下午好_2.mp3"
   },
   "مرحبا": {
     "spelling": "مرحبا",
@@ -1208,7 +1328,8 @@
     "definitions": [
       "hello, welcome"
     ],
-    "localAudioPath": "data/audio/arabic/مرحبا.mp3"
+    "localAudioPath": "data/audio/arabic/مرحبا.mp3",
+    "localAudioPathAlt": "data/audio/arabic/مرحبا_2.mp3"
   },
   "مع السلامة": {
     "spelling": "مع السلامة",
@@ -1218,7 +1339,8 @@
     "definitions": [
       "goodbye, farewell"
     ],
-    "localAudioPath": "data/audio/arabic/مع_السلامة.mp3"
+    "localAudioPath": "data/audio/arabic/مع_السلامة.mp3",
+    "localAudioPathAlt": "data/audio/arabic/مع_السلامة_2.mp3"
   },
   "صباح الخير": {
     "spelling": "صباح الخير",
@@ -1228,7 +1350,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/arabic/صباح_الخير.mp3"
+    "localAudioPath": "data/audio/arabic/صباح_الخير.mp3",
+    "localAudioPathAlt": "data/audio/arabic/صباح_الخير_2.mp3"
   },
   "مساء الخير": {
     "spelling": "مساء الخير",
@@ -1238,7 +1361,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/arabic/مساء_الخير.mp3"
+    "localAudioPath": "data/audio/arabic/مساء_الخير.mp3",
+    "localAudioPathAlt": "data/audio/arabic/مساء_الخير_2.mp3"
   },
   "آسف": {
     "spelling": "آسف",
@@ -1248,7 +1372,8 @@
     "definitions": [
       "sorry"
     ],
-    "localAudioPath": "data/audio/arabic/آسف.mp3"
+    "localAudioPath": "data/audio/arabic/آسف.mp3",
+    "localAudioPathAlt": "data/audio/arabic/آسف_2.mp3"
   },
   "благодаря": {
     "spelling": "благодаря",
@@ -1258,7 +1383,8 @@
     "definitions": [
       "thanks, thank you"
     ],
-    "localAudioPath": "data/audio/bulgarian/благодаря.mp3"
+    "localAudioPath": "data/audio/bulgarian/благодаря.mp3",
+    "localAudioPathAlt": "data/audio/bulgarian/благодаря_2.mp3"
   },
   "моля": {
     "spelling": "моля",
@@ -1268,7 +1394,8 @@
     "definitions": [
       "to ask, to request (someone)"
     ],
-    "localAudioPath": "data/audio/bulgarian/моля.mp3"
+    "localAudioPath": "data/audio/bulgarian/моля.mp3",
+    "localAudioPathAlt": "data/audio/bulgarian/моля_2.mp3"
   },
   "добър вечер": {
     "spelling": "добър вечер",
@@ -1278,7 +1405,8 @@
     "definitions": [
       "good evening (a greeting said in the evening)"
     ],
-    "localAudioPath": "data/audio/bulgarian/добър_вечер.mp3"
+    "localAudioPath": "data/audio/bulgarian/добър_вечер.mp3",
+    "localAudioPathAlt": "data/audio/bulgarian/добър_вечер_2.mp3"
   },
   "здравей": {
     "spelling": "здравей",
@@ -1288,7 +1416,8 @@
     "definitions": [
       "hello"
     ],
-    "localAudioPath": "data/audio/bulgarian/здравей.mp3"
+    "localAudioPath": "data/audio/bulgarian/здравей.mp3",
+    "localAudioPathAlt": "data/audio/bulgarian/здравей_2.mp3"
   },
   "довиждане": {
     "spelling": "довиждане",
@@ -1298,7 +1427,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/bulgarian/довиждане.mp3"
+    "localAudioPath": "data/audio/bulgarian/довиждане.mp3",
+    "localAudioPathAlt": "data/audio/bulgarian/довиждане_2.mp3"
   },
   "добро утро": {
     "spelling": "добро утро",
@@ -1308,7 +1438,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/bulgarian/добро_утро.mp3"
+    "localAudioPath": "data/audio/bulgarian/добро_утро.mp3",
+    "localAudioPathAlt": "data/audio/bulgarian/добро_утро_2.mp3"
   },
   "съжалявам": {
     "spelling": "съжалявам",
@@ -1318,7 +1449,8 @@
     "definitions": [
       "sorry (expression of regret or sorrow)"
     ],
-    "localAudioPath": "data/audio/bulgarian/съжалявам.mp3"
+    "localAudioPath": "data/audio/bulgarian/съжалявам.mp3",
+    "localAudioPathAlt": "data/audio/bulgarian/съжалявам_2.mp3"
   },
   "извинете": {
     "spelling": "извинете",
@@ -1328,7 +1460,8 @@
     "definitions": [
       ": excuse me; sorry (various senses)"
     ],
-    "localAudioPath": "data/audio/bulgarian/извинете.mp3"
+    "localAudioPath": "data/audio/bulgarian/извинете.mp3",
+    "localAudioPathAlt": "data/audio/bulgarian/извинете_2.mp3"
   },
   "bon dia": {
     "spelling": "bon dia",
@@ -1338,7 +1471,8 @@
     "definitions": [
       "good day"
     ],
-    "localAudioPath": "data/audio/catalan/bon_dia.mp3"
+    "localAudioPath": "data/audio/catalan/bon_dia.mp3",
+    "localAudioPathAlt": "data/audio/catalan/bon_dia_2.mp3"
   },
   "gràcies": {
     "spelling": "gràcies",
@@ -1348,7 +1482,8 @@
     "definitions": [
       "thanks"
     ],
-    "localAudioPath": "data/audio/catalan/gràcies.mp3"
+    "localAudioPath": "data/audio/catalan/gràcies.mp3",
+    "localAudioPathAlt": "data/audio/catalan/gràcies_2.mp3"
   },
   "si us plau": {
     "spelling": "si us plau",
@@ -1358,7 +1493,8 @@
     "definitions": [
       "please"
     ],
-    "localAudioPath": "data/audio/catalan/si_us_plau.mp3"
+    "localAudioPath": "data/audio/catalan/si_us_plau.mp3",
+    "localAudioPathAlt": "data/audio/catalan/si_us_plau_2.mp3"
   },
   "bona tarda": {
     "spelling": "bona tarda",
@@ -1368,7 +1504,8 @@
     "definitions": [
       "good afternoon"
     ],
-    "localAudioPath": "data/audio/catalan/bona_tarda.mp3"
+    "localAudioPath": "data/audio/catalan/bona_tarda.mp3",
+    "localAudioPathAlt": "data/audio/catalan/bona_tarda_2.mp3"
   },
   "bona nit": {
     "spelling": "bona nit",
@@ -1378,7 +1515,8 @@
     "definitions": [
       "good night"
     ],
-    "localAudioPath": "data/audio/catalan/bona_nit.mp3"
+    "localAudioPath": "data/audio/catalan/bona_nit.mp3",
+    "localAudioPathAlt": "data/audio/catalan/bona_nit_2.mp3"
   },
   "de res": {
     "spelling": "de res",
@@ -1388,7 +1526,8 @@
     "definitions": [
       "you're welcome"
     ],
-    "localAudioPath": "data/audio/catalan/de_res.mp3"
+    "localAudioPath": "data/audio/catalan/de_res.mp3",
+    "localAudioPathAlt": "data/audio/catalan/de_res_2.mp3"
   },
   "prosím": {
     "spelling": "prosím",
@@ -1398,7 +1537,8 @@
     "definitions": [
       "please"
     ],
-    "localAudioPath": "data/audio/slovak/prosím.mp3"
+    "localAudioPath": "data/audio/slovak/prosím.mp3",
+    "localAudioPathAlt": "data/audio/slovak/prosím_2.mp3"
   },
   "ahoj": {
     "spelling": "ahoj",
@@ -1408,7 +1548,8 @@
     "definitions": [
       "hello, hi"
     ],
-    "localAudioPath": "data/audio/slovak/ahoj.mp3"
+    "localAudioPath": "data/audio/slovak/ahoj.mp3",
+    "localAudioPathAlt": "data/audio/slovak/ahoj_2.mp3"
   },
   "promiňte": {
     "spelling": "promiňte",
@@ -1418,7 +1559,8 @@
     "definitions": [
       "sorry! excuse me!"
     ],
-    "localAudioPath": "data/audio/czech/promiňte.mp3"
+    "localAudioPath": "data/audio/czech/promiňte.mp3",
+    "localAudioPathAlt": "data/audio/czech/promiňte_2.mp3"
   },
   "děkuji": {
     "spelling": "děkuji",
@@ -1428,7 +1570,8 @@
     "definitions": [
       "thank you"
     ],
-    "localAudioPath": "data/audio/czech/děkuji.mp3"
+    "localAudioPath": "data/audio/czech/děkuji.mp3",
+    "localAudioPathAlt": "data/audio/czech/děkuji_2.mp3"
   },
   "dobrý den": {
     "spelling": "dobrý den",
@@ -1438,7 +1581,8 @@
     "definitions": [
       "hello, good day"
     ],
-    "localAudioPath": "data/audio/czech/dobrý_den.mp3"
+    "localAudioPath": "data/audio/czech/dobrý_den.mp3",
+    "localAudioPathAlt": "data/audio/czech/dobrý_den_2.mp3"
   },
   "není zač": {
     "spelling": "není zač",
@@ -1448,7 +1592,8 @@
     "definitions": [
       "not at all, don't mention it"
     ],
-    "localAudioPath": "data/audio/czech/není_zač.mp3"
+    "localAudioPath": "data/audio/czech/není_zač.mp3",
+    "localAudioPathAlt": "data/audio/czech/není_zač_2.mp3"
   },
   "dobrý večer": {
     "spelling": "dobrý večer",
@@ -1458,7 +1603,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/slovak/dobrý_večer.mp3"
+    "localAudioPath": "data/audio/slovak/dobrý_večer.mp3",
+    "localAudioPathAlt": "data/audio/slovak/dobrý_večer_2.mp3"
   },
   "na shledanou": {
     "spelling": "na shledanou",
@@ -1468,7 +1614,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/czech/na_shledanou.mp3"
+    "localAudioPath": "data/audio/czech/na_shledanou.mp3",
+    "localAudioPathAlt": "data/audio/czech/na_shledanou_2.mp3"
   },
   "dobré ráno": {
     "spelling": "dobré ráno",
@@ -1478,7 +1625,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/slovak/dobré_ráno.mp3"
+    "localAudioPath": "data/audio/slovak/dobré_ráno.mp3",
+    "localAudioPathAlt": "data/audio/slovak/dobré_ráno_2.mp3"
   },
   "tak": {
     "spelling": "tak",
@@ -1488,7 +1636,8 @@
     "definitions": [
       "thanks"
     ],
-    "localAudioPath": "data/audio/danish/tak.mp3"
+    "localAudioPath": "data/audio/danish/tak.mp3",
+    "localAudioPathAlt": "data/audio/danish/tak_2.mp3"
   },
   "goddag": {
     "spelling": "goddag",
@@ -1498,7 +1647,8 @@
     "definitions": [
       "good day"
     ],
-    "localAudioPath": "data/audio/swedish/goddag.mp3"
+    "localAudioPath": "data/audio/swedish/goddag.mp3",
+    "localAudioPathAlt": "data/audio/swedish/goddag_2.mp3"
   },
   "hej": {
     "spelling": "hej",
@@ -1508,7 +1658,8 @@
     "definitions": [
       "hi, hello"
     ],
-    "localAudioPath": "data/audio/swedish/hej.mp3"
+    "localAudioPath": "data/audio/swedish/hej.mp3",
+    "localAudioPathAlt": "data/audio/swedish/hej_2.mp3"
   },
   "mange tak": {
     "spelling": "mange tak",
@@ -1518,7 +1669,8 @@
     "definitions": [
       "thank you very much, thanks a lot"
     ],
-    "localAudioPath": "data/audio/danish/mange_tak.mp3"
+    "localAudioPath": "data/audio/danish/mange_tak.mp3",
+    "localAudioPathAlt": "data/audio/danish/mange_tak_2.mp3"
   },
   "farvel": {
     "spelling": "farvel",
@@ -1528,7 +1680,8 @@
     "definitions": [
       "goodbye, farewell"
     ],
-    "localAudioPath": "data/audio/danish/farvel.mp3"
+    "localAudioPath": "data/audio/danish/farvel.mp3",
+    "localAudioPathAlt": "data/audio/danish/farvel_2.mp3"
   },
   "undskyld": {
     "spelling": "undskyld",
@@ -1538,7 +1691,8 @@
     "definitions": [
       "sorry (expression of regret or sorrow)"
     ],
-    "localAudioPath": "data/audio/danish/undskyld.mp3"
+    "localAudioPath": "data/audio/danish/undskyld.mp3",
+    "localAudioPathAlt": "data/audio/danish/undskyld_2.mp3"
   },
   "godmorgen": {
     "spelling": "godmorgen",
@@ -1548,7 +1702,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/danish/godmorgen.mp3"
+    "localAudioPath": "data/audio/danish/godmorgen.mp3",
+    "localAudioPathAlt": "data/audio/danish/godmorgen_2.mp3"
   },
   "godaften": {
     "spelling": "godaften",
@@ -1558,7 +1713,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/danish/godaften.mp3"
+    "localAudioPath": "data/audio/danish/godaften.mp3",
+    "localAudioPathAlt": "data/audio/danish/godaften_2.mp3"
   },
   "beklager": {
     "spelling": "beklager",
@@ -1568,7 +1724,8 @@
     "definitions": [
       "sorry"
     ],
-    "localAudioPath": "data/audio/norwegian/beklager.mp3"
+    "localAudioPath": "data/audio/norwegian/beklager.mp3",
+    "localAudioPathAlt": "data/audio/norwegian/beklager_2.mp3"
   },
   "selv tak": {
     "spelling": "selv tak",
@@ -1578,7 +1735,8 @@
     "definitions": [
       "thank you as well"
     ],
-    "localAudioPath": "data/audio/danish/selv_tak.mp3"
+    "localAudioPath": "data/audio/danish/selv_tak.mp3",
+    "localAudioPathAlt": "data/audio/danish/selv_tak_2.mp3"
   },
   "ευχαριστώ": {
     "spelling": "ευχαριστώ",
@@ -1588,7 +1746,8 @@
     "definitions": [
       "thank you!, thanks!"
     ],
-    "localAudioPath": "data/audio/greek/ευχαριστώ.mp3"
+    "localAudioPath": "data/audio/greek/ευχαριστώ.mp3",
+    "localAudioPathAlt": "data/audio/greek/ευχαριστώ_2.mp3"
   },
   "συγγνώμη": {
     "spelling": "συγγνώμη",
@@ -1598,7 +1757,8 @@
     "definitions": [
       "acknowledgement; confession"
     ],
-    "localAudioPath": "data/audio/greek/συγγνώμη.mp3"
+    "localAudioPath": "data/audio/greek/συγγνώμη.mp3",
+    "localAudioPathAlt": "data/audio/greek/συγγνώμη_2.mp3"
   },
   "καλημέρα": {
     "spelling": "καλημέρα",
@@ -1608,7 +1768,8 @@
     "definitions": [
       "good morning, hello, good day"
     ],
-    "localAudioPath": "data/audio/greek/καλημέρα.mp3"
+    "localAudioPath": "data/audio/greek/καλημέρα.mp3",
+    "localAudioPathAlt": "data/audio/greek/καλημέρα_2.mp3"
   },
   "καλησπέρα": {
     "spelling": "καλησπέρα",
@@ -1618,7 +1779,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/greek/καλησπέρα.mp3"
+    "localAudioPath": "data/audio/greek/καλησπέρα.mp3",
+    "localAudioPathAlt": "data/audio/greek/καλησπέρα_2.mp3"
   },
   "αντίο": {
     "spelling": "αντίο",
@@ -1628,7 +1790,8 @@
     "definitions": [
       "goodbye, bye, adieu, farewell"
     ],
-    "localAudioPath": "data/audio/greek/αντίο.mp3"
+    "localAudioPath": "data/audio/greek/αντίο.mp3",
+    "localAudioPathAlt": "data/audio/greek/αντίο_2.mp3"
   },
   "γεια σας": {
     "spelling": "γεια σας",
@@ -1638,7 +1801,8 @@
     "definitions": [
       "hello, goodbye"
     ],
-    "localAudioPath": "data/audio/greek/γεια_σας.mp3"
+    "localAudioPath": "data/audio/greek/γεια_σας.mp3",
+    "localAudioPathAlt": "data/audio/greek/γεια_σας_2.mp3"
   },
   "παρακαλώ": {
     "spelling": "παρακαλώ",
@@ -1648,7 +1812,8 @@
     "definitions": [
       "please"
     ],
-    "localAudioPath": "data/audio/greek/παρακαλώ.mp3"
+    "localAudioPath": "data/audio/greek/παρακαλώ.mp3",
+    "localAudioPathAlt": "data/audio/greek/παρακαλώ_2.mp3"
   },
   "hei": {
     "spelling": "hei",
@@ -1658,7 +1823,8 @@
     "definitions": [
       "* hei!"
     ],
-    "localAudioPath": "data/audio/norwegian/hei.mp3"
+    "localAudioPath": "data/audio/norwegian/hei.mp3",
+    "localAudioPathAlt": "data/audio/norwegian/hei_2.mp3"
   },
   "kiitos": {
     "spelling": "kiitos",
@@ -1668,7 +1834,8 @@
     "definitions": [
       "thank you, thanks"
     ],
-    "localAudioPath": "data/audio/finnish/kiitos.mp3"
+    "localAudioPath": "data/audio/finnish/kiitos.mp3",
+    "localAudioPathAlt": "data/audio/finnish/kiitos_2.mp3"
   },
   "näkemiin": {
     "spelling": "näkemiin",
@@ -1678,7 +1845,8 @@
     "definitions": [
       "see you later, see you, goodbye"
     ],
-    "localAudioPath": "data/audio/finnish/näkemiin.mp3"
+    "localAudioPath": "data/audio/finnish/näkemiin.mp3",
+    "localAudioPathAlt": "data/audio/finnish/näkemiin_2.mp3"
   },
   "anteeksi": {
     "spelling": "anteeksi",
@@ -1688,7 +1856,8 @@
     "definitions": [
       "sorry, I'm sorry"
     ],
-    "localAudioPath": "data/audio/finnish/anteeksi.mp3"
+    "localAudioPath": "data/audio/finnish/anteeksi.mp3",
+    "localAudioPathAlt": "data/audio/finnish/anteeksi_2.mp3"
   },
   "ole hyvä": {
     "spelling": "ole hyvä",
@@ -1698,7 +1867,8 @@
     "definitions": [
       "you’re welcome"
     ],
-    "localAudioPath": "data/audio/finnish/ole_hyvä.mp3"
+    "localAudioPath": "data/audio/finnish/ole_hyvä.mp3",
+    "localAudioPathAlt": "data/audio/finnish/ole_hyvä_2.mp3"
   },
   "hyvää huomenta": {
     "spelling": "hyvää huomenta",
@@ -1708,7 +1878,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/finnish/hyvää_huomenta.mp3"
+    "localAudioPath": "data/audio/finnish/hyvää_huomenta.mp3",
+    "localAudioPathAlt": "data/audio/finnish/hyvää_huomenta_2.mp3"
   },
   "hyvää päivää": {
     "spelling": "hyvää päivää",
@@ -1718,7 +1889,8 @@
     "definitions": [
       "good day, how do you do"
     ],
-    "localAudioPath": "data/audio/finnish/hyvää_päivää.mp3"
+    "localAudioPath": "data/audio/finnish/hyvää_päivää.mp3",
+    "localAudioPathAlt": "data/audio/finnish/hyvää_päivää_2.mp3"
   },
   "hyvää iltaa": {
     "spelling": "hyvää iltaa",
@@ -1728,7 +1900,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/finnish/hyvää_iltaa.mp3"
+    "localAudioPath": "data/audio/finnish/hyvää_iltaa.mp3",
+    "localAudioPathAlt": "data/audio/finnish/hyvää_iltaa_2.mp3"
   },
   "שלום": {
     "spelling": "שלום",
@@ -1738,7 +1911,8 @@
     "definitions": [
       "* {{RQ:Tanach|3|26|6|tsrc=JPS"
     ],
-    "localAudioPath": "data/audio/hebrew/שלום.mp3"
+    "localAudioPath": "data/audio/hebrew/שלום.mp3",
+    "localAudioPathAlt": "data/audio/hebrew/שלום_2.mp3"
   },
   "תודה": {
     "spelling": "תודה",
@@ -1748,7 +1922,8 @@
     "definitions": [
       "gratitude"
     ],
-    "localAudioPath": "data/audio/hebrew/תודה.mp3"
+    "localAudioPath": "data/audio/hebrew/תודה.mp3",
+    "localAudioPathAlt": "data/audio/hebrew/תודה_2.mp3"
   },
   "בוקר טוב": {
     "spelling": "בוקר טוב",
@@ -1758,7 +1933,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/hebrew/בוקר_טוב.mp3"
+    "localAudioPath": "data/audio/hebrew/בוקר_טוב.mp3",
+    "localAudioPathAlt": "data/audio/hebrew/בוקר_טוב_2.mp3"
   },
   "להתראות": {
     "spelling": "להתראות",
@@ -1768,7 +1944,8 @@
     "definitions": [
       "Goodbye, bye, see you later."
     ],
-    "localAudioPath": "data/audio/hebrew/להתראות.mp3"
+    "localAudioPath": "data/audio/hebrew/להתראות.mp3",
+    "localAudioPathAlt": "data/audio/hebrew/להתראות_2.mp3"
   },
   "בבקשה": {
     "spelling": "בבקשה",
@@ -1778,7 +1955,8 @@
     "definitions": [
       "please"
     ],
-    "localAudioPath": "data/audio/hebrew/בבקשה.mp3"
+    "localAudioPath": "data/audio/hebrew/בבקשה.mp3",
+    "localAudioPathAlt": "data/audio/hebrew/בבקשה_2.mp3"
   },
   "ערב טוב": {
     "spelling": "ערב טוב",
@@ -1788,7 +1966,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/hebrew/ערב_טוב.mp3"
+    "localAudioPath": "data/audio/hebrew/ערב_טוב.mp3",
+    "localAudioPathAlt": "data/audio/hebrew/ערב_טוב_2.mp3"
   },
   "על לא דבר": {
     "spelling": "על לא דבר",
@@ -1798,7 +1977,8 @@
     "definitions": [
       "you're welcome"
     ],
-    "localAudioPath": "data/audio/hebrew/על_לא_דבר.mp3"
+    "localAudioPath": "data/audio/hebrew/על_לא_דבר.mp3",
+    "localAudioPathAlt": "data/audio/hebrew/על_לא_דבר_2.mp3"
   },
   "סליחה": {
     "spelling": "סליחה",
@@ -1808,7 +1988,8 @@
     "definitions": [
       "forgiveness, pardon"
     ],
-    "localAudioPath": "data/audio/hebrew/סליחה.mp3"
+    "localAudioPath": "data/audio/hebrew/סליחה.mp3",
+    "localAudioPathAlt": "data/audio/hebrew/סליחה_2.mp3"
   },
   "szia": {
     "spelling": "szia",
@@ -1818,7 +1999,8 @@
     "definitions": [
       "bye, see ya, so long"
     ],
-    "localAudioPath": "data/audio/hungarian/szia.mp3"
+    "localAudioPath": "data/audio/hungarian/szia.mp3",
+    "localAudioPathAlt": "data/audio/hungarian/szia_2.mp3"
   },
   "viszontlátásra": {
     "spelling": "viszontlátásra",
@@ -1828,7 +2010,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/hungarian/viszontlátásra.mp3"
+    "localAudioPath": "data/audio/hungarian/viszontlátásra.mp3",
+    "localAudioPathAlt": "data/audio/hungarian/viszontlátásra_2.mp3"
   },
   "szívesen": {
     "spelling": "szívesen",
@@ -1838,7 +2021,8 @@
     "definitions": [
       "heartily, gladly, happily, with pleasure"
     ],
-    "localAudioPath": "data/audio/hungarian/szívesen.mp3"
+    "localAudioPath": "data/audio/hungarian/szívesen.mp3",
+    "localAudioPathAlt": "data/audio/hungarian/szívesen_2.mp3"
   },
   "jó napot": {
     "spelling": "jó napot",
@@ -1848,7 +2032,8 @@
     "definitions": [
       "good day, good morning, good afternoon"
     ],
-    "localAudioPath": "data/audio/hungarian/jó_napot.mp3"
+    "localAudioPath": "data/audio/hungarian/jó_napot.mp3",
+    "localAudioPathAlt": "data/audio/hungarian/jó_napot_2.mp3"
   },
   "jó estét": {
     "spelling": "jó estét",
@@ -1858,7 +2043,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/hungarian/jó_estét.mp3"
+    "localAudioPath": "data/audio/hungarian/jó_estét.mp3",
+    "localAudioPathAlt": "data/audio/hungarian/jó_estét_2.mp3"
   },
   "jó reggelt": {
     "spelling": "jó reggelt",
@@ -1868,7 +2054,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/hungarian/jó_reggelt.mp3"
+    "localAudioPath": "data/audio/hungarian/jó_reggelt.mp3",
+    "localAudioPathAlt": "data/audio/hungarian/jó_reggelt_2.mp3"
   },
   "köszönöm": {
     "spelling": "köszönöm",
@@ -1878,7 +2065,8 @@
     "definitions": [
       "thank you"
     ],
-    "localAudioPath": "data/audio/hungarian/köszönöm.mp3"
+    "localAudioPath": "data/audio/hungarian/köszönöm.mp3",
+    "localAudioPathAlt": "data/audio/hungarian/köszönöm_2.mp3"
   },
   "bocsánat": {
     "spelling": "bocsánat",
@@ -1888,7 +2076,8 @@
     "definitions": [
       "sorry, pardon"
     ],
-    "localAudioPath": "data/audio/hungarian/bocsánat.mp3"
+    "localAudioPath": "data/audio/hungarian/bocsánat.mp3",
+    "localAudioPathAlt": "data/audio/hungarian/bocsánat_2.mp3"
   },
   "kérem": {
     "spelling": "kérem",
@@ -1898,7 +2087,8 @@
     "definitions": [
       "? ?"
     ],
-    "localAudioPath": "data/audio/hungarian/kérem.mp3"
+    "localAudioPath": "data/audio/hungarian/kérem.mp3",
+    "localAudioPathAlt": "data/audio/hungarian/kérem_2.mp3"
   },
   "elnézést": {
     "spelling": "elnézést",
@@ -1908,7 +2098,8 @@
     "definitions": [
       "sorry!, pardon! }}"
     ],
-    "localAudioPath": "data/audio/hungarian/elnézést.mp3"
+    "localAudioPath": "data/audio/hungarian/elnézést.mp3",
+    "localAudioPathAlt": "data/audio/hungarian/elnézést_2.mp3"
   },
   "helo": {
     "spelling": "helo",
@@ -1918,7 +2109,8 @@
     "definitions": [
       "; hello."
     ],
-    "localAudioPath": "data/audio/malay/helo.mp3"
+    "localAudioPath": "data/audio/malay/helo.mp3",
+    "localAudioPathAlt": "data/audio/malay/helo_2.mp3"
   },
   "minta maaf": {
     "spelling": "minta maaf",
@@ -1928,7 +2120,8 @@
     "definitions": [
       "to ask for apology"
     ],
-    "localAudioPath": "data/audio/malay/minta_maaf.mp3"
+    "localAudioPath": "data/audio/malay/minta_maaf.mp3",
+    "localAudioPathAlt": "data/audio/malay/minta_maaf_2.mp3"
   },
   "takk": {
     "spelling": "takk",
@@ -1938,7 +2131,8 @@
     "definitions": [
       "thank you, thanks"
     ],
-    "localAudioPath": "data/audio/norwegian/takk.mp3"
+    "localAudioPath": "data/audio/norwegian/takk.mp3",
+    "localAudioPathAlt": "data/audio/norwegian/takk_2.mp3"
   },
   "god morgen": {
     "spelling": "god morgen",
@@ -1948,7 +2142,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/norwegian/god_morgen.mp3"
+    "localAudioPath": "data/audio/norwegian/god_morgen.mp3",
+    "localAudioPathAlt": "data/audio/norwegian/god_morgen_2.mp3"
   },
   "tusen takk": {
     "spelling": "tusen takk",
@@ -1958,7 +2153,8 @@
     "definitions": [
       "many thanks . Literally a thousand (“tusen”) thanks (“takk”)."
     ],
-    "localAudioPath": "data/audio/norwegian/tusen_takk.mp3"
+    "localAudioPath": "data/audio/norwegian/tusen_takk.mp3",
+    "localAudioPathAlt": "data/audio/norwegian/tusen_takk_2.mp3"
   },
   "god kveld": {
     "spelling": "god kveld",
@@ -1968,7 +2164,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/norwegian/god_kveld.mp3"
+    "localAudioPath": "data/audio/norwegian/god_kveld.mp3",
+    "localAudioPathAlt": "data/audio/norwegian/god_kveld_2.mp3"
   },
   "ha det bra": {
     "spelling": "ha det bra",
@@ -1978,7 +2175,8 @@
     "definitions": [
       "goodbye, take care"
     ],
-    "localAudioPath": "data/audio/norwegian/ha_det_bra.mp3"
+    "localAudioPath": "data/audio/norwegian/ha_det_bra.mp3",
+    "localAudioPathAlt": "data/audio/norwegian/ha_det_bra_2.mp3"
   },
   "unnskyld": {
     "spelling": "unnskyld",
@@ -1988,7 +2186,8 @@
     "definitions": [
       "excuse me (''usually followed by a question or request'')"
     ],
-    "localAudioPath": "data/audio/norwegian/unnskyld.mp3"
+    "localAudioPath": "data/audio/norwegian/unnskyld.mp3",
+    "localAudioPathAlt": "data/audio/norwegian/unnskyld_2.mp3"
   },
   "vær så god": {
     "spelling": "vaer saa god",
@@ -1998,7 +2197,8 @@
     "definitions": [
       "here you are, there you are"
     ],
-    "localAudioPath": "data/audio/norwegian/vær_så_god.mp3"
+    "localAudioPath": "data/audio/norwegian/vær_så_god.mp3",
+    "localAudioPathAlt": "data/audio/norwegian/vaer_saa_god_2.mp3"
   },
   "mulțumesc": {
     "spelling": "mulțumesc",
@@ -2008,7 +2208,8 @@
     "definitions": [
       "thank you"
     ],
-    "localAudioPath": "data/audio/romanian/mulțumesc.mp3"
+    "localAudioPath": "data/audio/romanian/mulțumesc.mp3",
+    "localAudioPathAlt": "data/audio/romanian/mulțumesc_2.mp3"
   },
   "cu plăcere": {
     "spelling": "cu plăcere",
@@ -2018,7 +2219,8 @@
     "definitions": [
       "you're welcome, with pleasure"
     ],
-    "localAudioPath": "data/audio/romanian/cu_plăcere.mp3"
+    "localAudioPath": "data/audio/romanian/cu_plăcere.mp3",
+    "localAudioPathAlt": "data/audio/romanian/cu_plăcere_2.mp3"
   },
   "vă rog": {
     "spelling": "vă rog",
@@ -2028,7 +2230,8 @@
     "definitions": [
       "please  and  plural; formal singular}}"
     ],
-    "localAudioPath": "data/audio/romanian/vă_rog.mp3"
+    "localAudioPath": "data/audio/romanian/vă_rog.mp3",
+    "localAudioPathAlt": "data/audio/romanian/vă_rog_2.mp3"
   },
   "bună ziua": {
     "spelling": "bună ziua",
@@ -2038,7 +2241,8 @@
     "definitions": [
       "hello!"
     ],
-    "localAudioPath": "data/audio/romanian/bună_ziua.mp3"
+    "localAudioPath": "data/audio/romanian/bună_ziua.mp3",
+    "localAudioPathAlt": "data/audio/romanian/bună_ziua_2.mp3"
   },
   "îmi pare rău": {
     "spelling": "îmi pare rău",
@@ -2048,7 +2252,8 @@
     "definitions": [
       "I'm sorry; sorry"
     ],
-    "localAudioPath": "data/audio/romanian/îmi_pare_rău.mp3"
+    "localAudioPath": "data/audio/romanian/îmi_pare_rău.mp3",
+    "localAudioPathAlt": "data/audio/romanian/îmi_pare_rău_2.mp3"
   },
   "la revedere": {
     "spelling": "la revedere",
@@ -2058,7 +2263,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/romanian/la_revedere.mp3"
+    "localAudioPath": "data/audio/romanian/la_revedere.mp3",
+    "localAudioPathAlt": "data/audio/romanian/la_revedere_2.mp3"
   },
   "bună seara": {
     "spelling": "bună seara",
@@ -2068,7 +2274,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/romanian/bună_seara.mp3"
+    "localAudioPath": "data/audio/romanian/bună_seara.mp3",
+    "localAudioPathAlt": "data/audio/romanian/bună_seara_2.mp3"
   },
   "bună dimineața": {
     "spelling": "bună dimineața",
@@ -2078,7 +2285,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/romanian/bună_dimineața.mp3"
+    "localAudioPath": "data/audio/romanian/bună_dimineața.mp3",
+    "localAudioPathAlt": "data/audio/romanian/bună_dimineața_2.mp3"
   },
   "scuzați-mă": {
     "spelling": "scuzați-mă",
@@ -2088,7 +2296,8 @@
     "definitions": [
       "excuse me"
     ],
-    "localAudioPath": "data/audio/romanian/scuzați-mă.mp3"
+    "localAudioPath": "data/audio/romanian/scuzați-mă.mp3",
+    "localAudioPathAlt": "data/audio/romanian/scuzați-mă_2.mp3"
   },
   "dobrý deň": {
     "spelling": "dobrý deň",
@@ -2098,7 +2307,8 @@
     "definitions": [
       "hello, good day"
     ],
-    "localAudioPath": "data/audio/slovak/dobrý_deň.mp3"
+    "localAudioPath": "data/audio/slovak/dobrý_deň.mp3",
+    "localAudioPathAlt": "data/audio/slovak/dobrý_deň_2.mp3"
   },
   "dovidenia": {
     "spelling": "dovidenia",
@@ -2108,7 +2318,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/slovak/dovidenia.mp3"
+    "localAudioPath": "data/audio/slovak/dovidenia.mp3",
+    "localAudioPathAlt": "data/audio/slovak/dovidenia_2.mp3"
   },
   "ďakujem": {
     "spelling": "ďakujem",
@@ -2118,7 +2329,8 @@
     "definitions": [
       "thanks, thank you"
     ],
-    "localAudioPath": "data/audio/slovak/ďakujem.mp3"
+    "localAudioPath": "data/audio/slovak/ďakujem.mp3",
+    "localAudioPathAlt": "data/audio/slovak/ďakujem_2.mp3"
   },
   "tack": {
     "spelling": "tack",
@@ -2128,7 +2340,8 @@
     "definitions": [
       "thanks, thank you"
     ],
-    "localAudioPath": "data/audio/swedish/tack.mp3"
+    "localAudioPath": "data/audio/swedish/tack.mp3",
+    "localAudioPathAlt": "data/audio/swedish/tack_2.mp3"
   },
   "god morgon": {
     "spelling": "god morgon",
@@ -2138,7 +2351,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/swedish/god_morgon.mp3"
+    "localAudioPath": "data/audio/swedish/god_morgon.mp3",
+    "localAudioPathAlt": "data/audio/swedish/god_morgon_2.mp3"
   },
   "god kväll": {
     "spelling": "god kvaell",
@@ -2148,7 +2362,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/swedish/god_kväll.mp3"
+    "localAudioPath": "data/audio/swedish/god_kväll.mp3",
+    "localAudioPathAlt": "data/audio/swedish/god_kvaell_2.mp3"
   },
   "adjö": {
     "spelling": "adjoe",
@@ -2158,7 +2373,8 @@
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/swedish/adjö.mp3"
+    "localAudioPath": "data/audio/swedish/adjö.mp3",
+    "localAudioPathAlt": "data/audio/swedish/adjoe_2.mp3"
   },
   "förlåt": {
     "spelling": "foerlaat",
@@ -2168,7 +2384,8 @@
     "definitions": [
       "I'm sorry (when apologizing for having acted in a (morally) bad way)"
     ],
-    "localAudioPath": "data/audio/swedish/förlåt.mp3"
+    "localAudioPath": "data/audio/swedish/förlåt.mp3",
+    "localAudioPathAlt": "data/audio/swedish/foerlaat_2.mp3"
   },
   "varsågod": {
     "spelling": "varsaagod",
@@ -2178,7 +2395,8 @@
     "definitions": [
       "here you are, there you are"
     ],
-    "localAudioPath": "data/audio/swedish/varsågod.mp3"
+    "localAudioPath": "data/audio/swedish/varsågod.mp3",
+    "localAudioPathAlt": "data/audio/swedish/varsaagod_2.mp3"
   },
   "ursäkta": {
     "spelling": "ursaekta",
@@ -2188,7 +2406,8 @@
     "definitions": [
       "excuse me!, pardon, I'm sorry!"
     ],
-    "localAudioPath": "data/audio/swedish/ursäkta.mp3"
+    "localAudioPath": "data/audio/swedish/ursäkta.mp3",
+    "localAudioPathAlt": "data/audio/swedish/ursaekta_2.mp3"
   },
   "tack så mycket": {
     "spelling": "tack saa mycket",
@@ -2198,7 +2417,8 @@
     "definitions": [
       "thank you very much, thanks a lot"
     ],
-    "localAudioPath": "data/audio/swedish/tack_så_mycket.mp3"
+    "localAudioPath": "data/audio/swedish/tack_så_mycket.mp3",
+    "localAudioPathAlt": "data/audio/swedish/tack_saa_mycket_2.mp3"
   },
   "สวัสดี": {
     "spelling": "สวัสดี",
@@ -2208,7 +2428,8 @@
     "definitions": [
       "welfare, well-being; prosperity, success; security, safety; goodness, virtue, moral excellence"
     ],
-    "localAudioPath": "data/audio/thai/สวัสดี.mp3"
+    "localAudioPath": "data/audio/thai/สวัสดี.mp3",
+    "localAudioPathAlt": "data/audio/thai/สวัสดี_2.mp3"
   },
   "ขอบคุณ": {
     "spelling": "ขอบคุณ",
@@ -2218,7 +2439,8 @@
     "definitions": [
       "thank you."
     ],
-    "localAudioPath": "data/audio/thai/ขอบคุณ.mp3"
+    "localAudioPath": "data/audio/thai/ขอบคุณ.mp3",
+    "localAudioPathAlt": "data/audio/thai/ขอบคุณ_2.mp3"
   },
   "ไม่เป็นไร": {
     "spelling": "ไม่เป็นไร",
@@ -2228,7 +2450,8 @@
     "definitions": [
       ": never mind; forget it; it's nothing; no problem; no worries; not at all; it's okay; it's fine; it doesn't matter; it's all right; etc."
     ],
-    "localAudioPath": "data/audio/thai/ไม่เป็นไร.mp3"
+    "localAudioPath": "data/audio/thai/ไม่เป็นไร.mp3",
+    "localAudioPathAlt": "data/audio/thai/ไม่เป็นไร_2.mp3"
   },
   "กรุณา": {
     "spelling": "กรุณา",
@@ -2238,7 +2461,8 @@
     "definitions": [
       "compassion."
     ],
-    "localAudioPath": "data/audio/thai/กรุณา.mp3"
+    "localAudioPath": "data/audio/thai/กรุณา.mp3",
+    "localAudioPathAlt": "data/audio/thai/กรุณา_2.mp3"
   },
   "ขอโทษ": {
     "spelling": "ขอโทษ",
@@ -2248,7 +2472,8 @@
     "definitions": [
       "to apologise; to express apology (to, for, etc)"
     ],
-    "localAudioPath": "data/audio/thai/ขอโทษ.mp3"
+    "localAudioPath": "data/audio/thai/ขอโทษ.mp3",
+    "localAudioPathAlt": "data/audio/thai/ขอโทษ_2.mp3"
   },
   "ลาก่อน": {
     "spelling": "ลาก่อน",
@@ -2258,7 +2483,8 @@
     "definitions": [
       "goodbye."
     ],
-    "localAudioPath": "data/audio/thai/ลาก่อน.mp3"
+    "localAudioPath": "data/audio/thai/ลาก่อน.mp3",
+    "localAudioPathAlt": "data/audio/thai/ลาก่อน_2.mp3"
   },
   "merhaba": {
     "spelling": "merhaba",
@@ -2268,7 +2494,8 @@
     "definitions": [
       "hello, hi"
     ],
-    "localAudioPath": "data/audio/turkish/merhaba.mp3"
+    "localAudioPath": "data/audio/turkish/merhaba.mp3",
+    "localAudioPathAlt": "data/audio/turkish/merhaba_2.mp3"
   },
   "teşekkür ederim": {
     "spelling": "teşekkür ederim",
@@ -2278,7 +2505,8 @@
     "definitions": [
       "thank you"
     ],
-    "localAudioPath": "data/audio/turkish/teşekkür_ederim.mp3"
+    "localAudioPath": "data/audio/turkish/teşekkür_ederim.mp3",
+    "localAudioPathAlt": "data/audio/turkish/teşekkür_ederim_2.mp3"
   },
   "lütfen": {
     "spelling": "lütfen",
@@ -2288,7 +2516,8 @@
     "definitions": [
       "please"
     ],
-    "localAudioPath": "data/audio/turkish/lütfen.mp3"
+    "localAudioPath": "data/audio/turkish/lütfen.mp3",
+    "localAudioPathAlt": "data/audio/turkish/lütfen_2.mp3"
   },
   "güle güle": {
     "spelling": "güle güle",
@@ -2298,7 +2527,8 @@
     "definitions": [
       "while smiling or laughing, laughingly"
     ],
-    "localAudioPath": "data/audio/turkish/güle_güle.mp3"
+    "localAudioPath": "data/audio/turkish/güle_güle.mp3",
+    "localAudioPathAlt": "data/audio/turkish/güle_güle_2.mp3"
   },
   "günaydın": {
     "spelling": "günaydın",
@@ -2308,7 +2538,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/turkish/günaydın.mp3"
+    "localAudioPath": "data/audio/turkish/günaydın.mp3",
+    "localAudioPathAlt": "data/audio/turkish/günaydın_2.mp3"
   },
   "teşekkürler": {
     "spelling": "teşekkürler",
@@ -2318,7 +2549,8 @@
     "definitions": [
       "thanks"
     ],
-    "localAudioPath": "data/audio/turkish/teşekkürler.mp3"
+    "localAudioPath": "data/audio/turkish/teşekkürler.mp3",
+    "localAudioPathAlt": "data/audio/turkish/teşekkürler_2.mp3"
   },
   "iyi günler": {
     "spelling": "iyi günler",
@@ -2328,7 +2560,8 @@
     "definitions": [
       "good day"
     ],
-    "localAudioPath": "data/audio/turkish/iyi_günler.mp3"
+    "localAudioPath": "data/audio/turkish/iyi_günler.mp3",
+    "localAudioPathAlt": "data/audio/turkish/iyi_günler_2.mp3"
   },
   "iyi akşamlar": {
     "spelling": "iyi akşamlar",
@@ -2338,7 +2571,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/turkish/iyi_akşamlar.mp3"
+    "localAudioPath": "data/audio/turkish/iyi_akşamlar.mp3",
+    "localAudioPathAlt": "data/audio/turkish/iyi_akşamlar_2.mp3"
   },
   "hoşça kal": {
     "spelling": "hoşça kal",
@@ -2348,7 +2582,8 @@
     "definitions": [
       "goodbye; said by the one who leaves."
     ],
-    "localAudioPath": "data/audio/turkish/hoşça_kal.mp3"
+    "localAudioPath": "data/audio/turkish/hoşça_kal.mp3",
+    "localAudioPathAlt": "data/audio/turkish/hoşça_kal_2.mp3"
   },
   "rica ederim": {
     "spelling": "rica ederim",
@@ -2358,7 +2593,8 @@
     "definitions": [
       "please."
     ],
-    "localAudioPath": "data/audio/turkish/rica_ederim.mp3"
+    "localAudioPath": "data/audio/turkish/rica_ederim.mp3",
+    "localAudioPathAlt": "data/audio/turkish/rica_ederim_2.mp3"
   },
   "affedersiniz": {
     "spelling": "affedersiniz",
@@ -2368,7 +2604,8 @@
     "definitions": [
       "I'm sorry, pardon me"
     ],
-    "localAudioPath": "data/audio/turkish/affedersiniz.mp3"
+    "localAudioPath": "data/audio/turkish/affedersiniz.mp3",
+    "localAudioPathAlt": "data/audio/turkish/affedersiniz_2.mp3"
   },
   "до побачення": {
     "spelling": "до побачення",
@@ -2378,7 +2615,8 @@
     "definitions": [
       "goodbye, see you later, until we meet again"
     ],
-    "localAudioPath": "data/audio/ukrainian/до_побачення.mp3"
+    "localAudioPath": "data/audio/ukrainian/до_побачення.mp3",
+    "localAudioPathAlt": "data/audio/ukrainian/до_побачення_2.mp3"
   },
   "привіт": {
     "spelling": "привіт",
@@ -2388,7 +2626,8 @@
     "definitions": [
       "greeting"
     ],
-    "localAudioPath": "data/audio/ukrainian/привіт.mp3"
+    "localAudioPath": "data/audio/ukrainian/привіт.mp3",
+    "localAudioPathAlt": "data/audio/ukrainian/привіт_2.mp3"
   },
   "доброго ранку": {
     "spelling": "доброго ранку",
@@ -2398,7 +2637,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/ukrainian/доброго_ранку.mp3"
+    "localAudioPath": "data/audio/ukrainian/доброго_ранку.mp3",
+    "localAudioPathAlt": "data/audio/ukrainian/доброго_ранку_2.mp3"
   },
   "будь ласка": {
     "spelling": "будь ласка",
@@ -2408,7 +2648,8 @@
     "definitions": [
       "please"
     ],
-    "localAudioPath": "data/audio/ukrainian/будь_ласка.mp3"
+    "localAudioPath": "data/audio/ukrainian/будь_ласка.mp3",
+    "localAudioPathAlt": "data/audio/ukrainian/будь_ласка_2.mp3"
   },
   "вибачте": {
     "spelling": "вибачте",
@@ -2418,7 +2659,8 @@
     "definitions": [
       "excuse me"
     ],
-    "localAudioPath": "data/audio/ukrainian/вибачте.mp3"
+    "localAudioPath": "data/audio/ukrainian/вибачте.mp3",
+    "localAudioPathAlt": "data/audio/ukrainian/вибачте_2.mp3"
   },
   "дякую": {
     "spelling": "дякую",
@@ -2428,7 +2670,8 @@
     "definitions": [
       "thank you"
     ],
-    "localAudioPath": "data/audio/ukrainian/дякую.mp3"
+    "localAudioPath": "data/audio/ukrainian/дякую.mp3",
+    "localAudioPathAlt": "data/audio/ukrainian/дякую_2.mp3"
   },
   "нема за що": {
     "spelling": "нема за що",
@@ -2438,7 +2681,8 @@
     "definitions": [
       "don't mention it, not at all"
     ],
-    "localAudioPath": "data/audio/ukrainian/нема_за_що.mp3"
+    "localAudioPath": "data/audio/ukrainian/нема_за_що.mp3",
+    "localAudioPathAlt": "data/audio/ukrainian/нема_за_що_2.mp3"
   },
   "добрий вечір": {
     "spelling": "добрий вечір",
@@ -2448,7 +2692,8 @@
     "definitions": [
       "good evening"
     ],
-    "localAudioPath": "data/audio/ukrainian/добрий_вечір.mp3"
+    "localAudioPath": "data/audio/ukrainian/добрий_вечір.mp3",
+    "localAudioPathAlt": "data/audio/ukrainian/добрий_вечір_2.mp3"
   },
   "добрий день": {
     "spelling": "добрий день",
@@ -2458,7 +2703,8 @@
     "definitions": [
       "hello, good day, g'day, good afternoon"
     ],
-    "localAudioPath": "data/audio/ukrainian/добрий_день.mp3"
+    "localAudioPath": "data/audio/ukrainian/добрий_день.mp3",
+    "localAudioPathAlt": "data/audio/ukrainian/добрий_день_2.mp3"
   },
   "xin chào": {
     "spelling": "xin chào",
@@ -2468,7 +2714,8 @@
     "definitions": [
       "to cordially greet"
     ],
-    "localAudioPath": "data/audio/vietnamese/xin_chào.mp3"
+    "localAudioPath": "data/audio/vietnamese/xin_chào.mp3",
+    "localAudioPathAlt": "data/audio/vietnamese/xin_chào_2.mp3"
   },
   "tạm biệt": {
     "spelling": "tạm biệt",
@@ -2478,7 +2725,8 @@
     "definitions": [
       "farewell; till we meet again"
     ],
-    "localAudioPath": "data/audio/vietnamese/tạm_biệt.mp3"
+    "localAudioPath": "data/audio/vietnamese/tạm_biệt.mp3",
+    "localAudioPathAlt": "data/audio/vietnamese/tạm_biệt_2.mp3"
   },
   "chào buổi sáng": {
     "spelling": "chào buổi sáng",
@@ -2488,7 +2736,8 @@
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/vietnamese/chào_buổi_sáng.mp3"
+    "localAudioPath": "data/audio/vietnamese/chào_buổi_sáng.mp3",
+    "localAudioPathAlt": "data/audio/vietnamese/chào_buổi_sáng_2.mp3"
   },
   "xin lỗi": {
     "spelling": "xin lỗi",
@@ -2498,7 +2747,8 @@
     "definitions": [
       "to apologise"
     ],
-    "localAudioPath": "data/audio/vietnamese/xin_lỗi.mp3"
+    "localAudioPath": "data/audio/vietnamese/xin_lỗi.mp3",
+    "localAudioPathAlt": "data/audio/vietnamese/xin_lỗi_2.mp3"
   },
   "không có chi": {
     "spelling": "không có chi",
@@ -2508,7 +2758,8 @@
     "definitions": [
       "you are welcome; no problem"
     ],
-    "localAudioPath": "data/audio/vietnamese/không_có_chi.mp3"
+    "localAudioPath": "data/audio/vietnamese/không_có_chi.mp3",
+    "localAudioPathAlt": "data/audio/vietnamese/không_có_chi_2.mp3"
   },
   "làm ơn": {
     "spelling": "làm ơn",
@@ -2518,6 +2769,7 @@
     "definitions": [
       "to do (someone else) a favour; to do a good turn"
     ],
-    "localAudioPath": "data/audio/vietnamese/làm_ơn.mp3"
+    "localAudioPath": "data/audio/vietnamese/làm_ơn.mp3",
+    "localAudioPathAlt": "data/audio/vietnamese/làm_ơn_2.mp3"
   }
 }
