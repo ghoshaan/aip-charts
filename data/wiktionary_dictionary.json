@@ -32,8 +32,8 @@
     "localAudioPath": "data/audio/dutch/pardon.mp3",
     "localAudioPathAlt": "data/audio/dutch/pardon_2.mp3"
   },
-  "s'il vous plait": {
-    "spelling": "s'il vous plait",
+  "s'il vous plaît": {
+    "spelling": "s'il vous plaît",
     "language": "French",
     "ipa": "/ˌsi(l)vuˈplɛ/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/3/33/Nl-s'il_vous_plaît.ogg",
@@ -98,8 +98,8 @@
     "localAudioPath": "data/audio/romanian/salut.mp3",
     "localAudioPathAlt": "data/audio/romanian/salut_2.mp3"
   },
-  "bonne journee": {
-    "spelling": "bonne journee",
+  "bonne journée": {
+    "spelling": "bonne journée",
     "language": "French",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/LL-Q150_(fra)-LoquaxFR-bonne_journée.wav",
@@ -109,8 +109,8 @@
     "localAudioPath": "data/audio/french/bonne_journée.mp3",
     "localAudioPathAlt": "data/audio/french/bonne_journee_2.mp3"
   },
-  "bonne soiree": {
-    "spelling": "bonne soiree",
+  "bonne soirée": {
+    "spelling": "bonne soirée",
     "language": "French",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2e/LL-Q150_(fra)-LoquaxFR-bonne_soirée.wav",
@@ -120,8 +120,8 @@
     "localAudioPath": "data/audio/french/bonne_soirée.mp3",
     "localAudioPathAlt": "data/audio/french/bonne_soiree_2.mp3"
   },
-  "desole": {
-    "spelling": "desole",
+  "désolé": {
+    "spelling": "désolé",
     "language": "French",
     "ipa": null,
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Fr-désolé.ogg",
@@ -176,7 +176,7 @@
     "localAudioPathAlt": "data/audio/german/danke_2.mp3"
   },
   "guten Tag": {
-    "spelling": "guten tag",
+    "spelling": "guten Tag",
     "language": "German",
     "ipa": "/ˌɡuːtn̩ ˈtaːk/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6b/De-Guten_Tag_2.oga",
@@ -197,19 +197,19 @@
     "localAudioPath": "data/audio/german/bitte.mp3",
     "localAudioPathAlt": "data/audio/german/bitte_2.mp3"
   },
-  "auf Wiedersehen": {
-    "spelling": "auf wiedersehen",
+  "auf Wiederhören": {
+    "spelling": "auf Wiederhören",
     "language": "German",
-    "ipa": "/aʊ̯f ˈviːdɐˌzeː(ə)n/",
-    "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/De-auf_Wiedersehen.oga",
+    "ipa": null,
+    "audioUrl": null,
     "definitions": [
       "goodbye"
     ],
-    "localAudioPath": "data/audio/german/auf_Wiedersehen.mp3",
-    "localAudioPathAlt": "data/audio/german/auf_wiedersehen_2.mp3"
+    "localAudioPath": "data/audio/german/auf_Wiederhören.mp3",
+    "localAudioPathAlt": "data/audio/german/auf_wiederhoeren_2.mp3"
   },
   "danke schön": {
-    "spelling": "danke schoen",
+    "spelling": "danke schön",
     "language": "German",
     "ipa": "[ˈdaŋkə ʃøːn]",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6e/De-danke_schön.ogg",
@@ -220,7 +220,7 @@
     "localAudioPathAlt": "data/audio/german/danke_schoen_2.mp3"
   },
   "tschüss": {
-    "spelling": "tschuess",
+    "spelling": "tschüss",
     "language": "German",
     "ipa": "/t͡ʃʏs/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/De-tschüss.ogg",
@@ -231,7 +231,7 @@
     "localAudioPathAlt": "data/audio/german/tschuess_2.mp3"
   },
   "guten Abend": {
-    "spelling": "guten abend",
+    "spelling": "guten Abend",
     "language": "German",
     "ipa": "/ɡuːtən ʔaːbənt/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/5/56/De-Guten_Abend.oga",
@@ -240,17 +240,6 @@
     ],
     "localAudioPath": "data/audio/german/guten_Abend.mp3",
     "localAudioPathAlt": "data/audio/german/guten_abend_2.mp3"
-  },
-  "auf Wiederhören": {
-    "spelling": "auf wiederhoeren",
-    "language": "German",
-    "ipa": null,
-    "audioUrl": null,
-    "definitions": [
-      "goodbye"
-    ],
-    "localAudioPath": "data/audio/german/auf_Wiederhören.mp3",
-    "localAudioPathAlt": "data/audio/german/auf_wiederhoeren_2.mp3"
   },
   "es tut mir leid": {
     "spelling": "es tut mir leid",
@@ -264,7 +253,7 @@
     "localAudioPathAlt": "data/audio/german/es_tut_mir_leid_2.mp3"
   },
   "guten Morgen": {
-    "spelling": "guten morgen",
+    "spelling": "guten Morgen",
     "language": "German",
     "ipa": "/ˈɡuːtən ˈmɔʁɡən/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b7/De-guten_Morgen.ogg",
@@ -275,7 +264,7 @@
     "localAudioPathAlt": "data/audio/german/guten_morgen_2.mp3"
   },
   "grüß Gott": {
-    "spelling": "gruess gott",
+    "spelling": "grüß Gott",
     "language": "German",
     "ipa": "/ɡʁyːs ɡɔt/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b9/De-grüß_Gott.ogg",
@@ -450,8 +439,8 @@
     "localAudioPath": "data/audio/portuguese/por_favor.mp3",
     "localAudioPathAlt": "data/audio/portuguese/por_favor_2.mp3"
   },
-  "adios": {
-    "spelling": "adios",
+  "adiós": {
+    "spelling": "adiós",
     "language": "Spanish",
     "romanization": "adiós",
     "ipa": "/a.diˈos/",
@@ -459,8 +448,8 @@
     "definitions": [
       "goodbye, farewell"
     ],
-    "localAudioPath": "data/audio/spanish/adios.mp3",
-    "localAudioPathAlt": "data/audio/spanish/adios_2.mp3"
+    "localAudioPath": "data/audio/spanish/adiós.mp3",
+    "localAudioPathAlt": "data/audio/spanish/adiós_2.mp3"
   },
   "de nada": {
     "spelling": "de nada",
@@ -484,19 +473,19 @@
     "localAudioPath": "data/audio/spanish/disculpe.mp3",
     "localAudioPathAlt": "data/audio/spanish/disculpe_2.mp3"
   },
-  "buenos dias": {
-    "spelling": "buenos dias",
+  "buen día": {
+    "spelling": "buen día",
     "language": "Spanish",
     "ipa": null,
     "audioUrl": null,
     "definitions": [
       "good morning"
     ],
-    "localAudioPath": "data/audio/spanish/buenos_días.mp3",
-    "localAudioPathAlt": "data/audio/spanish/buenos_dias_2.mp3"
+    "localAudioPath": "data/audio/spanish/buen_día.mp3",
+    "localAudioPathAlt": "data/audio/spanish/buen_dia_2.mp3"
   },
-  "perdon": {
-    "spelling": "perdon",
+  "perdón": {
+    "spelling": "perdón",
     "language": "Spanish",
     "ipa": null,
     "audioUrl": null,
@@ -549,17 +538,6 @@
     ],
     "localAudioPath": "data/audio/spanish/hasta_luego.mp3",
     "localAudioPathAlt": "data/audio/spanish/hasta_luego_2.mp3"
-  },
-  "buen dia": {
-    "spelling": "buen dia",
-    "language": "Spanish",
-    "ipa": null,
-    "audioUrl": null,
-    "definitions": [
-      "good morning"
-    ],
-    "localAudioPath": "data/audio/spanish/buen_día.mp3",
-    "localAudioPathAlt": "data/audio/spanish/buen_dia_2.mp3"
   },
   "धन्यवाद": {
     "spelling": "धन्यवाद",
@@ -781,17 +759,6 @@
     "localAudioPath": "data/audio/japanese/おはようございます.mp3",
     "localAudioPathAlt": "data/audio/japanese/おはようございます_2.mp3"
   },
-  "안녕하세요": {
-    "spelling": "안녕하세요",
-    "language": "Korean",
-    "ipa": null,
-    "audioUrl": null,
-    "definitions": [
-      "How are you?"
-    ],
-    "localAudioPath": "data/audio/korean/안녕하세요.mp3",
-    "localAudioPathAlt": "data/audio/korean/안녕하세요_2.mp3"
-  },
   "안녕하십니까": {
     "spelling": "안녕하십니까",
     "language": "Korean",
@@ -824,17 +791,6 @@
     ],
     "localAudioPath": "data/audio/korean/감사합니다.mp3",
     "localAudioPathAlt": "data/audio/korean/감사합니다_2.mp3"
-  },
-  "안녕히 계세요": {
-    "spelling": "안녕히 계세요",
-    "language": "Korean",
-    "ipa": null,
-    "audioUrl": null,
-    "definitions": [
-      "goodbye"
-    ],
-    "localAudioPath": "data/audio/korean/안녕히_계세요.mp3",
-    "localAudioPathAlt": "data/audio/korean/안녕히_계세요_2.mp3"
   },
   "안녕히 가세요": {
     "spelling": "안녕히 가세요",
@@ -2190,7 +2146,7 @@
     "localAudioPathAlt": "data/audio/norwegian/unnskyld_2.mp3"
   },
   "vær så god": {
-    "spelling": "vaer saa god",
+    "spelling": "vær så god",
     "language": "Norwegian",
     "ipa": "/ʋæːrsɔˈɡuː/",
     "audioUrl": null,
@@ -2355,7 +2311,7 @@
     "localAudioPathAlt": "data/audio/swedish/god_morgon_2.mp3"
   },
   "god kväll": {
-    "spelling": "god kvaell",
+    "spelling": "god kväll",
     "language": "Swedish",
     "ipa": null,
     "audioUrl": null,
@@ -2366,7 +2322,7 @@
     "localAudioPathAlt": "data/audio/swedish/god_kvaell_2.mp3"
   },
   "adjö": {
-    "spelling": "adjoe",
+    "spelling": "adjö",
     "language": "Swedish",
     "ipa": "/aˈjøː/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/40/Sv-adjö.ogg",
@@ -2377,7 +2333,7 @@
     "localAudioPathAlt": "data/audio/swedish/adjoe_2.mp3"
   },
   "förlåt": {
-    "spelling": "foerlaat",
+    "spelling": "förlåt",
     "language": "Swedish",
     "ipa": "[ˌfœ̞ˈɭoːt]",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Sv-förlåt.ogg",
@@ -2388,7 +2344,7 @@
     "localAudioPathAlt": "data/audio/swedish/foerlaat_2.mp3"
   },
   "varsågod": {
-    "spelling": "varsaagod",
+    "spelling": "varsågod",
     "language": "Swedish",
     "ipa": "/vɑːrsɔˈɡuːd/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Sv-varsågod.ogg",
@@ -2399,7 +2355,7 @@
     "localAudioPathAlt": "data/audio/swedish/varsaagod_2.mp3"
   },
   "ursäkta": {
-    "spelling": "ursaekta",
+    "spelling": "ursäkta",
     "language": "Swedish",
     "ipa": "/ʉ̟ːˈʂɛkta/",
     "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Sv-ursäkta.ogg",
@@ -2410,7 +2366,7 @@
     "localAudioPathAlt": "data/audio/swedish/ursaekta_2.mp3"
   },
   "tack så mycket": {
-    "spelling": "tack saa mycket",
+    "spelling": "tack så mycket",
     "language": "Swedish",
     "ipa": null,
     "audioUrl": null,
