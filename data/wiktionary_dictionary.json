@@ -41,7 +41,7 @@
       "please, if you please"
     ],
     "localAudioPath": "data/audio/french/s'il_vous_plaît.mp3",
-    "localAudioPathAlt": "data/audio/french/s'il_vous_plait_2.mp3"
+    "localAudioPathAlt": "data/audio/french/s'il_vous_plaît_2.mp3"
   },
   "au revoir": {
     "spelling": "au revoir",
@@ -107,7 +107,7 @@
       "have a nice day (a phrase uttered upon a farewell)"
     ],
     "localAudioPath": "data/audio/french/bonne_journée.mp3",
-    "localAudioPathAlt": "data/audio/french/bonne_journee_2.mp3"
+    "localAudioPathAlt": "data/audio/french/bonne_journée_2.mp3"
   },
   "bonne soirée": {
     "spelling": "bonne soirée",
@@ -118,7 +118,7 @@
       "Have a good evening (a phrase uttered upon a farewell)"
     ],
     "localAudioPath": "data/audio/french/bonne_soirée.mp3",
-    "localAudioPathAlt": "data/audio/french/bonne_soiree_2.mp3"
+    "localAudioPathAlt": "data/audio/french/bonne_soirée_2.mp3"
   },
   "désolé": {
     "spelling": "désolé",
@@ -129,7 +129,7 @@
       "desolate, forsaken"
     ],
     "localAudioPath": "data/audio/french/désolé.mp3",
-    "localAudioPathAlt": "data/audio/french/desole_2.mp3"
+    "localAudioPathAlt": "data/audio/french/désolé_2.mp3"
   },
   "je vous en prie": {
     "spelling": "je vous en prie",
@@ -184,7 +184,7 @@
       "hello; hullo; good day; good afternoon"
     ],
     "localAudioPath": "data/audio/german/guten_Tag.mp3",
-    "localAudioPathAlt": "data/audio/german/guten_tag_2.mp3"
+    "localAudioPathAlt": "data/audio/german/guten_Tag_2.mp3"
   },
   "bitte": {
     "spelling": "bitte",
@@ -206,7 +206,7 @@
       "goodbye"
     ],
     "localAudioPath": "data/audio/german/auf_Wiederhören.mp3",
-    "localAudioPathAlt": "data/audio/german/auf_wiederhoeren_2.mp3"
+    "localAudioPathAlt": "data/audio/german/auf_Wiederhören_2.mp3"
   },
   "danke schön": {
     "spelling": "danke schön",
@@ -217,7 +217,7 @@
       "thank you very much"
     ],
     "localAudioPath": "data/audio/german/danke_schön.mp3",
-    "localAudioPathAlt": "data/audio/german/danke_schoen_2.mp3"
+    "localAudioPathAlt": "data/audio/german/danke_schön_2.mp3"
   },
   "tschüss": {
     "spelling": "tschüss",
@@ -228,7 +228,7 @@
       "bye, cheers, ciao"
     ],
     "localAudioPath": "data/audio/german/tschüss.mp3",
-    "localAudioPathAlt": "data/audio/german/tschuess_2.mp3"
+    "localAudioPathAlt": "data/audio/german/tschüss_2.mp3"
   },
   "guten Abend": {
     "spelling": "guten Abend",
@@ -239,7 +239,7 @@
       "good evening"
     ],
     "localAudioPath": "data/audio/german/guten_Abend.mp3",
-    "localAudioPathAlt": "data/audio/german/guten_abend_2.mp3"
+    "localAudioPathAlt": "data/audio/german/guten_Abend_2.mp3"
   },
   "es tut mir leid": {
     "spelling": "es tut mir leid",
@@ -261,7 +261,7 @@
       "good morning"
     ],
     "localAudioPath": "data/audio/german/guten_Morgen.mp3",
-    "localAudioPathAlt": "data/audio/german/guten_morgen_2.mp3"
+    "localAudioPathAlt": "data/audio/german/guten_Morgen_2.mp3"
   },
   "grüß Gott": {
     "spelling": "grüß Gott",
@@ -272,7 +272,7 @@
       "hello"
     ],
     "localAudioPath": "data/audio/german/grüß_Gott.mp3",
-    "localAudioPathAlt": "data/audio/german/gruess_gott_2.mp3"
+    "localAudioPathAlt": "data/audio/german/grüß_Gott_2.mp3"
   },
   "grazie": {
     "spelling": "grazie",
@@ -482,7 +482,7 @@
       "good morning"
     ],
     "localAudioPath": "data/audio/spanish/buen_día.mp3",
-    "localAudioPathAlt": "data/audio/spanish/buen_dia_2.mp3"
+    "localAudioPathAlt": "data/audio/spanish/buen_día_2.mp3"
   },
   "perdón": {
     "spelling": "perdón",
@@ -493,7 +493,7 @@
       "sorry, pardon me (excuse me)"
     ],
     "localAudioPath": "data/audio/spanish/perdón.mp3",
-    "localAudioPathAlt": "data/audio/spanish/perdon_2.mp3"
+    "localAudioPathAlt": "data/audio/spanish/perdón_2.mp3"
   },
   "buenas tardes": {
     "spelling": "buenas tardes",
@@ -2154,7 +2154,7 @@
       "here you are, there you are"
     ],
     "localAudioPath": "data/audio/norwegian/vær_så_god.mp3",
-    "localAudioPathAlt": "data/audio/norwegian/vaer_saa_god_2.mp3"
+    "localAudioPathAlt": "data/audio/norwegian/vær_så_god_2.mp3"
   },
   "mulțumesc": {
     "spelling": "mulțumesc",
@@ -2319,7 +2319,7 @@
       "good evening"
     ],
     "localAudioPath": "data/audio/swedish/god_kväll.mp3",
-    "localAudioPathAlt": "data/audio/swedish/god_kvaell_2.mp3"
+    "localAudioPathAlt": "data/audio/swedish/god_kväll_2.mp3"
   },
   "adjö": {
     "spelling": "adjö",
@@ -2330,7 +2330,7 @@
       "goodbye"
     ],
     "localAudioPath": "data/audio/swedish/adjö.mp3",
-    "localAudioPathAlt": "data/audio/swedish/adjoe_2.mp3"
+    "localAudioPathAlt": "data/audio/swedish/adjö_2.mp3"
   },
   "förlåt": {
     "spelling": "förlåt",
@@ -2341,7 +2341,7 @@
       "I'm sorry (when apologizing for having acted in a (morally) bad way)"
     ],
     "localAudioPath": "data/audio/swedish/förlåt.mp3",
-    "localAudioPathAlt": "data/audio/swedish/foerlaat_2.mp3"
+    "localAudioPathAlt": "data/audio/swedish/förlåt_2.mp3"
   },
   "varsågod": {
     "spelling": "varsågod",
@@ -2352,7 +2352,7 @@
       "here you are, there you are"
     ],
     "localAudioPath": "data/audio/swedish/varsågod.mp3",
-    "localAudioPathAlt": "data/audio/swedish/varsaagod_2.mp3"
+    "localAudioPathAlt": "data/audio/swedish/varsågod_2.mp3"
   },
   "ursäkta": {
     "spelling": "ursäkta",
@@ -2363,7 +2363,7 @@
       "excuse me!, pardon, I'm sorry!"
     ],
     "localAudioPath": "data/audio/swedish/ursäkta.mp3",
-    "localAudioPathAlt": "data/audio/swedish/ursaekta_2.mp3"
+    "localAudioPathAlt": "data/audio/swedish/ursäkta_2.mp3"
   },
   "tack så mycket": {
     "spelling": "tack så mycket",
@@ -2374,7 +2374,7 @@
       "thank you very much, thanks a lot"
     ],
     "localAudioPath": "data/audio/swedish/tack_så_mycket.mp3",
-    "localAudioPathAlt": "data/audio/swedish/tack_saa_mycket_2.mp3"
+    "localAudioPathAlt": "data/audio/swedish/tack_så_mycket_2.mp3"
   },
   "สวัสดี": {
     "spelling": "สวัสดี",
